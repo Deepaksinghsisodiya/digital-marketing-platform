@@ -1,0 +1,51 @@
+{
+  "name": "@nexora/admin",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --port 5173",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "lint": "eslint src"
+  },
+  "dependencies": {
+    "@nexora/contracts": "workspace:*",
+    "@nexora/design-tokens": "workspace:*",
+    "@radix-ui/react-slot": "^1.5.0",
+    "@reduxjs/toolkit": "^2.6.1",
+    "@tanstack/react-table": "^8.21.2",
+    "clsx": "^2.1.1",
+    "formik": "^2.4.6",
+    "i18n-iso-countries": "^7.14.0",
+    "i18next": "^24.2.2",
+    "libphonenumber-js": "^1.11.20",
+    "lucide-react": "^1.16.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-i18next": "^15.4.1",
+    "react-redux": "^9.2.0",
+    "tailwind-merge": "^3.0.2",
+    "yup": "^1.6.1"
+  },
+  "devDependencies": {
+    "@nexora/typescript-config": "workspace:*",
+    "@types/react": "^19.0.10",
+    "@types/react-dom": "^19.0.4",
+    "@vitejs/plugin-react": "^4.3.4",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.5.3",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.7.3",
+    "vite": "^6.2.0",
+    "vitest": "^3.0.8",
+    "eslint": "^9.26.0",
+    "@eslint/js": "^9.26.0",
+    "@eslint/eslintrc": "^3.3.1",
+    "typescript-eslint": "^8.32.0",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "globals": "^16.1.0"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "HomePage": {
+    "title": "Build smarter. Grow globally.",
+    "subtitle": "Nexora Digital Marketing Platform - US Edition",
+    "regionBadge": "Serving US Clients (en-US)",
+    "apiStatusTitle": "Backend Health Status",
+    "checking": "Checking backend connection...",
+    "connected": "Connected to Nexora Core API",
+    "unreachable": "Backend not reachable (ensure backend is running)"
+  },
+  "RegionSwitcher": {
+    "label": "Region",
+    "current": "Current Region"
+  }
+}

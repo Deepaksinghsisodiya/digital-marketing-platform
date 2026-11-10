@@ -1,0 +1,23 @@
+{
+  "name": "nexora-digital-marketing-platform",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@12.18.0",
+  "scripts": {
+    "up": "docker compose -f infra/compose/docker-compose.yml up -d",
+    "down": "docker compose -f infra/compose/docker-compose.yml down",
+    "backend:run": "dotnet run --project backend/src/Nexora.Api/Nexora.Api.csproj",
+    "backend:test": "dotnet test backend/Nexora.sln",
+    "website:dev": "pnpm --filter @nexora/website dev",
+    "admin:dev": "pnpm --filter @nexora/admin dev",
+    "dev": "pnpm --parallel --filter @nexora/website --filter @nexora/admin dev",
+    "build": "pnpm -r build",
+    "test": "pnpm -r test && dotnet test backend/Nexora.sln",
+    "lint": "pnpm -r lint",
+    "format": "prettier --write \"**/*.{ts,tsx,js,json,md}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,json,md}\""
+  },
+  "devDependencies": {
+    "prettier": "^3.5.3"
+  }
+}

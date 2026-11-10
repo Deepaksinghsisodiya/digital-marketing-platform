@@ -1,0 +1,46 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * Design tokens injected as CSS variables.
+ * Values here are fallbacks — real values come from packages/design-tokens
+ * and can be overridden at runtime by the Admin theme system.
+ * DO NOT hardcode brand colours anywhere else in CSS.
+ */
+:root {
+  --nexora-navy: #10162f;
+  --nexora-ink: #17213d;
+  --nexora-muted: #65708b;
+  --nexora-paper: #f5f7ff;
+  --nexora-white: #ffffff;
+  --nexora-purple: #7657ff;
+  --nexora-purple-light: #f0ecff;
+  --nexora-purple-dark: #4b39a3;
+  --nexora-blue: #3685ff;
+  --nexora-blue-light: #eaf2ff;
+  --nexora-blue-dark: #1e40af;
+  --nexora-cyan: #25c7d9;
+  --nexora-cyan-light: #e6fbfc;
+  --nexora-pink: #f05aa6;
+  --nexora-pink-light: #fdf2f8;
+  --nexora-orange: #ff9d4d;
+  --nexora-orange-light: #fff7ed;
+  --nexora-green: #20b889;
+  --nexora-green-light: #e7fbf4;
+  --nexora-green-dark: #087e5d;
+  --nexora-border: #e6eafb;
+  --nexora-font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --nexora-font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --nexora-radius-sm: 0.375rem;
+  --nexora-radius-md: 0.5rem;
+  --nexora-radius-lg: 0.75rem;
+  --nexora-radius-xl: 1rem;
+}
+
+body {
+  background-color: var(--nexora-paper);
+  color: var(--nexora-ink);
+  font-family: var(--nexora-font-sans);
+}
+
