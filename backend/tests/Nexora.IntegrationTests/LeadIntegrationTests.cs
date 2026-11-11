@@ -487,8 +487,8 @@ public class LeadIntegrationTests
             PostalCode: "400001",
             CustomFields: new Dictionary<string, object?>
             {
-                ["unmappedField"] = "CustomValue123",
-                ["arbitraryData"] = 42
+                ["serviceOfInterest"] = "CustomValue123",
+                ["budget"] = 42
             },
             ConsentGiven: true,
             TimeTrapToken: formDef.TimeTrapToken);
@@ -509,5 +509,112 @@ public class LeadIntegrationTests
         lead.PostalCode.ShouldBe("400001");
         lead.CustomFieldsJson.ShouldContain("CustomValue123");
         lead.CustomFieldsJson.ShouldContain("42");
+    }
+
+    [Fact]
+    public async Task LegacyEndpoint_PublicLeads_ShouldReturn404NotFound()
+    {
+        var client = _factory.CreateClient();
+        var res = await client.GetAsync("/api/v1/public/leads");
+        res.StatusCode.ShouldBe(HttpStatusCode.NotFound);
+
+        var postRes = await client.PostAsJsonAsync("/api/v1/public/leads", new { });
+        postRes.StatusCode.ShouldBe(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
+    public async Task SubmitForm_UnknownFieldInPayload_ShouldRejectWith400()
+    {
+        var client = _factory.CreateClient();
+        var formDefRes = await client.GetAsync("/api/v1/public/forms/contact");
+        var formDef = await formDefRes.Content.ReadFromJsonAsync<PublicFormDto>();
+        formDef.ShouldNotBeNull();
+
+        var payload = new SubmitFormRequest(
+            FullName: "Malicious User",
+            Email: $"mal_{Guid.NewGuid():N}@test.com",
+            ConsentGiven: true,
+            TimeTrapToken: formDef.TimeTrapToken,
+            CustomFields: new Dictionary<string, object?>
+            {
+                ["unauthorizedField"] = "Inject"
+            });
+
+        var res = await client.PostAsJsonAsync("/api/v1/public/forms/contact/submissions", payload);
+        res.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        var body = await res.Content.ReadAsStringAsync();
+        body.ShouldContain("Unknown or unauthorized field 'unauthorizedField'");
+    }
+
+    [Fact]
+    public async Task SubmitForm_WithWrongFormKeyInToken_ShouldRejectWith400()
+    {
+        var client = _factory.CreateClient();
+        var formDefRes = await client.GetAsync("/api/v1/public/forms/contact");
+        var formDef = await formDefRes.Content.ReadFromJsonAsync<PublicFormDto>();
+        formDef.ShouldNotBeNull();
+
+        // Pass contact's token to a hypothetical other form or manipulate token formKey
+        var parts = formDef.TimeTrapToken!.Split(':');
+        var tamperedKeyToken = $"other_form:{parts[1]}:{parts[2]}:{parts[3]}";
+
+        var payload = new SubmitFormRequest(
+            FullName: "Wrong FormKey User",
+            Email: $"wrongkey_{Guid.NewGuid():N}@test.com",
+            ConsentGiven: true,
+            TimeTrapToken: tamperedKeyToken);
+
+        var res = await client.PostAsJsonAsync("/api/v1/public/forms/contact/submissions", payload);
+        res.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task SubmitForm_WithTamperedSignature_ShouldRejectWith400()
+    {
+        var client = _factory.CreateClient();
+        var formDefRes = await client.GetAsync("/api/v1/public/forms/contact");
+        var formDef = await formDefRes.Content.ReadFromJsonAsync<PublicFormDto>();
+        formDef.ShouldNotBeNull();
+
+        var parts = formDef.TimeTrapToken!.Split(':');
+        var tamperedSigToken = $"{parts[0]}:{parts[1]}:{parts[2]}:0000000000000000000000000000000000000000000000000000000000000000";
+
+        var payload = new SubmitFormRequest(
+            FullName: "Tampered Sig User",
+            Email: $"tamp_{Guid.NewGuid():N}@test.com",
+            ConsentGiven: true,
+            TimeTrapToken: tamperedSigToken);
+
+        var res = await client.PostAsJsonAsync("/api/v1/public/forms/contact/submissions", payload);
+        res.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        var body = await res.Content.ReadAsStringAsync();
+        body.ShouldContain("Token signature verification failed");
+    }
+
+    [Fact]
+    public async Task SubmitForm_WithExpiredToken_ShouldRejectWith400()
+    {
+        var client = _factory.CreateClient();
+        var formDefRes = await client.GetAsync("/api/v1/public/forms/contact");
+        var formDef = await formDefRes.Content.ReadFromJsonAsync<PublicFormDto>();
+        formDef.ShouldNotBeNull();
+
+        // Construct expired token (> 86400 seconds)
+        var parts = formDef.TimeTrapToken!.Split(':');
+        var expiredTs = DateTimeOffset.UtcNow.ToUnixTimeSeconds() - 90000;
+        using var hmac = new System.Security.Cryptography.HMACSHA256(System.Text.Encoding.UTF8.GetBytes("Nexora_Dev_Spam_Token_Secret_2026_Secure_Key"));
+        var sig = Convert.ToHexStringLower(hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes($"contact:{expiredTs}:{parts[2]}")));
+        var expiredToken = $"contact:{expiredTs}:{parts[2]}:{sig}";
+
+        var payload = new SubmitFormRequest(
+            FullName: "Expired Token User",
+            Email: $"expired_{Guid.NewGuid():N}@test.com",
+            ConsentGiven: true,
+            TimeTrapToken: expiredToken);
+
+        var res = await client.PostAsJsonAsync("/api/v1/public/forms/contact/submissions", payload);
+        res.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        var body = await res.Content.ReadAsStringAsync();
+        body.ShouldContain("Token has expired");
     }
 }

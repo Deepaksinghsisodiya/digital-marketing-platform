@@ -50,6 +50,19 @@ public class SwaggerAndOpenApiTests
     }
 
     [Fact]
+    public async Task AuthCookie_NameAndOpenApiScheme_MustMatchConfiguredCookieName()
+    {
+        var client = _factory.CreateClient();
+        var openApiResponse = await client.GetAsync("/openapi/v1.json");
+        openApiResponse.StatusCode.ShouldBe(HttpStatusCode.OK);
+        var openApiBody = await openApiResponse.Content.ReadAsStringAsync();
+
+        // Scheme name must match configured session cookie name (.Nexora.Session)
+        openApiBody.ShouldContain("\"name\": \".Nexora.Session\"");
+        openApiBody.ShouldContain("\"in\": \"cookie\"");
+    }
+
+    [Fact]
     public async Task InProduction_SwaggerAndScalar_ShouldReturn404NotFound()
     {
         Environment.SetEnvironmentVariable("SEED_ADMIN_EMAIL", "admin@example.com");

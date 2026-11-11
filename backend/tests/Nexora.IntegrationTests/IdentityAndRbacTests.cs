@@ -734,6 +734,8 @@ public class IdentityAndRbacTests
         (await edClient.GetAsync("/api/v1/admin/pages")).StatusCode.ShouldBe(HttpStatusCode.OK); // pages.view
         (await edClient.PostAsJsonAsync($"/api/v1/admin/pages/{Guid.NewGuid()}/publish", new { })).StatusCode.ShouldBe(HttpStatusCode.Forbidden); // pages.publish
         (await edClient.GetAsync("/api/v1/admin/users")).StatusCode.ShouldBe(HttpStatusCode.Forbidden); // users.view
+        (await edClient.GetAsync("/api/v1/admin/settings")).StatusCode.ShouldBe(HttpStatusCode.Forbidden); // settings.view
+        (await edClient.PostAsJsonAsync("/api/v1/admin/clients", new { name = "Test" })).StatusCode.ShouldBe(HttpStatusCode.Forbidden); // clients.manage
 
         // 3. Sales client
         var salesEmail = $"matrix_sales_{Guid.NewGuid():N}@example.com";
@@ -746,8 +748,22 @@ public class IdentityAndRbacTests
         (await salesClient.GetAsync("/api/v1/admin/leads")).StatusCode.ShouldBe(HttpStatusCode.OK); // leads.view
         (await salesClient.GetAsync("/api/v1/admin/pages")).StatusCode.ShouldBe(HttpStatusCode.Forbidden); // pages.view
         (await salesClient.GetAsync("/api/v1/admin/users")).StatusCode.ShouldBe(HttpStatusCode.Forbidden); // users.view
+        (await salesClient.GetAsync("/api/v1/admin/settings")).StatusCode.ShouldBe(HttpStatusCode.Forbidden); // settings.view
 
-        // 4. Owner client
+        // 4. Admin client (Explicit Allowlist: All except users.manage)
+        var adminEmail = $"matrix_admin_{Guid.NewGuid():N}@example.com";
+        var (_, _, _, aTok) = await identityService.InviteUserAsync(adminEmail, "Admin", Roles.Admin);
+        await identityService.ResetPasswordAsync(adminEmail, aTok!, "AdminPass@123");
+
+        var adminClient = _factory.CreateClient(new WebApplicationFactoryClientOptions { HandleCookies = true });
+        await adminClient.PostAsJsonAsync("/api/v1/auth/login", new LoginRequestDto(adminEmail, "AdminPass@123", false));
+
+        (await adminClient.GetAsync("/api/v1/admin/settings")).StatusCode.ShouldBe(HttpStatusCode.OK); // settings.view
+        (await adminClient.GetAsync("/api/v1/admin/pages")).StatusCode.ShouldBe(HttpStatusCode.OK); // pages.view
+        (await adminClient.PostAsJsonAsync($"/api/v1/admin/pages/{Guid.NewGuid()}/publish", new { })).StatusCode.ShouldBe(HttpStatusCode.BadRequest); // pages.publish authorized (route reached, page guid not found in service returns badrequest)
+        (await adminClient.PostAsJsonAsync("/api/v1/admin/users/invite", new { email = "new@example.com" })).StatusCode.ShouldBe(HttpStatusCode.Forbidden); // users.manage
+
+        // 5. Owner client
         var ownerEmail = $"matrix_owner_{Guid.NewGuid():N}@example.com";
         var (_, _, _, oTok) = await identityService.InviteUserAsync(ownerEmail, "Owner", Roles.Owner);
         await identityService.ResetPasswordAsync(ownerEmail, oTok!, "OwnerPass@123");
@@ -758,6 +774,7 @@ public class IdentityAndRbacTests
         (await ownerClient.GetAsync("/api/v1/admin/pages")).StatusCode.ShouldBe(HttpStatusCode.OK);
         (await ownerClient.GetAsync("/api/v1/admin/leads")).StatusCode.ShouldBe(HttpStatusCode.OK);
         (await ownerClient.GetAsync("/api/v1/admin/users")).StatusCode.ShouldBe(HttpStatusCode.OK);
+        (await ownerClient.GetAsync("/api/v1/admin/settings")).StatusCode.ShouldBe(HttpStatusCode.OK);
     }
 
     [Fact]
@@ -802,6 +819,18 @@ public class IdentityAndRbacTests
 
         await identityService.DeleteUserAsync(delId.Value, Guid.NewGuid());
         memoryCache.TryGetValue($"UserPerms_{delId.Value}", out _).ShouldBeFalse();
+    }
+
+    [Fact]
+    public void PasswordPolicy_RequiredLengthUnder12_ShouldFailStartupValidation()
+    {
+        var options = new PasswordPolicyOptions { RequiredLength = 8 };
+        var context = new System.ComponentModel.DataAnnotations.ValidationContext(options);
+        var results = new List<System.ComponentModel.DataAnnotations.ValidationResult>();
+        var isValid = System.ComponentModel.DataAnnotations.Validator.TryValidateObject(options, context, results, validateAllProperties: true);
+
+        isValid.ShouldBeFalse();
+        results.ShouldContain(r => r.ErrorMessage != null && r.ErrorMessage.Contains("at least 12 characters"));
     }
 
     [Fact]

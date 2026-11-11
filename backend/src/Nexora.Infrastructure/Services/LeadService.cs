@@ -358,7 +358,23 @@ public class LeadService : ILeadService
             return new SubmitFormResponse(false, null, string.Empty, timeTrapError);
         }
 
-        // 6. MapsTo Allowlist & Field Mapping
+        // 6. Unknown Field Rejection & MapsTo Allowlist
+        if (request.CustomFields != null && request.CustomFields.Count > 0)
+        {
+            var allowedCustomFields = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+            {
+                "serviceOfInterest", "budget", "message", "timeline", "source"
+            };
+
+            foreach (var key in request.CustomFields.Keys)
+            {
+                if (!allowedCustomFields.Contains(key))
+                {
+                    return new SubmitFormResponse(false, null, string.Empty, $"Unknown or unauthorized field '{key}' in submission payload.");
+                }
+            }
+        }
+
         var customFieldsJson = request.CustomFields != null && request.CustomFields.Count > 0
             ? JsonSerializer.Serialize(request.CustomFields)
             : "{}";

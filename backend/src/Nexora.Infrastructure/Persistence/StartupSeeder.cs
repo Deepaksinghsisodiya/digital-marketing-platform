@@ -44,16 +44,42 @@ public static class StartupSeeder
             }
         }
 
-        // 1. Seed Roles & RolePermissions
+        // 1. Seed Roles & RolePermissions with explicit allowlists (no Permissions.All minus X)
         var roleDefinitions = new Dictionary<string, (string Description, IReadOnlyList<string> Permissions)>
         {
             [Roles.Owner] = ("Full platform owner with unrestricted access across all modules.", Permissions.All),
             [Roles.Admin] = ("Agency administrator managing operations, settings, and campaigns.",
-                Permissions.All.Where(p => p != Permissions.UsersManage).ToList()),
+                new[]
+                {
+                    Permissions.SettingsView,
+                    Permissions.SettingsManage,
+                    Permissions.AuditView,
+                    Permissions.UsersView,
+                    Permissions.RolesView,
+                    Permissions.PagesView,
+                    Permissions.PagesEdit,
+                    Permissions.PagesPublish,
+                    Permissions.LeadsView,
+                    Permissions.LeadsManage,
+                    Permissions.LeadsExport,
+                    Permissions.ClientsView,
+                    Permissions.ClientsManage,
+                    Permissions.TasksView,
+                    Permissions.TasksManage
+                }),
             [Roles.Editor] = ("Content editor creating and maintaining marketing and CMS pages.",
-                [Permissions.PagesView, Permissions.PagesEdit]),
+                new[] { Permissions.PagesView, Permissions.PagesEdit }),
             [Roles.Sales] = ("Sales representative managing inbound leads, clients, and follow-up tasks.",
-                [Permissions.LeadsView, Permissions.LeadsManage, Permissions.LeadsExport, Permissions.ClientsView, Permissions.ClientsManage, Permissions.TasksView, Permissions.TasksManage])
+                new[]
+                {
+                    Permissions.LeadsView,
+                    Permissions.LeadsManage,
+                    Permissions.LeadsExport,
+                    Permissions.ClientsView,
+                    Permissions.ClientsManage,
+                    Permissions.TasksView,
+                    Permissions.TasksManage
+                })
         };
 
         foreach (var (roleName, (desc, perms)) in roleDefinitions)
@@ -100,11 +126,11 @@ public static class StartupSeeder
             var defaultRegion = configuration["NEXT_PUBLIC_DEFAULT_REGION"] ?? "IN";
             var defaultSupported = new[] { "IN", "US", "AE", "GB", "SG" };
 
-            var companyName = configuration["Platform:CompanyName"] ?? "Nexora Digital";
-            var legalName = configuration["Platform:LegalName"] ?? "Nexora Digital Platform Ltd.";
-            var supportEmail = configuration["Platform:SupportEmail"] ?? "support@example.com";
-            var supportPhone = configuration["Platform:SupportPhone"] ?? "+00-000-0000000";
-            var address = configuration["Platform:Address"] ?? "Headquarters Address Placeholder";
+            var companyName = configuration["Platform:CompanyName"] ?? string.Empty;
+            var legalName = configuration["Platform:LegalName"] ?? string.Empty;
+            var supportEmail = configuration["Platform:SupportEmail"] ?? string.Empty;
+            var supportPhone = configuration["Platform:SupportPhone"] ?? string.Empty;
+            var address = configuration["Platform:Address"] ?? string.Empty;
             var timeZoneId = configuration["Platform:TimeZoneId"] ?? "UTC";
 
             if (environment.IsProduction())

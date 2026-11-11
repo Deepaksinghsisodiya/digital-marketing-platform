@@ -91,37 +91,43 @@ $csrfToken = $csrfResp.token
 $csrfHeader = $csrfResp.headerName
 Write-Host "[STEP 4] CSRF token retrieved (Header: $csrfHeader)" -ForegroundColor Green
 
-# Step 5: Rotate password dynamically (Random GUID suffix, never hardcoded)
-$newPass = [Environment]::GetEnvironmentVariable("E2E_NEW_PASSWORD")
-if (-not $newPass) {
-    $newPass = "RotatedPass@" + [Guid]::NewGuid().ToString("N") + "1a"
-}
+# Step 5: Password rotation is performed ONLY when -ForcePasswordChange switch is explicitly supplied with E2E_NEW_PASSWORD
+$forceChange = $args -contains "-ForcePasswordChange"
+if ($forceChange) {
+    $newPass = [Environment]::GetEnvironmentVariable("E2E_NEW_PASSWORD")
+    if (-not $newPass) {
+        Write-Error "[STEP 5] ERROR: -ForcePasswordChange requested but E2E_NEW_PASSWORD environment variable is not set."
+        exit 1
+    }
 
-$changeBody = @{
-    currentPassword = $seedPass
-    newPassword = $newPass
-    confirmPassword = $newPass
-} | ConvertTo-Json
+    $changeBody = @{
+        currentPassword = $seedPass
+        newPassword = $newPass
+        confirmPassword = $newPass
+    } | ConvertTo-Json
 
-$headers = @{
-    $csrfHeader = $csrfToken
-}
+    $headers = @{
+        $csrfHeader = $csrfToken
+    }
 
-try {
-    $changeResp = Invoke-WebRequest -Uri "$baseUrl/api/v1/auth/password/change" -Method Post -Body $changeBody -ContentType "application/json" -Headers $headers -WebSession $session -UseBasicParsing
-    Write-Host "[STEP 5] Password Change Status: $($changeResp.StatusCode) OK" -ForegroundColor Green
-} catch {
-    Write-Error "[STEP 5] Password change failed: $($_.Exception.Message)"
-    exit 1
-}
+    try {
+        $changeResp = Invoke-WebRequest -Uri "$baseUrl/api/v1/auth/password/change" -Method Post -Body $changeBody -ContentType "application/json" -Headers $headers -WebSession $session -UseBasicParsing
+        Write-Host "[STEP 5] Password Change Status: $($changeResp.StatusCode) OK" -ForegroundColor Green
+    } catch {
+        Write-Error "[STEP 5] Password change failed: $($_.Exception.Message)"
+        exit 1
+    }
 
-# Step 6: Verify /api/v1/auth/me now has MustChangePassword = False
-$meAfter = Invoke-RestMethod -Uri "$baseUrl/api/v1/auth/me" -Method Get -WebSession $session -UseBasicParsing
-if ($meAfter.mustChangePassword -ne $false) {
-    Write-Error "[STEP 6] MustChangePassword did not flip to false."
-    exit 1
+    # Step 6: Verify /api/v1/auth/me now has MustChangePassword = False
+    $meAfter = Invoke-RestMethod -Uri "$baseUrl/api/v1/auth/me" -Method Get -WebSession $session -UseBasicParsing
+    if ($meAfter.mustChangePassword -ne $false) {
+        Write-Error "[STEP 6] MustChangePassword did not flip to false."
+        exit 1
+    }
+    Write-Host "[STEP 6] /api/v1/auth/me: MustChangePassword = False" -ForegroundColor Green
+} else {
+    Write-Host "[STEP 5] Read-Only verification mode (Password change skipped. Use -ForcePasswordChange + E2E_NEW_PASSWORD to rotate)." -ForegroundColor Yellow
 }
-Write-Host "[STEP 6] /api/v1/auth/me: MustChangePassword = False" -ForegroundColor Green
 
 # Step 7: Access /api/v1/admin/settings now -> Expect 200 OK
 $settingsAfter = Invoke-RestMethod -Uri "$baseUrl/api/v1/admin/settings" -Method Get -WebSession $session -UseBasicParsing
