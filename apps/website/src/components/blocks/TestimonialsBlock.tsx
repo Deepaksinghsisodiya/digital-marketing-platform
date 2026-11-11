@@ -57,6 +57,9 @@ export const TestimonialsBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-bold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
             <Sparkles className="w-3.5 h-3.5 text-amber-300" />
             <span>Institutional Social Proof</span>
+            <span className="px-1.5 py-0.5 rounded text-[10px] bg-indigo-950 text-indigo-300 border border-indigo-800">
+              Sample Data
+            </span>
           </div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-white leading-tight">
             {sectionTitle}

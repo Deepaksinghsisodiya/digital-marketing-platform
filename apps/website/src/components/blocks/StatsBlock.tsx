@@ -29,8 +29,8 @@ export const StatsBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
               className="p-6 rounded-2xl bg-slate-950/60 border border-slate-800/80 backdrop-blur-md shadow-lg space-y-2 hover:border-indigo-500/50 transition-colors group"
             >
               <div className="flex items-center justify-between text-slate-400">
-                <span className="text-[11px] uppercase tracking-wider font-bold">
-                  Metric 0{idx + 1}
+                <span className="text-[10px] uppercase tracking-wider font-bold px-1.5 py-0.5 rounded bg-slate-800 text-slate-300">
+                  Sample Metric
                 </span>
                 <div className="p-1.5 rounded-lg bg-indigo-500/10 text-indigo-400 group-hover:scale-110 transition-transform">
                   <Icon className="w-4 h-4" />

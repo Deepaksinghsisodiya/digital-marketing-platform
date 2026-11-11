@@ -1,7 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Nexora.Application.CMS.DTOs;
 using Nexora.Application.Common.Interfaces;
 using Nexora.Domain.Constants;
+using Nexora.Domain.Entities;
+using Nexora.Infrastructure.Persistence;
 
 namespace Nexora.Api.Endpoints;
 
@@ -177,6 +180,25 @@ public static class CmsEndpoints
         // 2. Public CMS Endpoints (Anonymous, Cached)
         var publicGroup = app.MapGroup("/api/v1/public")
             .WithTags("Public CMS");
+
+        publicGroup.MapGet("/pages/published-sitemap", async (
+            AppDbContext db,
+            CancellationToken ct) =>
+        {
+            var pages = await db.Pages.AsNoTracking()
+                .Where(p => p.Status == PageStatus.Published && !p.NoIndex)
+                .Select(p => new
+                {
+                    p.Slug,
+                    p.Locale,
+                    p.UpdatedAtUtc
+                })
+                .ToListAsync(ct);
+
+            return Results.Ok(pages);
+        })
+        .WithName("GetPublishedPagesForSitemap")
+        .WithSummary("Retrieve all published pages with slugs and timestamps for dynamic XML sitemap generation.");
 
         publicGroup.MapGet("/pages/{slug}", async (
             string slug,

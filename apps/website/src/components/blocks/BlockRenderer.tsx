@@ -8,6 +8,10 @@ import { CtaBlock } from "./CtaBlock";
 import { FaqBlock } from "./FaqBlock";
 import { TestimonialsBlock } from "./TestimonialsBlock";
 import { PricingBlock } from "./PricingBlock";
+import { ComparisonTable } from "./ComparisonTable";
+import { RoiCalculator } from "./RoiCalculator";
+import { ProcessSteps } from "./ProcessSteps";
+import { BookingEmbed } from "./BookingEmbed";
 
 const BLOCK_REGISTRY: Record<string, React.FC<{ block: CmsBlock }>> = {
   Hero: HeroBlock,
@@ -18,6 +22,14 @@ const BLOCK_REGISTRY: Record<string, React.FC<{ block: CmsBlock }>> = {
   FAQ: FaqBlock,
   Testimonials: TestimonialsBlock,
   Pricing: PricingBlock,
+  ComparisonTable: ComparisonTable,
+  Comparison: ComparisonTable,
+  RoiCalculator: RoiCalculator,
+  ROI: RoiCalculator,
+  ProcessSteps: ProcessSteps,
+  Process: ProcessSteps,
+  BookingEmbed: BookingEmbed,
+  Booking: BookingEmbed,
 };
 
 interface BlockRendererProps {

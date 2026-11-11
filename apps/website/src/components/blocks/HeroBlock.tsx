@@ -156,13 +156,13 @@ export const HeroBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
               <div className="flex items-center gap-3">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
                 <span className="text-slate-300 font-medium">
-                  Recent Inbound Deal:{" "}
+                  Sample Inbound Simulation:{" "}
                   <strong className="text-white">Apex Cloud Solutions</strong>{" "}
                   ($180,000 ARR Opportunity) captured & routed.
                 </span>
               </div>
               <span className="font-mono text-[10px] text-slate-500">
-                2 min ago
+                Sample
               </span>
             </div>
           </div>
@@ -170,8 +170,11 @@ export const HeroBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
 
         {/* Fortune 500 Enterprise Logo Proof Strip */}
         <div className="pt-12 border-t border-slate-800/60 max-w-4xl mx-auto">
-          <p className="text-xs uppercase tracking-widest text-slate-500 font-bold mb-6">
-            Trusted by High-Velocity B2B Brands & Global Enterprise Leaders
+          <p className="text-xs uppercase tracking-widest text-slate-500 font-bold mb-6 flex items-center justify-center gap-2">
+            <span>Enterprise Growth Ecosystem</span>
+            <span className="px-1.5 py-0.5 rounded text-[10px] bg-slate-800 text-slate-400 border border-slate-700">
+              Sample Partners
+            </span>
           </p>
           <div className="grid grid-cols-2 sm:grid-cols-5 gap-6 items-center justify-center opacity-70">
             <div className="font-black tracking-tighter text-lg text-slate-300 hover:text-white transition">

@@ -193,6 +193,76 @@ const BLOCK_TEMPLATES: Record<
     },
     defaultSettings: {},
   },
+  ComparisonTable: {
+    label: "Competitive Comparison Matrix",
+    defaultContent: {
+      sectionTitle: "Why Modern Brands Choose Nexora",
+      sectionSubtitle:
+        "See how our unified digital marketing platform compares against traditional agencies and fragmented teams.",
+      ctaText: "Deploy Nexora For Your Brand",
+      ctaLink: "/contact",
+      rows: [
+        {
+          feature: "Attribution Engine",
+          category: "Technology",
+          nexora: "Deterministic Multi-Touch ML",
+          agency: "Manual spreadsheets / Last-click",
+          freelancer: "Basic Google Analytics 4",
+        },
+        {
+          feature: "Campaign Launch Time",
+          category: "Agility",
+          nexora: "48 - 72 Hours",
+          agency: "3 - 6 Weeks",
+          freelancer: "Unpredictable / Ad-hoc",
+        },
+        {
+          feature: "Multi-Region Governance",
+          category: "Compliance",
+          nexora: true,
+          agency: false,
+          freelancer: false,
+        },
+      ],
+    },
+    defaultSettings: {},
+  },
+  RoiCalculator: {
+    label: "Interactive Growth ROI Calculator",
+    defaultContent: {
+      sectionTitle: "Calculate Your Projected Growth ROI",
+      sectionSubtitle:
+        "Simulate how Nexora's automated audience modeling and deterministic attribution amplify your monthly revenue.",
+      defaultSpend: 8000,
+      defaultConversionRate: 2.0,
+      defaultDealSize: 1500,
+      ctaText: "Claim Your Growth Forecast",
+      ctaLink: "/contact",
+    },
+    defaultSettings: {},
+  },
+  ProcessSteps: {
+    label: "Strategic 4-Phase Process",
+    defaultContent: {
+      sectionTitle: "Our 4-Phase Growth Engineering Framework",
+      sectionSubtitle:
+        "A systematic, battle-tested methodology designed to transform ambiguous marketing spend into predictable pipeline.",
+      ctaText: "Initiate Discovery Sprint",
+      ctaLink: "/contact",
+    },
+    defaultSettings: {},
+  },
+  BookingEmbed: {
+    label: "Calendar & Consultation Booking",
+    defaultContent: {
+      sectionTitle: "Schedule Your Strategic Growth Consultation",
+      sectionSubtitle:
+        "Select a convenient time for a confidential, one-on-one session with our senior growth architects.",
+      bookingUrl: "",
+      ctaText: "Request Meeting Time",
+    },
+    defaultSettings: {},
+  },
 };
 
 export const PageEditorPage: React.FC = () => {
@@ -223,6 +293,7 @@ export const PageEditorPage: React.FC = () => {
   const [metaDescription, setMetaDescription] = useState("");
   const [canonicalUrl, setCanonicalUrl] = useState("");
   const [noIndex, setNoIndex] = useState(false);
+  const [isDirty, setIsDirty] = useState(false);
 
   // Status banner / Conflict state
   const [saveMessage, setSaveMessage] = useState<{
@@ -237,6 +308,29 @@ export const PageEditorPage: React.FC = () => {
   const [iframeKey, setIframeKey] = useState(0);
 
   useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (isDirty) {
+        e.preventDefault();
+        e.returnValue = "";
+      }
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [isDirty]);
+
+  const handleBack = () => {
+    if (
+      isDirty &&
+      !window.confirm(
+        "You have unsaved changes. Are you sure you want to discard them?",
+      )
+    ) {
+      return;
+    }
+    navigate("/cms/pages");
+  };
+
+  useEffect(() => {
     if (page) {
       setTitle(page.title);
       setBlocks(page.blocks ? [...page.blocks] : []);
@@ -245,6 +339,7 @@ export const PageEditorPage: React.FC = () => {
       setMetaDescription(page.metaDescription || "");
       setCanonicalUrl(page.canonicalUrl || "");
       setNoIndex(page.noIndex);
+      setIsDirty(false);
       setSelectedBlockIndex((prev) =>
         page.blocks && page.blocks.length > 0 && prev === null ? 0 : prev,
       );
@@ -267,6 +362,7 @@ export const PageEditorPage: React.FC = () => {
 
     const updated = [...blocks, newBlock];
     setBlocks(updated);
+    setIsDirty(true);
     setSelectedBlockIndex(updated.length - 1);
   };
 
@@ -278,6 +374,7 @@ export const PageEditorPage: React.FC = () => {
         enabled: !updated[index].enabled,
       };
       setBlocks(updated);
+      setIsDirty(true);
     }
   };
 
@@ -290,6 +387,7 @@ export const PageEditorPage: React.FC = () => {
     if (moved) {
       updated.splice(targetIndex, 0, moved);
       setBlocks(updated);
+      setIsDirty(true);
       setSelectedBlockIndex(targetIndex);
     }
   };
@@ -297,6 +395,7 @@ export const PageEditorPage: React.FC = () => {
   const handleDeleteBlock = (index: number) => {
     const updated = blocks.filter((_, i) => i !== index);
     setBlocks(updated);
+    setIsDirty(true);
     if (selectedBlockIndex === index) {
       setSelectedBlockIndex(updated.length > 0 ? 0 : null);
     } else if (selectedBlockIndex !== null && selectedBlockIndex > index) {
@@ -320,6 +419,7 @@ export const PageEditorPage: React.FC = () => {
 
       const res = await saveDraft({ id, body: payload }).unwrap();
       setVersionToken(res.versionToken);
+      setIsDirty(false);
       setSaveMessage({
         text: "Draft saved. Updating live preview...",
         type: "success",
@@ -378,6 +478,7 @@ export const PageEditorPage: React.FC = () => {
       },
     };
     setBlocks(updated);
+    setIsDirty(true);
   };
 
   if (isLoading) {
@@ -416,7 +517,7 @@ export const PageEditorPage: React.FC = () => {
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-sm flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div className="flex items-center gap-3">
           <button
-            onClick={() => navigate("/cms/pages")}
+            onClick={handleBack}
             className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -428,7 +529,10 @@ export const PageEditorPage: React.FC = () => {
               <input
                 type="text"
                 value={title}
-                onChange={(e) => setTitle(e.target.value)}
+                onChange={(e) => {
+                  setTitle(e.target.value);
+                  setIsDirty(true);
+                }}
                 className="font-extrabold text-slate-900 dark:text-white text-base bg-transparent border-b border-transparent hover:border-slate-300 dark:hover:border-slate-700 focus:border-indigo-500 focus:outline-none px-1"
               />
               <span className="font-mono text-[11px] px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">

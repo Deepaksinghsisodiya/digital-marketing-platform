@@ -2,10 +2,10 @@
 
 ## Global Status Dashboard
 
-- **Current Phase:** Phase 3 (Design System & Token Bridge) -> Completed ✅
-- **Active Task:** Advancing to Phase 4 (Public Website - Industry-Standard Experience)
-- **Test Baseline:** 125 backend tests passing (Unit: 25, Arch: 3, Integration: 97), 0 failed, 0 skipped. Frontend Vitest: 13 passed (Admin: 6, Website: 7). Total: 138 passing tests.
-- **Gap Register:** 18 total gaps (7 Closed in Phase 2, Phase 4 target gaps: GAP-09, GAP-10, GAP-11, GAP-18)
+- **Current Phase:** Phase 4 (Public Website - Industry-Standard Experience) -> Completed ✅
+- **Active Task:** Advancing to Phase 5 (Admin Panel - Modern Cockpit)
+- **Test Baseline:** 125 backend tests passing (Unit: 25, Arch: 3, Integration: 97), 0 failed, 0 skipped. Frontend Vitest: 14 passed (Admin: 6, Website: 8). Total: 139 passing tests.
+- **Gap Register:** 18 total gaps (12 Closed: GAP-01..06, 08..12, 18. Remaining: GAP-07, 13, 14, 15, 16, 17)
 - **Known Blockers:** 0
 
 ---
@@ -52,3 +52,15 @@
 - [x] Unit test `SiteSettings_ThemeAndBrandingTokens_DefaultsShouldBeConfigured` added and verified.
 - [x] All 125 backend tests passed (25 Unit, 3 Arch, 97 Integration; 0 failed, 0 skipped). Output logged in `docs/overnight/logs/test-output-phase-3.txt`.
 - [x] Frontend tests (13/13 passed), lint (clean), Prettier (clean), builds (Admin & Website clean).
+
+### Phase 4: Public Website — Industry-Standard Experience (COMPLETED)
+
+- [x] **Dynamic Sitemap & Robots (GAP-09):** Added public endpoint `/api/v1/public/pages/published-sitemap` and dynamic Next.js `sitemap.ts` reflecting published CMS pages and blog posts.
+- [x] **Section Visibility Enforced (GAP-10):** Site settings section visibility JSON verified and respected across renderers.
+- [x] **High-Value Agency CMS Blocks (GAP-11):** Implemented interactive `ComparisonTable` (feature comparison matrix), `RoiCalculator` (interactive revenue/conversion simulator), `BookingEmbed` (allowlisted Cal.com/Calendly modal/embed), and `ProcessSteps` (phased marketing sprint delivery roadmap).
+- [x] **Unsaved Changes Guard (GAP-12):** Added dirty state tracking and beforeunload / navigation confirmation in `PageEditorPage.tsx`.
+- [x] **Ethical Sample Badges (GAP-18):** Marked mock case studies, sample metrics, partner logos, and simulations with explicit "Sample Data" disclaimers.
+- [x] **BlockRenderer Test Suite:** Added comprehensive tests in `BlockRenderer.test.tsx` verifying graceful degradation on missing or unknown block types (5 tests passing).
+- [x] All 125 backend tests passed (25 Unit, 3 Arch, 97 Integration; 0 failed, 0 skipped). Logged to `docs/overnight/logs/test-output-phase-4.txt`.
+- [x] All 14 frontend tests passed (Admin: 6, Website: 8).
+- [x] Linter clean, Prettier clean, production builds for Website and Admin both succeeded.
