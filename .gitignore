@@ -48,6 +48,10 @@ coverage/
 playwright-report/
 test-results/
 
+# Database backups
+*.bak
+backend/backups/
+
 # Local tools & binaries
 infra/tools/
 *.exe

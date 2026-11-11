@@ -83,3 +83,13 @@
 - [x] All 133 backend tests passed (30 Unit, 3 Arch, 100 Integration; 0 failed, 0 skipped). Raw output captured in `docs/overnight/logs/test-output-phase-6.txt`.
 - [x] All 14 frontend tests passed (Admin: 6, Website: 8).
 - [x] Linter clean, Prettier check clean, production builds for Admin and Website both succeeded.
+
+### Phase 7: Operational Backup & End-to-End Verification (COMPLETED)
+
+- [x] **Automated Database Backup (GAP-17):** Authored `scripts/backup-db.ps1` utilizing native SQL Server `BACKUP DATABASE` command with formatted timestamped `.bak` creation and parameter overrides. Verified standalone execution against `nexora_dev` producing valid 6.2 MB archive.
+- [x] **Automated Database Restore (GAP-17):** Authored `scripts/restore-db.ps1` featuring dynamic logical file inspection via `RESTORE FILELISTONLY`, safe physical path mapping, single-user safety disconnect, and schema table verification. Tested against `nexora_restore_test` verifying 31 tables restored.
+- [x] **Automated CI Integration Test:** Added `Nexora.IntegrationTests/BackupAndRestoreIntegrationTests.cs` executing live backup and restore cycle on the test database instance with complete post-verification cleanup.
+- [x] All 134 backend tests passed (30 Unit, 3 Arch, 101 Integration; 0 failed, 0 skipped). Raw output captured in `docs/overnight/logs/test-output-phase-7.txt`.
+- [x] All 14 frontend tests passed (Admin: 6, Website: 8).
+- [x] Linter clean, Prettier clean.
+- [x] All 18 registered gaps in `docs/overnight/GAP_REGISTER.md` are 100% CLOSED.
