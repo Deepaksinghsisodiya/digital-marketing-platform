@@ -19,3 +19,16 @@ This log records every significant design, schema, security, and UI decision mad
 
 - **Context:** Pricing block on public website was hardcoded to USD.
 - **Decision:** Support both `IN` (INR `₹1,49,000` / `₹2,99,000`) and `US` (USD `$1,990` / `$3,990`) dynamically resolved through `nexora_region` cookie with fallback to default region (`IN`).
+
+## DEC-004: Outbox Message Status & Queue Draining Loop
+
+- **Context:** Outbox messages previously relied solely on `ProcessedAtUtc == null` with a fixed `Take(100)` query. A backlog of messages from prior test runs or bursts caused newly inserted outbox messages to wait indefinitely if the worker only processed one fixed batch per invocation.
+- **Decision:**
+  1. Introduce explicit `OutboxMessageStatus` enum (`Pending`, `Processing`, `Processed`, `DeadLetter`, `DeliveryOutcomeUnknown`).
+  2. Implement bounded exponential backoff (`NextAttemptAtUtc`) and dead letter marking after 5 failed attempts.
+  3. Update `OutboxProcessor.ProcessPendingMessagesAsync` with a loop draining up to 100 messages per iteration until the queue has fewer than 100 pending messages, preventing queue starvation.
+
+## DEC-005: Data Protection Encryption for Stored SMTP Credentials
+
+- **Context:** `SiteSettings.SmtpPassword` was previously persisted in plaintext in SQL Server.
+- **Decision:** Use ASP.NET Core `IDataProtectionProvider` with purpose `"Nexora.SmtpCredentials"`. Stored passwords are prefixed with `"enc:"` when encrypted. `MailKitEmailSender` seamlessly detects `"enc:"` and decrypts using the DPAPI data protector, preserving backwards compatibility with legacy plaintext entries if unencrypted.

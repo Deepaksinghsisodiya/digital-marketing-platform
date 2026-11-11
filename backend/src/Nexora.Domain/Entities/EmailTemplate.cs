@@ -10,6 +10,7 @@ public class EmailTemplate : BaseEntity<Guid>
     public string BodyHtmlTemplate { get; private set; } = string.Empty;
     public string? BodyPlainTextTemplate { get; private set; }
     public bool IsActive { get; private set; } = true;
+    public byte[] Version { get; private set; } = [];
 
     private EmailTemplate() { }
 

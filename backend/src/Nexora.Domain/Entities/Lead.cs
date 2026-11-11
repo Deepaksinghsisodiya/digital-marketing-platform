@@ -51,6 +51,9 @@ public class Lead : BaseEntity<Guid>
     public string? IpAddress { get; private set; }
     public string? UserAgent { get; private set; }
 
+    // Concurrency Token
+    public byte[] Version { get; private set; } = [];
+
     // Navigation collection
     public ICollection<LeadActivity> Activities { get; private set; } = new List<LeadActivity>();
 

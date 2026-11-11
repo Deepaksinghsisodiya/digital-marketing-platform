@@ -1,5 +1,6 @@
 using MailKit.Net.Smtp;
 using MailKit.Security;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -20,15 +21,18 @@ public class MailKitEmailSender : IEmailSender
     private readonly SmtpOptions _options;
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<MailKitEmailSender> _logger;
+    private readonly IDataProtector? _protector;
 
     public MailKitEmailSender(
         IOptions<SmtpOptions> options,
         IServiceProvider serviceProvider,
-        ILogger<MailKitEmailSender> logger)
+        ILogger<MailKitEmailSender> logger,
+        IDataProtectionProvider? dataProtectionProvider = null)
     {
         _options = options.Value;
         _serviceProvider = serviceProvider;
         _logger = logger;
+        _protector = dataProtectionProvider?.CreateProtector("Nexora.SmtpCredentials");
     }
 
     public async Task SendEmailAsync(EmailMessage message, CancellationToken cancellationToken = default)
@@ -55,6 +59,18 @@ public class MailKitEmailSender : IEmailSender
                     useSsl = settings.SmtpUseSsl;
                     userName = settings.SmtpUserName;
                     password = settings.SmtpPassword;
+                    if (!string.IsNullOrWhiteSpace(password) && password.StartsWith("enc:") && _protector != null)
+                    {
+                        try
+                        {
+                            password = _protector.Unprotect(password.Substring(4));
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogWarning(ex, "Failed to decrypt SMTP password from SiteSettings. Reverting to options fallback.");
+                            password = _options.Password;
+                        }
+                    }
                     if (!string.IsNullOrWhiteSpace(settings.SmtpFromEmail)) fromEmail = settings.SmtpFromEmail;
                     if (!string.IsNullOrWhiteSpace(settings.SmtpFromName)) fromName = settings.SmtpFromName;
                 }

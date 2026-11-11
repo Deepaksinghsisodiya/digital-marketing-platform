@@ -11,6 +11,7 @@ public class FormDefinition : BaseEntity<Guid>
     public string SchemaJson { get; private set; } = "[]";
     public string SettingsJson { get; private set; } = "{}";
     public bool IsActive { get; private set; } = true;
+    public byte[] Version { get; private set; } = [];
 
     private FormDefinition() { }
 

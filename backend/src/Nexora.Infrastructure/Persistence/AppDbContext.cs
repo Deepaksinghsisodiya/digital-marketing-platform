@@ -192,6 +192,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
             {
                 tb.HasCheckConstraint("CK_SiteSettings_Singleton", "[SingletonId] = 1");
                 tb.HasCheckConstraint("CK_SiteSettings_SupportedRegions_Json", "ISJSON([SupportedRegions]) = 1");
+                tb.HasCheckConstraint("CK_SiteSettings_SectionVisibility_Json", "ISJSON([SectionVisibilityJson]) = 1");
             });
 
             b.HasKey(s => s.Id);
@@ -227,7 +228,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
             b.Property(s => s.SmtpPassword).HasMaxLength(500);
             b.Property(s => s.SmtpFromEmail).HasMaxLength(256);
             b.Property(s => s.SmtpFromName).HasMaxLength(200);
-            b.Property(s => s.SectionVisibilityJson).HasColumnType("nvarchar(max)");
+            b.Property(s => s.SectionVisibilityJson).HasColumnType("nvarchar(max)").HasDefaultValue("{}");
 
             // Optimistic concurrency using SQL Server rowversion
             b.Property(s => s.Version).IsRowVersion();
@@ -323,7 +324,8 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
             b.Property(m => m.Title).HasMaxLength(150).IsRequired();
             b.Property(m => m.RegionCode).HasMaxLength(10);
 
-            b.HasIndex(m => new { m.Key, m.RegionCode }).IsUnique();
+            b.HasIndex(m => m.Key).IsUnique().HasFilter("[RegionCode] IS NULL");
+            b.HasIndex(m => new { m.Key, m.RegionCode }).IsUnique().HasFilter("[RegionCode] IS NOT NULL");
 
             b.HasMany(m => m.Items)
                 .WithOne(i => i.Menu)
@@ -351,7 +353,9 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
             b.ToTable("PreviewTokens");
             b.HasKey(t => t.Id);
             b.Property(t => t.Token).HasMaxLength(100).IsRequired();
+            b.Property(t => t.TokenHash).HasMaxLength(64).IsRequired();
             b.HasIndex(t => t.Token).IsUnique();
+            b.HasIndex(t => t.TokenHash);
 
             b.HasOne(t => t.PageVersion)
                 .WithMany()
@@ -378,6 +382,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
             b.Property(f => f.SchemaJson).HasColumnType("nvarchar(max)").IsRequired();
             b.Property(f => f.SettingsJson).HasColumnType("nvarchar(max)").IsRequired();
             b.Property(f => f.IsActive).IsRequired();
+            b.Property(f => f.Version).IsRowVersion();
         });
 
         // 10. Leads & Inquiries
@@ -421,6 +426,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
             b.Property(l => l.ReferenceNumber).HasMaxLength(50);
             b.Property(l => l.IdempotencyKey).HasMaxLength(128);
             b.Property(l => l.TimeTrapNonce).HasMaxLength(64);
+            b.Property(l => l.Version).IsRowVersion();
 
             b.HasIndex(l => l.Email);
             b.HasIndex(l => l.Phone);
@@ -472,9 +478,13 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
             b.HasKey(o => o.Id);
             b.Property(o => o.EventType).HasMaxLength(100).IsRequired();
             b.Property(o => o.PayloadJson).HasColumnType("nvarchar(max)").IsRequired();
+            b.Property(o => o.Status).HasConversion<int>().IsRequired().HasDefaultValue(OutboxMessageStatus.Pending);
             b.Property(o => o.ErrorMessage).HasMaxLength(2000);
+            b.Property(o => o.DeadLetterReason).HasMaxLength(500);
+            b.Property(o => o.NextAttemptAtUtc);
             b.Property(o => o.RetryCount).IsRequired();
 
+            b.HasIndex(o => new { o.Status, o.NextAttemptAtUtc });
             b.HasIndex(o => new { o.ProcessedAtUtc, o.CreatedAtUtc })
                 .HasFilter("[ProcessedAtUtc] IS NULL");
         });
@@ -492,6 +502,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
             b.Property(t => t.BodyHtmlTemplate).HasColumnType("nvarchar(max)").IsRequired();
             b.Property(t => t.BodyPlainTextTemplate).HasColumnType("nvarchar(max)");
             b.Property(t => t.IsActive).IsRequired();
+            b.Property(t => t.Version).IsRowVersion();
         });
 
         // 14. Email Delivery Logs
@@ -526,6 +537,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
             b.Property(c => c.BillingAddress).HasMaxLength(500);
             b.Property(c => c.TaxId).HasMaxLength(50);
             b.Property(c => c.Notes).HasMaxLength(2000);
+            b.Property(c => c.Version).IsRowVersion();
 
             b.HasIndex(c => new { c.Region, c.Status });
             b.HasIndex(c => c.PrimaryContactEmail);
@@ -571,6 +583,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
             b.Property(t => t.Status).IsRequired();
             b.Property(t => t.DueDateUtc);
             b.Property(t => t.CompletedAtUtc);
+            b.Property(t => t.Version).IsRowVersion();
 
             b.HasIndex(t => new { t.Status, t.DueDateUtc });
             b.HasIndex(t => t.AssignedToUserId);
@@ -607,6 +620,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
             b.Property(p => p.Status).IsRequired();
             b.Property(p => p.MetaTitle).HasMaxLength(200);
             b.Property(p => p.MetaDescription).HasMaxLength(300);
+            b.Property(p => p.Version).IsRowVersion();
 
             b.HasIndex(p => new { p.Status, p.PublishedAtUtc })
                 .IsDescending(false, true);
@@ -623,7 +637,8 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
             b.Property(s => s.DisplayName).HasMaxLength(150).IsRequired();
             b.Property(s => s.ColorHex).HasMaxLength(30).IsRequired();
             b.Property(s => s.BadgeClass).HasMaxLength(150);
-            b.HasIndex(s => new { s.Category, s.Value });
+            b.HasIndex(s => new { s.Category, s.StageKey }).IsUnique();
+            b.HasIndex(s => new { s.Category, s.Value }).IsUnique();
             b.HasIndex(s => new { s.Category, s.OrderIndex });
         });
 

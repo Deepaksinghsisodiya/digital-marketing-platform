@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 using Nexora.Application.Common.Interfaces;
 using Nexora.Application.Settings.Models;
@@ -10,11 +11,16 @@ public class SiteSettingsService : ISiteSettingsService
 {
     private readonly AppDbContext _context;
     private readonly IDateTimeProvider _dateTimeProvider;
+    private readonly IDataProtector? _protector;
 
-    public SiteSettingsService(AppDbContext context, IDateTimeProvider dateTimeProvider)
+    public SiteSettingsService(
+        AppDbContext context,
+        IDateTimeProvider dateTimeProvider,
+        IDataProtectionProvider? dataProtectionProvider = null)
     {
         _context = context;
         _dateTimeProvider = dateTimeProvider;
+        _protector = dataProtectionProvider?.CreateProtector("Nexora.SmtpCredentials");
     }
 
     public async Task<SiteSettingsDto> GetSettingsAsync(CancellationToken ct = default)
@@ -95,7 +101,9 @@ public class SiteSettingsService : ISiteSettingsService
             settings.SmtpUserName = dto.SmtpUserName;
             if (!string.IsNullOrWhiteSpace(dto.SmtpPassword))
             {
-                settings.SmtpPassword = dto.SmtpPassword;
+                settings.SmtpPassword = _protector != null
+                    ? "enc:" + _protector.Protect(dto.SmtpPassword)
+                    : dto.SmtpPassword;
             }
             settings.SmtpFromEmail = dto.SmtpFromEmail ?? "";
             settings.SmtpFromName = dto.SmtpFromName ?? "";

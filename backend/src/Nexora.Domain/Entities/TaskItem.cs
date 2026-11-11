@@ -30,6 +30,7 @@ public class TaskItem
     public DateTime? CompletedAtUtc { get; private set; }
     public DateTime CreatedAtUtc { get; private set; } = DateTime.UtcNow;
     public DateTime? UpdatedAtUtc { get; private set; }
+    public byte[] Version { get; private set; } = [];
 
     public Client? Client { get; private set; }
     public Lead? Lead { get; private set; }

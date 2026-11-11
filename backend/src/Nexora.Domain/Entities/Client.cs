@@ -24,6 +24,7 @@ public class Client
     public string? Notes { get; private set; }
     public DateTime CreatedAtUtc { get; private set; } = DateTime.UtcNow;
     public DateTime? UpdatedAtUtc { get; private set; }
+    public byte[] Version { get; private set; } = [];
 
     public ICollection<Contact> Contacts { get; private set; } = new List<Contact>();
     public ICollection<TaskItem> Tasks { get; private set; } = new List<TaskItem>();

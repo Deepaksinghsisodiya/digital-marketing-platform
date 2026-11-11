@@ -269,6 +269,12 @@ namespace Nexora.Infrastructure.Persistence.Migrations
                     b.Property<DateTime?>("UpdatedAtUtc")
                         .HasColumnType("datetime2");
 
+                    b.Property<byte[]>("Version")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
                     b.HasKey("Id");
 
                     b.HasIndex("Category");
@@ -334,6 +340,12 @@ namespace Nexora.Infrastructure.Persistence.Migrations
 
                     b.Property<DateTime?>("UpdatedAtUtc")
                         .HasColumnType("datetime2");
+
+                    b.Property<byte[]>("Version")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
 
                     b.Property<string>("Website")
                         .HasMaxLength(255)
@@ -570,6 +582,12 @@ namespace Nexora.Infrastructure.Persistence.Migrations
                     b.Property<DateTime?>("UpdatedAtUtc")
                         .HasColumnType("datetime2");
 
+                    b.Property<byte[]>("Version")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
                     b.HasKey("Id");
 
                     b.HasIndex("Key")
@@ -618,6 +636,12 @@ namespace Nexora.Infrastructure.Persistence.Migrations
 
                     b.Property<DateTime?>("UpdatedAtUtc")
                         .HasColumnType("datetime2");
+
+                    b.Property<byte[]>("Version")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
 
                     b.HasKey("Id");
 
@@ -747,6 +771,12 @@ namespace Nexora.Infrastructure.Persistence.Migrations
                     b.Property<string>("UtmTerm")
                         .HasMaxLength(150)
                         .HasColumnType("nvarchar(150)");
+
+                    b.Property<byte[]>("Version")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
 
                     b.HasKey("Id");
 
@@ -932,6 +962,10 @@ namespace Nexora.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Key")
+                        .IsUnique()
+                        .HasFilter("[RegionCode] IS NULL");
+
                     b.HasIndex("Key", "RegionCode")
                         .IsUnique()
                         .HasFilter("[RegionCode] IS NOT NULL");
@@ -988,6 +1022,10 @@ namespace Nexora.Infrastructure.Persistence.Migrations
                     b.Property<DateTime>("CreatedAtUtc")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("DeadLetterReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
                     b.Property<string>("ErrorMessage")
                         .HasMaxLength(2000)
                         .HasColumnType("nvarchar(2000)");
@@ -1000,6 +1038,9 @@ namespace Nexora.Infrastructure.Persistence.Migrations
                     b.Property<DateTime?>("LockClaimedAtUtc")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime?>("NextAttemptAtUtc")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("PayloadJson")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -1010,6 +1051,11 @@ namespace Nexora.Infrastructure.Persistence.Migrations
                     b.Property<int>("RetryCount")
                         .HasColumnType("int");
 
+                    b.Property<int>("Status")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
+
                     b.Property<DateTime?>("UpdatedAtUtc")
                         .HasColumnType("datetime2");
 
@@ -1017,6 +1063,8 @@ namespace Nexora.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("ProcessedAtUtc", "CreatedAtUtc")
                         .HasFilter("[ProcessedAtUtc] IS NULL");
+
+                    b.HasIndex("Status", "NextAttemptAtUtc");
 
                     b.ToTable("OutboxMessages", (string)null);
                 });
@@ -1186,7 +1234,11 @@ namespace Nexora.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("Category", "OrderIndex");
 
-                    b.HasIndex("Category", "Value");
+                    b.HasIndex("Category", "StageKey")
+                        .IsUnique();
+
+                    b.HasIndex("Category", "Value")
+                        .IsUnique();
 
                     b.ToTable("PipelineStages", (string)null);
                 });
@@ -1214,6 +1266,11 @@ namespace Nexora.Infrastructure.Persistence.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<string>("TokenHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
                     b.Property<DateTime?>("UpdatedAtUtc")
                         .HasColumnType("datetime2");
 
@@ -1223,6 +1280,8 @@ namespace Nexora.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("Token")
                         .IsUnique();
+
+                    b.HasIndex("TokenHash");
 
                     b.ToTable("PreviewTokens", (string)null);
                 });
@@ -1260,7 +1319,9 @@ namespace Nexora.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("SectionVisibilityJson")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(max)")
+                        .HasDefaultValue("{}");
 
                     b.Property<int>("SingletonId")
                         .ValueGeneratedOnAdd()
@@ -1337,6 +1398,8 @@ namespace Nexora.Infrastructure.Persistence.Migrations
 
                     b.ToTable("SiteSettings", null, t =>
                         {
+                            t.HasCheckConstraint("CK_SiteSettings_SectionVisibility_Json", "ISJSON([SectionVisibilityJson]) = 1");
+
                             t.HasCheckConstraint("CK_SiteSettings_Singleton", "[SingletonId] = 1");
 
                             t.HasCheckConstraint("CK_SiteSettings_SupportedRegions_Json", "ISJSON([SupportedRegions]) = 1");
@@ -1384,6 +1447,12 @@ namespace Nexora.Infrastructure.Persistence.Migrations
 
                     b.Property<DateTime?>("UpdatedAtUtc")
                         .HasColumnType("datetime2");
+
+                    b.Property<byte[]>("Version")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
 
                     b.HasKey("Id");
 

@@ -360,12 +360,14 @@ public sealed class CmsService : ICmsService
         if (latestVersion == null) return null;
 
         var tokenString = Guid.NewGuid().ToString("N");
+        var tokenHash = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(tokenString)));
         var expiresAt = _dateTimeProvider.UtcNow.Add(lifetime ?? TimeSpan.FromHours(4));
 
         var preview = new PreviewToken
         {
             PageVersionId = latestVersion.Id,
             Token = tokenString,
+            TokenHash = tokenHash,
             ExpiresAtUtc = expiresAt
         };
 
@@ -430,11 +432,12 @@ public sealed class CmsService : ICmsService
         CancellationToken ct = default)
     {
         var now = _dateTimeProvider.UtcNow;
+        var tokenHash = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(token)));
         var preview = await _context.PreviewTokens
             .AsNoTracking()
             .Include(pt => pt.PageVersion)
             .ThenInclude(pv => pv.Page)
-            .FirstOrDefaultAsync(pt => pt.Token == token && !pt.IsRevoked && pt.ExpiresAtUtc > now, ct);
+            .FirstOrDefaultAsync(pt => (pt.TokenHash == tokenHash || pt.Token == token) && !pt.IsRevoked && pt.ExpiresAtUtc > now, ct);
 
         if (preview == null || preview.PageVersion == null || preview.PageVersion.Page == null)
         {

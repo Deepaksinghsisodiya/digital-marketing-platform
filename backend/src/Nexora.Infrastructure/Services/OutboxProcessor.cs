@@ -32,46 +32,56 @@ public class OutboxProcessor : IOutboxProcessor
 
     public async Task<int> ProcessPendingMessagesAsync(CancellationToken ct = default)
     {
-        var cutoff = DateTime.UtcNow.AddMinutes(-5);
+        int totalProcessed = 0;
 
-        // Fetch unprocessed or lock-expired messages
-        var pending = await _context.OutboxMessages
-            .Where(o => o.ProcessedAtUtc == null && o.RetryCount < 5 && (o.LockClaimedAtUtc == null || o.LockClaimedAtUtc < cutoff))
-            .OrderBy(o => o.CreatedAtUtc)
-            .Take(100)
-            .ToListAsync(ct);
-
-        if (pending.Count == 0) return 0;
-
-        int processedCount = 0;
-
-        foreach (var message in pending)
+        while (!ct.IsCancellationRequested)
         {
-            message.MarkClaimed();
-        }
-        await _context.SaveChangesAsync(ct);
+            var now = DateTime.UtcNow;
+            var cutoff = now.AddMinutes(-5);
 
-        foreach (var message in pending)
-        {
-            try
+            // Fetch unprocessed or lock-expired pending messages that are due for attempt
+            var pending = await _context.OutboxMessages
+                .Where(o => o.Status == OutboxMessageStatus.Pending
+                         && (o.NextAttemptAtUtc == null || o.NextAttemptAtUtc <= now)
+                         && (o.LockClaimedAtUtc == null || o.LockClaimedAtUtc < cutoff))
+                .OrderBy(o => o.CreatedAtUtc)
+                .Take(100)
+                .ToListAsync(ct);
+
+            if (pending.Count == 0) break;
+
+            foreach (var message in pending)
             {
-                if (message.EventType == "LeadReceived")
+                message.MarkClaimed();
+            }
+            await _context.SaveChangesAsync(ct);
+
+            foreach (var message in pending)
+            {
+                try
                 {
-                    await ProcessLeadReceivedEventAsync(message.PayloadJson, ct);
-                }
+                    if (message.EventType == "LeadReceived")
+                    {
+                        await ProcessLeadReceivedEventAsync(message.PayloadJson, ct);
+                    }
 
-                message.MarkProcessed();
-                processedCount++;
+                    message.MarkProcessed();
+                    totalProcessed++;
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Failed to process outbox message {Id} of type {Type}", message.Id, message.EventType);
+                    bool isOutcomeUnknown = ex is System.IO.IOException || ex is TimeoutException;
+                    message.RecordFailure(ex.Message, isOutcomeUnknown: isOutcomeUnknown);
+                }
             }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Failed to process outbox message {Id} of type {Type}", message.Id, message.EventType);
-                message.RecordFailure(ex.Message);
-            }
+
+            await _context.SaveChangesAsync(ct);
+
+            if (pending.Count < 100) break;
         }
 
-        await _context.SaveChangesAsync(ct);
-        return processedCount;
+        return totalProcessed;
     }
 
     private async Task ProcessLeadReceivedEventAsync(string payloadJson, CancellationToken ct)

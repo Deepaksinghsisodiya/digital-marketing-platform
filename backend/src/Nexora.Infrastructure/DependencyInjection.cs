@@ -32,6 +32,7 @@ public static class DependencyInjection
         services.AddMemoryCache();
         services.AddHttpContextAccessor();
         services.AddHttpClient();
+        services.AddDataProtection();
 
         // Password policy options with ValidateOnStart
         services.AddOptions<PasswordPolicyOptions>()

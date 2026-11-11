@@ -8,6 +8,7 @@ public sealed class PreviewToken : BaseEntity
     public PageVersion PageVersion { get; set; } = null!;
 
     public string Token { get; set; } = string.Empty;
+    public string TokenHash { get; set; } = string.Empty;
     public DateTime ExpiresAtUtc { get; set; }
     public bool IsRevoked { get; set; } = false;
 }

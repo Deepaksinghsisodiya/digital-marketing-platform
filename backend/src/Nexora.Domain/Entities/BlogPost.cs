@@ -24,6 +24,7 @@ public class BlogPost
     public string? MetaDescription { get; private set; }
     public DateTime CreatedAtUtc { get; private set; } = DateTime.UtcNow;
     public DateTime? UpdatedAtUtc { get; private set; }
+    public byte[] Version { get; private set; } = [];
 
     private BlogPost() { }
 
