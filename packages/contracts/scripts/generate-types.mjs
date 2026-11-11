@@ -7,7 +7,7 @@ import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const API_URL = process.env.API_OPENAPI_URL || 'http://localhost:5000/openapi/v1.json';
+const API_URL = process.env.API_OPENAPI_URL || 'http://localhost:5201/openapi/v1.json';
 const OUTPUT_FILE = resolve(__dirname, '../src/generated-openapi.d.ts');
 
 async function run() {

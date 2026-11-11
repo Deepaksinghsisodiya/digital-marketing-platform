@@ -1,7 +1,11 @@
+using System.Security.Claims;
 using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.Antiforgery;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Nexora.Api.Authorization;
 using Nexora.Api.Endpoints;
@@ -12,8 +16,10 @@ using Nexora.Application;
 using Nexora.Application.Common.Interfaces;
 using Nexora.Application.Common.Models;
 using Nexora.Domain.Constants;
+using Nexora.Domain.Enums;
 using Nexora.Infrastructure;
 using Nexora.Infrastructure.Email;
+using Nexora.Infrastructure.Identity;
 using Nexora.Infrastructure.Persistence;
 using Scalar.AspNetCore;
 using Serilog;
@@ -34,7 +40,7 @@ while (searchDir != null)
             {
                 var key = trimmed.Substring(0, idx).Trim();
                 var val = trimmed.Substring(idx + 1).Trim();
-                if (Environment.GetEnvironmentVariable(key) == null)
+                if (string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable(key)))
                 {
                     Environment.SetEnvironmentVariable(key, val);
                 }
@@ -76,13 +82,29 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
 
 // 5. CORS with explicit origins and credentials
 var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
-    ?? ["http://localhost:3000", "http://localhost:5173"];
+    ?? [
+        "http://localhost:3000",
+        "http://localhost:5173",
+        "http://localhost:5174",
+        "http://127.0.0.1:3000",
+        "http://127.0.0.1:5173",
+        "http://127.0.0.1:5174"
+    ];
 
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("NexoraCorsPolicy", policy =>
     {
         policy.WithOrigins(allowedOrigins)
+              .SetIsOriginAllowed(origin =>
+              {
+                  if (string.IsNullOrWhiteSpace(origin)) return false;
+                  if (Uri.TryCreate(origin, UriKind.Absolute, out var uri))
+                  {
+                      return uri.Host is "localhost" or "127.0.0.1";
+                  }
+                  return false;
+              })
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();
@@ -110,6 +132,45 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 
         options.ExpireTimeSpan = TimeSpan.FromMinutes(authCookieOptions.ExpireMinutes);
         options.SlidingExpiration = true;
+
+        options.EventsType = null;
+        options.Events = new CookieAuthenticationEvents
+        {
+            OnRedirectToLogin = context =>
+            {
+                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                return Task.CompletedTask;
+            },
+            OnRedirectToAccessDenied = context =>
+            {
+                context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                return Task.CompletedTask;
+            },
+            OnValidatePrincipal = async context =>
+            {
+                var userManager = context.HttpContext.RequestServices.GetRequiredService<UserManager<ApplicationUser>>();
+                var userIdClaim = context.Principal?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userIdClaim))
+                {
+                    context.RejectPrincipal();
+                    return;
+                }
+
+                var user = await userManager.FindByIdAsync(userIdClaim);
+                if (user == null || user.Status != UserStatus.Active)
+                {
+                    context.RejectPrincipal();
+                    return;
+                }
+
+                var stampClaim = context.Principal?.FindFirst(new ClaimsIdentityOptions().SecurityStampClaimType)?.Value;
+                var currentStamp = await userManager.GetSecurityStampAsync(user);
+                if (string.IsNullOrEmpty(stampClaim) || stampClaim != currentStamp)
+                {
+                    context.RejectPrincipal();
+                }
+            }
+        };
     });
 
 // 7. Dynamic Permission Authorization Policies
@@ -183,8 +244,11 @@ builder.Services.AddOpenApi(options =>
 });
 
 // 11. Verify Seed Admin Configuration
-var seedEmail = builder.Configuration["SEED_ADMIN_EMAIL"] ?? Environment.GetEnvironmentVariable("SEED_ADMIN_EMAIL");
-var seedPassword = builder.Configuration["SEED_ADMIN_PASSWORD"] ?? Environment.GetEnvironmentVariable("SEED_ADMIN_PASSWORD");
+var configEmail = builder.Configuration["SEED_ADMIN_EMAIL"];
+var seedEmail = !string.IsNullOrWhiteSpace(configEmail) ? configEmail : Environment.GetEnvironmentVariable("SEED_ADMIN_EMAIL");
+
+var configPassword = builder.Configuration["SEED_ADMIN_PASSWORD"];
+var seedPassword = !string.IsNullOrWhiteSpace(configPassword) ? configPassword : Environment.GetEnvironmentVariable("SEED_ADMIN_PASSWORD");
 
 if (string.IsNullOrWhiteSpace(seedEmail) || string.IsNullOrWhiteSpace(seedPassword))
 {
@@ -196,13 +260,25 @@ if (string.IsNullOrWhiteSpace(seedEmail) || string.IsNullOrWhiteSpace(seedPasswo
 }
 else
 {
-    Log.Information("Initial admin seed credentials verified for setup ({Email}).", seedEmail);
+    var atIdx = seedEmail.IndexOf('@');
+    var maskedEmail = atIdx > 2 ? $"{seedEmail[..2]}***{seedEmail[atIdx..]}" : "***";
+    Log.Information("Initial admin seed credentials verified for setup ({Email}).", maskedEmail);
 }
 
 var app = builder.Build();
 
 // Pipeline Middlewares
 app.UseForwardedHeaders();
+
+app.Use(async (context, next) =>
+{
+    context.Response.Headers.Append("X-Content-Type-Options", "nosniff");
+    context.Response.Headers.Append("X-Frame-Options", "DENY");
+    context.Response.Headers.Append("Referrer-Policy", "strict-origin-when-cross-origin");
+    context.Response.Headers.Append("Permissions-Policy", "accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()");
+    await next();
+});
+
 app.UseMiddleware<CorrelationIdMiddleware>();
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
@@ -224,6 +300,35 @@ if (app.Environment.IsDevelopment())
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+// CSRF Protection for mutating endpoints
+app.Use(async (context, next) =>
+{
+    var path = context.Request.Path.Value ?? string.Empty;
+    var method = context.Request.Method;
+
+    var isMutating = HttpMethods.IsPost(method) || HttpMethods.IsPut(method) || HttpMethods.IsPatch(method) || HttpMethods.IsDelete(method);
+    var requiresCsrf = isMutating && (
+        path.StartsWith("/api/v1/admin/", StringComparison.OrdinalIgnoreCase) ||
+        path.Equals("/api/v1/auth/password/change", StringComparison.OrdinalIgnoreCase) ||
+        path.Equals("/api/v1/auth/logout-everywhere", StringComparison.OrdinalIgnoreCase)
+    );
+
+    if (requiresCsrf)
+    {
+        var antiforgery = context.RequestServices.GetRequiredService<IAntiforgery>();
+        if (!await antiforgery.IsRequestValidAsync(context))
+        {
+            context.Response.StatusCode = StatusCodes.Status400BadRequest;
+            context.Response.ContentType = "application/json";
+            await context.Response.WriteAsync("{\"error\":\"CSRF_TOKEN_INVALID\",\"message\":\"Antiforgery token validation failed. Include valid X-XSRF-TOKEN header and antiforgery cookie.\"}");
+            return;
+        }
+    }
+
+    await next();
+});
+
 app.UseMiddleware<MustChangePasswordMiddleware>();
 
 // Health Endpoints
@@ -234,6 +339,12 @@ app.MapAuthEndpoints();
 app.MapAdminUserEndpoints();
 app.MapAdminAuditEndpoints();
 app.MapSettingsEndpoints();
+app.MapCmsEndpoints();
+app.MapLeadEndpoints();
+app.MapEmailEndpoints();
+app.MapClientEndpoints();
+app.MapBlogEndpoints();
+app.MapLookupEndpoints();
 
 // Dev-only: Test email via Mailpit (never exposed in production)
 if (app.Environment.IsDevelopment())

@@ -2,8 +2,10 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Identity;
 using Nexora.Application.Common.Interfaces;
 using Nexora.Application.Identity.Models;
+using Nexora.Infrastructure.Identity;
 
 namespace Nexora.Api.Endpoints;
 
@@ -32,6 +34,7 @@ public static class AuthEndpoints
         group.MapPost("/login", async (
             LoginRequestDto request,
             IIdentityService identityService,
+            UserManager<ApplicationUser> userManager,
             IAuditLogService auditLogService,
             ICurrentUserService currentUser,
             HttpContext httpContext,
@@ -61,13 +64,23 @@ public static class AuthEndpoints
                 return Results.BadRequest(new { error });
             }
 
-            // Issue custom claims on cookie including MustChangePassword
+            // Fetch user for roles and security stamp
+            var userObj = await userManager.FindByIdAsync(userId!.Value.ToString());
+            var roles = userObj != null ? await userManager.GetRolesAsync(userObj) : [];
+            var securityStamp = userObj != null ? await userManager.GetSecurityStampAsync(userObj) : string.Empty;
+
+            // Issue custom claims on cookie including MustChangePassword & SecurityStamp
             var claims = new List<Claim>
             {
-                new(ClaimTypes.NameIdentifier, userId!.Value.ToString()),
+                new(ClaimTypes.NameIdentifier, userId.Value.ToString()),
                 new(ClaimTypes.Email, request.Email),
+                new(new ClaimsIdentityOptions().SecurityStampClaimType, securityStamp),
                 new("MustChangePassword", mustChangePassword ? "true" : "false")
             };
+            foreach (var role in roles)
+            {
+                claims.Add(new(ClaimTypes.Role, role));
+            }
 
             var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             await httpContext.SignInAsync(
@@ -198,6 +211,7 @@ public static class AuthEndpoints
         group.MapPost("/password/change", async (
             ChangePasswordRequestDto request,
             IIdentityService identityService,
+            UserManager<ApplicationUser> userManager,
             IAuditLogService auditLogService,
             ICurrentUserService currentUser,
             HttpContext httpContext,
@@ -220,13 +234,23 @@ public static class AuthEndpoints
                 return Results.BadRequest(new { error });
             }
 
-            // Refresh cookie with MustChangePassword = false
+            // Refresh cookie with MustChangePassword = false and newly updated SecurityStamp
+            var userObj = await userManager.FindByIdAsync(userId.Value.ToString());
+            var roles = userObj != null ? await userManager.GetRolesAsync(userObj) : [];
+            var newSecurityStamp = userObj != null ? await userManager.GetSecurityStampAsync(userObj) : string.Empty;
+
             var claims = new List<Claim>
             {
                 new(ClaimTypes.NameIdentifier, userId.Value.ToString()),
                 new(ClaimTypes.Email, currentUser.Email ?? string.Empty),
+                new(new ClaimsIdentityOptions().SecurityStampClaimType, newSecurityStamp),
                 new("MustChangePassword", "false")
             };
+            foreach (var role in roles)
+            {
+                claims.Add(new(ClaimTypes.Role, role));
+            }
+
             var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             await httpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(identity));
 

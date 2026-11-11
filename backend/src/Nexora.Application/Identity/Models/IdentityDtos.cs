@@ -54,3 +54,11 @@ public record RoleDto(
     string Description,
     IReadOnlyList<string> Permissions);
 
+public record CreateRoleRequestDto(
+    string RoleName,
+    string? Description,
+    IReadOnlyList<string> Permissions);
+
+public record UpdateRolePermissionsRequestDto(
+    IReadOnlyList<string> Permissions);
+

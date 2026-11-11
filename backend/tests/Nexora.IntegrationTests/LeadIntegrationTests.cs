@@ -1,0 +1,513 @@
+using System.Net;
+using System.Net.Http.Json;
+using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Nexora.Application.Common.Interfaces;
+using Nexora.Application.Common.Models;
+using Nexora.Application.Identity.Models;
+using Nexora.Application.Leads.DTOs;
+using Nexora.Domain.Constants;
+using Nexora.Domain.Entities;
+using Nexora.Infrastructure.Persistence;
+using Nexora.IntegrationTests.Infrastructure;
+using Shouldly;
+using Xunit;
+
+namespace Nexora.IntegrationTests;
+
+[Collection("IntegrationTests")]
+public class LeadIntegrationTests
+{
+    private readonly NexoraTestWebApplicationFactory _factory;
+
+    public LeadIntegrationTests(NexoraTestWebApplicationFactory factory)
+    {
+        _factory = factory;
+        _factory.EnsureDatabaseMigrated();
+    }
+
+    [Fact]
+    public async Task SubmitForm_WithValidData_ShouldCreateLead_Activity_AndOutbox()
+    {
+        var client = _factory.CreateClient();
+        var uniqueEmail = $"lead_{Guid.NewGuid():N}@enterprise.com";
+
+        // Obtain fresh server-issued time-trap token
+        var formDefRes = await client.GetAsync("/api/v1/public/forms/contact");
+        formDefRes.StatusCode.ShouldBe(HttpStatusCode.OK);
+        var formDef = await formDefRes.Content.ReadFromJsonAsync<PublicFormDto>();
+        formDef.ShouldNotBeNull();
+        formDef.TimeTrapToken.ShouldNotBeNullOrWhiteSpace();
+
+        var payload = new SubmitFormRequest(
+            FullName: "Satya Nadella",
+            Email: uniqueEmail,
+            Phone: "+91 9876543210",
+            Company: "Enterprise Cloud Corp",
+            Region: "in",
+            State: "Karnataka",
+            PostalCode: "560001",
+            CustomFields: new Dictionary<string, object?> { ["budget"] = "$50k-$100k" },
+            UtmSource: "google",
+            UtmCampaign: "performance_max_q4",
+            ConsentGiven: true,
+            ConsentWordingVersion: "v1.2",
+            Honeypot: null,
+            TimeTrapToken: formDef.TimeTrapToken);
+
+        var response = await client.PostAsJsonAsync("/api/v1/public/forms/contact/submissions", payload);
+        response.StatusCode.ShouldBe(HttpStatusCode.OK);
+
+        var result = await response.Content.ReadFromJsonAsync<SubmitFormResponse>();
+        result.ShouldNotBeNull();
+        result.Success.ShouldBeTrue();
+        result.SubmissionId.ShouldNotBeNull();
+        result.ReferenceNumber.ShouldNotBeNull();
+        result.ReferenceNumber.ShouldStartWith("NEX-");
+
+        // Verify in Database
+        using var scope = _factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+        var lead = await db.Leads
+            .Include(l => l.Activities)
+            .FirstOrDefaultAsync(l => l.Email == uniqueEmail);
+
+        lead.ShouldNotBeNull();
+        lead.FullName.ShouldBe("Satya Nadella");
+        lead.Company.ShouldBe("Enterprise Cloud Corp");
+        lead.Region.ShouldBe("in");
+        lead.Status.ShouldBe(LeadStatus.New);
+        lead.ConsentGiven.ShouldBeTrue();
+        lead.ReferenceNumber.ShouldBe(result.ReferenceNumber);
+        lead.TimeTrapNonce.ShouldNotBeNullOrWhiteSpace();
+        lead.Activities.Count.ShouldBeGreaterThanOrEqualTo(1);
+
+        // Verify OutboxMessage
+        var outbox = await db.OutboxMessages
+            .FirstOrDefaultAsync(o => o.EventType == "LeadReceived" && o.PayloadJson.Contains(uniqueEmail));
+        outbox.ShouldNotBeNull();
+    }
+
+    [Fact]
+    public async Task SubmitForm_WithoutConsent_ShouldReturn400BadRequest()
+    {
+        var client = _factory.CreateClient();
+        var payload = new SubmitFormRequest(
+            FullName: "No Consent User",
+            Email: $"noconsent_{Guid.NewGuid():N}@test.com",
+            ConsentGiven: false);
+
+        var response = await client.PostAsJsonAsync("/api/v1/public/forms/contact/submissions", payload);
+        response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task SubmitForm_WithHoneypot_ShouldSilentlyReturn200_WithoutSavingLead()
+    {
+        var client = _factory.CreateClient();
+        var honeypotEmail = $"bot_{Guid.NewGuid():N}@spambot.xyz";
+        var payload = new SubmitFormRequest(
+            FullName: "Spam Bot",
+            Email: honeypotEmail,
+            ConsentGiven: true,
+            Honeypot: "I am a hidden bot trap");
+
+        var response = await client.PostAsJsonAsync("/api/v1/public/forms/contact/submissions", payload);
+        response.StatusCode.ShouldBe(HttpStatusCode.OK);
+
+        // Verify lead NOT saved in database
+        using var scope = _factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var lead = await db.Leads.FirstOrDefaultAsync(l => l.Email == honeypotEmail);
+        lead.ShouldBeNull();
+    }
+
+    [Fact]
+    public async Task AdminLeads_Workflow_StatusUpdate_AndNotes_ShouldTrackActivity()
+    {
+        // 1. Submit lead as public user
+        var client = _factory.CreateClient();
+        var formDef = await (await client.GetAsync("/api/v1/public/forms/contact")).Content.ReadFromJsonAsync<PublicFormDto>();
+        formDef.ShouldNotBeNull();
+
+        var email = $"flow_lead_{Guid.NewGuid():N}@test.com";
+        var submitRes = await client.PostAsJsonAsync("/api/v1/public/forms/contact/submissions", new SubmitFormRequest(
+            FullName: "Flow Lead",
+            Email: email,
+            ConsentGiven: true,
+            TimeTrapToken: formDef.TimeTrapToken));
+        submitRes.StatusCode.ShouldBe(HttpStatusCode.OK);
+        var submitData = await submitRes.Content.ReadFromJsonAsync<SubmitFormResponse>();
+        var leadId = submitData!.SubmissionId!.Value;
+
+        // 2. Setup Sales user
+        using var scope = _factory.Services.CreateScope();
+        var idService = scope.ServiceProvider.GetRequiredService<IIdentityService>();
+        var salesEmail = $"sales_{Guid.NewGuid():N}@example.com";
+        var (_, _, _, token) = await idService.InviteUserAsync(salesEmail, "Sales Agent", Roles.Sales);
+        await idService.ResetPasswordAsync(salesEmail, token!, "SalesPass@123");
+
+        var salesClient = _factory.CreateClient(new Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactoryClientOptions
+        {
+            HandleCookies = true
+        });
+        await salesClient.PostAsJsonAsync("/api/v1/auth/login", new LoginRequestDto(salesEmail, "SalesPass@123", false));
+
+        // 3. View lead
+        var getRes = await salesClient.GetAsync($"/api/v1/admin/leads/{leadId}");
+        getRes.StatusCode.ShouldBe(HttpStatusCode.OK);
+        var detail = await getRes.Content.ReadFromJsonAsync<LeadDetailDto>();
+        detail.ShouldNotBeNull();
+        detail.Status.ShouldBe(LeadStatus.New);
+
+        var csrf = await salesClient.GetFromJsonAsync<CsrfTokenResponse>("/api/v1/auth/csrf");
+        csrf.ShouldNotBeNull();
+
+        // 4. Update status to InProgress with CSRF
+        var patchReq = new HttpRequestMessage(HttpMethod.Patch, $"/api/v1/admin/leads/{leadId}/status")
+        {
+            Content = JsonContent.Create(new UpdateLeadStatusRequest(LeadStatus.InProgress))
+        };
+        patchReq.Headers.Add("X-XSRF-TOKEN", csrf.token);
+        var patchRes = await salesClient.SendAsync(patchReq);
+        patchRes.StatusCode.ShouldBe(HttpStatusCode.OK);
+
+        // 5. Add internal note with CSRF
+        var noteReq = new HttpRequestMessage(HttpMethod.Post, $"/api/v1/admin/leads/{leadId}/notes")
+        {
+            Content = JsonContent.Create(new AddLeadNoteRequest("Spoke on call. Client interested in Enterprise SEO."))
+        };
+        noteReq.Headers.Add("X-XSRF-TOKEN", csrf.token);
+        var noteRes = await salesClient.SendAsync(noteReq);
+        noteRes.StatusCode.ShouldBe(HttpStatusCode.OK);
+
+        // 6. Verify lead detail after updates
+        var afterRes = await salesClient.GetAsync($"/api/v1/admin/leads/{leadId}");
+        var afterDetail = await afterRes.Content.ReadFromJsonAsync<LeadDetailDto>();
+        afterDetail.ShouldNotBeNull();
+        afterDetail.Status.ShouldBe(LeadStatus.InProgress);
+        afterDetail.Activities.Count.ShouldBeGreaterThanOrEqualTo(3); // Created, StatusChanged, NoteAdded
+    }
+
+    [Fact]
+    public async Task AdminLeads_ExportCsv_ShouldReturnValidCsvStream()
+    {
+        // 1. Setup Sales user
+        using var scope = _factory.Services.CreateScope();
+        var idService = scope.ServiceProvider.GetRequiredService<IIdentityService>();
+        var salesEmail = $"sales_export_{Guid.NewGuid():N}@example.com";
+        var (_, _, _, token) = await idService.InviteUserAsync(salesEmail, "Sales Exporter", Roles.Sales);
+        await idService.ResetPasswordAsync(salesEmail, token!, "SalesPass@123");
+
+        var salesClient = _factory.CreateClient(new Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactoryClientOptions
+        {
+            HandleCookies = true
+        });
+        await salesClient.PostAsJsonAsync("/api/v1/auth/login", new LoginRequestDto(salesEmail, "SalesPass@123", false));
+
+        // 2. Request CSV export
+        var exportRes = await salesClient.GetAsync("/api/v1/admin/leads/export");
+        exportRes.StatusCode.ShouldBe(HttpStatusCode.OK);
+        exportRes.Content.Headers.ContentType?.MediaType.ShouldBe("text/csv");
+
+        var csv = await exportRes.Content.ReadAsStringAsync();
+        csv.ShouldContain("ID,Date (UTC),Full Name,Email,Phone,Company,Region,State,Status,UTM Source,UTM Campaign");
+    }
+
+    [Fact]
+    public async Task AdminLeads_ExportCsv_FormulaInjectionSanitization_ShouldPrefixFormulas()
+    {
+        using var scope = _factory.Services.CreateScope();
+        var leadService = scope.ServiceProvider.GetRequiredService<ILeadService>();
+        var idService = scope.ServiceProvider.GetRequiredService<IIdentityService>();
+        var formDef = await leadService.GetPublicFormAsync("contact");
+
+        // Submit malicious lead with Excel formula triggers
+        var maliciousName = "=cmd|'/c calc'!A0";
+        var maliciousCompany = "@SUM(1+1)*cmd";
+        var payload = new SubmitFormRequest(
+            FullName: maliciousName,
+            Email: $"inject_{Guid.NewGuid():N}@safe.com",
+            Phone: "+91 9988776655",
+            Company: maliciousCompany,
+            Region: "in",
+            State: "Delhi",
+            PostalCode: "110001",
+            CustomFields: [],
+            UtmSource: null,
+            UtmCampaign: null,
+            ConsentGiven: true,
+            ConsentWordingVersion: "v1.0",
+            Honeypot: null,
+            TimeTrapToken: formDef!.TimeTrapToken);
+
+        await leadService.SubmitFormAsync(
+            formKey: "contact",
+            request: payload,
+            ipAddress: "127.0.0.1",
+            userAgent: "Test");
+
+        // Request export
+        var salesEmail = $"sales_sec_{Guid.NewGuid():N}@example.com";
+        var (_, _, _, token) = await idService.InviteUserAsync(salesEmail, "Security Auditor", Roles.Sales);
+        await idService.ResetPasswordAsync(salesEmail, token!, "SalesPass@123");
+
+        var salesClient = _factory.CreateClient(new Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactoryClientOptions { HandleCookies = true });
+        await salesClient.PostAsJsonAsync("/api/v1/auth/login", new LoginRequestDto(salesEmail, "SalesPass@123", false));
+
+        var exportRes = await salesClient.GetAsync("/api/v1/admin/leads/export");
+        exportRes.StatusCode.ShouldBe(HttpStatusCode.OK);
+        var csv = await exportRes.Content.ReadAsStringAsync();
+
+        // Formula injection prefixes with single quote: "'=cmd" and "'@SUM"
+        csv.ShouldContain("\"'=cmd|'/c calc'!A0\"");
+        csv.ShouldContain("\"'@SUM(1+1)*cmd\"");
+    }
+
+    [Fact]
+    public async Task PermissionMatrix_Leads_EditorForbidden_SalesAllowed_AnonymousUnauthorized()
+    {
+        // 1. Anonymous -> 401
+        var anonClient = _factory.CreateClient();
+        (await anonClient.GetAsync("/api/v1/admin/leads")).StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
+        (await anonClient.GetAsync("/api/v1/admin/leads/export")).StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
+
+        // 2. Editor -> 403 (Editor only has pages.* permissions, not leads.*)
+        using var scope = _factory.Services.CreateScope();
+        var idService = scope.ServiceProvider.GetRequiredService<IIdentityService>();
+        var editorEmail = $"editor_leads_{Guid.NewGuid():N}@example.com";
+        var (_, _, _, eToken) = await idService.InviteUserAsync(editorEmail, "Editor User", Roles.Editor);
+        await idService.ResetPasswordAsync(editorEmail, eToken!, "EditorPass@123");
+
+        var editorClient = _factory.CreateClient(new Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactoryClientOptions
+        {
+            HandleCookies = true
+        });
+        await editorClient.PostAsJsonAsync("/api/v1/auth/login", new LoginRequestDto(editorEmail, "EditorPass@123", false));
+
+        (await editorClient.GetAsync("/api/v1/admin/leads")).StatusCode.ShouldBe(HttpStatusCode.Forbidden);
+        (await editorClient.GetAsync("/api/v1/admin/leads/export")).StatusCode.ShouldBe(HttpStatusCode.Forbidden);
+    }
+
+    [Fact]
+    public async Task GetPublicForm_ShouldReturnPublicDto_WithoutLeakingInternalSettings()
+    {
+        var client = _factory.CreateClient();
+
+        var response = await client.GetAsync("/api/v1/public/forms/contact");
+        response.StatusCode.ShouldBe(HttpStatusCode.OK);
+
+        var rawJson = await response.Content.ReadAsStringAsync();
+
+        // Must contain public fields
+        rawJson.ShouldContain("formKey");
+        rawJson.ShouldContain("contact");
+        rawJson.ShouldContain("timeTrapToken");
+        rawJson.ShouldContain("schemaJson");
+
+        // CRITICAL LEAK TEST: Must NOT contain internal settings, emails, or webhooks
+        rawJson.ShouldNotContain("receiverEmails");
+        rawJson.ShouldNotContain("contact-intake@example.com");
+        rawJson.ShouldNotContain("notifyOnSubmission");
+        rawJson.ShouldNotContain("webhookUrl");
+    }
+
+    [Fact]
+    public async Task GetPublicForm_InactiveForm_ShouldReturn404NotFound()
+    {
+        using var scope = _factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+        var inactiveKey = $"inactive_{Guid.NewGuid():N}";
+        var inactiveForm = new FormDefinition(
+            formKey: inactiveKey,
+            name: "Inactive Form",
+            schemaJson: "[]",
+            settingsJson: "{}");
+        inactiveForm.Update("Inactive Form", "[]", "{}", null, null, isActive: false);
+
+        db.FormDefinitions.Add(inactiveForm);
+        await db.SaveChangesAsync();
+
+        var client = _factory.CreateClient();
+        var response = await client.GetAsync($"/api/v1/public/forms/{inactiveKey}");
+        response.StatusCode.ShouldBe(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
+    public async Task SubmitForm_Idempotency_SameKey_ShouldReturnOriginalResponse_WithoutDuplicateDbInsert()
+    {
+        var client = _factory.CreateClient();
+        var idempotencyKey = $"idemp_{Guid.NewGuid():N}";
+        var uniqueEmail = $"idemp_{Guid.NewGuid():N}@idemp.com";
+
+        var formDefRes = await client.GetAsync("/api/v1/public/forms/contact");
+        var formDef = await formDefRes.Content.ReadFromJsonAsync<PublicFormDto>();
+        formDef.ShouldNotBeNull();
+
+        var payload = new SubmitFormRequest(
+            FullName: "Idempotent User",
+            Email: uniqueEmail,
+            ConsentGiven: true,
+            TimeTrapToken: formDef.TimeTrapToken,
+            IdempotencyKey: idempotencyKey);
+
+        // First Submission
+        var firstRes = await client.PostAsJsonAsync("/api/v1/public/forms/contact/submissions", payload);
+        firstRes.StatusCode.ShouldBe(HttpStatusCode.OK);
+        var firstResult = await firstRes.Content.ReadFromJsonAsync<SubmitFormResponse>();
+        firstResult.ShouldNotBeNull();
+        firstResult.SubmissionId.ShouldNotBeNull();
+        firstResult.ReferenceNumber.ShouldNotBeNull();
+
+        // Second Submission with identical IdempotencyKey
+        var secondRes = await client.PostAsJsonAsync("/api/v1/public/forms/contact/submissions", payload);
+        secondRes.StatusCode.ShouldBe(HttpStatusCode.OK);
+        var secondResult = await secondRes.Content.ReadFromJsonAsync<SubmitFormResponse>();
+        secondResult.ShouldNotBeNull();
+
+        // Idempotent Match: exactly same SubmissionId and ReferenceNumber returned
+        secondResult.SubmissionId.ShouldBe(firstResult.SubmissionId);
+        secondResult.ReferenceNumber.ShouldBe(firstResult.ReferenceNumber);
+
+        // Database must contain exactly ONE row for this idempotency key
+        using var scope = _factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var count = await db.Leads.CountAsync(l => l.FormKey == "contact" && l.IdempotencyKey == idempotencyKey);
+        count.ShouldBe(1);
+    }
+
+    [Fact]
+    public async Task SubmitForm_WithTimeTrapToken_ShouldConsumeNonce_AndReplayAttemptShouldFail()
+    {
+        var client = _factory.CreateClient();
+
+        var formDefRes = await client.GetAsync("/api/v1/public/forms/contact");
+        var formDef = await formDefRes.Content.ReadFromJsonAsync<PublicFormDto>();
+        formDef.ShouldNotBeNull();
+
+        var payload1 = new SubmitFormRequest(
+            FullName: "First Legitimate Submit",
+            Email: $"replay1_{Guid.NewGuid():N}@test.com",
+            ConsentGiven: true,
+            TimeTrapToken: formDef.TimeTrapToken);
+
+        var firstRes = await client.PostAsJsonAsync("/api/v1/public/forms/contact/submissions", payload1);
+        firstRes.StatusCode.ShouldBe(HttpStatusCode.OK);
+
+        // Attempting to reuse the exact same TimeTrapToken (nonce replay) must fail
+        var payload2 = new SubmitFormRequest(
+            FullName: "Replay Attempt Attack",
+            Email: $"replay2_{Guid.NewGuid():N}@test.com",
+            ConsentGiven: true,
+            TimeTrapToken: formDef.TimeTrapToken);
+
+        var secondRes = await client.PostAsJsonAsync("/api/v1/public/forms/contact/submissions", payload2);
+        secondRes.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        var errJson = await secondRes.Content.ReadAsStringAsync();
+        errJson.ShouldContain("Replay attack detected");
+    }
+
+    [Fact]
+    public async Task SubmitForm_WithFastSubmission_ShouldRejectWith400()
+    {
+        // Enforce MinSubmissionSeconds: 5 with SkipTimeTrapMinAge: false
+        using var customFactory = _factory.WithWebHostBuilder(builder =>
+        {
+            builder.ConfigureAppConfiguration((_, config) =>
+            {
+                config.AddInMemoryCollection(new Dictionary<string, string?>
+                {
+                    ["SkipTimeTrapMinAge"] = "false",
+                    ["SpamProtection:MinSubmissionSeconds"] = "5"
+                });
+            });
+        });
+
+        var client = customFactory.CreateClient();
+
+        var formDefRes = await client.GetAsync("/api/v1/public/forms/contact");
+        var formDef = await formDefRes.Content.ReadFromJsonAsync<PublicFormDto>();
+        formDef.ShouldNotBeNull();
+
+        var payload = new SubmitFormRequest(
+            FullName: "Speedy Bot",
+            Email: $"fast_{Guid.NewGuid():N}@test.com",
+            ConsentGiven: true,
+            TimeTrapToken: formDef.TimeTrapToken);
+
+        var res = await client.PostAsJsonAsync("/api/v1/public/forms/contact/submissions", payload);
+        res.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        var body = await res.Content.ReadAsStringAsync();
+        body.ShouldContain("Submission completed too fast");
+    }
+
+    [Fact]
+    public async Task SubmitForm_GeneratesUniqueReferenceNumber()
+    {
+        var client = _factory.CreateClient();
+
+        var formDefRes = await client.GetAsync("/api/v1/public/forms/contact");
+        var formDef = await formDefRes.Content.ReadFromJsonAsync<PublicFormDto>();
+        formDef.ShouldNotBeNull();
+
+        var payload = new SubmitFormRequest(
+            FullName: "Ref Number Test",
+            Email: $"ref_{Guid.NewGuid():N}@test.com",
+            ConsentGiven: true,
+            TimeTrapToken: formDef.TimeTrapToken);
+
+        var res = await client.PostAsJsonAsync("/api/v1/public/forms/contact/submissions", payload);
+        res.StatusCode.ShouldBe(HttpStatusCode.OK);
+        var body = await res.Content.ReadFromJsonAsync<SubmitFormResponse>();
+        body.ShouldNotBeNull();
+        body.ReferenceNumber.ShouldNotBeNull();
+        body.ReferenceNumber.ShouldStartWith($"NEX-{DateTime.UtcNow:yyyyMMdd}-");
+    }
+
+    [Fact]
+    public async Task SubmitForm_MapsToAllowlist_SanitizesCustomFields()
+    {
+        var client = _factory.CreateClient();
+
+        var formDefRes = await client.GetAsync("/api/v1/public/forms/contact");
+        var formDef = await formDefRes.Content.ReadFromJsonAsync<PublicFormDto>();
+        formDef.ShouldNotBeNull();
+
+        var payload = new SubmitFormRequest(
+            FullName: "Alice Walker",
+            Email: $"allowlist_{Guid.NewGuid():N}@test.com",
+            Phone: "+91 9123456789",
+            Company: "Acme Corp",
+            Region: "in",
+            State: "Maharashtra",
+            PostalCode: "400001",
+            CustomFields: new Dictionary<string, object?>
+            {
+                ["unmappedField"] = "CustomValue123",
+                ["arbitraryData"] = 42
+            },
+            ConsentGiven: true,
+            TimeTrapToken: formDef.TimeTrapToken);
+
+        var res = await client.PostAsJsonAsync("/api/v1/public/forms/contact/submissions", payload);
+        res.StatusCode.ShouldBe(HttpStatusCode.OK);
+
+        var result = await res.Content.ReadFromJsonAsync<SubmitFormResponse>();
+        result.ShouldNotBeNull();
+
+        using var scope = _factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var lead = await db.Leads.FindAsync(result.SubmissionId);
+
+        lead.ShouldNotBeNull();
+        lead.FullName.ShouldBe("Alice Walker");
+        lead.State.ShouldBe("Maharashtra");
+        lead.PostalCode.ShouldBe("400001");
+        lead.CustomFieldsJson.ShouldContain("CustomValue123");
+        lead.CustomFieldsJson.ShouldContain("42");
+    }
+}

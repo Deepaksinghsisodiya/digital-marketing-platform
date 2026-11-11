@@ -37,12 +37,18 @@
    - **Licensing & Resource Review**: SQL Server is commercial proprietary Microsoft software. Express edition is free for production but restricted to 10 GB max database size, 1.4 GB buffer pool RAM, and 4 CPU cores. Production container deployments on Linux require minimum 2 GB RAM. A formal licensing and edition review (Express vs Standard vs Web) is required prior to production launch.
    - **Authentication**: Windows Integrated Authentication (`Trusted_Connection=True`) is restricted to local developer workstations. Production connections must use authenticated SQL logins supplied strictly through environment variables or cloud secrets management (never hardcoded, no `MultipleActiveResultSets` unless specifically required).
    - **Concurrency Model**: Optimistic concurrency is implemented using SQL Server native `rowversion` (`byte[] [Timestamp]`), mapped to `Version` properties. Mismatch triggers HTTP 409 Conflict.
-   - **Append-Only Audit Security**: `AuditLogs` immutability is enforced at the database level using a T-SQL `INSTEAD OF UPDATE, DELETE` trigger throwing error 50001. In production, runtime database roles will be restricted to `SELECT` and `INSERT` only, with `UPDATE`, `DELETE`, and `TRUNCATE` permissions completely revoked.
+   - **Append-Only Audit Security**: `AuditLogs` immutability is enforced at the database level using the `trg_AuditLogs_AppendOnly` T-SQL `INSTEAD OF UPDATE, DELETE` trigger throwing error 50001. Because SQL Server DDL triggers do not trap `TRUNCATE TABLE`, production runtime database roles must be restricted to `SELECT` and `INSERT` only, with `UPDATE`, `DELETE`, `ALTER`, and `TRUNCATE` permissions completely revoked.
 
 10. **Interactive API Documentation: OpenAPI, Swagger UI & Scalar**
     - **Decision**: Interactive API explorers are provided using native .NET 10 `Microsoft.AspNetCore.OpenApi` specification generation (`/openapi/v1.json`).
     - **UIs**: Swagger UI (`Swashbuckle.AspNetCore.SwaggerUI`, MIT license) at `/swagger` and Scalar (`Scalar.AspNetCore`, MIT license) at `/scalar`. In Development, `/` redirects to `/swagger`.
     - **Security & Environment Guard**: Documentation UIs and JSON specification endpoints are strictly isolated to Development (`app.Environment.IsDevelopment()`) and return HTTP 404 in Production. Identity Application Cookie is documented dynamically from configuration (`AuthCookieOptions`), with explicit notes for CSRF token submission (`X-XSRF-TOKEN`).
+
+11. **Public Form Anti-Spam & TimeTrapNonce Consumption Lifecycle**
+    - **Decision**: Server-issued time-trap tokens carry an HMAC-SHA256 signature, creation timestamp, and random cryptographic nonce.
+    - **Consumption Policy**: The token's `TimeTrapNonce` is consumed (persisted to the unique filtered index `IX_Leads_TimeTrapNonce` on table `Leads`) **strictly upon successful lead creation and persistence**.
+    - **Rationale**: Honeypot drops (which return silent HTTP 200) and client-side validation failures (HTTP 400) intentionally do **not** consume the nonce. This prevents a denial-of-service against legitimate users who make input mistakes (e.g. invalid phone number format or typo in email), avoiding unnecessary token exhaustion. Brute-force and replay attacks during validation are comprehensively mitigated by the outer defense perimeter: Cloudflare Turnstile token verification and IP-based rate limiting (`AuthRateLimit`).
+    - **Future Evolution Note**: In Step 12 (Advanced Abuse & Threat Defense), a dedicated `UsedFormTokens` table will be introduced to track independent token invalidation and distributed revocation across multiple service replicas without relying exclusively on the `Leads` table.
 
 ---
 

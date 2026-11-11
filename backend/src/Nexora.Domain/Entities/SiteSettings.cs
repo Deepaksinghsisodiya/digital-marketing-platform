@@ -25,6 +25,19 @@ public class SiteSettings : BaseEntity
 
     public Guid? LogoMediaId { get; set; }
 
+    // SMTP Email Server Configuration
+    public string SmtpHost { get; set; } = string.Empty;
+    public int SmtpPort { get; set; } = 1025;
+    public bool SmtpUseSsl { get; set; } = false;
+    public string? SmtpUserName { get; set; }
+    public string? SmtpPassword { get; set; }
+    public string SmtpFromEmail { get; set; } = string.Empty;
+    public string SmtpFromName { get; set; } = string.Empty;
+    public bool SmtpIsConfigured { get; set; } = false;
+
+    // Website Section Visibility Configuration (JSON dictionary)
+    public string SectionVisibilityJson { get; set; } = "{}";
+
     [Timestamp]
     public byte[] Version { get; set; } = [];
 

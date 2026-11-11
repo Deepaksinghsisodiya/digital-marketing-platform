@@ -1,150 +1,131 @@
-import { useTranslation } from "react-i18next";
+import React, { useEffect } from "react";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { useAppDispatch } from "./store/hooks";
 import {
-  useGetLiveHealthQuery,
-  useGetReadyHealthQuery,
-} from "./store/api/healthApi";
-import { formatDate } from "./utils/formatters";
-import {
-  CheckCircle2,
-  AlertCircle,
-  RefreshCw,
-  Server,
-  ShieldCheck,
-  Database,
-} from "lucide-react";
+  useGetCsrfTokenQuery,
+  useGetCurrentUserQuery,
+} from "./store/api/adminApi";
+import { setCsrf, setUser, setInitialized } from "./store/slices/authSlice";
+
+import { LoginPage } from "./pages/auth/LoginPage";
+import { ChangePasswordPage } from "./pages/auth/ChangePasswordPage";
+import { ForgotPasswordPage } from "./pages/auth/ForgotPasswordPage";
+import { ResetPasswordPage } from "./pages/auth/ResetPasswordPage";
+
+import { AdminLayout } from "./layouts/AdminLayout";
+import { ProtectedRoute } from "./components/ProtectedRoute";
+
+import { DashboardPage } from "./pages/dashboard/DashboardPage";
+import { UsersPage } from "./pages/users/UsersPage";
+import { RolesPage } from "./pages/roles/RolesPage";
+import { AuditLogsPage } from "./pages/audit/AuditLogsPage";
+import { SettingsPage } from "./pages/settings/SettingsPage";
+import { PagesListPage } from "./pages/cms/PagesListPage";
+import { PageEditorPage } from "./pages/cms/PageEditorPage";
+import { LeadsPage } from "./pages/leads/LeadsPage";
+import { EmailTemplatesPage } from "./pages/EmailTemplatesPage";
+import { ClientsPage } from "./pages/clients/ClientsPage";
+import { TasksPage } from "./pages/tasks/TasksPage";
+import { PostsPage } from "./pages/content/PostsPage";
+
+import { ThemeProvider } from "./context/ThemeContext";
 
 export function App() {
-  const { t } = useTranslation();
-  const {
-    data: liveData,
-    isLoading: isLiveLoading,
-    isError: isLiveError,
-    refetch: refetchLive,
-  } = useGetLiveHealthQuery(undefined, { pollingInterval: 15000 });
+  const dispatch = useAppDispatch();
 
+  // App bootstrap: 1. CSRF Token, 2. Current User Profile
+  const { data: csrfData } = useGetCsrfTokenQuery();
   const {
-    data: readyData,
-    isLoading: isReadyLoading,
-    isError: isReadyError,
-    refetch: refetchReady,
-  } = useGetReadyHealthQuery(undefined, { pollingInterval: 15000 });
+    data: userData,
+    isSuccess: isUserSuccess,
+    isError: isUserError,
+  } = useGetCurrentUserQuery();
 
-  const isConnected = !isLiveError && liveData?.status === "Healthy";
+  useEffect(() => {
+    if (csrfData) {
+      dispatch(setCsrf({ token: csrfData.token, headerName: csrfData.headerName }));
+    }
+  }, [csrfData, dispatch]);
+
+  useEffect(() => {
+    if (isUserSuccess && userData) {
+      dispatch(setUser(userData));
+    } else if (isUserError) {
+      dispatch(setInitialized());
+    }
+  }, [isUserSuccess, isUserError, userData, dispatch]);
 
   return (
-    <div className="min-h-screen bg-paper flex flex-col justify-between p-6 md:p-10 font-sans">
-      <header className="flex items-center justify-between border-b border-border pb-5">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple via-blue to-cyan flex items-center justify-center text-white font-black text-xl shadow-md">
-            N
-          </div>
-          <div>
-            <h1 className="text-lg font-bold text-ink tracking-tight">
-              {t("app.title")}
-            </h1>
-            <p className="text-xs text-muted font-medium">{t("app.tagline")}</p>
-          </div>
-        </div>
+    <ThemeProvider>
+      <BrowserRouter>
+        <Routes>
+        {/* Public Auth Routes */}
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/auth/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/auth/reset-password" element={<ResetPasswordPage />} />
+        <Route path="/auth/setup-password" element={<ResetPasswordPage />} />
+        <Route path="/auth/change-password" element={<ChangePasswordPage />} />
 
-        <div className="flex items-center gap-2">
-          <span className="text-xs px-3 py-1 rounded-full font-semibold border border-border bg-white text-ink">
-            {t("app.stepNotice")}
-          </span>
-        </div>
-      </header>
+        {/* Protected Admin Routes */}
+        <Route element={<ProtectedRoute />}>
+          <Route element={<AdminLayout />}>
+            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/dashboard" element={<DashboardPage />} />
 
-      <main className="my-auto py-10 flex flex-col items-center">
-        <div className="w-full max-w-xl bg-white border border-border rounded-2xl p-7 shadow-sm">
-          <div className="flex items-center justify-between border-b border-border pb-5 mb-6">
-            <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-xl bg-paper text-purple">
-                <Server className="w-5 h-5" />
-              </div>
-              <div>
-                <h2 className="text-base font-bold text-ink">
-                  {t("app.apiStatus")}
-                </h2>
-                <p className="text-xs text-muted">
-                  ASP.NET Core 10 Web API Connection
-                </p>
-              </div>
-            </div>
+            {/* Users & Staff - Guarded by users.view */}
+            <Route element={<ProtectedRoute requiredPermission="users.view" />}>
+              <Route path="/users" element={<UsersPage />} />
+            </Route>
 
-            <button
-              onClick={() => {
-                refetchLive();
-                refetchReady();
-              }}
-              className="p-2 text-muted hover:text-ink hover:bg-paper rounded-lg transition-colors"
-              title="Refresh Health"
-            >
-              <RefreshCw className="w-4 h-4" />
-            </button>
-          </div>
+            {/* Roles Matrix - Guarded by roles.view */}
+            <Route element={<ProtectedRoute requiredPermission="roles.view" />}>
+              <Route path="/roles" element={<RolesPage />} />
+            </Route>
 
-          {/* Connection Status Banner */}
-          <div
-            className={`p-4 rounded-xl flex items-center gap-3 mb-6 ${
-              isConnected
-                ? "bg-green-light/40 border border-green/20 text-green-dark"
-                : "bg-orange-light/40 border border-orange/20 text-ink"
-            }`}
-          >
-            {isConnected ? (
-              <CheckCircle2 className="w-6 h-6 text-green flex-shrink-0" />
-            ) : (
-              <AlertCircle className="w-6 h-6 text-orange flex-shrink-0" />
-            )}
-            <div>
-              <p className="font-semibold text-sm">
-                {isLiveLoading
-                  ? t("app.apiConnecting")
-                  : isConnected
-                    ? t("app.apiConnected")
-                    : t("app.apiDisconnected")}
-              </p>
-              <p className="text-xs opacity-80">
-                {isConnected
-                  ? `Service: ${liveData?.service} · Timestamp: ${formatDate(liveData?.timestamp || new Date())}`
-                  : "Backend API is currently offline. Start the backend service on port 5000 to verify connection."}
-              </p>
-            </div>
-          </div>
+            {/* Audit Trail - Guarded by audit.view */}
+            <Route element={<ProtectedRoute requiredPermission="audit.view" />}>
+              <Route path="/audit-logs" element={<AuditLogsPage />} />
+            </Route>
 
-          {/* Detailed Health Checks Grid */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="p-4 rounded-xl border border-border bg-paper">
-              <div className="flex items-center gap-2 mb-2 text-xs font-semibold text-muted">
-                <ShieldCheck className="w-4 h-4 text-purple" />
-                <span>/health/live</span>
-              </div>
-              <p className="text-sm font-bold text-ink">
-                {isLiveLoading ? "Checking..." : liveData?.status || "Offline"}
-              </p>
-            </div>
+            {/* Settings - Guarded by settings.view */}
+            <Route element={<ProtectedRoute requiredPermission="settings.view" />}>
+              <Route path="/settings" element={<SettingsPage />} />
+            </Route>
 
-            <div className="p-4 rounded-xl border border-border bg-paper">
-              <div className="flex items-center gap-2 mb-2 text-xs font-semibold text-muted">
-                <Database className="w-4 h-4 text-blue" />
-                <span>/health/ready</span>
-              </div>
-              <p className="text-sm font-bold text-ink">
-                {isReadyLoading
-                  ? "Checking..."
-                  : isReadyError
-                    ? "Unhealthy (DB Offline)"
-                    : readyData?.status || "Offline"}
-              </p>
-            </div>
-          </div>
-        </div>
-      </main>
+            {/* CMS Pages - Guarded by pages.view */}
+            <Route element={<ProtectedRoute requiredPermission="pages.view" />}>
+              <Route path="/cms/pages" element={<PagesListPage />} />
+              <Route path="/cms/pages/:id/edit" element={<PageEditorPage />} />
+              <Route path="/posts" element={<PostsPage />} />
+            </Route>
 
-      <footer className="border-t border-border pt-5 text-center text-xs text-muted">
-        <p>© Nexora Digital Marketing Platform · Step 1 Foundation</p>
-      </footer>
-    </div>
+            {/* Leads & Inquiries - Guarded by leads.view */}
+            <Route element={<ProtectedRoute requiredPermission="leads.view" />}>
+              <Route path="/leads" element={<LeadsPage />} />
+            </Route>
+
+            {/* Clients & Accounts - Guarded by clients.view */}
+            <Route element={<ProtectedRoute requiredPermission="clients.view" />}>
+              <Route path="/clients" element={<ClientsPage />} />
+            </Route>
+
+            {/* Tasks & Actions - Guarded by tasks.view */}
+            <Route element={<ProtectedRoute requiredPermission="tasks.view" />}>
+              <Route path="/tasks" element={<TasksPage />} />
+            </Route>
+
+            {/* Email Templates & Outbox - Guarded by settings.view */}
+            <Route element={<ProtectedRoute requiredPermission="settings.view" />}>
+              <Route path="/emails" element={<EmailTemplatesPage />} />
+            </Route>
+          </Route>
+        </Route>
+
+        {/* Fallback */}
+        <Route path="*" element={<Navigate to="/login" replace />} />
+      </Routes>
+    </BrowserRouter>
+  </ThemeProvider>
   );
 }
-
 export default App;

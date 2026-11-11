@@ -14,18 +14,18 @@ public static class AdminUserEndpoints
 
         // 1. List Users
         group.MapGet("/users", async (
-            [FromQuery] int page,
-            [FromQuery] int pageSize,
+            [FromQuery] int? page,
+            [FromQuery] int? pageSize,
             [FromQuery] string? search,
             [FromQuery] string? role,
             [FromQuery] int? status,
             IIdentityService identityService,
             CancellationToken ct) =>
         {
-            page = page <= 0 ? 1 : page;
-            pageSize = pageSize <= 0 ? 20 : Math.Min(pageSize, 100);
+            var p = !page.HasValue || page.Value <= 0 ? 1 : page.Value;
+            var ps = !pageSize.HasValue || pageSize.Value <= 0 ? 20 : Math.Min(pageSize.Value, 100);
 
-            var result = await identityService.GetUsersAsync(page, pageSize, search, role, status, ct);
+            var result = await identityService.GetUsersAsync(p, ps, search, role, status, ct);
             return Results.Ok(result);
         })
         .RequireAuthorization(Permissions.UsersView)
@@ -130,7 +130,46 @@ public static class AdminUserEndpoints
         .WithTags("Users")
         .WithSummary("Update user role or suspend/unsuspend account.");
 
-        // 4. List Roles
+        // 4. Delete User
+        group.MapDelete("/users/{id:guid}", async (
+            Guid id,
+            IIdentityService identityService,
+            IAuditLogService auditLogService,
+            ICurrentUserService currentUser,
+            CancellationToken ct) =>
+        {
+            var actingUserId = currentUser.UserId;
+            if (!actingUserId.HasValue)
+            {
+                return Results.Unauthorized();
+            }
+
+            var (success, error) = await identityService.DeleteUserAsync(id, actingUserId.Value, ct);
+            if (!success)
+            {
+                return Results.BadRequest(new { error });
+            }
+
+            await auditLogService.LogAsync(
+                action: "users.deleted",
+                resourceType: "User",
+                resourceId: id.ToString(),
+                outcome: "Success",
+                actorUserId: actingUserId,
+                actorEmail: currentUser.Email,
+                ipAddress: currentUser.IpAddress,
+                userAgent: currentUser.UserAgent,
+                correlationId: currentUser.CorrelationId,
+                cancellationToken: ct);
+
+            return Results.Ok(new { success = true, message = "User successfully deleted." });
+        })
+        .RequireAuthorization(Permissions.UsersManage)
+        .WithName("DeleteUser")
+        .WithTags("Users")
+        .WithSummary("Delete a user account.");
+
+        // 6. List Roles
         group.MapGet("/roles", async (
             IIdentityService identityService,
             CancellationToken ct) =>
@@ -143,7 +182,86 @@ public static class AdminUserEndpoints
         .WithTags("Roles")
         .WithSummary("List all system roles and their assigned permissions.");
 
-        // 5. List Permissions Catalog
+        // 7. Create Custom Role
+        group.MapPost("/roles", async (
+            CreateRoleRequestDto request,
+            IIdentityService identityService,
+            ICurrentUserService currentUser,
+            CancellationToken ct) =>
+        {
+            var actingUserId = currentUser.UserId ?? Guid.Empty;
+            var (success, error) = await identityService.CreateRoleAsync(
+                request.RoleName,
+                request.Description,
+                request.Permissions,
+                actingUserId,
+                ct);
+
+            if (!success)
+            {
+                return Results.BadRequest(new { error });
+            }
+
+            return Results.Created($"/api/v1/admin/roles/{request.RoleName}", new { message = $"Role '{request.RoleName}' created successfully." });
+        })
+        .RequireAuthorization(Permissions.RolesView)
+        .WithName("CreateRole")
+        .WithTags("Roles")
+        .WithSummary("Create a new custom system role with granular permissions.");
+
+        // 8. Update Role Permissions
+        group.MapPut("/roles/{roleName}/permissions", async (
+            string roleName,
+            UpdateRolePermissionsRequestDto request,
+            IIdentityService identityService,
+            ICurrentUserService currentUser,
+            CancellationToken ct) =>
+        {
+            var actingUserId = currentUser.UserId ?? Guid.Empty;
+            var (success, error) = await identityService.UpdateRolePermissionsAsync(
+                roleName,
+                request.Permissions,
+                actingUserId,
+                ct);
+
+            if (!success)
+            {
+                return Results.BadRequest(new { error });
+            }
+
+            return Results.Ok(new { message = $"Permissions for role '{roleName}' updated successfully." });
+        })
+        .RequireAuthorization(Permissions.RolesView)
+        .WithName("UpdateRolePermissions")
+        .WithTags("Roles")
+        .WithSummary("Update permissions granted to a system or custom role.");
+
+        // 9. Delete Custom Role
+        group.MapDelete("/roles/{roleName}", async (
+            string roleName,
+            IIdentityService identityService,
+            ICurrentUserService currentUser,
+            CancellationToken ct) =>
+        {
+            var actingUserId = currentUser.UserId ?? Guid.Empty;
+            var (success, error) = await identityService.DeleteRoleAsync(
+                roleName,
+                actingUserId,
+                ct);
+
+            if (!success)
+            {
+                return Results.BadRequest(new { error });
+            }
+
+            return Results.Ok(new { message = $"Role '{roleName}' deleted successfully." });
+        })
+        .RequireAuthorization(Permissions.RolesView)
+        .WithName("DeleteRole")
+        .WithTags("Roles")
+        .WithSummary("Delete a custom role if no users are currently assigned.");
+
+        // 10. List Permissions Catalog
         group.MapGet("/permissions", () =>
         {
             return Results.Ok(Permissions.All);

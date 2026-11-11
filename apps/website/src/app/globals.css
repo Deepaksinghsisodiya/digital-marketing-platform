@@ -12,7 +12,7 @@
   --nexora-navy: #10162f;
   --nexora-ink: #17213d;
   --nexora-muted: #65708b;
-  --nexora-paper: #f5f7ff;
+  --nexora-paper: #ffffff;
   --nexora-white: #ffffff;
   --nexora-purple: #7657ff;
   --nexora-purple-light: #f0ecff;
@@ -38,9 +38,46 @@
   --nexora-radius-xl: 1rem;
 }
 
-body {
-  background-color: var(--nexora-paper);
-  color: var(--nexora-ink);
-  font-family: var(--nexora-font-sans);
+html {
+  scroll-behavior: smooth;
 }
+
+body {
+  background-color: #ffffff;
+  color: #0f172a;
+  font-family: var(--nexora-font-sans);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background-color: #6366f1;
+  color: #ffffff;
+}
+
+/* Modern MNC Utility Classes */
+.glass-card {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+.dark-glass-card {
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(51, 65, 85, 0.6);
+}
+
+.glow-indigo {
+  box-shadow: 0 0 50px -10px rgba(99, 102, 241, 0.3);
+}
+
+.text-gradient {
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
 

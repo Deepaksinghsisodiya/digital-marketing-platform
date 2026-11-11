@@ -2,6 +2,7 @@ import type { Config } from "tailwindcss";
 import { tokens } from "@nexora/design-tokens";
 
 export default {
+  darkMode: "class",
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
     extend: {

@@ -44,7 +44,7 @@ public class MustChangePasswordMiddleware
                         Detail = "You must change your password before accessing other platform resources.",
                         Instance = context.Request.Path
                     };
-                    problem.Extensions["code"] = "PASSWORD_CHANGE_REQUIRED";
+                    problem.Extensions["code"] = "MUST_CHANGE_PASSWORD";
 
                     await context.Response.WriteAsync(JsonSerializer.Serialize(problem));
                     return;

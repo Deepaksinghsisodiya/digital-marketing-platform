@@ -21,7 +21,11 @@ public class IdentityPolicyUnitTests
         Permissions.All.ShouldContain(Permissions.LeadsView);
         Permissions.All.ShouldContain(Permissions.LeadsManage);
         Permissions.All.ShouldContain(Permissions.LeadsExport);
-        Permissions.All.Count.ShouldBe(12);
+        Permissions.All.ShouldContain(Permissions.ClientsView);
+        Permissions.All.ShouldContain(Permissions.ClientsManage);
+        Permissions.All.ShouldContain(Permissions.TasksView);
+        Permissions.All.ShouldContain(Permissions.TasksManage);
+        Permissions.All.Count.ShouldBe(16);
     }
 
     [Fact]

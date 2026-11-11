@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import type { HealthLiveResponse } from "@nexora/contracts";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5201";
 
 export function BackendHealthCheck() {
   const [health, setHealth] = useState<HealthLiveResponse | null>(null);
@@ -91,7 +91,7 @@ export function BackendHealthCheck() {
         )}
         {error && (
           <p className="text-pink text-xs mt-2">
-            Notice: {error} (start backend on port 5000)
+            Notice: {error} (start backend on port 5201)
           </p>
         )}
       </div>

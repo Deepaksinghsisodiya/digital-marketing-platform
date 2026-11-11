@@ -1,18 +1,21 @@
 using System.Net;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Nexora.IntegrationTests.Infrastructure;
 using Shouldly;
 using Xunit;
 
 namespace Nexora.IntegrationTests;
 
-public class SwaggerAndOpenApiTests : IClassFixture<WebApplicationFactory<Program>>
+[Collection("IntegrationTests")]
+public class SwaggerAndOpenApiTests
 {
-    private readonly WebApplicationFactory<Program> _factory;
+    private readonly NexoraTestWebApplicationFactory _factory;
 
-    public SwaggerAndOpenApiTests(WebApplicationFactory<Program> factory)
+    public SwaggerAndOpenApiTests(NexoraTestWebApplicationFactory factory)
     {
         _factory = factory;
+        _factory.EnsureDatabaseMigrated();
     }
 
     [Fact]
@@ -28,19 +31,22 @@ public class SwaggerAndOpenApiTests : IClassFixture<WebApplicationFactory<Progra
         rootResponse.StatusCode.ShouldBe(HttpStatusCode.Redirect);
         rootResponse.Headers.Location?.ToString().ShouldBe("/swagger");
 
-        // 2. Swagger UI endpoint
+        // 2. Swagger UI /swagger/index.html
         var swaggerResponse = await client.GetAsync("/swagger/index.html");
         swaggerResponse.StatusCode.ShouldBe(HttpStatusCode.OK);
+        var swaggerBody = await swaggerResponse.Content.ReadAsStringAsync();
+        swaggerBody.ShouldContain("swagger-ui");
 
-        // 3. Scalar UI endpoint
+        // 3. Scalar API Reference /scalar/v1
         var scalarResponse = await client.GetAsync("/scalar/v1");
         scalarResponse.StatusCode.ShouldBe(HttpStatusCode.OK);
 
-        // 4. OpenAPI JSON specification
+        // 4. OpenAPI JSON /openapi/v1.json
         var openApiResponse = await client.GetAsync("/openapi/v1.json");
         openApiResponse.StatusCode.ShouldBe(HttpStatusCode.OK);
-        var jsonContent = await openApiResponse.Content.ReadAsStringAsync();
-        jsonContent.ShouldContain("CSRF Protection Notice");
+        var openApiBody = await openApiResponse.Content.ReadAsStringAsync();
+        openApiBody.ShouldContain("Nexora Platform API");
+        openApiBody.ShouldContain(".Nexora.Session");
     }
 
     [Fact]
@@ -51,7 +57,7 @@ public class SwaggerAndOpenApiTests : IClassFixture<WebApplicationFactory<Progra
 
         try
         {
-            using var prodFactory = new WebApplicationFactory<Program>()
+            using var prodFactory = new NexoraTestWebApplicationFactory()
                 .WithWebHostBuilder(builder =>
                 {
                     builder.UseEnvironment("Production");
@@ -68,8 +74,8 @@ public class SwaggerAndOpenApiTests : IClassFixture<WebApplicationFactory<Progra
             var scalarResponse = await prodClient.GetAsync("/scalar/v1");
             scalarResponse.StatusCode.ShouldBe(HttpStatusCode.NotFound);
 
-            var openApiResponse = await prodClient.GetAsync("/openapi/v1.json");
-            openApiResponse.StatusCode.ShouldBe(HttpStatusCode.NotFound);
+            var rootResponse = await prodClient.GetAsync("/");
+            rootResponse.StatusCode.ShouldBe(HttpStatusCode.NotFound);
         }
         finally
         {
@@ -78,4 +84,3 @@ public class SwaggerAndOpenApiTests : IClassFixture<WebApplicationFactory<Progra
         }
     }
 }
-

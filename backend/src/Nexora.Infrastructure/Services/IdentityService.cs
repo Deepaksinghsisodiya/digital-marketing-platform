@@ -89,17 +89,12 @@ public class IdentityService : IIdentityService
         user.LastLoginAtUtc = _dateTimeProvider.UtcNow;
         await _userManager.UpdateAsync(user);
 
-        if (_httpContextAccessor.HttpContext != null)
-        {
-            await _signInManager.SignInAsync(user, rememberMe);
-        }
-
         return (true, null, user.Id, user.MustChangePassword);
     }
 
-    public async Task SignOutAsync()
+    public Task SignOutAsync()
     {
-        await _signInManager.SignOutAsync();
+        return Task.CompletedTask;
     }
 
     public async Task SignOutEverywhereAsync(Guid userId, CancellationToken ct = default)
@@ -173,6 +168,7 @@ public class IdentityService : IIdentityService
         string newPassword,
         CancellationToken ct = default)
     {
+        _context.ChangeTracker.Clear();
         var user = await _userManager.FindByEmailAsync(email);
         if (user == null || user.Status == UserStatus.Suspended)
         {
@@ -185,15 +181,17 @@ public class IdentityService : IIdentityService
             return (false, string.Join("; ", result.Errors.Select(e => e.Description)));
         }
 
-        // If user was invited, transition to Active
-        if (user.Status == UserStatus.Invited)
+        // If user was invited or MustChangePassword was set, transition to Active and clear flag
+        if (user.Status == UserStatus.Invited || user.MustChangePassword)
         {
             user.Status = UserStatus.Active;
+            user.MustChangePassword = false;
+            var updateResult = await _userManager.UpdateAsync(user);
+            if (!updateResult.Succeeded)
+            {
+                return (false, string.Join("; ", updateResult.Errors.Select(e => e.Description)));
+            }
         }
-
-        user.MustChangePassword = false;
-        await _userManager.UpdateAsync(user);
-        await _userManager.UpdateSecurityStampAsync(user);
 
         _memoryCache.Remove($"UserPerms_{user.Id}");
         return (true, null);
@@ -264,6 +262,8 @@ public class IdentityService : IIdentityService
         Guid actingUserId,
         CancellationToken ct = default)
     {
+        _context.ChangeTracker.Clear();
+
         // 1. Self-Action Protection
         if (targetUserId == actingUserId)
         {
@@ -328,9 +328,13 @@ public class IdentityService : IIdentityService
                 user.Status = UserStatus.Suspended;
                 user.SuspendedAtUtc = _dateTimeProvider.UtcNow;
                 user.SuspensionReason = suspensionReason ?? "Administrative suspension";
+                user.SecurityStamp = Guid.NewGuid().ToString(); // Force terminate active sessions atomically
 
-                await _userManager.UpdateAsync(user);
-                await _userManager.UpdateSecurityStampAsync(user); // Force terminate active sessions
+                var res = await _userManager.UpdateAsync(user);
+                if (!res.Succeeded)
+                {
+                    return (false, string.Join("; ", res.Errors.Select(e => e.Description)));
+                }
                 _memoryCache.Remove($"UserPerms_{targetUserId}");
             }
             else if (!isSuspended.Value && user.Status == UserStatus.Suspended)
@@ -338,12 +342,59 @@ public class IdentityService : IIdentityService
                 user.Status = UserStatus.Active;
                 user.SuspendedAtUtc = null;
                 user.SuspensionReason = null;
+                user.SecurityStamp = Guid.NewGuid().ToString();
 
-                await _userManager.UpdateAsync(user);
+                var res = await _userManager.UpdateAsync(user);
+                if (!res.Succeeded)
+                {
+                    return (false, string.Join("; ", res.Errors.Select(e => e.Description)));
+                }
                 _memoryCache.Remove($"UserPerms_{targetUserId}");
             }
         }
 
+        return (true, null);
+    }
+
+    public async Task<(bool Success, string? Error)> DeleteUserAsync(
+        Guid targetUserId,
+        Guid actingUserId,
+        CancellationToken ct = default)
+    {
+        _context.ChangeTracker.Clear();
+        if (targetUserId == actingUserId)
+        {
+            return (false, "You cannot delete your own account.");
+        }
+
+        var user = await _userManager.FindByIdAsync(targetUserId.ToString());
+        if (user == null)
+        {
+            return (false, "User not found.");
+        }
+
+        var roles = await _userManager.GetRolesAsync(user);
+        if (roles.Contains(Roles.Owner))
+        {
+            var activeOwnersCount = await (from u in _context.Users
+                                           join ur in _context.UserRoles on u.Id equals ur.UserId
+                                           join r in _context.Roles on ur.RoleId equals r.Id
+                                           where r.Name == Roles.Owner && u.Status == UserStatus.Active
+                                           select u.Id).Distinct().CountAsync(ct);
+
+            if (activeOwnersCount <= 1)
+            {
+                return (false, "Cannot delete the last active Owner.");
+            }
+        }
+
+        var result = await _userManager.DeleteAsync(user);
+        if (!result.Succeeded)
+        {
+            return (false, string.Join("; ", result.Errors.Select(e => e.Description)));
+        }
+
+        _memoryCache.Remove($"UserPerms_{targetUserId}");
         return (true, null);
     }
 
@@ -467,5 +518,160 @@ public class IdentityService : IIdentityService
         }
 
         return list;
+    }
+
+    public async Task<(bool Success, string? Error)> CreateRoleAsync(
+        string roleName,
+        string? description,
+        IReadOnlyList<string> permissions,
+        Guid actingUserId,
+        CancellationToken ct = default)
+    {
+        if (string.IsNullOrWhiteSpace(roleName))
+        {
+            return (false, "Role name is required.");
+        }
+
+        roleName = roleName.Trim();
+        if (await _roleManager.RoleExistsAsync(roleName))
+        {
+            return (false, $"Role '{roleName}' already exists.");
+        }
+
+        var newRole = new ApplicationRole
+        {
+            Name = roleName,
+            NormalizedName = roleName.ToUpperInvariant(),
+            Description = description ?? $"Custom {roleName} role",
+            IsSystemRole = false
+        };
+
+        var res = await _roleManager.CreateAsync(newRole);
+        if (!res.Succeeded)
+        {
+            return (false, res.Errors.FirstOrDefault()?.Description ?? "Failed to create role.");
+        }
+
+        var validPerms = permissions.Where(p => Permissions.All.Contains(p)).Distinct().ToList();
+        foreach (var p in validPerms)
+        {
+            _context.RolePermissions.Add(new RolePermission
+            {
+                RoleId = newRole.Id,
+                PermissionKey = p
+            });
+        }
+        await _context.SaveChangesAsync(ct);
+
+        await _auditLogService.LogAsync(
+            action: "role.created",
+            resourceType: "Role",
+            resourceId: newRole.Id.ToString(),
+            outcome: "Success",
+            actorUserId: actingUserId,
+            actorEmail: null,
+            ipAddress: null,
+            userAgent: null,
+            correlationId: Guid.NewGuid().ToString("N"),
+            metadata: new Dictionary<string, object?> { ["RoleName"] = roleName, ["PermissionsCount"] = validPerms.Count },
+            cancellationToken: ct);
+
+        return (true, null);
+    }
+
+    public async Task<(bool Success, string? Error)> UpdateRolePermissionsAsync(
+        string roleName,
+        IReadOnlyList<string> permissions,
+        Guid actingUserId,
+        CancellationToken ct = default)
+    {
+        var role = await _roleManager.FindByNameAsync(roleName);
+        if (role == null)
+        {
+            return (false, $"Role '{roleName}' not found.");
+        }
+
+        if (role.Name == Roles.Owner)
+        {
+            return (false, "Owner role permissions are system immutable and cannot be restricted.");
+        }
+
+        var existingPerms = await _context.RolePermissions
+            .Where(rp => rp.RoleId == role.Id)
+            .ToListAsync(ct);
+        _context.RolePermissions.RemoveRange(existingPerms);
+
+        var validPerms = permissions.Where(p => Permissions.All.Contains(p)).Distinct().ToList();
+        foreach (var p in validPerms)
+        {
+            _context.RolePermissions.Add(new RolePermission
+            {
+                RoleId = role.Id,
+                PermissionKey = p
+            });
+        }
+        await _context.SaveChangesAsync(ct);
+
+        await _auditLogService.LogAsync(
+            action: "role.permissions_updated",
+            resourceType: "Role",
+            resourceId: role.Id.ToString(),
+            outcome: "Success",
+            actorUserId: actingUserId,
+            actorEmail: null,
+            ipAddress: null,
+            userAgent: null,
+            correlationId: Guid.NewGuid().ToString("N"),
+            metadata: new Dictionary<string, object?> { ["RoleName"] = roleName, ["PermissionsCount"] = validPerms.Count },
+            cancellationToken: ct);
+
+        return (true, null);
+    }
+
+    public async Task<(bool Success, string? Error)> DeleteRoleAsync(
+        string roleName,
+        Guid actingUserId,
+        CancellationToken ct = default)
+    {
+        var role = await _roleManager.FindByNameAsync(roleName);
+        if (role == null)
+        {
+            return (false, $"Role '{roleName}' not found.");
+        }
+
+        var systemRoles = new[] { Roles.Owner, Roles.Admin, Roles.Editor, Roles.Sales };
+        if (systemRoles.Contains(role.Name) || role.IsSystemRole)
+        {
+            return (false, $"System role '{role.Name}' cannot be deleted.");
+        }
+
+        var usersInRole = await _userManager.GetUsersInRoleAsync(role.Name!);
+        if (usersInRole.Count > 0)
+        {
+            return (false, $"Cannot delete role '{role.Name}' because {usersInRole.Count} user(s) are currently assigned to it. Reassign users first.");
+        }
+
+        var existingPerms = await _context.RolePermissions
+            .Where(rp => rp.RoleId == role.Id)
+            .ToListAsync(ct);
+        _context.RolePermissions.RemoveRange(existingPerms);
+
+        await _roleManager.DeleteAsync(role);
+        await _context.SaveChangesAsync(ct);
+
+        await _auditLogService.LogAsync(
+            action: "role.deleted",
+            resourceType: "Role",
+            resourceId: role.Id.ToString(),
+            outcome: "Success",
+            actorUserId: actingUserId,
+            actorEmail: null,
+            ipAddress: null,
+            userAgent: null,
+            correlationId: Guid.NewGuid().ToString("N"),
+            metadata: new Dictionary<string, object?> { ["RoleName"] = roleName },
+            cancellationToken: ct);
+
+        return (true, null);
     }
 }

@@ -24,6 +24,12 @@ public static class Permissions
     public const string LeadsManage = "leads.manage";
     public const string LeadsExport = "leads.export";
 
+    // Clients & Lite CRM
+    public const string ClientsView = "clients.view";
+    public const string ClientsManage = "clients.manage";
+    public const string TasksView = "tasks.view";
+    public const string TasksManage = "tasks.manage";
+
     public static readonly IReadOnlyList<string> All =
     [
         SettingsView,
@@ -37,7 +43,11 @@ public static class Permissions
         PagesPublish,
         LeadsView,
         LeadsManage,
-        LeadsExport
+        LeadsExport,
+        ClientsView,
+        ClientsManage,
+        TasksView,
+        TasksManage
     ];
 }
 

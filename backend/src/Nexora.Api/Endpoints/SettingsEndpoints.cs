@@ -75,6 +75,28 @@ public static class SettingsEndpoints
         .WithName("UpdateAdminSettings")
         .WithSummary("Update site settings with optimistic concurrency version check.");
 
+        adminGroup.MapPost("/smtp/test", async (
+            TestSmtpConnectionDto dto,
+            ISiteSettingsService settingsService,
+            CancellationToken ct) =>
+        {
+            if (string.IsNullOrWhiteSpace(dto.Host) || string.IsNullOrWhiteSpace(dto.RecipientEmail))
+            {
+                return Results.BadRequest(new { error = "Host and RecipientEmail are required." });
+            }
+
+            var (success, error) = await settingsService.TestSmtpConnectionAsync(dto, ct);
+            if (!success)
+            {
+                return Results.BadRequest(new { error = $"SMTP Test Failed: {error}" });
+            }
+
+            return Results.Ok(new { message = $"SMTP connection successful! Diagnostic email delivered to {dto.RecipientEmail} via {dto.Host}:{dto.Port}." });
+        })
+        .RequireAuthorization(Permissions.SettingsManage)
+        .WithName("TestSmtpConnection")
+        .WithSummary("Test SMTP connection and deliver diagnostic email.");
+
         // 2. Public Safe Site Settings (Anonymous)
         app.MapGet("/api/v1/public/site-settings", async (
             ISiteSettingsService settingsService,

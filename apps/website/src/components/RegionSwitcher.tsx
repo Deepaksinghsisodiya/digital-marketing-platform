@@ -2,6 +2,7 @@
 
 import { useTransition } from "react";
 import { REGION_CONFIG, type RegionDefinition } from "../config/region";
+import { Globe } from "lucide-react";
 
 interface RegionSwitcherProps {
   currentRegion: RegionDefinition;
@@ -18,16 +19,16 @@ export function RegionSwitcher({ currentRegion }: RegionSwitcherProps) {
   };
 
   return (
-    <div className="flex items-center gap-2 text-xs text-muted bg-paper border border-border px-3 py-1.5 rounded-full">
-      <span className="font-semibold text-ink">Region:</span>
+    <div className="flex items-center gap-1.5 text-xs text-slate-700 bg-slate-100/80 hover:bg-slate-200/80 border border-slate-200 px-3 py-1.5 rounded-xl transition shadow-sm">
+      <Globe className="w-3.5 h-3.5 text-indigo-600 flex-shrink-0" />
       <select
         value={currentRegion.code}
         onChange={(e) => handleRegionChange(e.target.value)}
-        className="bg-transparent text-ink font-medium focus:outline-none cursor-pointer"
-        aria-label="Select Region"
+        className="bg-transparent text-slate-800 font-semibold focus:outline-none cursor-pointer text-xs"
+        aria-label="Select Target Region"
       >
         {Object.values(REGION_CONFIG.supportedRegions).map((reg) => (
-          <option key={reg.code} value={reg.code}>
+          <option key={reg.code} value={reg.code} className="bg-white text-slate-900 py-1">
             {reg.flag} {reg.name} ({reg.currency})
           </option>
         ))}

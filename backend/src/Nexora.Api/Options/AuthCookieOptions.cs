@@ -9,7 +9,7 @@ public class AuthCookieOptions
 {
     public const string SectionName = "AuthCookie";
 
-    public string CookieName { get; set; } = ".Nexora.Admin.Session";
+    public string CookieName { get; set; } = ".Nexora.Session";
     public string? Domain { get; set; }
     public string SameSite { get; set; } = "Lax"; // Lax or Strict
     public bool Secure { get; set; } = false; // Enabled in production

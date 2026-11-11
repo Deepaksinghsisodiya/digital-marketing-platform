@@ -3,17 +3,22 @@ using System.Net.Http.Json;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
+using Nexora.IntegrationTests.Infrastructure;
 using Shouldly;
 using Xunit;
 
 namespace Nexora.IntegrationTests;
 
-public class HealthEndpointTests : IClassFixture<WebApplicationFactory<Program>>
+[Collection("IntegrationTests")]
+public class HealthEndpointTests
 {
     private readonly HttpClient _client;
+    private readonly NexoraTestWebApplicationFactory _factory;
 
-    public HealthEndpointTests(WebApplicationFactory<Program> factory)
+    public HealthEndpointTests(NexoraTestWebApplicationFactory factory)
     {
+        _factory = factory;
+        _factory.EnsureDatabaseMigrated();
         _client = factory.CreateClient();
     }
 
@@ -30,15 +35,26 @@ public class HealthEndpointTests : IClassFixture<WebApplicationFactory<Program>>
     }
 
     [Fact]
-    public async Task Request_Should_IncludeCorrelationIdHeaderInResponse()
+    public async Task HealthLive_ShouldIncludeSecurityHeaders()
     {
-        var request = new HttpRequestMessage(HttpMethod.Get, "/health/live");
-        request.Headers.Add("X-Correlation-Id", "test-corr-id-12345");
+        var response = await _client.GetAsync("/health/live");
 
-        var response = await _client.SendAsync(request);
+        response.Headers.Contains("X-Content-Type-Options").ShouldBeTrue();
+        response.Headers.GetValues("X-Content-Type-Options").ShouldContain("nosniff");
+        response.Headers.Contains("X-Frame-Options").ShouldBeTrue();
+        response.Headers.GetValues("X-Frame-Options").ShouldContain("DENY");
+        response.Headers.Contains("Referrer-Policy").ShouldBeTrue();
+        response.Headers.GetValues("Referrer-Policy").ShouldContain("strict-origin-when-cross-origin");
+    }
 
-        response.Headers.Contains("X-Correlation-Id").ShouldBeTrue();
-        response.Headers.GetValues("X-Correlation-Id").First().ShouldBe("test-corr-id-12345");
+    [Fact]
+    public async Task DevTestEmail_InDevelopment_ShouldBeAvailable()
+    {
+        // /dev/test-email is gated by IsDevelopment()
+        var response = await _client.GetAsync("/dev/test-email");
+
+        // May return 200 (if SMTP server available) or 500/etc., but NOT 404
+        response.StatusCode.ShouldNotBe(HttpStatusCode.NotFound);
     }
 
     [Fact]
@@ -49,7 +65,7 @@ public class HealthEndpointTests : IClassFixture<WebApplicationFactory<Program>>
 
         try
         {
-            using var prodFactory = new WebApplicationFactory<Program>()
+            using var prodFactory = new NexoraTestWebApplicationFactory()
                 .WithWebHostBuilder(builder =>
                 {
                     builder.UseEnvironment("Production");
@@ -69,4 +85,3 @@ public class HealthEndpointTests : IClassFixture<WebApplicationFactory<Program>>
 
     private sealed record HealthLiveResponse(string Status, DateTime Timestamp, string Service);
 }
-

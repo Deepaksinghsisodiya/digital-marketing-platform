@@ -11,6 +11,14 @@ public record SiteSettingsDto(
     string[] SupportedRegions,
     string TimeZoneId,
     Guid? LogoMediaId,
+    string SmtpHost,
+    int SmtpPort,
+    bool SmtpUseSsl,
+    string? SmtpUserName,
+    string? SmtpFromEmail,
+    string? SmtpFromName,
+    bool SmtpIsConfigured,
+    string SectionVisibilityJson,
     string VersionToken,
     DateTime CreatedAtUtc,
     DateTime? UpdatedAtUtc);
@@ -22,7 +30,8 @@ public record PublicSiteSettingsDto(
     string DefaultRegion,
     string[] SupportedRegions,
     string TimeZoneId,
-    Guid? LogoMediaId);
+    Guid? LogoMediaId,
+    string SectionVisibilityJson);
 
 public record UpdateSiteSettingsDto(
     string CompanyName,
@@ -34,5 +43,22 @@ public record UpdateSiteSettingsDto(
     string[] SupportedRegions,
     string TimeZoneId,
     Guid? LogoMediaId,
-    string VersionToken);
+    string? SmtpHost = null,
+    int? SmtpPort = null,
+    bool? SmtpUseSsl = null,
+    string? SmtpUserName = null,
+    string? SmtpPassword = null,
+    string? SmtpFromEmail = null,
+    string? SmtpFromName = null,
+    string? SectionVisibilityJson = null,
+    string VersionToken = "");
 
+public record TestSmtpConnectionDto(
+    string Host,
+    int Port,
+    bool UseSsl,
+    string? UserName,
+    string? Password,
+    string FromEmail,
+    string FromName,
+    string RecipientEmail);

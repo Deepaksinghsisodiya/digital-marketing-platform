@@ -22,9 +22,42 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
     public DbSet<RolePermission> RolePermissions => Set<RolePermission>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
     public DbSet<SiteSettings> SiteSettings => Set<SiteSettings>();
+    public DbSet<Page> Pages => Set<Page>();
+    public DbSet<PageVersion> PageVersions => Set<PageVersion>();
+    public DbSet<MediaAsset> MediaAssets => Set<MediaAsset>();
+    public DbSet<MediaFolder> MediaFolders => Set<MediaFolder>();
+    public DbSet<NavigationMenu> NavigationMenus => Set<NavigationMenu>();
+    public DbSet<NavigationMenuItem> NavigationMenuItems => Set<NavigationMenuItem>();
+    public DbSet<PreviewToken> PreviewTokens => Set<PreviewToken>();
+    public DbSet<FormDefinition> FormDefinitions => Set<FormDefinition>();
+    public DbSet<Lead> Leads => Set<Lead>();
+    public DbSet<LeadActivity> LeadActivities => Set<LeadActivity>();
+    public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
+    public DbSet<EmailTemplate> EmailTemplates => Set<EmailTemplate>();
+    public DbSet<EmailLog> EmailLogs => Set<EmailLog>();
+    public DbSet<Client> Clients => Set<Client>();
+    public DbSet<Contact> Contacts => Set<Contact>();
+    public DbSet<TaskItem> TaskItems => Set<TaskItem>();
+    public DbSet<ClientActivity> ClientActivities => Set<ClientActivity>();
+    public DbSet<BlogPost> BlogPosts => Set<BlogPost>();
+    public DbSet<PipelineStage> PipelineStages => Set<PipelineStage>();
+    public DbSet<CountryRegion> CountryRegions => Set<CountryRegion>();
 
     IQueryable<AuditLog> IAppDbContext.AuditLogs => AuditLogs;
     IQueryable<SiteSettings> IAppDbContext.SiteSettings => SiteSettings;
+    IQueryable<FormDefinition> IAppDbContext.FormDefinitions => FormDefinitions;
+    IQueryable<Lead> IAppDbContext.Leads => Leads;
+    IQueryable<LeadActivity> IAppDbContext.LeadActivities => LeadActivities;
+    IQueryable<OutboxMessage> IAppDbContext.OutboxMessages => OutboxMessages;
+    IQueryable<EmailTemplate> IAppDbContext.EmailTemplates => EmailTemplates;
+    IQueryable<EmailLog> IAppDbContext.EmailLogs => EmailLogs;
+    IQueryable<Client> IAppDbContext.Clients => Clients;
+    IQueryable<Contact> IAppDbContext.Contacts => Contacts;
+    IQueryable<TaskItem> IAppDbContext.TaskItems => TaskItems;
+    IQueryable<ClientActivity> IAppDbContext.ClientActivities => ClientActivities;
+    IQueryable<BlogPost> IAppDbContext.BlogPosts => BlogPosts;
+    IQueryable<PipelineStage> IAppDbContext.PipelineStages => PipelineStages;
+    IQueryable<CountryRegion> IAppDbContext.CountryRegions => CountryRegions;
 
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
     {
@@ -189,8 +222,425 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
 
             b.Property(s => s.TimeZoneId).HasMaxLength(100).IsRequired();
 
+            b.Property(s => s.SmtpHost).HasMaxLength(200);
+            b.Property(s => s.SmtpUserName).HasMaxLength(200);
+            b.Property(s => s.SmtpPassword).HasMaxLength(500);
+            b.Property(s => s.SmtpFromEmail).HasMaxLength(256);
+            b.Property(s => s.SmtpFromName).HasMaxLength(200);
+            b.Property(s => s.SectionVisibilityJson).HasColumnType("nvarchar(max)");
+
             // Optimistic concurrency using SQL Server rowversion
             b.Property(s => s.Version).IsRowVersion();
+        });
+
+        // 4. CMS: Pages Configuration
+        builder.Entity<Page>(b =>
+        {
+            b.ToTable("Pages");
+            b.HasKey(p => p.Id);
+
+            b.Property(p => p.Slug).HasMaxLength(200).IsRequired();
+            b.Property(p => p.Locale).HasMaxLength(10).IsRequired();
+            b.Property(p => p.Title).HasMaxLength(300).IsRequired();
+            b.Property(p => p.Status).HasConversion<int>().IsRequired();
+            b.Property(p => p.IsEnabled).IsRequired();
+
+            b.Property(p => p.MetaTitle).HasMaxLength(300);
+            b.Property(p => p.MetaDescription).HasMaxLength(500);
+            b.Property(p => p.CanonicalUrl).HasMaxLength(500);
+
+            // Concurrency token for optimistic locking on page edits
+            b.Property(p => p.Version).IsRowVersion();
+
+            // Unique index per Slug + Locale
+            b.HasIndex(p => new { p.Slug, p.Locale }).IsUnique();
+
+            // Self-referencing published version relation
+            b.HasOne(p => p.PublishedVersion)
+                .WithMany()
+                .HasForeignKey(p => p.PublishedVersionId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            b.HasMany(p => p.Versions)
+                .WithOne(v => v.Page)
+                .HasForeignKey(v => v.PageId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // 5. CMS: PageVersions Configuration
+        builder.Entity<PageVersion>(b =>
+        {
+            b.ToTable("PageVersions", tb =>
+            {
+                tb.HasCheckConstraint("CK_PageVersions_ContentJson_Json", "ISJSON([ContentJson]) = 1");
+            });
+
+            b.HasKey(v => v.Id);
+            b.Property(v => v.VersionNumber).IsRequired();
+            b.Property(v => v.SchemaVersion).IsRequired();
+            b.Property(v => v.ContentJson).HasColumnType("nvarchar(max)").IsRequired();
+            b.Property(v => v.Note).HasMaxLength(500);
+
+            b.HasIndex(v => new { v.PageId, v.VersionNumber }).IsUnique();
+        });
+
+        // 6. CMS: Media Assets & Folders
+        builder.Entity<MediaFolder>(b =>
+        {
+            b.ToTable("MediaFolders");
+            b.HasKey(f => f.Id);
+            b.Property(f => f.Name).HasMaxLength(150).IsRequired();
+
+            b.HasOne(f => f.ParentFolder)
+                .WithMany(pf => pf.SubFolders)
+                .HasForeignKey(f => f.ParentFolderId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        builder.Entity<MediaAsset>(b =>
+        {
+            b.ToTable("MediaAssets");
+            b.HasKey(m => m.Id);
+            b.Property(m => m.StorageKey).HasMaxLength(256).IsRequired();
+            b.HasIndex(m => m.StorageKey).IsUnique();
+
+            b.Property(m => m.FileName).HasMaxLength(256).IsRequired();
+            b.Property(m => m.MimeType).HasMaxLength(100).IsRequired();
+            b.Property(m => m.AltText).HasMaxLength(300);
+
+            b.HasOne(m => m.Folder)
+                .WithMany(f => f.Assets)
+                .HasForeignKey(m => m.FolderId)
+                .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        // 7. CMS: Navigation Menus & Items
+        builder.Entity<NavigationMenu>(b =>
+        {
+            b.ToTable("NavigationMenus");
+            b.HasKey(m => m.Id);
+            b.Property(m => m.Key).HasMaxLength(100).IsRequired();
+            b.Property(m => m.Title).HasMaxLength(150).IsRequired();
+            b.Property(m => m.RegionCode).HasMaxLength(10);
+
+            b.HasIndex(m => new { m.Key, m.RegionCode }).IsUnique();
+
+            b.HasMany(m => m.Items)
+                .WithOne(i => i.Menu)
+                .HasForeignKey(i => i.MenuId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<NavigationMenuItem>(b =>
+        {
+            b.ToTable("NavigationMenuItems");
+            b.HasKey(i => i.Id);
+            b.Property(i => i.Label).HasMaxLength(150).IsRequired();
+            b.Property(i => i.Url).HasMaxLength(500).IsRequired();
+            b.Property(i => i.DisplayOrder).IsRequired();
+
+            b.HasOne(i => i.ParentItem)
+                .WithMany(p => p.Children)
+                .HasForeignKey(i => i.ParentItemId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        // 8. CMS: Preview Tokens
+        builder.Entity<PreviewToken>(b =>
+        {
+            b.ToTable("PreviewTokens");
+            b.HasKey(t => t.Id);
+            b.Property(t => t.Token).HasMaxLength(100).IsRequired();
+            b.HasIndex(t => t.Token).IsUnique();
+
+            b.HasOne(t => t.PageVersion)
+                .WithMany()
+                .HasForeignKey(t => t.PageVersionId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // 9. Forms & Form Definitions
+        builder.Entity<FormDefinition>(b =>
+        {
+            b.ToTable("FormDefinitions", tb =>
+            {
+                tb.HasCheckConstraint("CK_FormDefinitions_SchemaJson", "ISJSON([SchemaJson]) = 1");
+                tb.HasCheckConstraint("CK_FormDefinitions_SettingsJson", "ISJSON([SettingsJson]) = 1");
+            });
+
+            b.HasKey(f => f.Id);
+            b.Property(f => f.FormKey).HasMaxLength(100).IsRequired();
+            b.HasIndex(f => f.FormKey).IsUnique();
+
+            b.Property(f => f.Name).HasMaxLength(150).IsRequired();
+            b.Property(f => f.Title).HasMaxLength(200);
+            b.Property(f => f.Description).HasMaxLength(500);
+            b.Property(f => f.SchemaJson).HasColumnType("nvarchar(max)").IsRequired();
+            b.Property(f => f.SettingsJson).HasColumnType("nvarchar(max)").IsRequired();
+            b.Property(f => f.IsActive).IsRequired();
+        });
+
+        // 10. Leads & Inquiries
+        builder.Entity<Lead>(b =>
+        {
+            b.ToTable("Leads", tb =>
+            {
+                tb.HasCheckConstraint("CK_Leads_CustomFieldsJson", "ISJSON([CustomFieldsJson]) = 1");
+                tb.HasCheckConstraint("CK_Leads_InternalNotesJson", "ISJSON([InternalNotesJson]) = 1");
+            });
+
+            b.HasKey(l => l.Id);
+            b.Property(l => l.FormKey).HasMaxLength(100).IsRequired();
+            b.Property(l => l.FullName).HasMaxLength(200).IsRequired();
+            b.Property(l => l.Email).HasMaxLength(256).IsRequired();
+            b.Property(l => l.Phone).HasMaxLength(50);
+            b.Property(l => l.Company).HasMaxLength(200);
+            b.Property(l => l.Region).HasMaxLength(10).IsRequired();
+            b.Property(l => l.State).HasMaxLength(100);
+            b.Property(l => l.PostalCode).HasMaxLength(20);
+            b.Property(l => l.CustomFieldsJson).HasColumnType("nvarchar(max)").IsRequired();
+
+            b.Property(l => l.UtmSource).HasMaxLength(150);
+            b.Property(l => l.UtmMedium).HasMaxLength(150);
+            b.Property(l => l.UtmCampaign).HasMaxLength(150);
+            b.Property(l => l.UtmTerm).HasMaxLength(150);
+            b.Property(l => l.UtmContent).HasMaxLength(150);
+            b.Property(l => l.ReferrerUrl).HasMaxLength(500);
+
+            b.Property(l => l.ConsentGiven).IsRequired();
+            b.Property(l => l.ConsentWordingVersion).HasMaxLength(50);
+            b.Property(l => l.ConsentTimestampUtc);
+
+            b.Property(l => l.Status).IsRequired();
+            b.Property(l => l.AssignedToUserId);
+            b.Property(l => l.InternalNotesJson).HasColumnType("nvarchar(max)").IsRequired();
+
+            b.Property(l => l.IpAddress).HasMaxLength(45);
+            b.Property(l => l.UserAgent).HasMaxLength(512);
+
+            b.Property(l => l.ReferenceNumber).HasMaxLength(50);
+            b.Property(l => l.IdempotencyKey).HasMaxLength(128);
+            b.Property(l => l.TimeTrapNonce).HasMaxLength(64);
+
+            b.HasIndex(l => l.Email);
+            b.HasIndex(l => l.Phone);
+            b.HasIndex(l => l.Region);
+            b.HasIndex(l => l.FormKey);
+            b.HasIndex(l => new { l.Status, l.CreatedAtUtc })
+                .IsDescending(false, true);
+
+            b.HasIndex(l => l.ReferenceNumber)
+                .IsUnique()
+                .HasFilter("[ReferenceNumber] IS NOT NULL");
+
+            b.HasIndex(l => new { l.FormKey, l.IdempotencyKey })
+                .IsUnique()
+                .HasFilter("[IdempotencyKey] IS NOT NULL");
+
+            b.HasIndex(l => l.TimeTrapNonce)
+                .IsUnique()
+                .HasFilter("[TimeTrapNonce] IS NOT NULL");
+
+            b.HasMany(l => l.Activities)
+                .WithOne(a => a.Lead)
+                .HasForeignKey(a => a.LeadId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // 11. Lead Activities / Audit
+        builder.Entity<LeadActivity>(b =>
+        {
+            b.ToTable("LeadActivities", tb =>
+            {
+                tb.HasCheckConstraint("CK_LeadActivities_MetadataJson", "ISJSON([MetadataJson]) = 1 OR [MetadataJson] IS NULL");
+            });
+
+            b.HasKey(a => a.Id);
+            b.Property(a => a.ActivityType).HasMaxLength(100).IsRequired();
+            b.Property(a => a.Description).HasMaxLength(1000).IsRequired();
+            b.Property(a => a.MetadataJson).HasColumnType("nvarchar(max)");
+            b.Property(a => a.ActorUserId);
+
+            b.HasIndex(a => new { a.LeadId, a.CreatedAtUtc })
+                .IsDescending(false, true);
+        });
+
+        // 12. Outbox Messages (Reliable Async Dispatch)
+        builder.Entity<OutboxMessage>(b =>
+        {
+            b.ToTable("OutboxMessages");
+            b.HasKey(o => o.Id);
+            b.Property(o => o.EventType).HasMaxLength(100).IsRequired();
+            b.Property(o => o.PayloadJson).HasColumnType("nvarchar(max)").IsRequired();
+            b.Property(o => o.ErrorMessage).HasMaxLength(2000);
+            b.Property(o => o.RetryCount).IsRequired();
+
+            b.HasIndex(o => new { o.ProcessedAtUtc, o.CreatedAtUtc })
+                .HasFilter("[ProcessedAtUtc] IS NULL");
+        });
+
+        // 13. Email Templates
+        builder.Entity<EmailTemplate>(b =>
+        {
+            b.ToTable("EmailTemplates");
+            b.HasKey(t => t.Id);
+            b.Property(t => t.Key).HasMaxLength(100).IsRequired();
+            b.HasIndex(t => t.Key).IsUnique();
+
+            b.Property(t => t.Name).HasMaxLength(150).IsRequired();
+            b.Property(t => t.SubjectTemplate).HasMaxLength(300).IsRequired();
+            b.Property(t => t.BodyHtmlTemplate).HasColumnType("nvarchar(max)").IsRequired();
+            b.Property(t => t.BodyPlainTextTemplate).HasColumnType("nvarchar(max)");
+            b.Property(t => t.IsActive).IsRequired();
+        });
+
+        // 14. Email Delivery Logs
+        builder.Entity<EmailLog>(b =>
+        {
+            b.ToTable("EmailLogs");
+            b.HasKey(l => l.Id);
+            b.Property(l => l.RecipientEmail).HasMaxLength(256).IsRequired();
+            b.Property(l => l.Subject).HasMaxLength(300).IsRequired();
+            b.Property(l => l.TemplateKey).HasMaxLength(100);
+            b.Property(l => l.Status).IsRequired();
+            b.Property(l => l.ErrorMessage).HasMaxLength(2000);
+            b.Property(l => l.SentAtUtc);
+
+            b.HasIndex(l => l.RecipientEmail);
+            b.HasIndex(l => new { l.Status, l.CreatedAtUtc })
+                .IsDescending(false, true);
+        });
+
+        // 15. Clients
+        builder.Entity<Client>(b =>
+        {
+            b.ToTable("Clients");
+            b.HasKey(c => c.Id);
+            b.Property(c => c.Name).HasMaxLength(200).IsRequired();
+            b.Property(c => c.PrimaryContactEmail).HasMaxLength(256).IsRequired();
+            b.Property(c => c.PrimaryContactPhone).HasMaxLength(50);
+            b.Property(c => c.Website).HasMaxLength(255);
+            b.Property(c => c.Industry).HasMaxLength(100);
+            b.Property(c => c.Region).HasMaxLength(10).IsRequired();
+            b.Property(c => c.Status).IsRequired();
+            b.Property(c => c.BillingAddress).HasMaxLength(500);
+            b.Property(c => c.TaxId).HasMaxLength(50);
+            b.Property(c => c.Notes).HasMaxLength(2000);
+
+            b.HasIndex(c => new { c.Region, c.Status });
+            b.HasIndex(c => c.PrimaryContactEmail);
+
+            b.HasMany(c => c.Contacts)
+                .WithOne(con => con.Client)
+                .HasForeignKey(con => con.ClientId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            b.HasMany(c => c.Tasks)
+                .WithOne(t => t.Client)
+                .HasForeignKey(t => t.ClientId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            b.HasMany(c => c.Activities)
+                .WithOne(a => a.Client)
+                .HasForeignKey(a => a.ClientId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // 16. Contacts
+        builder.Entity<Contact>(b =>
+        {
+            b.ToTable("Contacts");
+            b.HasKey(con => con.Id);
+            b.Property(con => con.FullName).HasMaxLength(150).IsRequired();
+            b.Property(con => con.Email).HasMaxLength(256).IsRequired();
+            b.Property(con => con.Phone).HasMaxLength(50);
+            b.Property(con => con.Title).HasMaxLength(100);
+            b.Property(con => con.IsPrimary).IsRequired();
+
+            b.HasIndex(con => new { con.ClientId, con.Email });
+        });
+
+        // 17. Tasks
+        builder.Entity<TaskItem>(b =>
+        {
+            b.ToTable("TaskItems");
+            b.HasKey(t => t.Id);
+            b.Property(t => t.Title).HasMaxLength(250).IsRequired();
+            b.Property(t => t.Description).HasMaxLength(1000);
+            b.Property(t => t.Priority).IsRequired();
+            b.Property(t => t.Status).IsRequired();
+            b.Property(t => t.DueDateUtc);
+            b.Property(t => t.CompletedAtUtc);
+
+            b.HasIndex(t => new { t.Status, t.DueDateUtc });
+            b.HasIndex(t => t.AssignedToUserId);
+        });
+
+        // 18. Client Activities
+        builder.Entity<ClientActivity>(b =>
+        {
+            b.ToTable("ClientActivities");
+            b.HasKey(a => a.Id);
+            b.Property(a => a.ActivityType).HasMaxLength(50).IsRequired();
+            b.Property(a => a.Description).HasMaxLength(1000).IsRequired();
+            b.Property(a => a.CreatedAtUtc).IsRequired();
+
+            b.HasIndex(a => new { a.ClientId, a.CreatedAtUtc })
+                .IsDescending(false, true);
+        });
+
+        // 19. Blog Posts
+        builder.Entity<BlogPost>(b =>
+        {
+            b.ToTable("BlogPosts");
+            b.HasKey(p => p.Id);
+            b.Property(p => p.Slug).HasMaxLength(200).IsRequired();
+            b.HasIndex(p => p.Slug).IsUnique();
+
+            b.Property(p => p.Title).HasMaxLength(250).IsRequired();
+            b.Property(p => p.Excerpt).HasMaxLength(500).IsRequired();
+            b.Property(p => p.ContentHtml).HasColumnType("nvarchar(max)").IsRequired();
+            b.Property(p => p.Category).HasMaxLength(100).IsRequired();
+            b.Property(p => p.Tags).HasMaxLength(250);
+            b.Property(p => p.CoverImageUrl).HasMaxLength(500);
+            b.Property(p => p.AuthorName).HasMaxLength(100).IsRequired();
+            b.Property(p => p.Status).IsRequired();
+            b.Property(p => p.MetaTitle).HasMaxLength(200);
+            b.Property(p => p.MetaDescription).HasMaxLength(300);
+
+            b.HasIndex(p => new { p.Status, p.PublishedAtUtc })
+                .IsDescending(false, true);
+            b.HasIndex(p => p.Category);
+        });
+
+        // 20. Dynamic Pipeline Stages
+        builder.Entity<PipelineStage>(b =>
+        {
+            b.ToTable("PipelineStages");
+            b.HasKey(s => s.Id);
+            b.Property(s => s.Category).HasMaxLength(50).IsRequired();
+            b.Property(s => s.StageKey).HasMaxLength(100).IsRequired();
+            b.Property(s => s.DisplayName).HasMaxLength(150).IsRequired();
+            b.Property(s => s.ColorHex).HasMaxLength(30).IsRequired();
+            b.Property(s => s.BadgeClass).HasMaxLength(150);
+            b.HasIndex(s => new { s.Category, s.Value });
+            b.HasIndex(s => new { s.Category, s.OrderIndex });
+        });
+
+        // 21. Dynamic Country Regions & Currencies
+        builder.Entity<CountryRegion>(b =>
+        {
+            b.ToTable("CountryRegions");
+            b.HasKey(r => r.Id);
+            b.Property(r => r.Code).HasMaxLength(10).IsRequired();
+            b.HasIndex(r => r.Code).IsUnique();
+            b.Property(r => r.Name).HasMaxLength(100).IsRequired();
+            b.Property(r => r.CurrencyCode).HasMaxLength(10).IsRequired();
+            b.Property(r => r.CurrencySymbol).HasMaxLength(10).IsRequired();
+            b.Property(r => r.FlagEmoji).HasMaxLength(20).IsRequired();
+            b.Property(r => r.PhonePrefix).HasMaxLength(20).IsRequired();
+            b.Property(r => r.TaxLabel).HasMaxLength(50).IsRequired();
+            b.HasIndex(r => r.OrderIndex);
         });
     }
 }
