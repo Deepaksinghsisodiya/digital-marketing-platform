@@ -51,7 +51,8 @@ public record LeadSummaryDto(
     string? State,
     LeadStatus Status,
     Guid? AssignedToUserId,
-    DateTime CreatedAtUtc);
+    DateTime CreatedAtUtc,
+    int Score = 0);
 
 public record LeadActivityDto(
     Guid Id,
@@ -88,7 +89,8 @@ public record LeadDetailDto(
     string? UserAgent,
     DateTime CreatedAtUtc,
     DateTime? UpdatedAtUtc,
-    IReadOnlyList<LeadActivityDto> Activities);
+    IReadOnlyList<LeadActivityDto> Activities,
+    int Score = 0);
 
 public record UpdateLeadStatusRequest(
     LeadStatus Status);

@@ -734,6 +734,11 @@ namespace Nexora.Infrastructure.Persistence.Migrations
                         .HasMaxLength(10)
                         .HasColumnType("nvarchar(10)");
 
+                    b.Property<int>("Score")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
+
                     b.Property<string>("State")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
@@ -1421,6 +1426,14 @@ namespace Nexora.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("rowversion");
+
+                    b.Property<string>("WebhookSecret")
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<string>("WebhookUrl")
+                        .HasMaxLength(512)
+                        .HasColumnType("nvarchar(512)");
 
                     b.HasKey("Id");
 

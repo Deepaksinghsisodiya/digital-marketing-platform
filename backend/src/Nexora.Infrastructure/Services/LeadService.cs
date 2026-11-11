@@ -23,6 +23,8 @@ public class LeadService : ILeadService
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly IHostEnvironment _environment;
     private readonly ILogger<LeadService> _logger;
+    private readonly ILeadScoringService _leadScoringService;
+    private readonly IWebhookDispatcher _webhookDispatcher;
 
     private static readonly Regex EmailRegex = new(
         @"^[^@\s]+@[^@\s]+\.[^@\s]+$",
@@ -39,7 +41,9 @@ public class LeadService : ILeadService
         IConfiguration configuration,
         IHttpClientFactory httpClientFactory,
         IHostEnvironment environment,
-        ILogger<LeadService> logger)
+        ILogger<LeadService> logger,
+        ILeadScoringService leadScoringService,
+        IWebhookDispatcher webhookDispatcher)
     {
         _context = context;
         _auditLogService = auditLogService;
@@ -47,6 +51,8 @@ public class LeadService : ILeadService
         _httpClientFactory = httpClientFactory;
         _environment = environment;
         _logger = logger;
+        _leadScoringService = leadScoringService;
+        _webhookDispatcher = webhookDispatcher;
     }
 
     private string GetTokenSecret()
@@ -418,14 +424,22 @@ public class LeadService : ILeadService
             idempotencyKey: request.IdempotencyKey?.Trim(),
             timeTrapNonce: nonce);
 
+        // Calculate dynamic lead scoring
+        var score = _leadScoringService.CalculateScore(
+            lead.Email,
+            lead.Company,
+            lead.Phone,
+            request.CustomFields);
+        lead.SetScore(score);
+
         _context.Leads.Add(lead);
 
         // 9. Activity Timeline Record
         var activity = new LeadActivity(
             lead.Id,
             "Created",
-            $"Lead inquiry submitted via form '{normalizedKey}' (Ref: {referenceNumber}).",
-            JsonSerializer.Serialize(new { formKey = normalizedKey, region = lead.Region, referenceNumber }));
+            $"Lead inquiry submitted via form '{normalizedKey}' (Ref: {referenceNumber}, Score: {lead.Score}).",
+            JsonSerializer.Serialize(new { formKey = normalizedKey, region = lead.Region, referenceNumber, score = lead.Score }));
         _context.LeadActivities.Add(activity);
 
         // 10. Outbox Message for Email / Worker Dispatch
@@ -437,6 +451,7 @@ public class LeadService : ILeadService
             email = lead.Email,
             phone = lead.Phone,
             company = lead.Company,
+            score = lead.Score,
             formKey = lead.FormKey,
             region = lead.Region,
             submittedAtUtc = lead.CreatedAtUtc
@@ -444,6 +459,28 @@ public class LeadService : ILeadService
 
         var outbox = new OutboxMessage("LeadReceived", outboxPayload);
         _context.OutboxMessages.Add(outbox);
+
+        // Outbound Lead Webhook (GAP-15)
+        var settings = await _context.SiteSettings.AsNoTracking().FirstOrDefaultAsync(ct);
+        if (!string.IsNullOrWhiteSpace(settings?.WebhookUrl))
+        {
+            var webhookPayload = JsonSerializer.Serialize(new
+            {
+                targetUrl = settings.WebhookUrl,
+                secret = settings.WebhookSecret,
+                leadId = lead.Id,
+                referenceNumber = referenceNumber,
+                fullName = lead.FullName,
+                email = lead.Email,
+                phone = lead.Phone,
+                company = lead.Company,
+                score = lead.Score,
+                region = lead.Region,
+                createdAtUtc = lead.CreatedAtUtc,
+                customFields = request.CustomFields
+            });
+            _context.OutboxMessages.Add(new OutboxMessage("LeadWebhook", webhookPayload));
+        }
 
         // 11. Transactional Commit (Time-Trap Nonce is strictly consumed upon successful save)
         await _context.SaveChangesAsync(ct);
@@ -544,7 +581,8 @@ public class LeadService : ILeadService
                 l.State,
                 l.Status,
                 l.AssignedToUserId,
-                l.CreatedAtUtc))
+                l.CreatedAtUtc,
+                l.Score))
             .ToListAsync(ct);
 
         return new PaginatedResult<LeadSummaryDto>(items, totalCount, page, pageSize);
@@ -597,7 +635,8 @@ public class LeadService : ILeadService
             lead.UserAgent,
             lead.CreatedAtUtc,
             lead.UpdatedAtUtc,
-            activities);
+            activities,
+            lead.Score);
     }
 
     public async Task<(bool Success, string? Error)> UpdateLeadStatusAsync(

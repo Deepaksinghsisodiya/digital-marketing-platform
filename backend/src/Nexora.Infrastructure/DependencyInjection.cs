@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Nexora.Application.Common.Interfaces;
+using Nexora.Application.Leads.Services;
 using Nexora.Infrastructure.Email;
 using Nexora.Infrastructure.Identity;
 using Nexora.Infrastructure.Persistence;
@@ -107,6 +108,8 @@ public static class DependencyInjection
         services.AddScoped<IOutboxProcessor, OutboxProcessor>();
         services.AddScoped<IClientService, ClientService>();
         services.AddScoped<IBlogService, BlogService>();
+        services.AddSingleton<ILeadScoringService, LeadScoringService>();
+        services.AddHttpClient<IWebhookDispatcher, WebhookDispatcher>();
 
         // Health check registration
         services.AddHealthChecks()

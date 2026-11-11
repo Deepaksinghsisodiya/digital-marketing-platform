@@ -14,6 +14,7 @@ public class OutboxProcessor : IOutboxProcessor
     private readonly IEmailTemplateService _templateService;
     private readonly IEmailSender _emailSender;
     private readonly ISiteSettingsService _settingsService;
+    private readonly IWebhookDispatcher _webhookDispatcher;
     private readonly ILogger<OutboxProcessor> _logger;
 
     public OutboxProcessor(
@@ -21,12 +22,14 @@ public class OutboxProcessor : IOutboxProcessor
         IEmailTemplateService templateService,
         IEmailSender emailSender,
         ISiteSettingsService settingsService,
+        IWebhookDispatcher webhookDispatcher,
         ILogger<OutboxProcessor> logger)
     {
         _context = context;
         _templateService = templateService;
         _emailSender = emailSender;
         _settingsService = settingsService;
+        _webhookDispatcher = webhookDispatcher;
         _logger = logger;
     }
 
@@ -63,6 +66,10 @@ public class OutboxProcessor : IOutboxProcessor
                     if (message.EventType == "LeadReceived")
                     {
                         await ProcessLeadReceivedEventAsync(message.PayloadJson, ct);
+                    }
+                    else if (message.EventType == "LeadWebhook")
+                    {
+                        await ProcessLeadWebhookEventAsync(message.PayloadJson, ct);
                     }
 
                     message.MarkProcessed();
@@ -151,6 +158,27 @@ public class OutboxProcessor : IOutboxProcessor
         {
             _logger.LogWarning(ex, "Failed to send internal alert to {Email}", supportEmail);
             _context.EmailLogs.Add(new EmailLog(supportEmail, "Internal Alert", "lead-internal-notification", EmailDeliveryStatus.Failed, ex.Message));
+        }
+    }
+
+    private async Task ProcessLeadWebhookEventAsync(string payloadJson, CancellationToken ct)
+    {
+        using var doc = JsonDocument.Parse(payloadJson);
+        var root = doc.RootElement;
+        var targetUrl = root.GetProperty("targetUrl").GetString();
+        if (string.IsNullOrWhiteSpace(targetUrl)) return;
+
+        var secret = root.TryGetProperty("secret", out var s) ? s.GetString() : null;
+
+        var (success, error) = await _webhookDispatcher.DispatchLeadWebhookAsync(
+            targetUrl,
+            secret,
+            payloadJson,
+            ct);
+
+        if (!success)
+        {
+            throw new InvalidOperationException($"Lead webhook delivery failed: {error}");
         }
     }
 }

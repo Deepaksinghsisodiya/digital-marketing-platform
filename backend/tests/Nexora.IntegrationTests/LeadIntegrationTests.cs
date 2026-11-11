@@ -681,7 +681,9 @@ public class LeadIntegrationTests
             EnvironmentName = "Production"
         };
 
-        var leadService = new Nexora.Infrastructure.Services.LeadService(db, audit, config, clientFactory, prodEnv, logger);
+        var scoring = new Nexora.Application.Leads.Services.LeadScoringService();
+        var dispatcher = scope.ServiceProvider.GetRequiredService<Nexora.Application.Common.Interfaces.IWebhookDispatcher>();
+        var leadService = new Nexora.Infrastructure.Services.LeadService(db, audit, config, clientFactory, prodEnv, logger, scoring, dispatcher);
 
         Should.Throw<InvalidOperationException>(() =>
         {

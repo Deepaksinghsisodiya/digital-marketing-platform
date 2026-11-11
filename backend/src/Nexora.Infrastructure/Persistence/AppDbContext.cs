@@ -239,6 +239,8 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
             b.Property(s => s.TrackingCodesJson).HasColumnType("nvarchar(max)").HasDefaultValue("{}");
             b.Property(s => s.BookingUrl).HasMaxLength(500);
             b.Property(s => s.AnnouncementBarJson).HasColumnType("nvarchar(max)").HasDefaultValue("{}");
+            b.Property(s => s.WebhookUrl).HasMaxLength(512);
+            b.Property(s => s.WebhookSecret).HasMaxLength(128);
 
             // Optimistic concurrency using SQL Server rowversion
             b.Property(s => s.Version).IsRowVersion();
@@ -427,6 +429,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
             b.Property(l => l.ConsentTimestampUtc);
 
             b.Property(l => l.Status).IsRequired();
+            b.Property(l => l.Score).HasDefaultValue(0);
             b.Property(l => l.AssignedToUserId);
             b.Property(l => l.InternalNotesJson).HasColumnType("nvarchar(max)").IsRequired();
 

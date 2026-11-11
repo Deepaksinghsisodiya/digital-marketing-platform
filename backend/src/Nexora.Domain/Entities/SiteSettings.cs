@@ -43,6 +43,8 @@ public class SiteSettings : BaseEntity
     public string TrackingCodesJson { get; set; } = "{}";
     public string? BookingUrl { get; set; }
     public string AnnouncementBarJson { get; set; } = "{}";
+    public string? WebhookUrl { get; set; }
+    public string? WebhookSecret { get; set; }
 
     [Timestamp]
     public byte[] Version { get; set; } = [];

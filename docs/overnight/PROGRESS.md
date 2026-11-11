@@ -73,3 +73,13 @@
 - [x] All 126 backend tests passed (25 Unit, 3 Arch, 98 Integration; 0 failed, 0 skipped). Raw output captured in `docs/overnight/logs/test-output-phase-5.txt`.
 - [x] All 14 frontend tests passed (Admin: 6, Website: 8).
 - [x] Linter clean, Prettier clean, and production build `pnpm --filter @nexora/admin build` succeeded.
+
+### Phase 6: Marketing Engine & Integrations (COMPLETED)
+
+- [x] **Lead Scoring Engine (GAP-16):** Implemented `ILeadScoringService` and `LeadScoringService` evaluating corporate business domain (+25 pts), company presence (+15 pts), phone provision (+15 pts), enterprise/growth budget tier (+25 pts), and immediate timeline urgency (+20 pts), clamped to [0, 100]. Added `Score` column to `Leads` table with EF Core migration `20261111202444_Add_Lead_Scoring_And_Webhooks`.
+- [x] **SSRF-Protected Webhook Dispatcher (GAP-15):** Implemented `IWebhookDispatcher` and `WebhookDispatcher` with DNS-resolved IP checks (blocking private ranges `10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16`, `169.254.0.0/16`, loopback in production, and requiring HTTPS), with HMAC-SHA256 payload signature in `X-Nexora-Signature` header.
+- [x] **Outbox Integration:** Updated `LeadService.cs` to calculate score automatically upon intake and publish `"LeadWebhook"` outbox event, processed asynchronously via `OutboxProcessor.cs`.
+- [x] Added unit tests in `Nexora.UnitTests/LeadScoringAndWebhookTests.cs` (5 unit tests) and integration tests in `Nexora.IntegrationTests/WebhookDispatcherIntegrationTests.cs` (2 integration tests).
+- [x] All 133 backend tests passed (30 Unit, 3 Arch, 100 Integration; 0 failed, 0 skipped). Raw output captured in `docs/overnight/logs/test-output-phase-6.txt`.
+- [x] All 14 frontend tests passed (Admin: 6, Website: 8).
+- [x] Linter clean, Prettier check clean, production builds for Admin and Website both succeeded.

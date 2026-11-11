@@ -44,6 +44,7 @@ public class Lead : BaseEntity<Guid>
 
     // Workflow
     public LeadStatus Status { get; private set; } = LeadStatus.New;
+    public int Score { get; private set; } = 0;
     public Guid? AssignedToUserId { get; private set; }
     public string InternalNotesJson { get; private set; } = "[]";
 
@@ -141,6 +142,12 @@ public class Lead : BaseEntity<Guid>
     public void UpdateNotes(string notesJson)
     {
         InternalNotesJson = notesJson;
+        MarkUpdated();
+    }
+
+    public void SetScore(int score)
+    {
+        Score = Math.Clamp(score, 0, 100);
         MarkUpdated();
     }
 }
