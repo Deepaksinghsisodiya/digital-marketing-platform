@@ -1,15 +1,14 @@
 # Autonomous Overnight Progress Tracker
 
 ## Global Status Dashboard
-- **Current Phase:** Phase 0 (Baseline & Pending Closure) -> Completed ✅
-- **Active Task:** Phase 0 Gate Passed, committing baseline
+- **Current Phase:** Phase 1 (Full Gap Audit) -> Completed ✅
+- **Active Task:** Phase 1 Gate Passed, committing audit register
 - **Test Baseline:** 116 tests passing, 0 failed, 0 skipped
   - Integration Tests: 97 passed
   - Unit Tests: 16 passed
   - Architecture Tests: 3 passed
-  - Frontend Vitest: 13 passed (apps/admin: 6, apps/website: 7)
-- **Frontend Builds:** Both `admin` and `website` exit code 0
-- **Lint / Formatting:** `pnpm -r lint` 0 errors, `pnpm run format:check` 0 errors
+  - Frontend Vitest: 13 passed
+- **Gap Register:** 18 total identified gaps (4 Critical, 9 High, 5 Medium)
 - **Known Blockers:** 0
 
 ---
@@ -18,9 +17,12 @@
 
 ### Phase 0: Baseline & Pending Closure (COMPLETED)
 - [x] Initialized overnight folder structure (`PLAN.md`, `DECISIONS.md`, `BLOCKERS.md`, `LICENSES.md`, `PROGRESS.md`, `GAP_REGISTER.md`)
-- [x] Created `migrations-review/`, `logs/`, `screens/` directories
 - [x] Baseline test run output captured to `docs/overnight/logs/test-output-baseline.txt`
 - [x] Documented all endpoint permissions in `docs/overnight/ENDPOINT_PERMISSIONS.md`
-- [x] Package license and dependency audit generated in `docs/overnight/logs/`
-- [x] Confirmed zero `.env` tracking and Prettier formatting parity across codebase
-- [x] Phase 0 local commit
+- [x] Phase 0 local commit (`b7f20dc`)
+
+### Phase 1: Full Gap Audit (COMPLETED)
+- [x] Comprehensive line-by-line codebase audit across Security, Data/SQL, CMS, Website, Admin UX, Marketing, Ops
+- [x] Generated `docs/overnight/GAP_REGISTER.md` cataloging 18 prioritized gaps
+- [x] Verified zero `.env` tracking
+- [x] Phase 1 local commit
