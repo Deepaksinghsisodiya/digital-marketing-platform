@@ -62,7 +62,9 @@ export const MediaPickerModal: React.FC<MediaPickerModalProps> = ({
 }) => {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
-  const [selectedAsset, setSelectedAsset] = useState<MediaAssetDto | null>(null);
+  const [selectedAsset, setSelectedAsset] = useState<MediaAssetDto | null>(
+    null,
+  );
   const [failedImages, setFailedImages] = useState<Record<string, boolean>>({});
 
   const { data, isLoading } = useGetMediaAssetsQuery({
@@ -178,7 +180,11 @@ export const MediaPickerModal: React.FC<MediaPickerModalProps> = ({
                     key={asset.id}
                     onClick={() => setSelectedAsset(asset)}
                     onDoubleClick={() => {
-                      onSelect(asset.url, asset.altText || asset.fileName, asset);
+                      onSelect(
+                        asset.url,
+                        asset.altText || asset.fileName,
+                        asset,
+                      );
                       onClose();
                     }}
                     className={`group relative rounded-xl border p-2 cursor-pointer transition flex flex-col items-center text-center ${
@@ -194,7 +200,12 @@ export const MediaPickerModal: React.FC<MediaPickerModalProps> = ({
                           alt={asset.altText || asset.fileName}
                           className="w-full h-full object-cover group-hover:scale-105 transition duration-200"
                           loading="lazy"
-                          onError={() => setFailedImages((prev) => ({ ...prev, [asset.id]: true }))}
+                          onError={() =>
+                            setFailedImages((prev) => ({
+                              ...prev,
+                              [asset.id]: true,
+                            }))
+                          }
                         />
                       ) : isImage ? (
                         <div className="flex flex-col items-center gap-1 text-slate-400">
@@ -225,8 +236,11 @@ export const MediaPickerModal: React.FC<MediaPickerModalProps> = ({
           <div className="text-xs text-slate-500">
             {selectedAsset ? (
               <span>
-                Selected: <strong className="text-slate-900 dark:text-white">{selectedAsset.fileName}</strong> (
-                {formatBytes(selectedAsset.sizeBytes)})
+                Selected:{" "}
+                <strong className="text-slate-900 dark:text-white">
+                  {selectedAsset.fileName}
+                </strong>{" "}
+                ({formatBytes(selectedAsset.sizeBytes)})
               </span>
             ) : (
               <span>Click to select an asset</span>
@@ -242,7 +256,11 @@ export const MediaPickerModal: React.FC<MediaPickerModalProps> = ({
             <button
               onClick={() => {
                 if (selectedAsset) {
-                  onSelect(selectedAsset.url, selectedAsset.altText || selectedAsset.fileName, selectedAsset);
+                  onSelect(
+                    selectedAsset.url,
+                    selectedAsset.altText || selectedAsset.fileName,
+                    selectedAsset,
+                  );
                   onClose();
                 }
               }}
@@ -264,7 +282,9 @@ export const MediaLibraryPage: React.FC = () => {
   const [mimeFilter, setMimeFilter] = useState("");
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
-  const [assetToDelete, setAssetToDelete] = useState<MediaAssetDto | null>(null);
+  const [assetToDelete, setAssetToDelete] = useState<MediaAssetDto | null>(
+    null,
+  );
   const [failedImages, setFailedImages] = useState<Record<string, boolean>>({});
 
   // Upload Form State
@@ -281,7 +301,8 @@ export const MediaLibraryPage: React.FC = () => {
   });
 
   const [uploadMedia, { isLoading: isUploading }] = useUploadMediaMutation();
-  const [deleteMediaAsset, { isLoading: isDeleting }] = useDeleteMediaAssetMutation();
+  const [deleteMediaAsset, { isLoading: isDeleting }] =
+    useDeleteMediaAssetMutation();
 
   const handleCopyUrl = (asset: MediaAssetDto) => {
     navigator.clipboard.writeText(resolveMediaUrl(asset.url));
@@ -409,7 +430,8 @@ export const MediaLibraryPage: React.FC = () => {
               No media assets found
             </h3>
             <p className="mt-1 text-sm text-slate-400 dark:text-slate-500 max-w-sm mx-auto">
-              Upload images, graphics, or PDFs to use across your website pages, blogs, and marketing campaigns.
+              Upload images, graphics, or PDFs to use across your website pages,
+              blogs, and marketing campaigns.
             </p>
             <button
               onClick={() => setIsUploadModalOpen(true)}
@@ -435,7 +457,12 @@ export const MediaLibraryPage: React.FC = () => {
                         alt={asset.altText || asset.fileName}
                         className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
                         loading="lazy"
-                        onError={() => setFailedImages((prev) => ({ ...prev, [asset.id]: true }))}
+                        onError={() =>
+                          setFailedImages((prev) => ({
+                            ...prev,
+                            [asset.id]: true,
+                          }))
+                        }
                       />
                     ) : isImage ? (
                       <div className="flex flex-col items-center gap-1.5 text-slate-400">
@@ -523,7 +550,8 @@ export const MediaLibraryPage: React.FC = () => {
         {data && data.totalPages > 1 && (
           <div className="mt-6 pt-4 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
             <span className="text-xs text-slate-500">
-              Showing page {data.page} of {data.totalPages} ({data.totalCount} total assets)
+              Showing page {data.page} of {data.totalPages} ({data.totalCount}{" "}
+              total assets)
             </span>
             <div className="flex gap-2">
               <button
@@ -587,7 +615,8 @@ export const MediaLibraryPage: React.FC = () => {
                       {uploadFile.name}
                     </p>
                     <p className="text-xs text-slate-400 mt-1">
-                      {formatBytes(uploadFile.size)} • {uploadFile.type || "Unknown type"}
+                      {formatBytes(uploadFile.size)} •{" "}
+                      {uploadFile.type || "Unknown type"}
                     </p>
                   </div>
                 ) : (
@@ -646,7 +675,11 @@ export const MediaLibraryPage: React.FC = () => {
             </h3>
             <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
               Are you sure you want to permanently delete{" "}
-              <strong className="text-slate-800 dark:text-slate-200">{assetToDelete.fileName}</strong>? Any web pages or blog posts referencing this URL will no longer be able to display it.
+              <strong className="text-slate-800 dark:text-slate-200">
+                {assetToDelete.fileName}
+              </strong>
+              ? Any web pages or blog posts referencing this URL will no longer
+              be able to display it.
             </p>
             <div className="mt-6 flex justify-end gap-2">
               <button

@@ -1,17 +1,29 @@
 import React from "react";
 import Link from "next/link";
 import type { CmsBlock } from "../../lib/cms";
-import { Sparkles, ArrowRight, TrendingUp, ShieldCheck, Activity, Users, DollarSign, CheckCircle2 } from "lucide-react";
+import {
+  Sparkles,
+  ArrowRight,
+  TrendingUp,
+  ShieldCheck,
+  Activity,
+  Users,
+  DollarSign,
+  CheckCircle2,
+} from "lucide-react";
 
 export const HeroBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
   const { content } = block;
-  const headline = (content.headline as string) || "Data-Driven Marketing at Enterprise Scale";
+  const headline =
+    (content.headline as string) || "Data-Driven Marketing at Enterprise Scale";
   const subheadline =
     (content.subheadline as string) ||
     "Connect your enterprise to high-intent audiences with AI campaign automation, precision audience modeling, and verifiable multi-touch attribution.";
-  const primaryCtaText = (content.primaryCtaText as string) || "Schedule Free Growth Diagnostic";
+  const primaryCtaText =
+    (content.primaryCtaText as string) || "Schedule Free Growth Diagnostic";
   const primaryCtaLink = (content.primaryCtaLink as string) || "/contact";
-  const secondaryCtaText = (content.secondaryCtaText as string) || "Explore Insights & Strategy";
+  const secondaryCtaText =
+    (content.secondaryCtaText as string) || "Explore Insights & Strategy";
   const secondaryCtaLink = (content.secondaryCtaLink as string) || "/blog";
 
   return (
@@ -66,13 +78,16 @@ export const HeroBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
         {/* Trust Points */}
         <div className="flex flex-wrap items-center justify-center gap-6 pt-4 text-xs text-slate-400 font-medium">
           <span className="flex items-center gap-1.5 text-slate-300">
-            <CheckCircle2 className="w-4 h-4 text-emerald-400" /> SOC-2 & DPDP Compliant
+            <CheckCircle2 className="w-4 h-4 text-emerald-400" /> SOC-2 & DPDP
+            Compliant
           </span>
           <span className="flex items-center gap-1.5 text-slate-300">
-            <CheckCircle2 className="w-4 h-4 text-emerald-400" /> Worldwide Enterprise Delivery
+            <CheckCircle2 className="w-4 h-4 text-emerald-400" /> Worldwide
+            Enterprise Delivery
           </span>
           <span className="flex items-center gap-1.5 text-slate-300">
-            <CheckCircle2 className="w-4 h-4 text-emerald-400" /> 100% Attribution Precision
+            <CheckCircle2 className="w-4 h-4 text-emerald-400" /> 100%
+            Attribution Precision
           </span>
         </div>
 
@@ -85,7 +100,9 @@ export const HeroBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
                 <div className="w-3 h-3 rounded-full bg-red-500/80" />
                 <div className="w-3 h-3 rounded-full bg-amber-500/80" />
                 <div className="w-3 h-3 rounded-full bg-emerald-500/80" />
-                <span className="ml-2 text-xs font-mono text-slate-400">nexora-engine://attribution.live</span>
+                <span className="ml-2 text-xs font-mono text-slate-400">
+                  nexora-engine://attribution.live
+                </span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 text-[10px] font-bold border border-emerald-500/30">
@@ -101,7 +118,9 @@ export const HeroBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
                   <span>Influenced Pipeline</span>
                   <DollarSign className="w-4 h-4 text-emerald-400" />
                 </div>
-                <div className="text-2xl font-black text-white mt-1">$2,480,000</div>
+                <div className="text-2xl font-black text-white mt-1">
+                  $2,480,000
+                </div>
                 <div className="flex items-center gap-1 text-[11px] text-emerald-400 font-semibold mt-1">
                   <TrendingUp className="w-3 h-3" /> +34.2% vs baseline
                 </div>
@@ -112,7 +131,9 @@ export const HeroBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
                   <span>Verified B2B Leads</span>
                   <Users className="w-4 h-4 text-indigo-400" />
                 </div>
-                <div className="text-2xl font-black text-white mt-1">1,492 Accounts</div>
+                <div className="text-2xl font-black text-white mt-1">
+                  1,492 Accounts
+                </div>
                 <div className="flex items-center gap-1 text-[11px] text-indigo-400 font-semibold mt-1">
                   <ShieldCheck className="w-3 h-3" /> 100% Consent Audited
                 </div>
@@ -135,10 +156,14 @@ export const HeroBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
               <div className="flex items-center gap-3">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
                 <span className="text-slate-300 font-medium">
-                  Recent Inbound Deal: <strong className="text-white">Apex Cloud Solutions</strong> ($180,000 ARR Opportunity) captured & routed.
+                  Recent Inbound Deal:{" "}
+                  <strong className="text-white">Apex Cloud Solutions</strong>{" "}
+                  ($180,000 ARR Opportunity) captured & routed.
                 </span>
               </div>
-              <span className="font-mono text-[10px] text-slate-500">2 min ago</span>
+              <span className="font-mono text-[10px] text-slate-500">
+                2 min ago
+              </span>
             </div>
           </div>
         </div>
@@ -170,4 +195,3 @@ export const HeroBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
     </section>
   );
 };
-

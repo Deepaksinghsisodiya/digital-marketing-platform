@@ -1,6 +1,14 @@
 import React from "react";
 import type { CmsBlock } from "../../lib/cms";
-import { Search, Target, BarChart3, TrendingUp, MailCheck, ShieldCheck, ArrowUpRight } from "lucide-react";
+import {
+  Search,
+  Target,
+  BarChart3,
+  TrendingUp,
+  MailCheck,
+  ShieldCheck,
+  ArrowUpRight,
+} from "lucide-react";
 import Link from "next/link";
 
 interface FeatureItem {
@@ -50,7 +58,8 @@ const FEATURE_METADATA = [
 
 export const FeatureGridBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
   const { content } = block;
-  const sectionTitle = (content.sectionTitle as string) || "Engineered for Enterprise Performance";
+  const sectionTitle =
+    (content.sectionTitle as string) || "Engineered for Enterprise Performance";
   const sectionSubtitle =
     (content.subheadline as string) ||
     (content.sectionSubtitle as string) ||
@@ -75,7 +84,9 @@ export const FeatureGridBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
       {/* Grid of 6 Enterprise Feature Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {features.map((feature, idx) => {
-          const meta = FEATURE_METADATA[idx % FEATURE_METADATA.length] ?? FEATURE_METADATA[0]!;
+          const meta =
+            FEATURE_METADATA[idx % FEATURE_METADATA.length] ??
+            FEATURE_METADATA[0]!;
           const Icon = meta.icon;
 
           return (
@@ -131,26 +142,41 @@ export const FeatureGridBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="p-6 rounded-2xl bg-slate-800/60 border border-slate-700/60 backdrop-blur-md">
-            <div className="text-indigo-400 font-mono text-sm font-bold">01. CAPTURE</div>
-            <h4 className="text-base font-bold text-white mt-2">Commercial Intent Discovery</h4>
+            <div className="text-indigo-400 font-mono text-sm font-bold">
+              01. CAPTURE
+            </div>
+            <h4 className="text-base font-bold text-white mt-2">
+              Commercial Intent Discovery
+            </h4>
             <p className="text-xs text-slate-300 mt-2 leading-relaxed">
-              Real-time tracking of high-intent search terms, LinkedIn buying committee activity, and account intent.
+              Real-time tracking of high-intent search terms, LinkedIn buying
+              committee activity, and account intent.
             </p>
           </div>
 
           <div className="p-6 rounded-2xl bg-slate-800/60 border border-slate-700/60 backdrop-blur-md">
-            <div className="text-purple-400 font-mono text-sm font-bold">02. ATTRIBUTE</div>
-            <h4 className="text-base font-bold text-white mt-2">Multi-Touch Verification</h4>
+            <div className="text-purple-400 font-mono text-sm font-bold">
+              02. ATTRIBUTE
+            </div>
+            <h4 className="text-base font-bold text-white mt-2">
+              Multi-Touch Verification
+            </h4>
             <p className="text-xs text-slate-300 mt-2 leading-relaxed">
-              Deterministic first-touch, multi-touch, and last-touch attribution with zero cookie deprecation loss.
+              Deterministic first-touch, multi-touch, and last-touch attribution
+              with zero cookie deprecation loss.
             </p>
           </div>
 
           <div className="p-6 rounded-2xl bg-slate-800/60 border border-slate-700/60 backdrop-blur-md">
-            <div className="text-emerald-400 font-mono text-sm font-bold">03. CONVERT</div>
-            <h4 className="text-base font-bold text-white mt-2">Instant Lead Routing & SLA</h4>
+            <div className="text-emerald-400 font-mono text-sm font-bold">
+              03. CONVERT
+            </div>
+            <h4 className="text-base font-bold text-white mt-2">
+              Instant Lead Routing & SLA
+            </h4>
             <p className="text-xs text-slate-300 mt-2 leading-relaxed">
-              Under-3-minute transactional notifications, automated CRM account creation, and follow-up task dispatch.
+              Under-3-minute transactional notifications, automated CRM account
+              creation, and follow-up task dispatch.
             </p>
           </div>
         </div>
@@ -158,4 +184,3 @@ export const FeatureGridBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
     </section>
   );
 };
-

@@ -48,15 +48,23 @@ import {
 
 const BLOCK_TEMPLATES: Record<
   string,
-  { label: string; icon: React.ComponentType<{ className?: string }>; description: string; defaultContent: Record<string, unknown>; defaultSettings: Record<string, unknown> }
+  {
+    label: string;
+    icon: React.ComponentType<{ className?: string }>;
+    description: string;
+    defaultContent: Record<string, unknown>;
+    defaultSettings: Record<string, unknown>;
+  }
 > = {
   Hero: {
     label: "Hero Banner",
     icon: Layout,
-    description: "High-impact headline, subheadline, and dual conversion CTA buttons.",
+    description:
+      "High-impact headline, subheadline, and dual conversion CTA buttons.",
     defaultContent: {
       headline: "Accelerate Your Digital Growth at Enterprise Scale",
-      subheadline: "AI-powered marketing automation, precision audience targeting, and multi-touch attribution.",
+      subheadline:
+        "AI-powered marketing automation, precision audience targeting, and multi-touch attribution.",
       primaryCtaText: "Schedule Free Growth Diagnostic",
       primaryCtaLink: "/contact",
       secondaryCtaText: "Explore Insights & Strategy",
@@ -70,7 +78,8 @@ const BLOCK_TEMPLATES: Record<
   Stats: {
     label: "Key Metrics & Telemetry",
     icon: BarChart3,
-    description: "Multi-column numerical metrics displaying verified ROI, pipeline, and SLAs.",
+    description:
+      "Multi-column numerical metrics displaying verified ROI, pipeline, and SLAs.",
     defaultContent: {
       metrics: [
         { label: "Avg Pipeline Velocity", value: "340%" },
@@ -86,14 +95,28 @@ const BLOCK_TEMPLATES: Record<
   FeatureGrid: {
     label: "Enterprise Capabilities Grid",
     icon: Grid,
-    description: "3 to 6 capability cards showcasing solutions, technical architecture, and services.",
+    description:
+      "3 to 6 capability cards showcasing solutions, technical architecture, and services.",
     defaultContent: {
       sectionTitle: "Engineered for High-Velocity Enterprise Growth",
-      sectionSubtitle: "Comprehensive performance marketing infrastructure designed for modern SaaS and services.",
+      sectionSubtitle:
+        "Comprehensive performance marketing infrastructure designed for modern SaaS and services.",
       features: [
-        { title: "High-Intent Performance SEO", description: "Dominate commercial search terms with bespoke landing architectures and deep semantic authority." },
-        { title: "Account-Based Marketing (ABM)", description: "Engage enterprise buying committees with real-time intent signals and automated CRM sync." },
-        { title: "Omnichannel Paid Media", description: "Algorithmic ad spend allocation across search, programmatic display, and enterprise social." },
+        {
+          title: "High-Intent Performance SEO",
+          description:
+            "Dominate commercial search terms with bespoke landing architectures and deep semantic authority.",
+        },
+        {
+          title: "Account-Based Marketing (ABM)",
+          description:
+            "Engage enterprise buying committees with real-time intent signals and automated CRM sync.",
+        },
+        {
+          title: "Omnichannel Paid Media",
+          description:
+            "Algorithmic ad spend allocation across search, programmatic display, and enterprise social.",
+        },
       ],
     },
     defaultSettings: {
@@ -103,10 +126,12 @@ const BLOCK_TEMPLATES: Record<
   CTA: {
     label: "Bottom Conversion CTA Banner",
     icon: Megaphone,
-    description: "Bold conversion card inviting decision-makers to book an audit or schedule a demo.",
+    description:
+      "Bold conversion card inviting decision-makers to book an audit or schedule a demo.",
     defaultContent: {
       headline: "Ready to Scale Your Enterprise Pipeline?",
-      subheadline: "Book an executive growth diagnostic with our digital marketing strategists.",
+      subheadline:
+        "Book an executive growth diagnostic with our digital marketing strategists.",
       buttonText: "Schedule Discovery Diagnostic",
       buttonLink: "/contact",
     },
@@ -117,12 +142,21 @@ const BLOCK_TEMPLATES: Record<
   FAQ: {
     label: "Enterprise FAQ Accordion",
     icon: HelpCircle,
-    description: "Expandable questions and answers covering SOC2, regional routing, and onboarding.",
+    description:
+      "Expandable questions and answers covering SOC2, regional routing, and onboarding.",
     defaultContent: {
       title: "Frequently Asked Questions",
       items: [
-        { question: "How quickly can campaigns be deployed?", answer: "Most clients go live with multi-region attribution within 48 to 72 hours." },
-        { question: "Is multi-region compliance native?", answer: "Yes, consent telemetry, currency formatters, and regional data routing are built in." },
+        {
+          question: "How quickly can campaigns be deployed?",
+          answer:
+            "Most clients go live with multi-region attribution within 48 to 72 hours.",
+        },
+        {
+          question: "Is multi-region compliance native?",
+          answer:
+            "Yes, consent telemetry, currency formatters, and regional data routing are built in.",
+        },
       ],
     },
     defaultSettings: {},
@@ -130,7 +164,8 @@ const BLOCK_TEMPLATES: Record<
   RichText: {
     label: "Rich Editorial / Text Block",
     icon: FileText,
-    description: "Long-form editorial copy, leadership manifestos, or detailed methodology.",
+    description:
+      "Long-form editorial copy, leadership manifestos, or detailed methodology.",
     defaultContent: {
       body: "Nexora combines cutting-edge AI automation with enterprise-grade attribution to ensure every marketing dollar translates into verifiable pipeline velocity.",
     },
@@ -139,20 +174,24 @@ const BLOCK_TEMPLATES: Record<
   Testimonials: {
     label: "Client Testimonials & Proof",
     icon: Star,
-    description: "Enterprise customer reviews, star ratings, quotes, and verified client badges.",
+    description:
+      "Enterprise customer reviews, star ratings, quotes, and verified client badges.",
     defaultContent: {
       sectionTitle: "Validated by Enterprise Leaders",
-      sectionSubtitle: "Discover how global brands scale predictable pipeline with Nexora.",
+      sectionSubtitle:
+        "Discover how global brands scale predictable pipeline with Nexora.",
       testimonials: [
         {
-          quote: "Nexora increased our pipeline velocity by 340% within two quarters.",
+          quote:
+            "Nexora increased our pipeline velocity by 340% within two quarters.",
           author: "Aditi Rao",
           role: "VP of Global Marketing",
           company: "Apex Cloud Enterprise",
           rating: 5,
         },
         {
-          quote: "The automated audience modeling transformed our conversion rates.",
+          quote:
+            "The automated audience modeling transformed our conversion rates.",
           author: "Marcus Vance",
           role: "Chief Commercial Officer",
           company: "Synapse Financial Networks",
@@ -165,17 +204,24 @@ const BLOCK_TEMPLATES: Record<
   Pricing: {
     label: "Pricing & Investment Tiers",
     icon: CreditCard,
-    description: "Transparent tiered packages with monthly/annual toggle and feature checklist.",
+    description:
+      "Transparent tiered packages with monthly/annual toggle and feature checklist.",
     defaultContent: {
       sectionTitle: "Predictable Growth Infrastructure",
-      sectionSubtitle: "Transparent engagement models engineered for enterprise marketing velocity.",
+      sectionSubtitle:
+        "Transparent engagement models engineered for enterprise marketing velocity.",
       plans: [
         {
           name: "Growth Engine",
-          description: "For scaling B2B businesses establishing full-funnel digital dominance.",
+          description:
+            "For scaling B2B businesses establishing full-funnel digital dominance.",
           monthlyPrice: "$2,490",
           annualPrice: "$1,990",
-          features: ["Multi-Touch Attribution Engine", "Deterministic Lead Scoring", "Weekly Growth Architect Advisory"],
+          features: [
+            "Multi-Touch Attribution Engine",
+            "Deterministic Lead Scoring",
+            "Weekly Growth Architect Advisory",
+          ],
           ctaText: "Launch Growth Engine",
           ctaLink: "/contact",
           isPopular: false,
@@ -183,10 +229,15 @@ const BLOCK_TEMPLATES: Record<
         {
           name: "Enterprise Scale",
           badge: "Most Selected",
-          description: "For mid-to-large enterprises requiring multi-region campaign governance.",
+          description:
+            "For mid-to-large enterprises requiring multi-region campaign governance.",
           monthlyPrice: "$4,990",
           annualPrice: "$3,990",
-          features: ["Everything in Growth Engine", "Cross-Border Multi-Region Routing", "24/7 Dedicated Support & 99.9% SLA"],
+          features: [
+            "Everything in Growth Engine",
+            "Cross-Border Multi-Region Routing",
+            "24/7 Dedicated Support & 99.9% SLA",
+          ],
           ctaText: "Request Enterprise Pilot",
           ctaLink: "/contact",
           isPopular: true,
@@ -204,7 +255,9 @@ export const PagesListPage: React.FC = () => {
   const [viewMode, setViewMode] = useState<"visual" | "directory">("visual");
 
   // Viewport Simulator
-  const [viewport, setViewport] = useState<"desktop" | "tablet" | "mobile">("desktop");
+  const [viewport, setViewport] = useState<"desktop" | "tablet" | "mobile">(
+    "desktop",
+  );
   const [previewKey, setPreviewKey] = useState<number>(Date.now());
 
   // Search & Pagination for directory view
@@ -223,7 +276,8 @@ export const PagesListPage: React.FC = () => {
     search: search || undefined,
   });
 
-  const { data: siteSettings, refetch: refetchSettings } = useGetSettingsQuery();
+  const { data: siteSettings, refetch: refetchSettings } =
+    useGetSettingsQuery();
   const [updateSettings] = useUpdateSettingsMutation();
 
   // Active Selected Page for Visual Studio
@@ -231,21 +285,22 @@ export const PagesListPage: React.FC = () => {
 
   useEffect(() => {
     if (pagesData?.items && pagesData.items.length > 0 && !selectedPageId) {
-      const homePage = pagesData.items.find((p) => p.slug === "home") || pagesData.items[0];
+      const homePage =
+        pagesData.items.find((p) => p.slug === "home") || pagesData.items[0];
       if (homePage) setSelectedPageId(homePage.id);
     }
   }, [pagesData, selectedPageId]);
 
-  const { data: activePageDetail, refetch: refetchPageDetail } = useGetPageByIdQuery(
-    selectedPageId,
-    { skip: !selectedPageId }
-  );
+  const { data: activePageDetail, refetch: refetchPageDetail } =
+    useGetPageByIdQuery(selectedPageId, { skip: !selectedPageId });
 
   // In-Memory Blocks State for the active visual page
   const [pageBlocks, setPageBlocks] = useState<CmsBlock[]>([]);
   const [pageTitle, setPageTitle] = useState("");
   const [pageVersionToken, setPageVersionToken] = useState("");
-  const [expandedBlockIndex, setExpandedBlockIndex] = useState<number | null>(null);
+  const [expandedBlockIndex, setExpandedBlockIndex] = useState<number | null>(
+    null,
+  );
   const [addBlockPaletteOpen, setAddBlockPaletteOpen] = useState(false);
 
   const [saveDraft, { isLoading: isSavingDraft }] = useSavePageDraftMutation();
@@ -259,13 +314,19 @@ export const PagesListPage: React.FC = () => {
     isLoading: isLoadingVersions,
     refetch: refetchVersions,
   } = useGetPageVersionsQuery(selectedPageId, { skip: !selectedPageId });
-  const [rollbackPage, { isLoading: isRollingBack }] = useRollbackPageMutation();
+  const [rollbackPage, { isLoading: isRollingBack }] =
+    useRollbackPageMutation();
 
-  const [feedback, setFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null);
+  const [feedback, setFeedback] = useState<{
+    type: "success" | "error";
+    message: string;
+  } | null>(null);
 
   useEffect(() => {
     if (activePageDetail) {
-      setPageBlocks(activePageDetail.blocks ? [...activePageDetail.blocks] : []);
+      setPageBlocks(
+        activePageDetail.blocks ? [...activePageDetail.blocks] : [],
+      );
       setPageTitle(activePageDetail.title);
       setPageVersionToken(activePageDetail.versionToken || "");
     }
@@ -428,7 +489,8 @@ export const PagesListPage: React.FC = () => {
 
   const handlePublish = async () => {
     if (!selectedPageId) return;
-    if (!window.confirm("Publish changes to the live website right now?")) return;
+    if (!window.confirm("Publish changes to the live website right now?"))
+      return;
 
     try {
       await handleSaveDraft();
@@ -438,7 +500,8 @@ export const PagesListPage: React.FC = () => {
       setPreviewKey(Date.now());
       setFeedback({
         type: "success",
-        message: "Page published live! Public website now serves this updated version.",
+        message:
+          "Page published live! Public website now serves this updated version.",
       });
       setTimeout(() => setFeedback(null), 4000);
     } catch (err: unknown) {
@@ -451,7 +514,7 @@ export const PagesListPage: React.FC = () => {
     if (!selectedPageId) return;
     if (
       !window.confirm(
-        `Rollback to Version ${versionNumber}? Unsaved draft changes will be replaced.`
+        `Rollback to Version ${versionNumber}? Unsaved draft changes will be replaced.`,
       )
     )
       return;
@@ -473,7 +536,10 @@ export const PagesListPage: React.FC = () => {
       setTimeout(() => setFeedback(null), 4000);
     } catch (err: unknown) {
       const errObj = err as { data?: { error?: string } };
-      alert(errObj?.data?.error || `Failed to rollback to version ${versionNumber}.`);
+      alert(
+        errObj?.data?.error ||
+          `Failed to rollback to version ${versionNumber}.`,
+      );
     }
   };
 
@@ -525,7 +591,8 @@ export const PagesListPage: React.FC = () => {
               </span>
             </div>
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              Interactive split-screen visual page builder with real-time website preview and instant section toggles.
+              Interactive split-screen visual page builder with real-time
+              website preview and instant section toggles.
             </p>
           </div>
         </div>
@@ -742,7 +809,9 @@ export const PagesListPage: React.FC = () => {
                       <SlidersHorizontal className="w-3.5 h-3.5" />
                       Global Section Visibility Toggles
                     </span>
-                    <span className="text-[10px] text-slate-400">Instant Live Sync</span>
+                    <span className="text-[10px] text-slate-400">
+                      Instant Live Sync
+                    </span>
                   </div>
 
                   <div className="grid grid-cols-2 gap-2 text-xs">
@@ -769,7 +838,9 @@ export const PagesListPage: React.FC = () => {
                           <span>{item.label}</span>
                           <span
                             className={`w-2 h-2 rounded-full ${
-                              isVisible ? "bg-emerald-500 animate-pulse" : "bg-slate-300 dark:bg-slate-700"
+                              isVisible
+                                ? "bg-emerald-500 animate-pulse"
+                                : "bg-slate-300 dark:bg-slate-700"
                             }`}
                           />
                         </button>
@@ -788,7 +859,8 @@ export const PagesListPage: React.FC = () => {
                       Page Sections Tree ({pageBlocks.length})
                     </h3>
                     <p className="text-[11px] text-slate-500">
-                      Toggle visibility, reorder, or click to edit section copy live.
+                      Toggle visibility, reorder, or click to edit section copy
+                      live.
                     </p>
                   </div>
 
@@ -809,29 +881,31 @@ export const PagesListPage: React.FC = () => {
                       Choose Component To Insert:
                     </span>
                     <div className="grid grid-cols-2 gap-2">
-                      {Object.entries(BLOCK_TEMPLATES).map(([type, template]) => {
-                        const Icon = template.icon;
-                        return (
-                          <button
-                            key={type}
-                            type="button"
-                            onClick={() => handleAddBlock(type)}
-                            className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0c1222] hover:border-indigo-500 hover:shadow-sm text-left transition flex items-start gap-2.5"
-                          >
-                            <div className="p-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400">
-                              <Icon className="w-3.5 h-3.5" />
-                            </div>
-                            <div>
-                              <span className="font-bold text-xs text-slate-900 dark:text-white block">
-                                {template.label}
-                              </span>
-                              <span className="text-[10px] text-slate-500 line-clamp-1 block">
-                                {template.description}
-                              </span>
-                            </div>
-                          </button>
-                        );
-                      })}
+                      {Object.entries(BLOCK_TEMPLATES).map(
+                        ([type, template]) => {
+                          const Icon = template.icon;
+                          return (
+                            <button
+                              key={type}
+                              type="button"
+                              onClick={() => handleAddBlock(type)}
+                              className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0c1222] hover:border-indigo-500 hover:shadow-sm text-left transition flex items-start gap-2.5"
+                            >
+                              <div className="p-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400">
+                                <Icon className="w-3.5 h-3.5" />
+                              </div>
+                              <div>
+                                <span className="font-bold text-xs text-slate-900 dark:text-white block">
+                                  {template.label}
+                                </span>
+                                <span className="text-[10px] text-slate-500 line-clamp-1 block">
+                                  {template.description}
+                                </span>
+                              </div>
+                            </button>
+                          );
+                        },
+                      )}
                     </div>
                   </div>
                 )}
@@ -855,7 +929,9 @@ export const PagesListPage: React.FC = () => {
                         {/* Section Header Card */}
                         <div className="p-3 flex items-center justify-between gap-3">
                           <div
-                            onClick={() => setExpandedBlockIndex(isExpanded ? null : idx)}
+                            onClick={() =>
+                              setExpandedBlockIndex(isExpanded ? null : idx)
+                            }
                             className="flex items-center gap-3 flex-1 cursor-pointer truncate"
                           >
                             <span className="font-mono text-[10px] font-bold text-slate-400 w-4">
@@ -891,7 +967,11 @@ export const PagesListPage: React.FC = () => {
                                   ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
                                   : "bg-slate-200 dark:bg-slate-800 text-slate-400"
                               }`}
-                              title={block.enabled ? "Section is Visible" : "Section is Hidden"}
+                              title={
+                                block.enabled
+                                  ? "Section is Visible"
+                                  : "Section is Hidden"
+                              }
                             >
                               {block.enabled ? "Visible" : "Hidden"}
                             </button>
@@ -929,10 +1009,16 @@ export const PagesListPage: React.FC = () => {
                             {/* Expand Toggle */}
                             <button
                               type="button"
-                              onClick={() => setExpandedBlockIndex(isExpanded ? null : idx)}
+                              onClick={() =>
+                                setExpandedBlockIndex(isExpanded ? null : idx)
+                              }
                               className="p-1 rounded text-slate-400"
                             >
-                              {isExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                              {isExpanded ? (
+                                <ChevronUp className="w-3.5 h-3.5" />
+                              ) : (
+                                <ChevronDown className="w-3.5 h-3.5" />
+                              )}
                             </button>
                           </div>
                         </div>
@@ -949,8 +1035,16 @@ export const PagesListPage: React.FC = () => {
                                   </label>
                                   <input
                                     type="text"
-                                    value={String(block.content?.headline || "")}
-                                    onChange={(e) => updateBlockContent(idx, "headline", e.target.value)}
+                                    value={String(
+                                      block.content?.headline || "",
+                                    )}
+                                    onChange={(e) =>
+                                      updateBlockContent(
+                                        idx,
+                                        "headline",
+                                        e.target.value,
+                                      )
+                                    }
                                     className="w-full px-3 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-xs"
                                   />
                                 </div>
@@ -960,8 +1054,16 @@ export const PagesListPage: React.FC = () => {
                                   </label>
                                   <textarea
                                     rows={2}
-                                    value={String(block.content?.subheadline || "")}
-                                    onChange={(e) => updateBlockContent(idx, "subheadline", e.target.value)}
+                                    value={String(
+                                      block.content?.subheadline || "",
+                                    )}
+                                    onChange={(e) =>
+                                      updateBlockContent(
+                                        idx,
+                                        "subheadline",
+                                        e.target.value,
+                                      )
+                                    }
                                     className="w-full px-3 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-xs"
                                   />
                                 </div>
@@ -972,8 +1074,16 @@ export const PagesListPage: React.FC = () => {
                                     </label>
                                     <input
                                       type="text"
-                                      value={String(block.content?.primaryCtaText || "")}
-                                      onChange={(e) => updateBlockContent(idx, "primaryCtaText", e.target.value)}
+                                      value={String(
+                                        block.content?.primaryCtaText || "",
+                                      )}
+                                      onChange={(e) =>
+                                        updateBlockContent(
+                                          idx,
+                                          "primaryCtaText",
+                                          e.target.value,
+                                        )
+                                      }
                                       className="w-full px-2.5 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-xs"
                                     />
                                   </div>
@@ -983,8 +1093,16 @@ export const PagesListPage: React.FC = () => {
                                     </label>
                                     <input
                                       type="text"
-                                      value={String(block.content?.primaryCtaLink || "")}
-                                      onChange={(e) => updateBlockContent(idx, "primaryCtaLink", e.target.value)}
+                                      value={String(
+                                        block.content?.primaryCtaLink || "",
+                                      )}
+                                      onChange={(e) =>
+                                        updateBlockContent(
+                                          idx,
+                                          "primaryCtaLink",
+                                          e.target.value,
+                                        )
+                                      }
                                       className="w-full px-2.5 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-xs"
                                     />
                                   </div>
@@ -1001,8 +1119,16 @@ export const PagesListPage: React.FC = () => {
                                   </label>
                                   <input
                                     type="text"
-                                    value={String(block.content?.headline || "")}
-                                    onChange={(e) => updateBlockContent(idx, "headline", e.target.value)}
+                                    value={String(
+                                      block.content?.headline || "",
+                                    )}
+                                    onChange={(e) =>
+                                      updateBlockContent(
+                                        idx,
+                                        "headline",
+                                        e.target.value,
+                                      )
+                                    }
                                     className="w-full px-3 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-xs"
                                   />
                                 </div>
@@ -1013,8 +1139,16 @@ export const PagesListPage: React.FC = () => {
                                     </label>
                                     <input
                                       type="text"
-                                      value={String(block.content?.buttonText || "")}
-                                      onChange={(e) => updateBlockContent(idx, "buttonText", e.target.value)}
+                                      value={String(
+                                        block.content?.buttonText || "",
+                                      )}
+                                      onChange={(e) =>
+                                        updateBlockContent(
+                                          idx,
+                                          "buttonText",
+                                          e.target.value,
+                                        )
+                                      }
                                       className="w-full px-2.5 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-xs"
                                     />
                                   </div>
@@ -1024,8 +1158,16 @@ export const PagesListPage: React.FC = () => {
                                     </label>
                                     <input
                                       type="text"
-                                      value={String(block.content?.buttonLink || "")}
-                                      onChange={(e) => updateBlockContent(idx, "buttonLink", e.target.value)}
+                                      value={String(
+                                        block.content?.buttonLink || "",
+                                      )}
+                                      onChange={(e) =>
+                                        updateBlockContent(
+                                          idx,
+                                          "buttonLink",
+                                          e.target.value,
+                                        )
+                                      }
                                       className="w-full px-2.5 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-xs"
                                     />
                                   </div>
@@ -1042,14 +1184,22 @@ export const PagesListPage: React.FC = () => {
                                 <textarea
                                   rows={4}
                                   value={String(block.content?.body || "")}
-                                  onChange={(e) => updateBlockContent(idx, "body", e.target.value)}
+                                  onChange={(e) =>
+                                    updateBlockContent(
+                                      idx,
+                                      "body",
+                                      e.target.value,
+                                    )
+                                  }
                                   className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-xs font-mono"
                                 />
                               </div>
                             )}
 
                             {/* Generic JSON fallback */}
-                            {!["Hero", "CTA", "RichText"].includes(block.type) && (
+                            {!["Hero", "CTA", "RichText"].includes(
+                              block.type,
+                            ) && (
                               <div>
                                 <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">
                                   Section JSON Content
@@ -1063,7 +1213,10 @@ export const PagesListPage: React.FC = () => {
                                       const updated = [...pageBlocks];
                                       const cur = updated[idx];
                                       if (cur) {
-                                        updated[idx] = { ...cur, content: parsed };
+                                        updated[idx] = {
+                                          ...cur,
+                                          content: parsed,
+                                        };
                                         setPageBlocks(updated);
                                       }
                                     } catch {
@@ -1077,7 +1230,8 @@ export const PagesListPage: React.FC = () => {
 
                             <div className="flex justify-end pt-1">
                               <span className="text-[10px] text-slate-400">
-                                Click &quot;Save Draft&quot; above to commit changes to the live iframe.
+                                Click &quot;Save Draft&quot; above to commit
+                                changes to the live iframe.
                               </span>
                             </div>
                           </div>
@@ -1087,7 +1241,8 @@ export const PagesListPage: React.FC = () => {
                   })}
                   {pageBlocks.length === 0 && (
                     <div className="py-8 text-center text-xs text-slate-400 border border-dashed border-slate-300 dark:border-slate-800 rounded-xl">
-                      No custom blocks attached to this page. Click &quot;Add Section&quot; to build.
+                      No custom blocks attached to this page. Click &quot;Add
+                      Section&quot; to build.
                     </div>
                   )}
                 </div>
@@ -1108,11 +1263,17 @@ export const PagesListPage: React.FC = () => {
 
                   <div className="flex-1 max-w-md mx-auto flex items-center gap-2 px-3 py-1 rounded-lg bg-slate-900 border border-slate-800 text-[11px] font-mono text-slate-400 truncate">
                     <Lock className="w-3 h-3 text-emerald-400 flex-shrink-0" />
-                    <span className="text-slate-200 truncate">{previewUrl}</span>
+                    <span className="text-slate-200 truncate">
+                      {previewUrl}
+                    </span>
                   </div>
 
                   <div className="text-[11px] font-semibold text-slate-400 hidden sm:block">
-                    {viewport === "desktop" ? "1920px (Desktop)" : viewport === "tablet" ? "768px (Tablet)" : "375px (Mobile)"}
+                    {viewport === "desktop"
+                      ? "1920px (Desktop)"
+                      : viewport === "tablet"
+                        ? "768px (Tablet)"
+                        : "375px (Mobile)"}
                   </div>
                 </div>
 
@@ -1123,8 +1284,8 @@ export const PagesListPage: React.FC = () => {
                       viewport === "desktop"
                         ? "w-full h-[750px]"
                         : viewport === "tablet"
-                        ? "w-[768px] h-[750px] border-4 border-slate-800"
-                        : "w-[375px] h-[720px] border-8 border-slate-800 rounded-3xl"
+                          ? "w-[768px] h-[750px] border-4 border-slate-800"
+                          : "w-[375px] h-[720px] border-8 border-slate-800 rounded-3xl"
                     }`}
                   >
                     <iframe
@@ -1156,7 +1317,11 @@ export const PagesListPage: React.FC = () => {
               className="w-80 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 px-3.5 py-2 text-xs text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
             <div className="text-xs text-slate-500">
-              Total: <span className="font-bold text-slate-900 dark:text-white">{pagesData?.totalCount ?? 0}</span> pages
+              Total:{" "}
+              <span className="font-bold text-slate-900 dark:text-white">
+                {pagesData?.totalCount ?? 0}
+              </span>{" "}
+              pages
             </div>
           </div>
 
@@ -1174,7 +1339,10 @@ export const PagesListPage: React.FC = () => {
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60 text-slate-700 dark:text-slate-300">
                 {(pagesData?.items || []).map((p) => (
-                  <tr key={p.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/40 transition">
+                  <tr
+                    key={p.id}
+                    className="hover:bg-slate-50/50 dark:hover:bg-slate-800/40 transition"
+                  >
                     <td className="px-6 py-4 font-bold text-slate-900 dark:text-white">
                       <button
                         type="button"
@@ -1205,7 +1373,9 @@ export const PagesListPage: React.FC = () => {
                       )}
                     </td>
                     <td className="px-6 py-4 text-slate-400">
-                      {p.updatedAtUtc ? new Date(p.updatedAtUtc).toLocaleDateString() : new Date(p.createdAtUtc).toLocaleDateString()}
+                      {p.updatedAtUtc
+                        ? new Date(p.updatedAtUtc).toLocaleDateString()
+                        : new Date(p.createdAtUtc).toLocaleDateString()}
                     </td>
                     <td className="px-6 py-4 text-right space-x-2">
                       <button
@@ -1257,7 +1427,12 @@ export const PagesListPage: React.FC = () => {
                   onChange={(e) => {
                     setNewTitle(e.target.value);
                     if (!newSlug) {
-                      setNewSlug(e.target.value.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, ""));
+                      setNewSlug(
+                        e.target.value
+                          .toLowerCase()
+                          .replace(/\s+/g, "-")
+                          .replace(/[^a-z0-9-]/g, ""),
+                      );
                     }
                   }}
                   placeholder="e.g. Enterprise Security & Architecture"
@@ -1273,7 +1448,14 @@ export const PagesListPage: React.FC = () => {
                   type="text"
                   required
                   value={newSlug}
-                  onChange={(e) => setNewSlug(e.target.value.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, ""))}
+                  onChange={(e) =>
+                    setNewSlug(
+                      e.target.value
+                        .toLowerCase()
+                        .replace(/\s+/g, "-")
+                        .replace(/[^a-z0-9-]/g, ""),
+                    )
+                  }
                   placeholder="e.g. enterprise-security"
                   className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-mono"
                 />
@@ -1311,7 +1493,8 @@ export const PagesListPage: React.FC = () => {
                   <span>Version History & Rollback</span>
                 </h3>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                  Inspect immutable page versions and rollback to any historical point with 1-click.
+                  Inspect immutable page versions and rollback to any historical
+                  point with 1-click.
                 </p>
               </div>
               <button
@@ -1330,7 +1513,8 @@ export const PagesListPage: React.FC = () => {
                 </div>
               ) : pageVersions.length === 0 ? (
                 <div className="py-12 text-center text-xs text-slate-400">
-                  No previous versions recorded for this page yet. Revisions are created automatically whenever drafts are saved or published.
+                  No previous versions recorded for this page yet. Revisions are
+                  created automatically whenever drafts are saved or published.
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -1355,7 +1539,9 @@ export const PagesListPage: React.FC = () => {
                         </p>
                         <div className="flex items-center gap-2 text-[11px] text-slate-400">
                           <Clock className="w-3 h-3" />
-                          <span>{new Date(v.createdAtUtc).toLocaleString()}</span>
+                          <span>
+                            {new Date(v.createdAtUtc).toLocaleString()}
+                          </span>
                         </div>
                       </div>
 

@@ -62,12 +62,16 @@ describe("BlockRenderer", () => {
     ];
 
     // Case 1: Indian user should not see US Exclusive Promotion
-    const htmlIn = renderToString(<BlockRenderer blocks={blocks} userRegion="in" />);
+    const htmlIn = renderToString(
+      <BlockRenderer blocks={blocks} userRegion="in" />,
+    );
     expect(htmlIn).not.toContain("US Exclusive Promotion");
     expect(htmlIn).toContain("Global Headline For Everyone");
 
     // Case 2: US user should see US Exclusive Promotion
-    const htmlUs = renderToString(<BlockRenderer blocks={blocks} userRegion="us" />);
+    const htmlUs = renderToString(
+      <BlockRenderer blocks={blocks} userRegion="us" />,
+    );
     expect(htmlUs).toContain("US Exclusive Promotion");
     expect(htmlUs).toContain("Global Headline For Everyone");
   });
@@ -104,4 +108,3 @@ describe("BlockRenderer", () => {
     expect(html).toContain("Uptime SLA");
   });
 });
-

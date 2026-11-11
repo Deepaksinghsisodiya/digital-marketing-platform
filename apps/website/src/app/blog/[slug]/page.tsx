@@ -1,7 +1,7 @@
-import Link from 'next/link';
-import { notFound } from 'next/navigation';
-import { Header } from '@/components/layout/Header';
-import { Footer } from '@/components/layout/Footer';
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { Header } from "@/components/layout/Header";
+import { Footer } from "@/components/layout/Footer";
 
 interface BlogPostDetail {
   id: string;
@@ -20,10 +20,10 @@ interface BlogPostDetail {
 }
 
 async function getPostBySlug(slug: string): Promise<BlogPostDetail | null> {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5201';
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5201";
   try {
     const res = await fetch(`${apiUrl}/api/v1/public/posts/${slug}`, {
-      cache: 'no-store'
+      cache: "no-store",
     });
     if (!res.ok) return null;
     return await res.json();
@@ -32,19 +32,27 @@ async function getPostBySlug(slug: string): Promise<BlogPostDetail | null> {
   }
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
   const { slug } = await params;
   const post = await getPostBySlug(slug);
   if (!post) {
-    return { title: 'Post Not Found | Nexora' };
+    return { title: "Post Not Found | Nexora" };
   }
   return {
     title: `${post.metaTitle || post.title} | Nexora Insights`,
-    description: post.metaDescription || post.excerpt
+    description: post.metaDescription || post.excerpt,
   };
 }
 
-export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function BlogPostPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
   const { slug } = await params;
   const post = await getPostBySlug(slug);
 
@@ -52,7 +60,12 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
     notFound();
   }
 
-  const tagsList = post.tags ? post.tags.split(',').map((t) => t.trim()).filter(Boolean) : [];
+  const tagsList = post.tags
+    ? post.tags
+        .split(",")
+        .map((t) => t.trim())
+        .filter(Boolean)
+    : [];
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100">
@@ -78,14 +91,16 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
             )}
             {post.publishedAtUtc && (
               <time className="text-xs text-slate-500">
-                {new Date(post.publishedAtUtc).toLocaleDateString('en-US', {
-                  month: 'long',
-                  day: 'numeric',
-                  year: 'numeric'
+                {new Date(post.publishedAtUtc).toLocaleDateString("en-US", {
+                  month: "long",
+                  day: "numeric",
+                  year: "numeric",
                 })}
               </time>
             )}
-            <span className="text-xs text-slate-500">&bull; By {post.authorName || 'Nexora Team'}</span>
+            <span className="text-xs text-slate-500">
+              &bull; By {post.authorName || "Nexora Team"}
+            </span>
           </div>
 
           <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-white leading-tight">
@@ -124,9 +139,13 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 
         {/* CTA Card */}
         <div className="mt-16 rounded-2xl border border-emerald-500/30 bg-gradient-to-br from-emerald-950/30 to-slate-900 p-8 sm:p-10 text-center">
-          <h2 className="text-2xl font-bold text-white">Ready to accelerate your B2B growth?</h2>
+          <h2 className="text-2xl font-bold text-white">
+            Ready to accelerate your B2B growth?
+          </h2>
           <p className="mt-3 text-sm text-slate-400 max-w-xl mx-auto">
-            Book an executive growth diagnostic with Nexora&apos;s digital marketing strategists. We analyze your pipeline, attribution, and acquisition channels.
+            Book an executive growth diagnostic with Nexora&apos;s digital
+            marketing strategists. We analyze your pipeline, attribution, and
+            acquisition channels.
           </p>
           <div className="mt-6">
             <Link
@@ -142,4 +161,3 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
     </div>
   );
 }
-

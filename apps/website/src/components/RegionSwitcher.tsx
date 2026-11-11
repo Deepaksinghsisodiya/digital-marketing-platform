@@ -28,7 +28,11 @@ export function RegionSwitcher({ currentRegion }: RegionSwitcherProps) {
         aria-label="Select Target Region"
       >
         {Object.values(REGION_CONFIG.supportedRegions).map((reg) => (
-          <option key={reg.code} value={reg.code} className="bg-white text-slate-900 py-1">
+          <option
+            key={reg.code}
+            value={reg.code}
+            className="bg-white text-slate-900 py-1"
+          >
             {reg.flag} {reg.name} ({reg.currency})
           </option>
         ))}

@@ -40,7 +40,9 @@ export const ForgotPasswordPage: React.FC = () => {
               <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-start gap-3 text-emerald-400 text-sm">
                 <CheckCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
                 <span>
-                  If that email exists in our records, a secure password reset link has been dispatched. Please check your inbox (and Mailpit in local development).
+                  If that email exists in our records, a secure password reset
+                  link has been dispatched. Please check your inbox (and Mailpit
+                  in local development).
                 </span>
               </div>
               <Link
@@ -109,4 +111,3 @@ export const ForgotPasswordPage: React.FC = () => {
     </div>
   );
 };
-

@@ -2,9 +2,10 @@ import { describe, it, expect } from "vitest";
 
 describe("Admin Route Permission and Token Fragment Guards", () => {
   it("should parse reset token and email securely from URL fragment without leaking in query string", () => {
-    const rawFragment = "token=test-reset-token-12345&email=admin%40nexora.local";
+    const rawFragment =
+      "token=test-reset-token-12345&email=admin%40nexora.local";
     const params = new URLSearchParams(rawFragment);
-    
+
     const token = params.get("token");
     const email = params.get("email");
 
@@ -18,8 +19,11 @@ describe("Admin Route Permission and Token Fragment Guards", () => {
       permissions: ["basic.view"],
     };
 
-    const hasUsersManage = user.roles.includes("Owner") || user.permissions.includes("users.manage");
-    const hasSettingsManage = user.roles.includes("Owner") || user.permissions.includes("settings.manage");
+    const hasUsersManage =
+      user.roles.includes("Owner") || user.permissions.includes("users.manage");
+    const hasSettingsManage =
+      user.roles.includes("Owner") ||
+      user.permissions.includes("settings.manage");
 
     expect(hasUsersManage).toBe(true);
     expect(hasSettingsManage).toBe(true);
@@ -31,11 +35,12 @@ describe("Admin Route Permission and Token Fragment Guards", () => {
       permissions: ["pages.view", "pages.edit"],
     };
 
-    const hasUsersManage = user.roles.includes("Owner") || user.permissions.includes("users.manage");
-    const hasPagesEdit = user.roles.includes("Owner") || user.permissions.includes("pages.edit");
+    const hasUsersManage =
+      user.roles.includes("Owner") || user.permissions.includes("users.manage");
+    const hasPagesEdit =
+      user.roles.includes("Owner") || user.permissions.includes("pages.edit");
 
     expect(hasUsersManage).toBe(false);
     expect(hasPagesEdit).toBe(true);
   });
 });
-

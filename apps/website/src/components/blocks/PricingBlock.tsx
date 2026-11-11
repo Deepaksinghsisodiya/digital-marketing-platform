@@ -26,13 +26,17 @@ interface PricingPlan {
 
 export const PricingBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
   const { content } = block;
-  const [billingPeriod, setBillingPeriod] = useState<"monthly" | "annual">("annual");
-  const [regionCode, setRegionCode] = useState<string>(REGION_CONFIG.defaultRegion);
+  const [billingPeriod, setBillingPeriod] = useState<"monthly" | "annual">(
+    "annual",
+  );
+  const [regionCode, setRegionCode] = useState<string>(
+    REGION_CONFIG.defaultRegion,
+  );
 
   useEffect(() => {
     if (typeof document !== "undefined") {
       const match = document.cookie.match(
-        new RegExp(`(^|;\\s*)(${REGION_CONFIG.cookieName})=([^;]*)`)
+        new RegExp(`(^|;\\s*)(${REGION_CONFIG.cookieName})=([^;]*)`),
       );
       if (match && match[3]) {
         setRegionCode(match[3].toUpperCase());
@@ -46,7 +50,8 @@ export const PricingBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
 
   const isIndia = regionCode === "IN";
 
-  const sectionTitle = (content.sectionTitle as string) || "Predictable Growth Infrastructure";
+  const sectionTitle =
+    (content.sectionTitle as string) || "Predictable Growth Infrastructure";
   const sectionSubtitle =
     (content.sectionSubtitle as string) ||
     "Transparent engagement models engineered for enterprise marketing velocity, verifiable attribution, and compliance.";
@@ -54,7 +59,8 @@ export const PricingBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
   const rawPlans: PricingPlan[] = (content.plans as PricingPlan[]) || [
     {
       name: "Growth Engine",
-      description: "For scaling B2B businesses establishing full-funnel digital dominance.",
+      description:
+        "For scaling B2B businesses establishing full-funnel digital dominance.",
       monthlyPrice: "$2,490",
       annualPrice: "$1,990",
       regionalPricing: {
@@ -75,7 +81,8 @@ export const PricingBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
     {
       name: "Enterprise Scale",
       badge: "Most Selected",
-      description: "For mid-to-large enterprises requiring multi-region campaign governance.",
+      description:
+        "For mid-to-large enterprises requiring multi-region campaign governance.",
       monthlyPrice: "$4,990",
       annualPrice: "$3,990",
       regionalPricing: {
@@ -96,7 +103,8 @@ export const PricingBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
     },
     {
       name: "Institutional Sovereign",
-      description: "Tailored private infrastructure for Fortune 1000 and regulated entities.",
+      description:
+        "Tailored private infrastructure for Fortune 1000 and regulated entities.",
       monthlyPrice: "Custom",
       annualPrice: "Custom",
       regionalPricing: {
@@ -155,19 +163,29 @@ export const PricingBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
 
           {/* Billing Switcher */}
           <div className="pt-4 flex items-center justify-center gap-3">
-            <span className={`text-xs font-bold ${billingPeriod === "monthly" ? "text-white" : "text-slate-400"}`}>
+            <span
+              className={`text-xs font-bold ${billingPeriod === "monthly" ? "text-white" : "text-slate-400"}`}
+            >
               Monthly Billing
             </span>
             <button
               type="button"
-              onClick={() => setBillingPeriod(billingPeriod === "annual" ? "monthly" : "annual")}
+              onClick={() =>
+                setBillingPeriod(
+                  billingPeriod === "annual" ? "monthly" : "annual",
+                )
+              }
               className={`w-12 h-6 rounded-full transition-colors flex items-center px-1 ${
-                billingPeriod === "annual" ? "bg-indigo-600 justify-end" : "bg-slate-700 justify-start"
+                billingPeriod === "annual"
+                  ? "bg-indigo-600 justify-end"
+                  : "bg-slate-700 justify-start"
               }`}
             >
               <div className="w-4 h-4 rounded-full bg-white shadow-sm" />
             </button>
-            <span className={`text-xs font-bold flex items-center gap-1.5 ${billingPeriod === "annual" ? "text-white" : "text-slate-400"}`}>
+            <span
+              className={`text-xs font-bold flex items-center gap-1.5 ${billingPeriod === "annual" ? "text-white" : "text-slate-400"}`}
+            >
               <span>Annual Engagement</span>
               <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 text-[10px] font-bold border border-emerald-500/30">
                 Save 20%
@@ -194,16 +212,24 @@ export const PricingBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
               )}
 
               <div>
-                <h3 className="text-xl font-bold text-white mb-2">{plan.name}</h3>
-                <p className="text-xs text-slate-400 min-h-[36px] leading-relaxed mb-6">{plan.description}</p>
+                <h3 className="text-xl font-bold text-white mb-2">
+                  {plan.name}
+                </h3>
+                <p className="text-xs text-slate-400 min-h-[36px] leading-relaxed mb-6">
+                  {plan.description}
+                </p>
 
                 <div className="border-t border-b border-slate-800/80 py-6 mb-6">
                   <div className="flex items-baseline gap-2">
                     <span className="text-4xl lg:text-5xl font-black text-white tracking-tight">
-                      {billingPeriod === "annual" ? plan.annualPrice : plan.monthlyPrice}
+                      {billingPeriod === "annual"
+                        ? plan.annualPrice
+                        : plan.monthlyPrice}
                     </span>
                     {plan.annualPrice !== "Custom" && (
-                      <span className="text-xs text-slate-400 font-medium">/ month billed annually</span>
+                      <span className="text-xs text-slate-400 font-medium">
+                        / month billed annually
+                      </span>
                     )}
                   </div>
                 </div>
@@ -211,7 +237,10 @@ export const PricingBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
                 {/* Features List */}
                 <div className="space-y-3 mb-8">
                   {plan.features.map((feat, featIdx) => (
-                    <div key={featIdx} className="flex items-start gap-2.5 text-xs text-slate-300">
+                    <div
+                      key={featIdx}
+                      className="flex items-start gap-2.5 text-xs text-slate-300"
+                    >
                       <div className="w-4 h-4 rounded-full bg-emerald-500/10 text-emerald-400 flex items-center justify-center flex-shrink-0 mt-0.5 border border-emerald-500/20">
                         <Check className="w-2.5 h-2.5" />
                       </div>
@@ -240,4 +269,3 @@ export const PricingBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
     </section>
   );
 };
-

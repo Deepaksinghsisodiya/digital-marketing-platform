@@ -76,7 +76,10 @@ export const adminApi = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["CurrentProfile"],
     }),
-    logoutEverywhere: builder.mutation<{ success: boolean; message: string }, void>({
+    logoutEverywhere: builder.mutation<
+      { success: boolean; message: string },
+      void
+    >({
       query: () => ({
         url: "/api/v1/auth/logout-everywhere",
         method: "POST",
@@ -118,7 +121,13 @@ export const adminApi = apiSlice.injectEndpoints({
     // Admin Users Management
     getUsers: builder.query<
       PaginatedResult<UserSummary>,
-      { page?: number; pageSize?: number; search?: string; role?: string; status?: number }
+      {
+        page?: number;
+        pageSize?: number;
+        search?: string;
+        role?: string;
+        status?: number;
+      }
     >({
       query: (params) => ({
         url: "/api/v1/admin/users",
@@ -137,14 +146,20 @@ export const adminApi = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["User", "AuditLog"],
     }),
-    resendInvitation: builder.mutation<{ success: boolean; message: string }, string>({
+    resendInvitation: builder.mutation<
+      { success: boolean; message: string },
+      string
+    >({
       query: (id) => ({
         url: `/api/v1/admin/users/${id}/resend-invitation`,
         method: "POST",
       }),
       invalidatesTags: ["User", "AuditLog"],
     }),
-    sendUserPasswordReset: builder.mutation<{ success: boolean; message: string }, string>({
+    sendUserPasswordReset: builder.mutation<
+      { success: boolean; message: string },
+      string
+    >({
       query: (id) => ({
         url: `/api/v1/admin/users/${id}/reset-password`,
         method: "POST",
@@ -153,7 +168,12 @@ export const adminApi = apiSlice.injectEndpoints({
     }),
     updateUser: builder.mutation<
       { success: boolean; message: string },
-      { id: string; role?: string; isSuspended?: boolean; suspensionReason?: string }
+      {
+        id: string;
+        role?: string;
+        isSuspended?: boolean;
+        suspensionReason?: string;
+      }
     >({
       query: ({ id, ...body }) => ({
         url: `/api/v1/admin/users/${id}`,
@@ -162,13 +182,15 @@ export const adminApi = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["User", "CurrentProfile", "AuditLog"],
     }),
-    deleteUser: builder.mutation<{ success: boolean; message: string }, string>({
-      query: (id) => ({
-        url: `/api/v1/admin/users/${id}`,
-        method: "DELETE",
-      }),
-      invalidatesTags: ["User", "AuditLog"],
-    }),
+    deleteUser: builder.mutation<{ success: boolean; message: string }, string>(
+      {
+        query: (id) => ({
+          url: `/api/v1/admin/users/${id}`,
+          method: "DELETE",
+        }),
+        invalidatesTags: ["User", "AuditLog"],
+      },
+    ),
 
     // Roles & Permissions
     getRoles: builder.query<RoleDto[], void>({
@@ -208,7 +230,13 @@ export const adminApi = apiSlice.injectEndpoints({
     // Audit Logs
     getAuditLogs: builder.query<
       PaginatedResult<AuditLogDto>,
-      { page?: number; pageSize?: number; action?: string; resourceType?: string; outcome?: string }
+      {
+        page?: number;
+        pageSize?: number;
+        action?: string;
+        resourceType?: string;
+        outcome?: string;
+      }
     >({
       query: (params) => ({
         url: "/api/v1/admin/audit-logs",
@@ -247,7 +275,13 @@ export const adminApi = apiSlice.injectEndpoints({
     // CMS Pages
     getPages: builder.query<
       PaginatedResult<PageSummary>,
-      { page?: number; pageSize?: number; search?: string; status?: number; locale?: string }
+      {
+        page?: number;
+        pageSize?: number;
+        search?: string;
+        status?: number;
+        locale?: string;
+      }
     >({
       query: (params) => ({
         url: "/api/v1/admin/pages",
@@ -303,7 +337,14 @@ export const adminApi = apiSlice.injectEndpoints({
     // Leads & Inquiries
     getLeads: builder.query<
       PaginatedResult<LeadSummary>,
-      { page?: number; pageSize?: number; search?: string; status?: number; region?: string; formKey?: string }
+      {
+        page?: number;
+        pageSize?: number;
+        search?: string;
+        status?: number;
+        region?: string;
+        formKey?: string;
+      }
     >({
       query: (params) => ({
         url: "/api/v1/admin/leads",
@@ -319,21 +360,35 @@ export const adminApi = apiSlice.injectEndpoints({
       query: () => "/api/v1/admin/leads/stats",
       providesTags: ["Lead"],
     }),
-    updateLeadStatus: builder.mutation<{ success: boolean }, { id: string; status: LeadStatus }>({
+    updateLeadStatus: builder.mutation<
+      { success: boolean },
+      { id: string; status: LeadStatus }
+    >({
       query: ({ id, status }) => ({
         url: `/api/v1/admin/leads/${id}/status`,
         method: "PATCH",
         body: { status },
       }),
-      invalidatesTags: (_res, _err, { id }) => [{ type: "Lead", id }, "Lead", "AuditLog"],
+      invalidatesTags: (_res, _err, { id }) => [
+        { type: "Lead", id },
+        "Lead",
+        "AuditLog",
+      ],
     }),
-    addLeadNote: builder.mutation<{ success: boolean }, { id: string; note: string }>({
+    addLeadNote: builder.mutation<
+      { success: boolean },
+      { id: string; note: string }
+    >({
       query: ({ id, note }) => ({
         url: `/api/v1/admin/leads/${id}/notes`,
         method: "POST",
         body: { note },
       }),
-      invalidatesTags: (_res, _err, { id }) => [{ type: "Lead", id }, "Lead", "AuditLog"],
+      invalidatesTags: (_res, _err, { id }) => [
+        { type: "Lead", id },
+        "Lead",
+        "AuditLog",
+      ],
     }),
 
     // Email Templates & Outbox Endpoints
@@ -383,12 +438,19 @@ export const adminApi = apiSlice.injectEndpoints({
     // Clients & Lite CRM Endpoints
     getClients: builder.query<
       PaginatedResult<ClientSummary>,
-      { page?: number; pageSize?: number; search?: string; status?: ClientStatus; region?: string } | void
+      {
+        page?: number;
+        pageSize?: number;
+        search?: string;
+        status?: ClientStatus;
+        region?: string;
+      } | void
     >({
       query: (params) => {
         const queryParams = new URLSearchParams();
         if (params?.page) queryParams.set("page", params.page.toString());
-        if (params?.pageSize) queryParams.set("pageSize", params.pageSize.toString());
+        if (params?.pageSize)
+          queryParams.set("pageSize", params.pageSize.toString());
         if (params?.search) queryParams.set("search", params.search);
         if (params?.status) queryParams.set("status", params.status.toString());
         if (params?.region) queryParams.set("region", params.region);
@@ -408,25 +470,45 @@ export const adminApi = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["Client", "AuditLog"],
     }),
-    updateClient: builder.mutation<{ message: string }, { id: string; data: UpdateClientRequest }>({
+    updateClient: builder.mutation<
+      { message: string },
+      { id: string; data: UpdateClientRequest }
+    >({
       query: ({ id, data }) => ({
         url: `/api/v1/admin/clients/${id}`,
         method: "PUT",
         body: data,
       }),
-      invalidatesTags: (_res, _err, { id }) => [{ type: "Client", id }, "Client", "AuditLog"],
+      invalidatesTags: (_res, _err, { id }) => [
+        { type: "Client", id },
+        "Client",
+        "AuditLog",
+      ],
     }),
-    updateClientStatus: builder.mutation<{ message: string }, { id: string; status: ClientStatus }>({
+    updateClientStatus: builder.mutation<
+      { message: string },
+      { id: string; status: ClientStatus }
+    >({
       query: ({ id, status }) => ({
         url: `/api/v1/admin/clients/${id}/status`,
         method: "PATCH",
         body: { status },
       }),
-      invalidatesTags: (_res, _err, { id }) => [{ type: "Client", id }, "Client", "AuditLog"],
+      invalidatesTags: (_res, _err, { id }) => [
+        { type: "Client", id },
+        "Client",
+        "AuditLog",
+      ],
     }),
     convertLeadToClient: builder.mutation<
       { clientId: string; message: string },
-      { leadId: string; clientName?: string; industry?: string; taxId?: string; initialTaskTitle?: string }
+      {
+        leadId: string;
+        clientName?: string;
+        industry?: string;
+        taxId?: string;
+        initialTaskTitle?: string;
+      }
     >({
       query: ({ leadId, ...body }) => ({
         url: `/api/v1/admin/leads/${leadId}/convert`,
@@ -437,14 +519,23 @@ export const adminApi = apiSlice.injectEndpoints({
     }),
     addClientContact: builder.mutation<
       { contactId: string },
-      { clientId: string; fullName: string; email: string; phone?: string; title?: string; isPrimary?: boolean }
+      {
+        clientId: string;
+        fullName: string;
+        email: string;
+        phone?: string;
+        title?: string;
+        isPrimary?: boolean;
+      }
     >({
       query: ({ clientId, ...body }) => ({
         url: `/api/v1/admin/clients/${clientId}/contacts`,
         method: "POST",
         body,
       }),
-      invalidatesTags: (_res, _err, { clientId }) => [{ type: "Client", id: clientId }],
+      invalidatesTags: (_res, _err, { clientId }) => [
+        { type: "Client", id: clientId },
+      ],
     }),
     addClientActivity: builder.mutation<
       { message: string },
@@ -455,7 +546,9 @@ export const adminApi = apiSlice.injectEndpoints({
         method: "POST",
         body,
       }),
-      invalidatesTags: (_res, _err, { clientId }) => [{ type: "Client", id: clientId }],
+      invalidatesTags: (_res, _err, { clientId }) => [
+        { type: "Client", id: clientId },
+      ],
     }),
 
     // Tasks Endpoints
@@ -473,11 +566,14 @@ export const adminApi = apiSlice.injectEndpoints({
       query: (params) => {
         const queryParams = new URLSearchParams();
         if (params?.page) queryParams.set("page", params.page.toString());
-        if (params?.pageSize) queryParams.set("pageSize", params.pageSize.toString());
+        if (params?.pageSize)
+          queryParams.set("pageSize", params.pageSize.toString());
         if (params?.status) queryParams.set("status", params.status.toString());
-        if (params?.priority) queryParams.set("priority", params.priority.toString());
+        if (params?.priority)
+          queryParams.set("priority", params.priority.toString());
         if (params?.clientId) queryParams.set("clientId", params.clientId);
-        if (params?.overdueOnly !== undefined) queryParams.set("overdueOnly", params.overdueOnly.toString());
+        if (params?.overdueOnly !== undefined)
+          queryParams.set("overdueOnly", params.overdueOnly.toString());
         return `/api/v1/admin/tasks?${queryParams.toString()}`;
       },
       providesTags: ["Task"],
@@ -490,7 +586,10 @@ export const adminApi = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["Task", "Client"],
     }),
-    updateTask: builder.mutation<{ message: string }, { id: string; data: UpdateTaskRequest }>({
+    updateTask: builder.mutation<
+      { message: string },
+      { id: string; data: UpdateTaskRequest }
+    >({
       query: ({ id, data }) => ({
         url: `/api/v1/admin/tasks/${id}`,
         method: "PUT",
@@ -501,7 +600,13 @@ export const adminApi = apiSlice.injectEndpoints({
     // Blog / Content Collections
     getAdminPosts: builder.query<
       PaginatedResult<BlogPostSummary>,
-      { page?: number; pageSize?: number; search?: string; category?: string; status?: BlogPostStatus } | void
+      {
+        page?: number;
+        pageSize?: number;
+        search?: string;
+        category?: string;
+        status?: BlogPostStatus;
+      } | void
     >({
       query: (params) => ({
         url: "/api/v1/admin/posts",
@@ -513,21 +618,29 @@ export const adminApi = apiSlice.injectEndpoints({
       query: (id) => `/api/v1/admin/posts/${id}`,
       providesTags: (_res, _err, id) => [{ type: "BlogPost", id }],
     }),
-    createBlogPost: builder.mutation<{ postId: string }, CreateBlogPostRequest>({
-      query: (body) => ({
-        url: "/api/v1/admin/posts",
-        method: "POST",
-        body,
-      }),
-      invalidatesTags: ["BlogPost"],
-    }),
-    updateBlogPost: builder.mutation<{ message: string }, { id: string; body: UpdateBlogPostRequest }>({
+    createBlogPost: builder.mutation<{ postId: string }, CreateBlogPostRequest>(
+      {
+        query: (body) => ({
+          url: "/api/v1/admin/posts",
+          method: "POST",
+          body,
+        }),
+        invalidatesTags: ["BlogPost"],
+      },
+    ),
+    updateBlogPost: builder.mutation<
+      { message: string },
+      { id: string; body: UpdateBlogPostRequest }
+    >({
       query: ({ id, body }) => ({
         url: `/api/v1/admin/posts/${id}`,
         method: "PUT",
         body,
       }),
-      invalidatesTags: (_res, _err, { id }) => ["BlogPost", { type: "BlogPost", id }],
+      invalidatesTags: (_res, _err, { id }) => [
+        "BlogPost",
+        { type: "BlogPost", id },
+      ],
     }),
     deleteBlogPost: builder.mutation<{ message: string }, string>({
       query: (id) => ({
@@ -538,21 +651,30 @@ export const adminApi = apiSlice.injectEndpoints({
     }),
 
     // Lookups & Master Data Endpoints
-    getPipelineStages: builder.query<PipelineStage[], { category?: string } | void>({
+    getPipelineStages: builder.query<
+      PipelineStage[],
+      { category?: string } | void
+    >({
       query: (arg) => ({
         url: "/api/v1/lookups/pipeline-stages",
         params: arg?.category ? { category: arg.category } : undefined,
       }),
       providesTags: ["PipelineStage"],
     }),
-    getAdminPipelineStages: builder.query<PipelineStage[], { category?: string } | void>({
+    getAdminPipelineStages: builder.query<
+      PipelineStage[],
+      { category?: string } | void
+    >({
       query: (arg) => ({
         url: "/api/v1/admin/lookups/pipeline-stages",
         params: arg?.category ? { category: arg.category } : undefined,
       }),
       providesTags: ["PipelineStage"],
     }),
-    createPipelineStage: builder.mutation<PipelineStage, Partial<PipelineStage>>({
+    createPipelineStage: builder.mutation<
+      PipelineStage,
+      Partial<PipelineStage>
+    >({
       query: (body) => ({
         url: "/api/v1/admin/lookups/pipeline-stages",
         method: "POST",
@@ -560,7 +682,10 @@ export const adminApi = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["PipelineStage"],
     }),
-    updatePipelineStage: builder.mutation<PipelineStage, { id: string; body: Partial<PipelineStage> }>({
+    updatePipelineStage: builder.mutation<
+      PipelineStage,
+      { id: string; body: Partial<PipelineStage> }
+    >({
       query: ({ id, body }) => ({
         url: `/api/v1/admin/lookups/pipeline-stages/${id}`,
         method: "PATCH",
@@ -576,7 +701,10 @@ export const adminApi = apiSlice.injectEndpoints({
       query: () => "/api/v1/admin/lookups/regions",
       providesTags: ["CountryRegion"],
     }),
-    createCountryRegion: builder.mutation<CountryRegion, Partial<CountryRegion>>({
+    createCountryRegion: builder.mutation<
+      CountryRegion,
+      Partial<CountryRegion>
+    >({
       query: (body) => ({
         url: "/api/v1/admin/lookups/regions",
         method: "POST",
@@ -584,7 +712,10 @@ export const adminApi = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["CountryRegion", "Settings"],
     }),
-    updateCountryRegion: builder.mutation<CountryRegion, { id: string; body: Partial<CountryRegion> }>({
+    updateCountryRegion: builder.mutation<
+      CountryRegion,
+      { id: string; body: Partial<CountryRegion> }
+    >({
       query: ({ id, body }) => ({
         url: `/api/v1/admin/lookups/regions/${id}`,
         method: "PATCH",
@@ -596,16 +727,23 @@ export const adminApi = apiSlice.injectEndpoints({
     // Media Library
     getMediaAssets: builder.query<
       PaginatedResult<MediaAssetDto>,
-      { page?: number; pageSize?: number; search?: string; mimeType?: string } | void
+      {
+        page?: number;
+        pageSize?: number;
+        search?: string;
+        mimeType?: string;
+      } | void
     >({
       query: (params) => ({
         url: "/api/v1/admin/media",
-        params: params ? {
-          page: params.page || 1,
-          pageSize: params.pageSize || 24,
-          search: params.search || undefined,
-          mimeType: params.mimeType || undefined,
-        } : { page: 1, pageSize: 24 },
+        params: params
+          ? {
+              page: params.page || 1,
+              pageSize: params.pageSize || 24,
+              search: params.search || undefined,
+              mimeType: params.mimeType || undefined,
+            }
+          : { page: 1, pageSize: 24 },
       }),
       providesTags: ["Media"],
     }),
@@ -638,7 +776,10 @@ export const adminApi = apiSlice.injectEndpoints({
       query: (id) => `/api/v1/admin/menus/${id}`,
       providesTags: (_result, _err, id) => [{ type: "Menu", id }],
     }),
-    saveAdminMenu: builder.mutation<NavigationMenuDto, { id?: string; request: SaveMenuRequest }>({
+    saveAdminMenu: builder.mutation<
+      NavigationMenuDto,
+      { id?: string; request: SaveMenuRequest }
+    >({
       query: ({ id, request }) => ({
         url: id ? `/api/v1/admin/menus/${id}` : "/api/v1/admin/menus",
         method: id ? "PUT" : "POST",
@@ -657,9 +798,14 @@ export const adminApi = apiSlice.injectEndpoints({
     // Page Versions & Rollback
     getPageVersions: builder.query<PageVersionSummaryDto[], string>({
       query: (pageId) => `/api/v1/admin/pages/${pageId}/versions`,
-      providesTags: (_result, _err, pageId) => [{ type: "CmsPage", id: `versions-${pageId}` }],
+      providesTags: (_result, _err, pageId) => [
+        { type: "CmsPage", id: `versions-${pageId}` },
+      ],
     }),
-    rollbackPage: builder.mutation<{ success: boolean }, { pageId: string; request: RollbackPageRequest }>({
+    rollbackPage: builder.mutation<
+      { success: boolean },
+      { pageId: string; request: RollbackPageRequest }
+    >({
       query: ({ pageId, request }) => ({
         url: `/api/v1/admin/pages/${pageId}/rollback`,
         method: "POST",
@@ -746,4 +892,3 @@ export const {
   useGetPageVersionsQuery,
   useRollbackPageMutation,
 } = adminApi;
-

@@ -56,13 +56,18 @@ export const AdminLayout: React.FC = () => {
   const { data: settings } = useGetSettingsQuery();
 
   const companyName = settings?.companyName || "Nexora";
-  const logoUrl = settings?.logoUrl || (settings?.logoMediaId ? `/api/v1/public/media/${settings.logoMediaId}/download` : null);
+  const logoUrl =
+    settings?.logoUrl ||
+    (settings?.logoMediaId
+      ? `/api/v1/public/media/${settings.logoMediaId}/download`
+      : null);
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const [searchFocused, setSearchFocused] = useState(false);
 
-  const hasPerm = (p: string): boolean => Boolean(user?.permissions?.includes(p) || user?.roles?.includes("Owner"));
+  const hasPerm = (p: string): boolean =>
+    Boolean(user?.permissions?.includes(p) || user?.roles?.includes("Owner"));
 
   const navGroups: NavGroup[] = [
     {
@@ -222,7 +227,9 @@ export const AdminLayout: React.FC = () => {
             </div>
           )}
           <div>
-            <span className="font-bold text-slate-900 dark:text-white text-base truncate max-w-[150px] inline-block align-middle">{companyName}</span>
+            <span className="font-bold text-slate-900 dark:text-white text-base truncate max-w-[150px] inline-block align-middle">
+              {companyName}
+            </span>
             <span className="ml-1.5 text-[10px] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/60 px-1.5 py-0.5 rounded border border-indigo-200 dark:border-indigo-800/40">
               Admin
             </span>
@@ -234,13 +241,21 @@ export const AdminLayout: React.FC = () => {
             className="p-2 rounded-lg text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-white"
             title="Toggle Light / Dark Mode"
           >
-            {theme === "dark" ? <Sun className="w-5 h-5 text-amber-400" /> : <Moon className="w-5 h-5 text-indigo-600" />}
+            {theme === "dark" ? (
+              <Sun className="w-5 h-5 text-amber-400" />
+            ) : (
+              <Moon className="w-5 h-5 text-indigo-600" />
+            )}
           </button>
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className="p-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white focus:outline-none"
           >
-            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            {mobileMenuOpen ? (
+              <X className="w-6 h-6" />
+            ) : (
+              <Menu className="w-6 h-6" />
+            )}
           </button>
         </div>
       </div>
@@ -361,7 +376,9 @@ export const AdminLayout: React.FC = () => {
                 ) : (
                   <Moon className="w-4 h-4 text-indigo-600" />
                 )}
-                <span>Theme: {theme === "dark" ? "Dark Standard" : "Light Mode"}</span>
+                <span>
+                  Theme: {theme === "dark" ? "Dark Standard" : "Light Mode"}
+                </span>
               </span>
               <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 font-bold border border-slate-200 dark:border-slate-800">
                 Switch
@@ -402,8 +419,12 @@ export const AdminLayout: React.FC = () => {
                   {userDropdownOpen && (
                     <div className="absolute right-0 bottom-full mb-2 w-52 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl py-1 z-50 text-xs">
                       <div className="px-3 py-2 border-b border-slate-100 dark:border-slate-700">
-                        <p className="font-semibold text-slate-800 dark:text-slate-200">{user?.fullName}</p>
-                        <p className="text-[11px] text-slate-500 truncate">{user?.email}</p>
+                        <p className="font-semibold text-slate-800 dark:text-slate-200">
+                          {user?.fullName}
+                        </p>
+                        <p className="text-[11px] text-slate-500 truncate">
+                          {user?.email}
+                        </p>
                       </div>
                       <Link
                         to="/settings"
@@ -446,7 +467,9 @@ export const AdminLayout: React.FC = () => {
               <Layers className="w-3.5 h-3.5 text-indigo-500" />
               <span className="hidden sm:inline">Platform</span>
               <span className="hidden sm:inline">/</span>
-              <span className="text-slate-800 dark:text-slate-200 font-bold">{getPageTitle()}</span>
+              <span className="text-slate-800 dark:text-slate-200 font-bold">
+                {getPageTitle()}
+              </span>
             </div>
 
             <div className="hidden sm:block h-4 w-px bg-slate-200 dark:bg-slate-800 mx-1" />
@@ -513,7 +536,11 @@ export const AdminLayout: React.FC = () => {
               className="p-2 rounded-xl text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
               title="Toggle theme"
             >
-              {theme === "dark" ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-indigo-600" />}
+              {theme === "dark" ? (
+                <Sun className="w-4 h-4 text-amber-400" />
+              ) : (
+                <Moon className="w-4 h-4 text-indigo-600" />
+              )}
             </button>
           </div>
         </header>

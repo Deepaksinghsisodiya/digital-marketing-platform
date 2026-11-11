@@ -43,7 +43,7 @@ const API_BASE =
 
 export async function getPublicPage(
   slug: string,
-  locale = "en"
+  locale = "en",
 ): Promise<PublicPageDetail | null> {
   const cleanSlug = slug.replace(/^\/+|\/+$/g, "") || "home";
   const url = `${API_BASE}/api/v1/public/pages/${encodeURIComponent(cleanSlug)}?locale=${encodeURIComponent(locale)}`;
@@ -56,7 +56,9 @@ export async function getPublicPage(
     if (res.status === 404) return null;
     if (!res.ok) {
       // eslint-disable-next-line no-console
-      console.warn(`CMS Fetch failed for slug '${cleanSlug}': HTTP ${res.status}`);
+      console.warn(
+        `CMS Fetch failed for slug '${cleanSlug}': HTTP ${res.status}`,
+      );
       return null;
     }
 
@@ -68,7 +70,9 @@ export async function getPublicPage(
   }
 }
 
-export async function getPreviewPage(token: string): Promise<PublicPageDetail | null> {
+export async function getPreviewPage(
+  token: string,
+): Promise<PublicPageDetail | null> {
   const url = `${API_BASE}/api/v1/public/preview/${encodeURIComponent(token)}`;
 
   try {
@@ -121,7 +125,7 @@ export interface PublicMenu {
 
 export async function getPublicMenu(
   key: string,
-  region?: string
+  region?: string,
 ): Promise<PublicMenu | null> {
   const url = `${API_BASE}/api/v1/public/menus/${encodeURIComponent(key)}${
     region ? `?region=${encodeURIComponent(region)}` : ""

@@ -1,7 +1,13 @@
 import { notFound } from "next/navigation";
 import { cookies } from "next/headers";
 import { REGION_CONFIG, resolveRegion } from "../../config/region";
-import { getPublicPage, getPublicSiteSettings, getPublicMenu, type CmsBlock, type PublicPageDetail } from "../../lib/cms";
+import {
+  getPublicPage,
+  getPublicSiteSettings,
+  getPublicMenu,
+  type CmsBlock,
+  type PublicPageDetail,
+} from "../../lib/cms";
 import { Header } from "../../components/layout/Header";
 import { Footer } from "../../components/layout/Footer";
 import { BlockRenderer } from "../../components/blocks/BlockRenderer";
@@ -13,10 +19,14 @@ interface PageProps {
   }>;
 }
 
-const FALLBACK_PAGES: Record<string, { title: string; metaDescription: string; blocks: CmsBlock[] }> = {
+const FALLBACK_PAGES: Record<
+  string,
+  { title: string; metaDescription: string; blocks: CmsBlock[] }
+> = {
   solutions: {
     title: "Enterprise Solutions & Services — Nexora",
-    metaDescription: "Comprehensive B2B performance marketing, high-intent SEO, and deterministic attribution.",
+    metaDescription:
+      "Comprehensive B2B performance marketing, high-intent SEO, and deterministic attribution.",
     blocks: [
       {
         id: "fb_sol_hero",
@@ -26,7 +36,8 @@ const FALLBACK_PAGES: Record<string, { title: string; metaDescription: string; b
         settings: {},
         content: {
           headline: "Enterprise Marketing Infrastructure",
-          subheadline: "Accelerate pipeline velocity, dominate high-intent search, and eliminate attribution blindspots with Nexora Engine.",
+          subheadline:
+            "Accelerate pipeline velocity, dominate high-intent search, and eliminate attribution blindspots with Nexora Engine.",
           primaryCtaText: "Request Solutions Diagnostic",
           primaryCtaLink: "/contact",
           secondaryCtaText: "Explore Insights",
@@ -55,11 +66,24 @@ const FALLBACK_PAGES: Record<string, { title: string; metaDescription: string; b
         settings: {},
         content: {
           sectionTitle: "Full-Funnel Enterprise Capabilities",
-          sectionSubtitle: "Engineered for high-performing marketing teams requiring scale, security, and predictability.",
+          sectionSubtitle:
+            "Engineered for high-performing marketing teams requiring scale, security, and predictability.",
           features: [
-            { title: "High-Intent Performance SEO", description: "Dominate commercial search terms with programmatic content and technical architecture." },
-            { title: "Deterministic Revenue Attribution", description: "Multi-touch server-side tracking mapping ad spend directly to closed institutional contracts." },
-            { title: "Conversion Rate Optimization (CRO)", description: "High-velocity experimentation frameworks turning traffic into validated SQL opportunities." },
+            {
+              title: "High-Intent Performance SEO",
+              description:
+                "Dominate commercial search terms with programmatic content and technical architecture.",
+            },
+            {
+              title: "Deterministic Revenue Attribution",
+              description:
+                "Multi-touch server-side tracking mapping ad spend directly to closed institutional contracts.",
+            },
+            {
+              title: "Conversion Rate Optimization (CRO)",
+              description:
+                "High-velocity experimentation frameworks turning traffic into validated SQL opportunities.",
+            },
           ],
         },
       },
@@ -71,7 +95,8 @@ const FALLBACK_PAGES: Record<string, { title: string; metaDescription: string; b
         settings: {},
         content: {
           sectionTitle: "Predictable Investment Models",
-          sectionSubtitle: "Transparent engagement packages designed for enterprise marketing velocity.",
+          sectionSubtitle:
+            "Transparent engagement packages designed for enterprise marketing velocity.",
         },
       },
       {
@@ -82,7 +107,8 @@ const FALLBACK_PAGES: Record<string, { title: string; metaDescription: string; b
         settings: {},
         content: {
           sectionTitle: "Validated by Enterprise Leaders",
-          sectionSubtitle: "Hear how global brands scale predictable pipeline with Nexora.",
+          sectionSubtitle:
+            "Hear how global brands scale predictable pipeline with Nexora.",
         },
       },
       {
@@ -101,7 +127,8 @@ const FALLBACK_PAGES: Record<string, { title: string; metaDescription: string; b
   },
   about: {
     title: "About Nexora — Company & Mission",
-    metaDescription: "Building the operating system for modern B2B marketing with verifiable attribution.",
+    metaDescription:
+      "Building the operating system for modern B2B marketing with verifiable attribution.",
     blocks: [
       {
         id: "fb_about_hero",
@@ -111,7 +138,8 @@ const FALLBACK_PAGES: Record<string, { title: string; metaDescription: string; b
         settings: {},
         content: {
           headline: "The Operating System for Modern B2B Marketing",
-          subheadline: "Nexora brings mathematical precision, deterministic revenue attribution, and multi-region governance to global enterprises.",
+          subheadline:
+            "Nexora brings mathematical precision, deterministic revenue attribution, and multi-region governance to global enterprises.",
           primaryCtaText: "Connect with Leadership",
           primaryCtaLink: "/contact",
           secondaryCtaText: "Read Our Insights",
@@ -140,11 +168,24 @@ const FALLBACK_PAGES: Record<string, { title: string; metaDescription: string; b
         settings: {},
         content: {
           sectionTitle: "Our Foundational Principles",
-          sectionSubtitle: "Built for institutional rigor, radical transparency, and verifiable commercial impact.",
+          sectionSubtitle:
+            "Built for institutional rigor, radical transparency, and verifiable commercial impact.",
           features: [
-            { title: "Verifiable Attribution", description: "Zero guesswork. Every revenue dollar is attributed back to the source touchpoint." },
-            { title: "Privacy & Compliance First", description: "Full consent lifecycle telemetry complying with India DPDP, GDPR, and CCPA." },
-            { title: "Continuous Velocity", description: "Deploy campaigns across borders in days rather than quarters." },
+            {
+              title: "Verifiable Attribution",
+              description:
+                "Zero guesswork. Every revenue dollar is attributed back to the source touchpoint.",
+            },
+            {
+              title: "Privacy & Compliance First",
+              description:
+                "Full consent lifecycle telemetry complying with India DPDP, GDPR, and CCPA.",
+            },
+            {
+              title: "Continuous Velocity",
+              description:
+                "Deploy campaigns across borders in days rather than quarters.",
+            },
           ],
         },
       },
@@ -156,7 +197,8 @@ const FALLBACK_PAGES: Record<string, { title: string; metaDescription: string; b
         settings: {},
         content: {
           sectionTitle: "Trusted by Global Teams",
-          sectionSubtitle: "Our track record across tech, finance, and enterprise retail.",
+          sectionSubtitle:
+            "Our track record across tech, finance, and enterprise retail.",
         },
       },
       {
@@ -175,7 +217,9 @@ const FALLBACK_PAGES: Record<string, { title: string; metaDescription: string; b
   },
 };
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const slugPath = slug.join("/");
   const cookieStore = await cookies();
@@ -205,7 +249,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     alternates: {
       canonical: cmsPage.canonicalUrl || undefined,
     },
-    robots: cmsPage.noIndex ? { index: false, follow: false } : { index: true, follow: true },
+    robots: cmsPage.noIndex
+      ? { index: false, follow: false }
+      : { index: true, follow: true },
   };
 }
 
@@ -248,7 +294,11 @@ export default async function DynamicCmsPage({ params }: PageProps) {
 
   return (
     <div className="min-h-screen flex flex-col justify-between bg-white text-slate-900">
-      <Header settings={siteSettings} currentRegionCode={region.code} menu={headerMenu} />
+      <Header
+        settings={siteSettings}
+        currentRegionCode={region.code}
+        menu={headerMenu}
+      />
 
       <main className="flex-1">
         <BlockRenderer blocks={cmsPage.blocks} userRegion={region.code} />

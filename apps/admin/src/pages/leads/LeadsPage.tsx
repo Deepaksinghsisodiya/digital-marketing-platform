@@ -35,32 +35,38 @@ interface StatusBadge {
 const STATUS_CONFIG: Record<number, StatusBadge> = {
   0: {
     label: "New Inquiry",
-    badgeClass: "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20",
+    badgeClass:
+      "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20",
     dotClass: "bg-blue-500",
   },
   1: {
     label: "Under Evaluation",
-    badgeClass: "bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20",
+    badgeClass:
+      "bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20",
     dotClass: "bg-amber-500",
   },
   2: {
     label: "Contacted",
-    badgeClass: "bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-500/20",
+    badgeClass:
+      "bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-500/20",
     dotClass: "bg-purple-500",
   },
   3: {
     label: "Qualified (SQL)",
-    badgeClass: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20",
+    badgeClass:
+      "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20",
     dotClass: "bg-emerald-500",
   },
   4: {
     label: "Converted / Closed",
-    badgeClass: "bg-slate-500/10 text-slate-700 dark:text-slate-400 border-slate-500/20",
+    badgeClass:
+      "bg-slate-500/10 text-slate-700 dark:text-slate-400 border-slate-500/20",
     dotClass: "bg-slate-400",
   },
   5: {
     label: "Spam Filtered",
-    badgeClass: "bg-rose-500/10 text-rose-700 dark:text-rose-400 border-rose-500/20",
+    badgeClass:
+      "bg-rose-500/10 text-rose-700 dark:text-rose-400 border-rose-500/20",
     dotClass: "bg-rose-500",
   },
 };
@@ -74,10 +80,30 @@ const REGION_FLAGS: Record<string, { flag: string; label: string }> = {
 };
 
 const KANBAN_STAGES = [
-  { status: 0, label: "New Inquiries", color: "blue", nextAction: "Start Review" },
-  { status: 1, label: "Under Evaluation", color: "amber", nextAction: "Mark Contacted" },
-  { status: 2, label: "Contacted", color: "purple", nextAction: "Qualify Lead" },
-  { status: 3, label: "Qualified (SQL)", color: "emerald", nextAction: "Promote to Client" },
+  {
+    status: 0,
+    label: "New Inquiries",
+    color: "blue",
+    nextAction: "Start Review",
+  },
+  {
+    status: 1,
+    label: "Under Evaluation",
+    color: "amber",
+    nextAction: "Mark Contacted",
+  },
+  {
+    status: 2,
+    label: "Contacted",
+    color: "purple",
+    nextAction: "Qualify Lead",
+  },
+  {
+    status: 3,
+    label: "Qualified (SQL)",
+    color: "emerald",
+    nextAction: "Promote to Client",
+  },
   { status: 4, label: "Converted Client", color: "slate", nextAction: null },
 ];
 
@@ -86,16 +112,24 @@ export const LeadsPage: React.FC = () => {
   const [viewMode, setViewMode] = useState<"kanban" | "table">("kanban");
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState<number | undefined>(undefined);
+  const [statusFilter, setStatusFilter] = useState<number | undefined>(
+    undefined,
+  );
   const [regionFilter, setRegionFilter] = useState<string>("");
   const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null);
   const [newNote, setNewNote] = useState("");
   const [isExporting, setIsExporting] = useState(false);
 
-  const { data: dynamicStages } = useGetPipelineStagesQuery({ category: "Lead" });
+  const { data: dynamicStages } = useGetPipelineStagesQuery({
+    category: "Lead",
+  });
   const { data: dynamicRegions } = useGetCountryRegionsQuery();
 
-  const { data: leadsData, isLoading, refetch } = useGetLeadsQuery({
+  const {
+    data: leadsData,
+    isLoading,
+    refetch,
+  } = useGetLeadsQuery({
     page: viewMode === "kanban" ? 1 : page,
     pageSize: viewMode === "kanban" ? 100 : 12,
     search: search || undefined,
@@ -106,12 +140,14 @@ export const LeadsPage: React.FC = () => {
   const { data: statsData } = useGetLeadStatsQuery();
   const { data: selectedLead, refetch: refetchLead } = useGetLeadByIdQuery(
     selectedLeadId || "",
-    { skip: !selectedLeadId }
+    { skip: !selectedLeadId },
   );
 
-  const [updateStatus, { isLoading: isUpdatingStatus }] = useUpdateLeadStatusMutation();
+  const [updateStatus, { isLoading: isUpdatingStatus }] =
+    useUpdateLeadStatusMutation();
   const [addNote, { isLoading: isAddingNote }] = useAddLeadNoteMutation();
-  const [convertLead, { isLoading: isConverting }] = useConvertLeadToClientMutation();
+  const [convertLead, { isLoading: isConverting }] =
+    useConvertLeadToClientMutation();
 
   const handleStatusChange = async (leadId: string, newStatus: LeadStatus) => {
     try {
@@ -142,12 +178,16 @@ export const LeadsPage: React.FC = () => {
       const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5201";
       const params = new URLSearchParams();
       if (search) params.set("search", search);
-      if (statusFilter !== undefined) params.set("status", String(statusFilter));
+      if (statusFilter !== undefined)
+        params.set("status", String(statusFilter));
       if (regionFilter) params.set("region", regionFilter);
 
-      const res = await fetch(`${apiUrl}/api/v1/admin/leads/export?${params.toString()}`, {
-        credentials: "include",
-      });
+      const res = await fetch(
+        `${apiUrl}/api/v1/admin/leads/export?${params.toString()}`,
+        {
+          credentials: "include",
+        },
+      );
       if (!res.ok) throw new Error("Export failed");
       const blob = await res.blob();
       const url = window.URL.createObjectURL(blob);
@@ -198,7 +238,8 @@ export const LeadsPage: React.FC = () => {
             </span>
           </div>
           <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
-            Capture, verify, and route high-intent website prospects. Interactive pipeline Kanban with DPDP Act / GDPR consent trail.
+            Capture, verify, and route high-intent website prospects.
+            Interactive pipeline Kanban with DPDP Act / GDPR consent trail.
           </p>
         </div>
 
@@ -235,8 +276,12 @@ export const LeadsPage: React.FC = () => {
               disabled={isExporting}
               className="inline-flex items-center gap-2 rounded-xl bg-white dark:bg-[#0c1222] border border-slate-200/80 dark:border-slate-800/80 px-4 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800/60 transition disabled:opacity-50"
             >
-              <Download className={`w-3.5 h-3.5 text-indigo-500 ${isExporting ? "animate-bounce" : ""}`} />
-              <span>{isExporting ? "Exporting..." : "Export Verified CSV"}</span>
+              <Download
+                className={`w-3.5 h-3.5 text-indigo-500 ${isExporting ? "animate-bounce" : ""}`}
+              />
+              <span>
+                {isExporting ? "Exporting..." : "Export Verified CSV"}
+              </span>
             </button>
           )}
         </div>
@@ -246,24 +291,44 @@ export const LeadsPage: React.FC = () => {
       {statsData && (
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
           <div className="rounded-2xl border border-slate-200/80 dark:border-slate-800/80 bg-white dark:bg-[#0c1222] p-4 shadow-sm">
-            <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Total Capture</div>
-            <div className="mt-1 text-2xl font-black text-slate-900 dark:text-white">{statsData.totalLeads}</div>
+            <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+              Total Capture
+            </div>
+            <div className="mt-1 text-2xl font-black text-slate-900 dark:text-white">
+              {statsData.totalLeads}
+            </div>
           </div>
           <div className="rounded-2xl border border-blue-200/60 dark:border-blue-900/40 bg-blue-50/50 dark:bg-blue-950/30 p-4 shadow-sm">
-            <div className="text-[11px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">New Inquiries</div>
-            <div className="mt-1 text-2xl font-black text-blue-800 dark:text-blue-300">{statsData.newLeads}</div>
+            <div className="text-[11px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">
+              New Inquiries
+            </div>
+            <div className="mt-1 text-2xl font-black text-blue-800 dark:text-blue-300">
+              {statsData.newLeads}
+            </div>
           </div>
           <div className="rounded-2xl border border-amber-200/60 dark:border-amber-900/40 bg-amber-50/50 dark:bg-amber-950/30 p-4 shadow-sm">
-            <div className="text-[11px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">In Progress</div>
-            <div className="mt-1 text-2xl font-black text-amber-800 dark:text-amber-300">{statsData.inProgressLeads}</div>
+            <div className="text-[11px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">
+              In Progress
+            </div>
+            <div className="mt-1 text-2xl font-black text-amber-800 dark:text-amber-300">
+              {statsData.inProgressLeads}
+            </div>
           </div>
           <div className="rounded-2xl border border-emerald-200/60 dark:border-emerald-900/40 bg-emerald-50/50 dark:bg-emerald-950/30 p-4 shadow-sm">
-            <div className="text-[11px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">Qualified Leads</div>
-            <div className="mt-1 text-2xl font-black text-emerald-800 dark:text-emerald-300">{statsData.qualifiedLeads}</div>
+            <div className="text-[11px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+              Qualified Leads
+            </div>
+            <div className="mt-1 text-2xl font-black text-emerald-800 dark:text-emerald-300">
+              {statsData.qualifiedLeads}
+            </div>
           </div>
           <div className="rounded-2xl border border-slate-200/80 dark:border-slate-800/80 bg-slate-50/60 dark:bg-slate-900/40 p-4 shadow-sm">
-            <div className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Retainer Closed</div>
-            <div className="mt-1 text-2xl font-black text-slate-800 dark:text-slate-200">{statsData.closedLeads}</div>
+            <div className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+              Retainer Closed
+            </div>
+            <div className="mt-1 text-2xl font-black text-slate-800 dark:text-slate-200">
+              {statsData.closedLeads}
+            </div>
           </div>
         </div>
       )}
@@ -305,7 +370,9 @@ export const LeadsPage: React.FC = () => {
             <select
               value={statusFilter !== undefined ? statusFilter : ""}
               onChange={(e) => {
-                setStatusFilter(e.target.value === "" ? undefined : Number(e.target.value));
+                setStatusFilter(
+                  e.target.value === "" ? undefined : Number(e.target.value),
+                );
                 setPage(1);
               }}
               className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500"
@@ -338,12 +405,12 @@ export const LeadsPage: React.FC = () => {
                       col.color === "blue"
                         ? "bg-blue-500"
                         : col.color === "amber"
-                        ? "bg-amber-500"
-                        : col.color === "purple"
-                        ? "bg-purple-500"
-                        : col.color === "emerald"
-                        ? "bg-emerald-500"
-                        : "bg-slate-500"
+                          ? "bg-amber-500"
+                          : col.color === "purple"
+                            ? "bg-purple-500"
+                            : col.color === "emerald"
+                              ? "bg-emerald-500"
+                              : "bg-slate-500"
                     }`}
                   />
                   <h3 className="font-extrabold text-xs text-slate-800 dark:text-slate-200">
@@ -358,7 +425,10 @@ export const LeadsPage: React.FC = () => {
               {/* Cards in Column */}
               <div className="space-y-2.5 flex-1 overflow-y-auto max-h-[700px] pr-1">
                 {col.leads.map((lead) => {
-                  const reg = REGION_FLAGS[lead.region.toLowerCase()] || { flag: "🌐", label: lead.region };
+                  const reg = REGION_FLAGS[lead.region.toLowerCase()] || {
+                    flag: "🌐",
+                    label: lead.region,
+                  };
                   return (
                     <div
                       key={lead.id}
@@ -371,7 +441,9 @@ export const LeadsPage: React.FC = () => {
                             {lead.company || lead.fullName}
                           </h4>
                           {lead.company && (
-                            <p className="text-[11px] text-slate-500 dark:text-slate-400">{lead.fullName}</p>
+                            <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                              {lead.fullName}
+                            </p>
                           )}
                         </div>
                         <span className="text-xs" title={reg.label}>
@@ -393,14 +465,19 @@ export const LeadsPage: React.FC = () => {
                       </div>
 
                       <div className="border-t border-slate-100 dark:border-slate-800/80 pt-2 flex items-center justify-between text-[10px] text-slate-400">
-                        <span>{new Date(lead.createdAtUtc).toLocaleDateString()}</span>
+                        <span>
+                          {new Date(lead.createdAtUtc).toLocaleDateString()}
+                        </span>
 
                         {col.nextAction && hasPermission("leads.manage") && (
                           <button
                             type="button"
                             onClick={(e) => {
                               e.stopPropagation();
-                              handleStatusChange(lead.id, (lead.status + 1) as LeadStatus);
+                              handleStatusChange(
+                                lead.id,
+                                (lead.status + 1) as LeadStatus,
+                              );
                             }}
                             className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 font-bold transition"
                             title={`Advance to next stage`}
@@ -436,7 +513,9 @@ export const LeadsPage: React.FC = () => {
               <table className="min-w-full divide-y divide-slate-100 dark:divide-slate-800/70 text-xs">
                 <thead className="bg-slate-50/80 dark:bg-slate-900/60 text-slate-400 dark:text-slate-400 font-bold uppercase tracking-wider text-[11px]">
                   <tr>
-                    <th className="px-5 py-3.5 text-left">Prospect / Contact</th>
+                    <th className="px-5 py-3.5 text-left">
+                      Prospect / Contact
+                    </th>
                     <th className="px-4 py-3.5 text-left">Organization</th>
                     <th className="px-4 py-3.5 text-left">Territory</th>
                     <th className="px-4 py-3.5 text-left">Lifecycle Stage</th>
@@ -446,15 +525,23 @@ export const LeadsPage: React.FC = () => {
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60 text-slate-700 dark:text-slate-300">
                   {leadsData?.items?.map((lead) => {
-                    const dynStage = dynamicStages?.find((s) => s.value === lead.status);
-                    const conf = STATUS_CONFIG[lead.status] || STATUS_CONFIG[0]!;
-                    const dynRegion = dynamicRegions?.find((r) => r.code.toLowerCase() === lead.region.toLowerCase());
+                    const dynStage = dynamicStages?.find(
+                      (s) => s.value === lead.status,
+                    );
+                    const conf =
+                      STATUS_CONFIG[lead.status] || STATUS_CONFIG[0]!;
+                    const dynRegion = dynamicRegions?.find(
+                      (r) => r.code.toLowerCase() === lead.region.toLowerCase(),
+                    );
                     const reg = dynRegion
-                      ? { flag: dynRegion.flagEmoji, label: `${dynRegion.name} (${dynRegion.code})` }
-                      : (REGION_FLAGS[lead.region.toLowerCase()] || {
+                      ? {
+                          flag: dynRegion.flagEmoji,
+                          label: `${dynRegion.name} (${dynRegion.code})`,
+                        }
+                      : REGION_FLAGS[lead.region.toLowerCase()] || {
                           flag: "🌐",
                           label: lead.region.toUpperCase(),
-                        });
+                        };
                     return (
                       <tr
                         key={lead.id}
@@ -470,7 +557,9 @@ export const LeadsPage: React.FC = () => {
                               <div className="font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
                                 {lead.fullName}
                               </div>
-                              <div className="text-[11px] text-slate-400">{lead.email}</div>
+                              <div className="text-[11px] text-slate-400">
+                                {lead.email}
+                              </div>
                             </div>
                           </div>
                         </td>
@@ -482,7 +571,9 @@ export const LeadsPage: React.FC = () => {
                         <td className="px-4 py-3.5">
                           <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-800/80 text-slate-800 dark:text-slate-200 font-semibold text-[11px] border border-slate-200/60 dark:border-slate-700/60">
                             <span>{reg.flag}</span>
-                            <span className="font-mono uppercase">{lead.region}</span>
+                            <span className="font-mono uppercase">
+                              {lead.region}
+                            </span>
                           </span>
                         </td>
 
@@ -490,7 +581,9 @@ export const LeadsPage: React.FC = () => {
                           <span
                             className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold border ${conf.badgeClass}`}
                           >
-                            <span className={`w-1.5 h-1.5 rounded-full ${conf.dotClass}`} />
+                            <span
+                              className={`w-1.5 h-1.5 rounded-full ${conf.dotClass}`}
+                            />
                             <span>{dynStage?.displayName || conf.label}</span>
                           </span>
                         </td>
@@ -517,7 +610,10 @@ export const LeadsPage: React.FC = () => {
                   })}
                   {leadsData?.items?.length === 0 && (
                     <tr>
-                      <td colSpan={6} className="px-6 py-12 text-center text-slate-400">
+                      <td
+                        colSpan={6}
+                        className="px-6 py-12 text-center text-slate-400"
+                      >
                         No leads matched the search criteria.
                       </td>
                     </tr>
@@ -531,7 +627,8 @@ export const LeadsPage: React.FC = () => {
           {leadsData && leadsData.totalPages > 1 && (
             <div className="flex items-center justify-between px-6 py-3 border-t border-slate-200/80 dark:border-slate-800/80 text-xs">
               <span className="text-slate-400">
-                Page {leadsData.page} of {leadsData.totalPages} ({leadsData.totalCount} leads)
+                Page {leadsData.page} of {leadsData.totalPages} (
+                {leadsData.totalCount} leads)
               </span>
               <div className="flex gap-2">
                 <button
@@ -563,7 +660,9 @@ export const LeadsPage: React.FC = () => {
                 <h2 className="text-lg font-black text-slate-900 dark:text-white">
                   Prospect Executive Dossier
                 </h2>
-                <p className="text-xs text-slate-400 font-mono mt-0.5">ID: {selectedLeadId}</p>
+                <p className="text-xs text-slate-400 font-mono mt-0.5">
+                  ID: {selectedLeadId}
+                </p>
               </div>
               <button
                 onClick={() => setSelectedLeadId(null)}
@@ -586,7 +685,10 @@ export const LeadsPage: React.FC = () => {
                         value={selectedLead.status}
                         disabled={isUpdatingStatus}
                         onChange={(e) =>
-                          handleStatusChange(selectedLead.id, Number(e.target.value) as LeadStatus)
+                          handleStatusChange(
+                            selectedLead.id,
+                            Number(e.target.value) as LeadStatus,
+                          )
                         }
                         className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3 py-1.5 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500"
                       >
@@ -611,14 +713,16 @@ export const LeadsPage: React.FC = () => {
                       onClick={async () => {
                         if (
                           confirm(
-                            `Promote "${selectedLead.company || selectedLead.fullName}" to an Institutional Client Account?`
+                            `Promote "${selectedLead.company || selectedLead.fullName}" to an Institutional Client Account?`,
                           )
                         ) {
                           try {
                             const res = await convertLead({
                               leadId: selectedLead.id,
-                              clientName: selectedLead.company || selectedLead.fullName,
-                              initialTaskTitle: "Send introductory service agreement & kickoff",
+                              clientName:
+                                selectedLead.company || selectedLead.fullName,
+                              initialTaskTitle:
+                                "Send introductory service agreement & kickoff",
                             }).unwrap();
                             alert(`Account created! ID: ${res.clientId}`);
                             refetchLead();
@@ -631,7 +735,11 @@ export const LeadsPage: React.FC = () => {
                       className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md shadow-emerald-600/30 transition disabled:opacity-50"
                     >
                       <UserPlus className="w-4 h-4" />
-                      <span>{isConverting ? "Promoting Account..." : "Promote to Client Account"}</span>
+                      <span>
+                        {isConverting
+                          ? "Promoting Account..."
+                          : "Promote to Client Account"}
+                      </span>
                     </button>
                   )}
                 </div>
@@ -643,7 +751,9 @@ export const LeadsPage: React.FC = () => {
                   </h3>
                   <div className="grid grid-cols-2 gap-3 text-xs">
                     <div>
-                      <span className="text-slate-400 block text-[11px]">Email</span>
+                      <span className="text-slate-400 block text-[11px]">
+                        Email
+                      </span>
                       <a
                         href={`mailto:${selectedLead.email}`}
                         className="font-bold text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1"
@@ -653,22 +763,29 @@ export const LeadsPage: React.FC = () => {
                       </a>
                     </div>
                     <div>
-                      <span className="text-slate-400 block text-[11px]">Phone</span>
+                      <span className="text-slate-400 block text-[11px]">
+                        Phone
+                      </span>
                       <span className="font-bold text-slate-900 dark:text-white">
                         {selectedLead.phone || "—"}
                       </span>
                     </div>
                     <div>
-                      <span className="text-slate-400 block text-[11px]">Organization</span>
+                      <span className="text-slate-400 block text-[11px]">
+                        Organization
+                      </span>
                       <span className="font-bold text-slate-900 dark:text-white">
                         {selectedLead.company || "—"}
                       </span>
                     </div>
                     <div>
-                      <span className="text-slate-400 block text-[11px]">Jurisdiction</span>
+                      <span className="text-slate-400 block text-[11px]">
+                        Jurisdiction
+                      </span>
                       <span className="font-bold text-slate-900 dark:text-white">
                         {selectedLead.state ? `${selectedLead.state}, ` : ""}
-                        {selectedLead.region.toUpperCase()} {selectedLead.postalCode || ""}
+                        {selectedLead.region.toUpperCase()}{" "}
+                        {selectedLead.postalCode || ""}
                       </span>
                     </div>
                   </div>
@@ -689,11 +806,17 @@ export const LeadsPage: React.FC = () => {
                     </div>
                     <div className="flex justify-between">
                       <span className="text-slate-400">Policy Version:</span>
-                      <span className="font-mono">{selectedLead.consentWordingVersion || "v1.2"}</span>
+                      <span className="font-mono">
+                        {selectedLead.consentWordingVersion || "v1.2"}
+                      </span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-slate-400">Recorded IP Address:</span>
-                      <span className="font-mono text-slate-400">{selectedLead.ipAddress || "—"}</span>
+                      <span className="text-slate-400">
+                        Recorded IP Address:
+                      </span>
+                      <span className="font-mono text-slate-400">
+                        {selectedLead.ipAddress || "—"}
+                      </span>
                     </div>
                   </div>
                 </div>

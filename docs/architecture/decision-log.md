@@ -33,7 +33,7 @@
    - **Decision**: Launch language is strictly English (`en-IN`, `en-US`). Hindi (`hi-IN`) and other regional languages will follow in subsequent localization phases.
 
 9. **Database Provider: SQL Server**
-   - **Decision**: Microsoft SQL Server is the primary relational database provider using EF Core `Microsoft.EntityFrameworkCore.SqlServer` (MIT license). *(History note: PostgreSQL provider replaced by SQL Server during Step 2 architecture refinement).*
+   - **Decision**: Microsoft SQL Server is the primary relational database provider using EF Core `Microsoft.EntityFrameworkCore.SqlServer` (MIT license). _(History note: PostgreSQL provider replaced by SQL Server during Step 2 architecture refinement)._
    - **Licensing & Resource Review**: SQL Server is commercial proprietary Microsoft software. Express edition is free for production but restricted to 10 GB max database size, 1.4 GB buffer pool RAM, and 4 CPU cores. Production container deployments on Linux require minimum 2 GB RAM. A formal licensing and edition review (Express vs Standard vs Web) is required prior to production launch.
    - **Authentication**: Windows Integrated Authentication (`Trusted_Connection=True`) is restricted to local developer workstations. Production connections must use authenticated SQL logins supplied strictly through environment variables or cloud secrets management (never hardcoded, no `MultipleActiveResultSets` unless specifically required).
    - **Concurrency Model**: Optimistic concurrency is implemented using SQL Server native `rowversion` (`byte[] [Timestamp]`), mapped to `Version` properties. Mismatch triggers HTTP 409 Conflict.

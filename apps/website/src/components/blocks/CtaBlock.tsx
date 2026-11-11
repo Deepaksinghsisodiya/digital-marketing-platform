@@ -5,8 +5,11 @@ import { ArrowRight, CheckCircle2, ShieldCheck, Sparkles } from "lucide-react";
 
 export const CtaBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
   const { content } = block;
-  const headline = (content.headline as string) || "Ready to Accelerate Your Enterprise Pipeline?";
-  const buttonText = (content.buttonText as string) || "Schedule Executive Diagnostic";
+  const headline =
+    (content.headline as string) ||
+    "Ready to Accelerate Your Enterprise Pipeline?";
+  const buttonText =
+    (content.buttonText as string) || "Schedule Executive Diagnostic";
   const buttonLink = (content.buttonLink as string) || "/contact";
 
   return (
@@ -26,7 +29,9 @@ export const CtaBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
           </h2>
 
           <p className="text-base sm:text-lg 2xl:text-xl text-slate-300 max-w-2xl 2xl:max-w-3xl mx-auto leading-relaxed font-normal">
-            Book an executive growth diagnostic with our digital marketing strategists. We analyze your customer acquisition funnel, attribution models, and present a custom ROI roadmap.
+            Book an executive growth diagnostic with our digital marketing
+            strategists. We analyze your customer acquisition funnel,
+            attribution models, and present a custom ROI roadmap.
           </p>
 
           <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -47,13 +52,16 @@ export const CtaBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
 
           <div className="pt-6 flex flex-wrap items-center justify-center gap-6 text-xs text-slate-400 font-medium">
             <span className="flex items-center gap-1.5 text-slate-300">
-              <CheckCircle2 className="w-4 h-4 text-emerald-400" /> 100% Confidential
+              <CheckCircle2 className="w-4 h-4 text-emerald-400" /> 100%
+              Confidential
             </span>
             <span className="flex items-center gap-1.5 text-slate-300">
-              <CheckCircle2 className="w-4 h-4 text-emerald-400" /> Under 48-Hour Delivery
+              <CheckCircle2 className="w-4 h-4 text-emerald-400" /> Under
+              48-Hour Delivery
             </span>
             <span className="flex items-center gap-1.5 text-slate-300">
-              <ShieldCheck className="w-4 h-4 text-indigo-400" /> Global Enterprise Presets
+              <ShieldCheck className="w-4 h-4 text-indigo-400" /> Global
+              Enterprise Presets
             </span>
           </div>
         </div>
@@ -61,4 +69,3 @@ export const CtaBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
     </section>
   );
 };
-

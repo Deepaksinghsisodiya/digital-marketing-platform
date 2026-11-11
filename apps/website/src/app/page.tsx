@@ -1,7 +1,11 @@
 import { cookies } from "next/headers";
 import Link from "next/link";
 import { REGION_CONFIG, resolveRegion } from "../config/region";
-import { getPublicPage, getPublicSiteSettings, getPublicMenu } from "../lib/cms";
+import {
+  getPublicPage,
+  getPublicSiteSettings,
+  getPublicMenu,
+} from "../lib/cms";
 import { Header } from "../components/layout/Header";
 import { Footer } from "../components/layout/Footer";
 import { BlockRenderer } from "../components/blocks/BlockRenderer";
@@ -40,18 +44,26 @@ export async function generateMetadata(): Promise<Metadata> {
 
   if (cmsPage) {
     return {
-      title: cmsPage.metaTitle || cmsPage.title || "Nexora — Digital Marketing Platform",
-      description: cmsPage.metaDescription || "AI-powered digital marketing infrastructure for modern enterprises.",
+      title:
+        cmsPage.metaTitle ||
+        cmsPage.title ||
+        "Nexora — Digital Marketing Platform",
+      description:
+        cmsPage.metaDescription ||
+        "AI-powered digital marketing infrastructure for modern enterprises.",
       alternates: {
         canonical: cmsPage.canonicalUrl || undefined,
       },
-      robots: cmsPage.noIndex ? { index: false, follow: false } : { index: true, follow: true },
+      robots: cmsPage.noIndex
+        ? { index: false, follow: false }
+        : { index: true, follow: true },
     };
   }
 
   return {
     title: "Nexora — Unified Digital Growth Ecosystem",
-    description: "Enterprise marketing automation, performance SEO, and attribution.",
+    description:
+      "Enterprise marketing automation, performance SEO, and attribution.",
   };
 }
 
@@ -89,16 +101,29 @@ export default async function HomePage() {
     if (!block.enabled) return false;
     const type = (block.type || "").toLowerCase();
     if (type === "hero" && sectionVisibility.showHero === false) return false;
-    if ((type === "stats" || type === "metrics") && sectionVisibility.showMetricsBar === false) return false;
-    if ((type === "featuregrid" || type === "features") && sectionVisibility.showCapabilitiesGrid === false) return false;
-    if (type === "cta" && sectionVisibility.showCtaBanner === false) return false;
+    if (
+      (type === "stats" || type === "metrics") &&
+      sectionVisibility.showMetricsBar === false
+    )
+      return false;
+    if (
+      (type === "featuregrid" || type === "features") &&
+      sectionVisibility.showCapabilitiesGrid === false
+    )
+      return false;
+    if (type === "cta" && sectionVisibility.showCtaBanner === false)
+      return false;
     if (type === "faq" && sectionVisibility.showFaq === false) return false;
     return true;
   });
 
   return (
     <div className="min-h-screen flex flex-col justify-between bg-white text-slate-900">
-      <Header settings={siteSettings} currentRegionCode={region.code} menu={headerMenu} />
+      <Header
+        settings={siteSettings}
+        currentRegionCode={region.code}
+        menu={headerMenu}
+      />
 
       <main className="flex-1">
         {filteredBlocks.length > 0 ? (
@@ -106,61 +131,67 @@ export default async function HomePage() {
             <BlockRenderer blocks={filteredBlocks} userRegion={region.code} />
 
             {/* Latest Insights / Blog Articles (when using CMS blocks) */}
-            {sectionVisibility.showBlogInsights !== false && latestPosts.length > 0 && (
-              <section className="py-24 bg-slate-50 border-t border-slate-200/80 px-6 sm:px-10 lg:px-12 xl:px-16">
-                <div className="max-w-[1720px] 2xl:max-w-[1920px] mx-auto">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-14">
-                    <div>
-                      <span className="text-xs font-bold text-emerald-700 uppercase tracking-widest bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
-                        Strategic Knowledge Base
-                      </span>
-                      <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight mt-3">
-                        Latest Insights & Thought Leadership
-                      </h2>
-                    </div>
-                    <Link
-                      href="/blog"
-                      className="inline-flex items-center gap-1.5 text-sm font-bold text-indigo-600 hover:text-indigo-700 bg-white border border-slate-200 px-4 py-2 rounded-xl shadow-sm hover:shadow transition"
-                    >
-                      <span>Explore all articles</span>
-                      <span>&rarr;</span>
-                    </Link>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    {latestPosts.map((post) => (
-                      <article
-                        key={post.id}
-                        className="rounded-3xl bg-white border border-slate-200/90 p-7 shadow-sm hover:shadow-xl hover:border-indigo-400 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between group"
+            {sectionVisibility.showBlogInsights !== false &&
+              latestPosts.length > 0 && (
+                <section className="py-24 bg-slate-50 border-t border-slate-200/80 px-6 sm:px-10 lg:px-12 xl:px-16">
+                  <div className="max-w-[1720px] 2xl:max-w-[1920px] mx-auto">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-14">
+                      <div>
+                        <span className="text-xs font-bold text-emerald-700 uppercase tracking-widest bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
+                          Strategic Knowledge Base
+                        </span>
+                        <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight mt-3">
+                          Latest Insights & Thought Leadership
+                        </h2>
+                      </div>
+                      <Link
+                        href="/blog"
+                        className="inline-flex items-center gap-1.5 text-sm font-bold text-indigo-600 hover:text-indigo-700 bg-white border border-slate-200 px-4 py-2 rounded-xl shadow-sm hover:shadow transition"
                       >
-                        <div>
-                          <span className="text-xs font-bold text-indigo-700 bg-indigo-50 px-3 py-1 rounded-full border border-indigo-100">
-                            {post.category || "Growth Strategy"}
-                          </span>
-                          <h3 className="text-xl font-bold text-slate-900 mt-4 line-clamp-2 group-hover:text-indigo-600 transition-colors">
-                            <Link href={`/blog/${post.slug}`}>
-                              {post.title}
+                        <span>Explore all articles</span>
+                        <span>&rarr;</span>
+                      </Link>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                      {latestPosts.map((post) => (
+                        <article
+                          key={post.id}
+                          className="rounded-3xl bg-white border border-slate-200/90 p-7 shadow-sm hover:shadow-xl hover:border-indigo-400 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between group"
+                        >
+                          <div>
+                            <span className="text-xs font-bold text-indigo-700 bg-indigo-50 px-3 py-1 rounded-full border border-indigo-100">
+                              {post.category || "Growth Strategy"}
+                            </span>
+                            <h3 className="text-xl font-bold text-slate-900 mt-4 line-clamp-2 group-hover:text-indigo-600 transition-colors">
+                              <Link href={`/blog/${post.slug}`}>
+                                {post.title}
+                              </Link>
+                            </h3>
+                            {post.excerpt && (
+                              <p className="text-sm text-slate-600 mt-2.5 line-clamp-3 leading-relaxed font-normal">
+                                {post.excerpt}
+                              </p>
+                            )}
+                          </div>
+                          <div className="mt-8 pt-5 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+                            <span className="font-medium text-slate-700">
+                              {post.authorName || "Chief Growth Strategist"}
+                            </span>
+                            <Link
+                              href={`/blog/${post.slug}`}
+                              className="font-bold text-indigo-600 group-hover:translate-x-0.5 transition-transform flex items-center gap-1"
+                            >
+                              <span>Read article</span>
+                              <span>&rarr;</span>
                             </Link>
-                          </h3>
-                          {post.excerpt && (
-                            <p className="text-sm text-slate-600 mt-2.5 line-clamp-3 leading-relaxed font-normal">
-                              {post.excerpt}
-                            </p>
-                          )}
-                        </div>
-                        <div className="mt-8 pt-5 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-                          <span className="font-medium text-slate-700">{post.authorName || "Chief Growth Strategist"}</span>
-                          <Link href={`/blog/${post.slug}`} className="font-bold text-indigo-600 group-hover:translate-x-0.5 transition-transform flex items-center gap-1">
-                            <span>Read article</span>
-                            <span>&rarr;</span>
-                          </Link>
-                        </div>
-                      </article>
-                    ))}
+                          </div>
+                        </article>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              </section>
-            )}
+                </section>
+              )}
           </div>
         ) : (
           /* Full Enterprise Default Home Layout */
@@ -190,7 +221,9 @@ export default async function HomePage() {
                   </h1>
 
                   <p className="text-lg md:text-xl text-slate-300 max-w-3xl mx-auto leading-relaxed font-normal">
-                    Connect your enterprise to target audiences with AI campaign automation, precision audience modeling, and verifiable multi-touch attribution.
+                    Connect your enterprise to target audiences with AI campaign
+                    automation, precision audience modeling, and verifiable
+                    multi-touch attribution.
                   </p>
 
                   <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
@@ -262,7 +295,8 @@ export default async function HomePage() {
                     Engineered for High-Velocity Growth
                   </h2>
                   <p className="text-base sm:text-lg text-slate-600 leading-relaxed font-normal">
-                    Comprehensive performance marketing infrastructure designed for modern B2B SaaS and enterprise services.
+                    Comprehensive performance marketing infrastructure designed
+                    for modern B2B SaaS and enterprise services.
                   </p>
                 </div>
 
@@ -337,59 +371,65 @@ export default async function HomePage() {
             )}
 
             {/* 4. Latest Insights / Blog Articles (from Admin) */}
-            {sectionVisibility.showBlogInsights !== false && latestPosts.length > 0 && (
-              <section className="py-24 bg-slate-50 border-y border-slate-200/80 px-6 sm:px-10 lg:px-12 xl:px-16">
-                <div className="max-w-[1720px] 2xl:max-w-[1920px] mx-auto">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-14">
-                    <div>
-                      <span className="text-xs font-bold text-emerald-700 uppercase tracking-widest bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
-                        Knowledge Base
-                      </span>
-                      <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight mt-3">
-                        Latest Insights & Thought Leadership
-                      </h2>
-                    </div>
-                    <Link
-                      href="/blog"
-                      className="inline-flex items-center gap-1.5 text-sm font-bold text-indigo-600 hover:text-indigo-700 bg-white border border-slate-200 px-4 py-2 rounded-xl shadow-sm hover:shadow transition"
-                    >
-                      <span>View all articles &rarr;</span>
-                    </Link>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    {latestPosts.map((post) => (
-                      <article
-                        key={post.id}
-                        className="rounded-3xl bg-white border border-slate-200/90 p-7 shadow-sm hover:shadow-xl hover:border-indigo-400 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between group"
+            {sectionVisibility.showBlogInsights !== false &&
+              latestPosts.length > 0 && (
+                <section className="py-24 bg-slate-50 border-y border-slate-200/80 px-6 sm:px-10 lg:px-12 xl:px-16">
+                  <div className="max-w-[1720px] 2xl:max-w-[1920px] mx-auto">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-14">
+                      <div>
+                        <span className="text-xs font-bold text-emerald-700 uppercase tracking-widest bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
+                          Knowledge Base
+                        </span>
+                        <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight mt-3">
+                          Latest Insights & Thought Leadership
+                        </h2>
+                      </div>
+                      <Link
+                        href="/blog"
+                        className="inline-flex items-center gap-1.5 text-sm font-bold text-indigo-600 hover:text-indigo-700 bg-white border border-slate-200 px-4 py-2 rounded-xl shadow-sm hover:shadow transition"
                       >
-                        <div>
-                          <span className="text-xs font-bold text-indigo-700 bg-indigo-50 px-3 py-1 rounded-full border border-indigo-100">
-                            {post.category || "Growth Strategy"}
-                          </span>
-                          <h3 className="text-xl font-bold text-slate-900 mt-4 line-clamp-2 group-hover:text-indigo-600 transition-colors">
-                            <Link href={`/blog/${post.slug}`}>
-                              {post.title}
+                        <span>View all articles &rarr;</span>
+                      </Link>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                      {latestPosts.map((post) => (
+                        <article
+                          key={post.id}
+                          className="rounded-3xl bg-white border border-slate-200/90 p-7 shadow-sm hover:shadow-xl hover:border-indigo-400 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between group"
+                        >
+                          <div>
+                            <span className="text-xs font-bold text-indigo-700 bg-indigo-50 px-3 py-1 rounded-full border border-indigo-100">
+                              {post.category || "Growth Strategy"}
+                            </span>
+                            <h3 className="text-xl font-bold text-slate-900 mt-4 line-clamp-2 group-hover:text-indigo-600 transition-colors">
+                              <Link href={`/blog/${post.slug}`}>
+                                {post.title}
+                              </Link>
+                            </h3>
+                            {post.excerpt && (
+                              <p className="text-sm text-slate-600 mt-2.5 line-clamp-3 leading-relaxed font-normal">
+                                {post.excerpt}
+                              </p>
+                            )}
+                          </div>
+                          <div className="mt-8 pt-5 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+                            <span className="font-medium text-slate-700">
+                              {post.authorName || "Nexora Team"}
+                            </span>
+                            <Link
+                              href={`/blog/${post.slug}`}
+                              className="font-bold text-indigo-600 hover:underline"
+                            >
+                              Read article &rarr;
                             </Link>
-                          </h3>
-                          {post.excerpt && (
-                            <p className="text-sm text-slate-600 mt-2.5 line-clamp-3 leading-relaxed font-normal">
-                              {post.excerpt}
-                            </p>
-                          )}
-                        </div>
-                        <div className="mt-8 pt-5 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-                          <span className="font-medium text-slate-700">{post.authorName || "Nexora Team"}</span>
-                          <Link href={`/blog/${post.slug}`} className="font-bold text-indigo-600 hover:underline">
-                            Read article &rarr;
-                          </Link>
-                        </div>
-                      </article>
-                    ))}
+                          </div>
+                        </article>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              </section>
-            )}
+                </section>
+              )}
 
             {/* 5. Enterprise CTA Banner */}
             {sectionVisibility.showCtaBanner !== false && (
@@ -400,7 +440,9 @@ export default async function HomePage() {
                       Ready to Scale Your Enterprise Pipeline?
                     </h2>
                     <p className="text-base sm:text-lg text-slate-300 max-w-2xl mx-auto leading-relaxed font-normal">
-                      Book an executive growth diagnostic with our digital marketing strategists. We analyze your customer acquisition funnel and provide an actionable ROI roadmap.
+                      Book an executive growth diagnostic with our digital
+                      marketing strategists. We analyze your customer
+                      acquisition funnel and provide an actionable ROI roadmap.
                     </p>
                     <div className="pt-4">
                       <Link

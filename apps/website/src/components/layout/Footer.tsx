@@ -4,7 +4,9 @@ import Link from "next/link";
 import type { PublicSiteSettings } from "../../lib/cms";
 import { ShieldCheck, Activity, Globe, ArrowUpRight } from "lucide-react";
 
-export const Footer: React.FC<{ settings?: PublicSiteSettings | null }> = ({ settings }) => {
+export const Footer: React.FC<{ settings?: PublicSiteSettings | null }> = ({
+  settings,
+}) => {
   const companyName = settings?.companyName || "NEXORA";
   const legalName = settings?.legalName || "Nexora Technologies Inc.";
   const supportEmail = settings?.supportEmail || "growth@nexora.digital";
@@ -54,13 +56,17 @@ export const Footer: React.FC<{ settings?: PublicSiteSettings | null }> = ({ set
           </div>
 
           <p className="text-slate-400 text-xs leading-relaxed max-w-sm">
-            Unified digital marketing platform powering deterministic attribution, high-intent audience modeling, and verifiable B2B revenue conversion across global enterprise markets.
+            Unified digital marketing platform powering deterministic
+            attribution, high-intent audience modeling, and verifiable B2B
+            revenue conversion across global enterprise markets.
           </p>
 
           {/* System Status Pill */}
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900 border border-slate-800 text-[11px] text-slate-300">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="font-semibold text-white">All Systems Operational</span>
+            <span className="font-semibold text-white">
+              All Systems Operational
+            </span>
             <span className="text-slate-500">&bull;</span>
             <span className="text-slate-400">99.99% SLA Uptime</span>
           </div>
@@ -68,7 +74,9 @@ export const Footer: React.FC<{ settings?: PublicSiteSettings | null }> = ({ set
 
         {/* Column 2: Platform Capabilities */}
         <div>
-          <h4 className="text-xs font-bold uppercase tracking-wider text-white mb-4">Capabilities</h4>
+          <h4 className="text-xs font-bold uppercase tracking-wider text-white mb-4">
+            Capabilities
+          </h4>
           <ul className="space-y-2.5 text-slate-400 font-medium">
             <li>
               <Link href="/solutions" className="hover:text-white transition">
@@ -100,7 +108,9 @@ export const Footer: React.FC<{ settings?: PublicSiteSettings | null }> = ({ set
 
         {/* Column 3: Resources */}
         <div>
-          <h4 className="text-xs font-bold uppercase tracking-wider text-white mb-4">Resources</h4>
+          <h4 className="text-xs font-bold uppercase tracking-wider text-white mb-4">
+            Resources
+          </h4>
           <ul className="space-y-2.5 text-slate-400 font-medium">
             <li>
               <Link href="/blog" className="hover:text-white transition">
@@ -133,16 +143,26 @@ export const Footer: React.FC<{ settings?: PublicSiteSettings | null }> = ({ set
 
         {/* Column 4: Institutional Governance */}
         <div className="space-y-3">
-          <h4 className="text-xs font-bold uppercase tracking-wider text-white mb-4">Governance</h4>
+          <h4 className="text-xs font-bold uppercase tracking-wider text-white mb-4">
+            Governance
+          </h4>
           <div className="space-y-2 text-xs">
             <div className="p-3 rounded-xl bg-slate-900/80 border border-slate-800">
-              <span className="text-slate-300 font-bold block">Enterprise Compliance</span>
+              <span className="text-slate-300 font-bold block">
+                Enterprise Compliance
+              </span>
               <span className="text-[11px] text-slate-400 block mt-0.5">
                 SOC-2 Type II Certified &bull; DPDP & GDPR
               </span>
             </div>
             <div className="text-[11px] text-slate-400 pt-1">
-              Contact: <a href={`mailto:${supportEmail}`} className="text-indigo-400 hover:underline">{supportEmail}</a>
+              Contact:{" "}
+              <a
+                href={`mailto:${supportEmail}`}
+                className="text-indigo-400 hover:underline"
+              >
+                {supportEmail}
+              </a>
             </div>
           </div>
         </div>
@@ -150,7 +170,10 @@ export const Footer: React.FC<{ settings?: PublicSiteSettings | null }> = ({ set
 
       <div className="border-t border-slate-900 py-6 px-6 text-center text-[11px] text-slate-500">
         <div className="max-w-[1720px] 2xl:max-w-[1920px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p>© {new Date().getFullYear()} {legalName}. All rights reserved. Worldwide.</p>
+          <p>
+            © {new Date().getFullYear()} {legalName}. All rights reserved.
+            Worldwide.
+          </p>
           <div className="flex items-center gap-4 text-slate-400">
             <span>Enterprise Privacy</span>
             <span>&bull;</span>

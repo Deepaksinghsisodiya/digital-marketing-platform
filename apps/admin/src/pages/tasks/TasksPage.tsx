@@ -17,33 +17,98 @@ import {
 } from "lucide-react";
 
 const PRIORITY_MAP: Record<number, { label: string; badgeClass: string }> = {
-  1: { label: "Low", badgeClass: "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700" },
-  2: { label: "Medium", badgeClass: "bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border-blue-200/60 dark:border-blue-800/60" },
-  3: { label: "High", badgeClass: "bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border-amber-200/60 dark:border-amber-800/60" },
-  4: { label: "Urgent", badgeClass: "bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border-rose-200/60 dark:border-rose-800/60" },
+  1: {
+    label: "Low",
+    badgeClass:
+      "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700",
+  },
+  2: {
+    label: "Medium",
+    badgeClass:
+      "bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border-blue-200/60 dark:border-blue-800/60",
+  },
+  3: {
+    label: "High",
+    badgeClass:
+      "bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border-amber-200/60 dark:border-amber-800/60",
+  },
+  4: {
+    label: "Urgent",
+    badgeClass:
+      "bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border-rose-200/60 dark:border-rose-800/60",
+  },
 };
 
-const STATUS_MAP: Record<number, { label: string; badgeClass: string; dotClass: string }> = {
-  1: { label: "Pending", badgeClass: "bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border-amber-200/60 dark:border-amber-800/60", dotClass: "bg-amber-500" },
-  2: { label: "In Progress", badgeClass: "bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border-blue-200/60 dark:border-blue-800/60", dotClass: "bg-blue-500" },
-  3: { label: "Completed", badgeClass: "bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border-emerald-200/60 dark:border-emerald-800/60", dotClass: "bg-emerald-500" },
-  4: { label: "Cancelled", badgeClass: "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700", dotClass: "bg-slate-400" },
+const STATUS_MAP: Record<
+  number,
+  { label: string; badgeClass: string; dotClass: string }
+> = {
+  1: {
+    label: "Pending",
+    badgeClass:
+      "bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border-amber-200/60 dark:border-amber-800/60",
+    dotClass: "bg-amber-500",
+  },
+  2: {
+    label: "In Progress",
+    badgeClass:
+      "bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border-blue-200/60 dark:border-blue-800/60",
+    dotClass: "bg-blue-500",
+  },
+  3: {
+    label: "Completed",
+    badgeClass:
+      "bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border-emerald-200/60 dark:border-emerald-800/60",
+    dotClass: "bg-emerald-500",
+  },
+  4: {
+    label: "Cancelled",
+    badgeClass:
+      "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700",
+    dotClass: "bg-slate-400",
+  },
 };
 
 const KANBAN_TASK_COLUMNS = [
-  { status: 1, label: "Pending & Backlog", color: "amber", nextAction: "Start Task", nextStatus: 2 },
-  { status: 2, label: "In Progress", color: "blue", nextAction: "Complete Task", nextStatus: 3 },
-  { status: 3, label: "Completed Deliverables", color: "emerald", nextAction: null, nextStatus: 1 },
+  {
+    status: 1,
+    label: "Pending & Backlog",
+    color: "amber",
+    nextAction: "Start Task",
+    nextStatus: 2,
+  },
+  {
+    status: 2,
+    label: "In Progress",
+    color: "blue",
+    nextAction: "Complete Task",
+    nextStatus: 3,
+  },
+  {
+    status: 3,
+    label: "Completed Deliverables",
+    color: "emerald",
+    nextAction: null,
+    nextStatus: 1,
+  },
 ];
 
 export const TasksPage: React.FC = () => {
   const [viewMode, setViewMode] = useState<"kanban" | "list">("kanban");
-  const [selectedStatus, setSelectedStatus] = useState<TaskItemStatus | undefined>(undefined);
-  const [selectedPriority, setSelectedPriority] = useState<TaskPriority | undefined>(undefined);
+  const [selectedStatus, setSelectedStatus] = useState<
+    TaskItemStatus | undefined
+  >(undefined);
+  const [selectedPriority, setSelectedPriority] = useState<
+    TaskPriority | undefined
+  >(undefined);
   const [overdueOnly, setOverdueOnly] = useState(false);
   const page = 1;
 
-  const { data: tasksData, isLoading, refetch } = useGetTasksQuery({
+  const {
+    data: tasksData,
+    isLoading,
+    refetch,
+  } = useGetTasksQuery({
     page: viewMode === "kanban" ? 1 : page,
     pageSize: viewMode === "kanban" ? 100 : 20,
     status: selectedStatus,
@@ -69,7 +134,9 @@ export const TasksPage: React.FC = () => {
       await createTask({
         title: newTaskTitle.trim(),
         description: newTaskDesc.trim() || undefined,
-        dueDateUtc: newTaskDueDate ? new Date(newTaskDueDate).toISOString() : undefined,
+        dueDateUtc: newTaskDueDate
+          ? new Date(newTaskDueDate).toISOString()
+          : undefined,
         priority: newTaskPriority,
         clientId: newTaskClientId || undefined,
       }).unwrap();
@@ -85,7 +152,10 @@ export const TasksPage: React.FC = () => {
     }
   };
 
-  const handleSetStatus = async (task: TaskItemDto, targetStatus: TaskItemStatus) => {
+  const handleSetStatus = async (
+    task: TaskItemDto,
+    targetStatus: TaskItemStatus,
+  ) => {
     try {
       await updateTask({
         id: task.id,
@@ -95,7 +165,8 @@ export const TasksPage: React.FC = () => {
           dueDateUtc: task.dueDateUtc || undefined,
           priority: task.priority,
           status: targetStatus,
-          assignedUserId: task.assignedUserId || task.assignedToUserId || undefined,
+          assignedUserId:
+            task.assignedUserId || task.assignedToUserId || undefined,
         },
       }).unwrap();
       refetch();
@@ -132,7 +203,8 @@ export const TasksPage: React.FC = () => {
             </span>
           </div>
           <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
-            Operations board, account kickoff deliverables, proposal deadlines, and automated follow-ups.
+            Operations board, account kickoff deliverables, proposal deadlines,
+            and automated follow-ups.
           </p>
         </div>
 
@@ -191,7 +263,13 @@ export const TasksPage: React.FC = () => {
         {viewMode === "list" && (
           <select
             value={selectedStatus ?? ""}
-            onChange={(e) => setSelectedStatus(e.target.value ? (Number(e.target.value) as TaskItemStatus) : undefined)}
+            onChange={(e) =>
+              setSelectedStatus(
+                e.target.value
+                  ? (Number(e.target.value) as TaskItemStatus)
+                  : undefined,
+              )
+            }
             className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-3.5 py-2 text-xs text-slate-900 dark:text-slate-100 font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500"
           >
             <option value="">All Statuses</option>
@@ -204,7 +282,13 @@ export const TasksPage: React.FC = () => {
 
         <select
           value={selectedPriority ?? ""}
-          onChange={(e) => setSelectedPriority(e.target.value ? (Number(e.target.value) as TaskPriority) : undefined)}
+          onChange={(e) =>
+            setSelectedPriority(
+              e.target.value
+                ? (Number(e.target.value) as TaskPriority)
+                : undefined,
+            )
+          }
           className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-3.5 py-2 text-xs text-slate-900 dark:text-slate-100 font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500"
         >
           <option value="">All Priorities</option>
@@ -232,8 +316,8 @@ export const TasksPage: React.FC = () => {
                       col.color === "amber"
                         ? "bg-amber-500"
                         : col.color === "blue"
-                        ? "bg-blue-500"
-                        : "bg-emerald-500"
+                          ? "bg-blue-500"
+                          : "bg-emerald-500"
                     }`}
                   />
                   <h3 className="font-extrabold text-xs text-slate-900 dark:text-white">
@@ -262,7 +346,9 @@ export const TasksPage: React.FC = () => {
                       className="group p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-indigo-500/50 hover:shadow-md transition-all space-y-3"
                     >
                       <div className="flex items-start justify-between gap-2">
-                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${pri.badgeClass}`}>
+                        <span
+                          className={`px-2 py-0.5 rounded text-[10px] font-bold border ${pri.badgeClass}`}
+                        >
                           {pri.label}
                         </span>
 
@@ -311,7 +397,12 @@ export const TasksPage: React.FC = () => {
                         {col.nextAction && (
                           <button
                             type="button"
-                            onClick={() => handleSetStatus(task, col.nextStatus as TaskItemStatus)}
+                            onClick={() =>
+                              handleSetStatus(
+                                task,
+                                col.nextStatus as TaskItemStatus,
+                              )
+                            }
                             className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 font-bold transition text-[10px]"
                           >
                             <span>{col.nextAction}</span>
@@ -336,7 +427,9 @@ export const TasksPage: React.FC = () => {
         /* LIST VIEW */
         <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
           {isLoading ? (
-            <div className="py-16 text-center text-xs text-slate-500 dark:text-slate-400">Loading tasks...</div>
+            <div className="py-16 text-center text-xs text-slate-500 dark:text-slate-400">
+              Loading tasks...
+            </div>
           ) : (
             <table className="min-w-full divide-y divide-slate-200 dark:divide-slate-800 text-xs">
               <thead className="bg-slate-50 dark:bg-slate-950/70 text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider text-[10px]">
@@ -361,7 +454,10 @@ export const TasksPage: React.FC = () => {
                   const stat = STATUS_MAP[task.status] || STATUS_MAP[1]!;
 
                   return (
-                    <tr key={task.id} className="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors">
+                    <tr
+                      key={task.id}
+                      className="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors"
+                    >
                       <td className="px-4 py-3.5 text-center">
                         <input
                           type="checkbox"
@@ -373,24 +469,34 @@ export const TasksPage: React.FC = () => {
                       <td className="px-5 py-3.5">
                         <div
                           className={`font-bold ${
-                            task.status === 3 ? "line-through text-slate-400" : "text-slate-900 dark:text-white"
+                            task.status === 3
+                              ? "line-through text-slate-400"
+                              : "text-slate-900 dark:text-white"
                           }`}
                         >
                           {task.title}
                         </div>
                         {task.description && (
-                          <div className="text-[11px] text-slate-400 line-clamp-1 mt-0.5">{task.description}</div>
+                          <div className="text-[11px] text-slate-400 line-clamp-1 mt-0.5">
+                            {task.description}
+                          </div>
                         )}
                       </td>
                       <td className="px-5 py-3.5">
                         {task.clientName ? (
-                          <span className="font-semibold text-slate-900 dark:text-white">{task.clientName}</span>
+                          <span className="font-semibold text-slate-900 dark:text-white">
+                            {task.clientName}
+                          </span>
                         ) : (
-                          <span className="text-slate-400 italic">Internal Agency Task</span>
+                          <span className="text-slate-400 italic">
+                            Internal Agency Task
+                          </span>
                         )}
                       </td>
                       <td className="px-5 py-3.5">
-                        <span className={`inline-flex px-2 py-0.5 rounded text-[10px] font-bold border ${pri.badgeClass}`}>
+                        <span
+                          className={`inline-flex px-2 py-0.5 rounded text-[10px] font-bold border ${pri.badgeClass}`}
+                        >
                           {pri.label}
                         </span>
                       </td>
@@ -398,7 +504,9 @@ export const TasksPage: React.FC = () => {
                         <span
                           className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${stat.badgeClass}`}
                         >
-                          <span className={`w-1.5 h-1.5 rounded-full ${stat.dotClass}`} />
+                          <span
+                            className={`w-1.5 h-1.5 rounded-full ${stat.dotClass}`}
+                          />
                           <span>{stat.label}</span>
                         </span>
                       </td>
@@ -406,7 +514,9 @@ export const TasksPage: React.FC = () => {
                         {task.dueDateUtc ? (
                           <span
                             className={`font-medium ${
-                              isOverdue ? "text-red-500 font-bold" : "text-slate-500"
+                              isOverdue
+                                ? "text-red-500 font-bold"
+                                : "text-slate-500"
                             }`}
                           >
                             {isOverdue && "⚠ "}
@@ -430,7 +540,9 @@ export const TasksPage: React.FC = () => {
         <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 flex items-center justify-center p-4">
           <div className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl max-w-md w-full p-6 space-y-4">
             <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
-              <h2 className="text-base font-extrabold text-slate-900 dark:text-white">Create New Task</h2>
+              <h2 className="text-base font-extrabold text-slate-900 dark:text-white">
+                Create New Task
+              </h2>
               <button
                 type="button"
                 onClick={() => setCreateModalOpen(false)}
@@ -475,7 +587,9 @@ export const TasksPage: React.FC = () => {
                   </label>
                   <select
                     value={newTaskPriority}
-                    onChange={(e) => setNewTaskPriority(Number(e.target.value) as TaskPriority)}
+                    onChange={(e) =>
+                      setNewTaskPriority(Number(e.target.value) as TaskPriority)
+                    }
                     className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-3 py-2 text-xs font-semibold focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                   >
                     <option value={1}>Low</option>

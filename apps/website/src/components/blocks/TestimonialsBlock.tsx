@@ -13,7 +13,8 @@ interface TestimonialItem {
 
 export const TestimonialsBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
   const { content } = block;
-  const sectionTitle = (content.sectionTitle as string) || "Validated by Enterprise Leaders";
+  const sectionTitle =
+    (content.sectionTitle as string) || "Validated by Enterprise Leaders";
   const sectionSubtitle =
     (content.sectionSubtitle as string) ||
     "Discover how global brands and fast-scaling enterprises achieve predictable revenue growth with Nexora.";
@@ -76,9 +77,14 @@ export const TestimonialsBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
                 {/* 5-Star Rating Bar & Quote Icon */}
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center gap-1">
-                    {Array.from({ length: item.rating || 5 }).map((_, starIdx) => (
-                      <Star key={starIdx} className="w-4 h-4 fill-amber-400 text-amber-400" />
-                    ))}
+                    {Array.from({ length: item.rating || 5 }).map(
+                      (_, starIdx) => (
+                        <Star
+                          key={starIdx}
+                          className="w-4 h-4 fill-amber-400 text-amber-400"
+                        />
+                      ),
+                    )}
                   </div>
                   <Quote className="w-6 h-6 text-indigo-500/40 group-hover:text-indigo-400 transition-colors" />
                 </div>
@@ -92,9 +98,15 @@ export const TestimonialsBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
               {/* Author Dossier */}
               <div className="border-t border-slate-800/80 pt-5 flex items-center justify-between">
                 <div>
-                  <div className="font-bold text-white text-sm">{item.author}</div>
-                  <div className="text-xs text-indigo-400 font-medium">{item.role}</div>
-                  <div className="text-[11px] text-slate-400 font-medium">{item.company}</div>
+                  <div className="font-bold text-white text-sm">
+                    {item.author}
+                  </div>
+                  <div className="text-xs text-indigo-400 font-medium">
+                    {item.role}
+                  </div>
+                  <div className="text-[11px] text-slate-400 font-medium">
+                    {item.company}
+                  </div>
                 </div>
 
                 <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 text-[10px] font-bold border border-emerald-500/20">

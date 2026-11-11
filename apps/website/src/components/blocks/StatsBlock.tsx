@@ -49,4 +49,3 @@ export const StatsBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
     </section>
   );
 };
-

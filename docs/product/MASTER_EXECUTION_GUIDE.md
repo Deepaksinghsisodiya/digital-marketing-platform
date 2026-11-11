@@ -23,6 +23,7 @@
 ## 1. PROJECT KYA HAI
 
 **Nexora** = Digital Marketing Agency ka platform. Abhi sirf 3 cheezein banti hain:
+
 1. **Public Website** (Next.js): visitors dekhte hain, lead form bharte hain.
 2. **Agency Admin Panel** (React + Vite): Nexora team website, leads, clients, email, users manage karti hai.
 3. **Backend API** (.NET 10 + EF Core + SQL Server): saara logic, security, data.
@@ -38,6 +39,7 @@
 ## 2. LOCKED DECISIONS (badlenge nahi, user hi badal sakta hai)
 
 ### 2.1 Architecture
+
 - **Single-tenant.** `OrganizationId`, RLS, tenant resolution nahi. Layering rakho: Domain / Application / Infrastructure / Api / Worker (baad mein tenant add ho sake).
 - **Modular monolith + Clean Architecture.** Domain kisi par depend nahi (architecture test enforce karta hai). Identity (ApplicationUser/Role) **Infrastructure** mein, Domain/Application mein Identity dependency nahi.
 - Website aur admin **seedha DB nahi** chhuenge. Sirf API ke through.
@@ -46,35 +48,38 @@
 - Launch language: English. `locale` field rakho, Hindi baad mein.
 
 ### 2.2 Tech stack (versions repo ke `global.json`, `Directory.Packages.props`, `pnpm-lock.yaml` se pinned)
-| Layer | Tech |
-|---|---|
-| Backend | .NET 10 LTS, ASP.NET Core Web API, EF Core 10, **SQL Server** (`Microsoft.EntityFrameworkCore.SqlServer`) |
-| Backend libs | Serilog, FluentValidation, Mapperly (ya manual mapping), MailKit, built-in OpenAPI + Scalar + Swashbuckle.AspNetCore.SwaggerUI (sirf Development) |
-| Tests | xUnit, Shouldly, NetArchTest, WebApplicationFactory (real SQL Server `nexora_test`) |
-| Website | Next.js (App Router) + TypeScript strict, next-intl (`localePrefix: never`), Tailwind, shadcn/ui + Radix, Lucide |
-| Admin | React + Vite + TypeScript strict, Redux Toolkit + RTK Query, TanStack Table, Formik + Yup, react-i18next, Tailwind, shadcn/ui |
-| Phone/country | libphonenumber-js, i18n-iso-countries (MIT) |
-| Tools | pnpm workspaces, ESLint, Prettier, Vitest, Playwright, Mailpit (local email catcher) |
-| Later (CMS step mein) | TipTap (rich text), dnd-kit (block reorder) |
+
+| Layer                 | Tech                                                                                                                                              |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Backend               | .NET 10 LTS, ASP.NET Core Web API, EF Core 10, **SQL Server** (`Microsoft.EntityFrameworkCore.SqlServer`)                                         |
+| Backend libs          | Serilog, FluentValidation, Mapperly (ya manual mapping), MailKit, built-in OpenAPI + Scalar + Swashbuckle.AspNetCore.SwaggerUI (sirf Development) |
+| Tests                 | xUnit, Shouldly, NetArchTest, WebApplicationFactory (real SQL Server `nexora_test`)                                                               |
+| Website               | Next.js (App Router) + TypeScript strict, next-intl (`localePrefix: never`), Tailwind, shadcn/ui + Radix, Lucide                                  |
+| Admin                 | React + Vite + TypeScript strict, Redux Toolkit + RTK Query, TanStack Table, Formik + Yup, react-i18next, Tailwind, shadcn/ui                     |
+| Phone/country         | libphonenumber-js, i18n-iso-countries (MIT)                                                                                                       |
+| Tools                 | pnpm workspaces, ESLint, Prettier, Vitest, Playwright, Mailpit (local email catcher)                                                              |
+| Later (CMS step mein) | TipTap (rich text), dnd-kit (block reorder)                                                                                                       |
 
 **Library rules:** install se pehle license verify (MIT/Apache-2.0/BSD/ISC). Paid, trial, GPL/AGPL runtime dependency nahi. **Avoid:** AutoMapper, MediatR, MassTransit, FluentAssertions v8+, ImageSharp, Hangfire Pro, paid UI kit/font/icon. Sirf wahi library jo abhi use ho. License table mein **exact version** (kabhi "Latest" nahi).
 
 **Ek jaan-boojhkar apwaad:** SQL Server open-source nahi hai. Express edition free hai (10 GB DB, 1 GB buffer RAM, 4 cores). Production Linux container par min 2 GB RAM (droplet 4 GB lo). Licensing production se pehle review.
 
 ### 2.3 Local environment (Windows)
-| Service | URL / Port |
-|---|---|
-| API | `http://localhost:5201` (Swagger `/swagger`, Scalar `/scalar`, Dev only) |
-| Website | `http://localhost:3000` |
-| Admin | `http://localhost:5173` |
-| SQL Server | `(localdb)\MSSQLLocalDB` ya `localhost\SQLEXPRESS`, Windows Auth (`Trusted_Connection=True`) |
-| Databases | `nexora_dev` (development), `nexora_test` (sirf tests) |
-| Mailpit | SMTP `localhost:1025`, UI `http://localhost:8025` (binary: `infra/tools/mailpit.exe`) |
-| Docker | Abhi host par nahi. `docker-compose.yml` "unverified" hai. Production se pehle Docker wali machine par test karna hai. |
+
+| Service    | URL / Port                                                                                                             |
+| ---------- | ---------------------------------------------------------------------------------------------------------------------- |
+| API        | `http://localhost:5201` (Swagger `/swagger`, Scalar `/scalar`, Dev only)                                               |
+| Website    | `http://localhost:3000`                                                                                                |
+| Admin      | `http://localhost:5173`                                                                                                |
+| SQL Server | `(localdb)\MSSQLLocalDB` ya `localhost\SQLEXPRESS`, Windows Auth (`Trusted_Connection=True`)                           |
+| Databases  | `nexora_dev` (development), `nexora_test` (sirf tests)                                                                 |
+| Mailpit    | SMTP `localhost:1025`, UI `http://localhost:8025` (binary: `infra/tools/mailpit.exe`)                                  |
+| Docker     | Abhi host par nahi. `docker-compose.yml` "unverified" hai. Production se pehle Docker wali machine par test karna hai. |
 
 PostgreSQL **hata diya gaya** hai. Koi Postgres reference active nahi (sirf decision-log mein history note).
 
 ### 2.4 NO-HARDCODING RULES
+
 - Code mein hardcoded nahi: URL, port, connection string, email, password, API key, secret, company naam, phone, color, font, country/region list, locale list, cookie name, rate limit numbers, token expiry.
 - **Config hierarchy:** environment variables / `.env` / user-secrets -> `appsettings*.json` (non-secret defaults) -> **DB settings (admin se editable)**.
 - Repo mein sirf `.env.example` (placeholders). Real `.env` gitignored.
@@ -84,6 +89,7 @@ PostgreSQL **hata diya gaya** hai. Koi Postgres reference active nahi (sirf deci
 - **Code mein fix rahega (kyunki code enforce karta hai):** block types (Hero, FAQ...), field types, permission KEYS, email variable names. Baaki sab admin se.
 
 ### 2.5 Security baseline
+
 Password hash (Identity default), lockout config se, rate limit (per-IP built-in, per-account Identity lockout), CSRF (antiforgery, `GET /api/v1/auth/csrf` + header `X-XSRF-TOKEN`), CORS `AllowCredentials` sirf explicit origin allowlist, security headers/CSP, forgot-password same response (enumeration nahi), token URL fragment (`#`) mein (email query string mein nahi), audit mein password/token/request-body kabhi nahi, logs mein secrets/PII redact, server-side validation hamesha, UI visibility sirf convenience (API authoritative).
 
 ---
@@ -91,6 +97,7 @@ Password hash (Identity default), lockout config se, rate limit (per-IP built-in
 ## 3. HAR STEP KA EXIT GATE (checklist, sab PASS chahiye)
 
 Har step ke end mein ye 10 cheezein proof ke saath:
+
 1. `dotnet build` 0 errors, `dotnet test` raw output (test names, Passed/Failed/Skipped=0)
 2. `pnpm -r lint`, `pnpm -r test`, `pnpm run format:check` clean
 3. Teeno apps local par chalein (API, website, admin); `/health/ready` real SQL Server par 200
@@ -120,25 +127,30 @@ Har step ke end mein ye 10 cheezein proof ke saath:
 ## 5. FRONTEND <-> BACKEND <-> DATABASE CONNECTION GUIDE (errors se bachne ke liye)
 
 ### 5.1 Flow
+
 ```
 Browser (Admin :5173) --cookie+CSRF--> API :5201 --EF Core--> SQL Server
 Browser (Website :3000) --> Next.js server --(server-side fetch)--> API :5201 (public endpoints)
 Website form submit (browser) --> API public form endpoint (rate-limited)
 ```
+
 Admin aur website kabhi DB se baat nahi karte.
 
 ### 5.2 Env variables (names fix, values `.env` mein)
+
 Backend:
+
 - `ConnectionStrings__DefaultConnection`, `ConnectionStrings__TestConnection`
 - `SEED_ADMIN_EMAIL`, `SEED_ADMIN_PASSWORD`
 - Cookie options (name, domain, SameSite, Secure) `AuthCookieOptions` se; cookie name abhi `.Nexora.Session` (config)
 - CORS allowed origins (list), SMTP host/port/sender (config), rate limit values, token lifespans, trusted proxies
-Frontend:
+  Frontend:
 - Admin: `VITE_API_BASE_URL`
 - Website: `NEXT_PUBLIC_API_BASE_URL` (browser) aur `API_INTERNAL_BASE_URL` (server-side), `REVALIDATE_SECRET`
 - Koi secret `VITE_`/`NEXT_PUBLIC_` mein nahi.
 
 ### 5.3 Cookie auth local par kaise chalega
+
 - `localhost` ke alag ports **same-site** hain, cookie chalegi. Admin se API call: `fetch/RTK Query` mein `credentials: "include"` zaroori.
 - API CORS: `WithOrigins(<allowlist from config>)` + `AllowCredentials()`. `*` kabhi nahi.
 - Pehle `GET /api/v1/auth/csrf` call karo, token ko header `X-XSRF-TOKEN` mein har mutating request (POST/PUT/PATCH/DELETE) par bhejo.
@@ -146,6 +158,7 @@ Frontend:
 - Production: `admin.<domain>` aur `api.<domain>` same parent domain, cookie domain config se, `Secure=true`.
 
 ### 5.4 SQL Server gotchas (migration/EF mein dhyan)
+
 - Concurrency: `byte[] Version` + `rowversion`; stale update -> `DbUpdateConcurrencyException` -> HTTP **409**.
 - Indexed string columns par explicit `MaxLength` (index key 900 bytes limit). Identity composite keys 128.
 - Nullable unique index -> **filtered unique index** (`WHERE col IS NOT NULL`).
@@ -157,17 +170,18 @@ Frontend:
 - Migration: reviewed, source-controlled. **Production mein app startup par auto-migrate nahi.**
 
 ### 5.5 Common errors aur fix
-| Error | Wajah / Fix |
-|---|---|
-| CORS error browser mein | Origin allowlist mein nahi / `AllowCredentials` ke saath `*`. Config mein exact origin daalo |
-| 401 login ke baad bhi | `credentials: "include"` nahi, ya cookie `Secure` local par http par. Cookie options config check |
-| 400 on POST (antiforgery) | `X-XSRF-TOKEN` header nahi / csrf pehle fetch nahi hua |
-| 403 `MUST_CHANGE_PASSWORD` | Pehle password change |
-| `/health/ready` 503 | Connection string / SQL Server service / DB exist nahi |
-| Migration fail "key too long" | Indexed column par MaxLength |
-| Trigger/OUTPUT error | `HasTrigger` configure karo |
-| Website par data stale | ISR/revalidate (Step 5) ya cache tag |
-| `nexora_test` par tests fail | `ConnectionStrings__TestConnection` set nahi (user-secrets Api project ko dikhte hain, test project ko nahi) |
+
+| Error                         | Wajah / Fix                                                                                                  |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| CORS error browser mein       | Origin allowlist mein nahi / `AllowCredentials` ke saath `*`. Config mein exact origin daalo                 |
+| 401 login ke baad bhi         | `credentials: "include"` nahi, ya cookie `Secure` local par http par. Cookie options config check            |
+| 400 on POST (antiforgery)     | `X-XSRF-TOKEN` header nahi / csrf pehle fetch nahi hua                                                       |
+| 403 `MUST_CHANGE_PASSWORD`    | Pehle password change                                                                                        |
+| `/health/ready` 503           | Connection string / SQL Server service / DB exist nahi                                                       |
+| Migration fail "key too long" | Indexed column par MaxLength                                                                                 |
+| Trigger/OUTPUT error          | `HasTrigger` configure karo                                                                                  |
+| Website par data stale        | ISR/revalidate (Step 5) ya cache tag                                                                         |
+| `nexora_test` par tests fail  | `ConnectionStrings__TestConnection` set nahi (user-secrets Api project ko dikhte hain, test project ko nahi) |
 
 ---
 
@@ -175,24 +189,24 @@ Frontend:
 
 Status legend: DONE / OPEN / TODO
 
-| Step | Naam | Status |
-|---|---|---|
-| 1 | Project setup (skeleton, monorepo, config, docs) | DONE (gaps closed) |
-| 1.1 / 1.2 | Setup gap closure | DONE |
-| 2 | Backend: Identity, RBAC, Audit, Settings (SQL Server) | **OPEN** (code + 34 tests hain, closure proofs baaki) |
-| 2.1 | Step 2 closure (missing tests + proofs) | **OPEN, agla kaam** |
-| 3 | Admin foundation (login, layout, menu, dashboard shell) | TODO |
-| 4 | **CMS core** (backend + admin): theme, media, menus, pages, blocks, SEO, draft/publish/version | TODO |
-| 5 | **Public website renderer** (CMS se connected, preview, SEO) | TODO |
-| 6 | Forms builder + Leads inbox (+ auto-reply, team notification) | TODO |
-| 7 | Contacts / Clients / Tasks / follow-up / activity timeline | TODO |
-| 8 | Email module (templates, send from admin, email log, unsubscribe) | TODO |
-| 9 | Blog, services, case studies, content collections | TODO |
-| 10 | Multi-country form formats + region-specific content parts | TODO |
-| 11 | SEO extras, redirects, analytics, cookie consent, webhooks, import/export | TODO |
-| 12 | Hardening (security, performance, accessibility, E2E, backup/restore) | TODO |
-| 13 | Production deployment (DigitalOcean) | TODO |
-| 14+ | P1/P2 features (pipeline kanban, scoring, broadcast email, multi-tenant...) | LATER |
+| Step      | Naam                                                                                           | Status                                                |
+| --------- | ---------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
+| 1         | Project setup (skeleton, monorepo, config, docs)                                               | DONE (gaps closed)                                    |
+| 1.1 / 1.2 | Setup gap closure                                                                              | DONE                                                  |
+| 2         | Backend: Identity, RBAC, Audit, Settings (SQL Server)                                          | **OPEN** (code + 34 tests hain, closure proofs baaki) |
+| 2.1       | Step 2 closure (missing tests + proofs)                                                        | **OPEN, agla kaam**                                   |
+| 3         | Admin foundation (login, layout, menu, dashboard shell)                                        | TODO                                                  |
+| 4         | **CMS core** (backend + admin): theme, media, menus, pages, blocks, SEO, draft/publish/version | TODO                                                  |
+| 5         | **Public website renderer** (CMS se connected, preview, SEO)                                   | TODO                                                  |
+| 6         | Forms builder + Leads inbox (+ auto-reply, team notification)                                  | TODO                                                  |
+| 7         | Contacts / Clients / Tasks / follow-up / activity timeline                                     | TODO                                                  |
+| 8         | Email module (templates, send from admin, email log, unsubscribe)                              | TODO                                                  |
+| 9         | Blog, services, case studies, content collections                                              | TODO                                                  |
+| 10        | Multi-country form formats + region-specific content parts                                     | TODO                                                  |
+| 11        | SEO extras, redirects, analytics, cookie consent, webhooks, import/export                      | TODO                                                  |
+| 12        | Hardening (security, performance, accessibility, E2E, backup/restore)                          | TODO                                                  |
+| 13        | Production deployment (DigitalOcean)                                                           | TODO                                                  |
+| 14+       | P1/P2 features (pipeline kanban, scoring, broadcast email, multi-tenant...)                    | LATER                                                 |
 
 **Ordering note (user ki demand):** Admin auth ke turant baad **CMS ready karna hai** taaki website ke saath-saath dikha sakein. Isliye Step 3 (admin shell) -> Step 4 (CMS) -> Step 5 (website renderer) seedhe ek ke baad ek. Forms/leads uske baad.
 
@@ -201,6 +215,7 @@ Status legend: DONE / OPEN / TODO
 ## STEP 2 / 2.1 — Backend Identity, RBAC, Audit, Settings (OPEN: closure)
 
 ### Ab tak kya hai (commit `64a396e`, local)
+
 - SQL Server migration applied: `AuditLogs`, `Roles`, `RolePermissions`, `SiteSettings`, `Users`, `UserRoles`, `UserClaims`, `UserLogins`, `UserTokens`, `RoleClaims`.
 - `AuditLogs` append-only trigger (INSERT ok, UPDATE/DELETE THROW).
 - Endpoints: `/api/v1/auth/{csrf, login, logout, logout-everywhere, me, password/change, password/forgot, password/reset}`, `/api/v1/admin/users` (GET, `POST /invite`, `PATCH /{id}`), `/admin/roles`, `/admin/permissions`, `/admin/audit-logs`, `/admin/settings` (GET/PATCH), `/api/v1/public/site-settings`.
@@ -208,21 +223,23 @@ Status legend: DONE / OPEN / TODO
 - 34 tests pass (16 unit, 3 architecture, 15 integration).
 
 ### Role-Permission Matrix (locked)
-| Permission | Owner | Admin | Editor | Sales |
-|---|---|---|---|---|
-| settings.view / settings.manage | Y | Y | - | - |
-| audit.view | Y | Y | - | - |
-| users.view | Y | Y | - | - |
-| users.manage | Y | - | - | - |
-| roles.view | Y | Y | - | - |
-| pages.view | Y | Y | Y | - |
-| pages.edit | Y | Y | Y | - |
-| pages.publish | Y | Y | - | - |
-| leads.view / leads.manage / leads.export | Y | Y | - | Y |
 
-Owner = catalog ki saari permissions automatically. Naye steps mein nayi permissions add hongi (media.*, menus.*, forms.*, clients.*, email.*, etc.), Owner ko auto, baaki roles ko matrix approve karwake.
+| Permission                               | Owner | Admin | Editor | Sales |
+| ---------------------------------------- | ----- | ----- | ------ | ----- |
+| settings.view / settings.manage          | Y     | Y     | -      | -     |
+| audit.view                               | Y     | Y     | -      | -     |
+| users.view                               | Y     | Y     | -      | -     |
+| users.manage                             | Y     | -     | -      | -     |
+| roles.view                               | Y     | Y     | -      | -     |
+| pages.view                               | Y     | Y     | Y      | -     |
+| pages.edit                               | Y     | Y     | Y      | -     |
+| pages.publish                            | Y     | Y     | -      | -     |
+| leads.view / leads.manage / leads.export | Y     | Y     | -      | Y     |
+
+Owner = catalog ki saari permissions automatically. Naye steps mein nayi permissions add hongi (media._, menus._, forms._, clients._, email.*, etc.), Owner ko auto, baaki roles ko matrix approve karwake.
 
 ### Design rules jo lagu hain
+
 - Role change par security stamp **nahi** badlta. Stamp sirf password change/reset, logout-everywhere, suspend par.
 - Permissions claims mein nahi; har request par DB/cache se resolve; cache `UserPerms_{userId}` role change, suspend, delete par evict.
 - Security stamp validation interval zero/chhota (suspend turant effect).
@@ -235,6 +252,7 @@ Owner = catalog ki saari permissions automatically. Naye steps mein nayi permiss
 - Audit metadata: per-event allowlisted fields, request body kabhi nahi, failed login email masked.
 
 ### STEP 2.1 PROMPT (Antigravity ko do)
+
 ```
 STEP 2.1: STEP 2 CLOSURE. Koi naya feature nahi. Sirf missing tests aur proof.
 
@@ -262,6 +280,7 @@ STEP 2.1: STEP 2 CLOSURE. Koi naya feature nahi. Sirf missing tests aur proof.
 10. Ek poori license table (backend+frontend), exact versions.
 11. Deviations/Assumptions/Open issues. Commit mat karna. ROKO.
 ```
+
 **Exit:** Section 3 ke 10 points + upar ke sab proofs. Tab Step 2 close.
 
 ---
@@ -271,6 +290,7 @@ STEP 2.1: STEP 2 CLOSURE. Koi naya feature nahi. Sirf missing tests aur proof.
 **Goal:** Admin React app asli auth ke saath chale: login, forced password change, set/reset password pages, protected layout, permission-aware menu, real dashboard shell, error/loading/empty states.
 
 **Scope:**
+
 - Pages: Login, Forgot password, Set/Reset password (token URL fragment `#` se padho, email URL mein nahi), Force Change Password, 404, 403, Dashboard shell.
 - Auth flow: boot par `GET /auth/csrf` + `GET /auth/me`. 401 -> login. `MustChangePassword` -> change-password page par redirect. Logout, logout-everywhere (profile menu).
 - RTK Query base API: `credentials: "include"`, CSRF header automatic, 401/403/409/422 ka centralized handling, ProblemDetails se error message, correlation id dikhao.
@@ -288,6 +308,7 @@ STEP 2.1: STEP 2 CLOSURE. Koi naya feature nahi. Sirf missing tests aur proof.
 **Out of scope:** CMS, leads, clients, email, MFA UI.
 
 **Acceptance:**
+
 1. Seed admin se login -> forced password change -> dashboard (Playwright + screenshot).
 2. Editor login karne par Users/Settings menu nahi; direct URL par 403 page.
 3. User invite karne par Mailpit mein email, fragment link se set-password, phir login.
@@ -302,6 +323,7 @@ STEP 2.1: STEP 2 CLOSURE. Koi naya feature nahi. Sirf missing tests aur proof.
 **Goal:** Admin se website ka sab kuch configure ho. Structured **block CMS** (free-form builder nahi).
 
 **Data model (SQL Server, nayi migration, SQL pehle review):**
+
 - `Pages` (Id, Slug, Title, Locale, Status [Draft/Published/Archived], PublishedVersionId, IsEnabled, SeoSettings fields/relations, Version rowversion, audit fields). Unique `(Slug, Locale)`.
 - `PageVersions` (PageId, VersionNumber, SchemaVersion, ContentJson `nvarchar(max)`+ISJSON, CreatedBy, CreatedAtUtc, PublishedAtUtc). **Published version immutable.** Edit = naya draft version.
 - `ContentJson`: `blocks[]`, har block: `id, type, schemaVersion, settings, content, visibility`.
@@ -313,16 +335,18 @@ STEP 2.1: STEP 2 CLOSURE. Koi naya feature nahi. Sirf missing tests aur proof.
 **Block types (code-defined, typed, versioned):** Hero, Rich Text, Image, Video, Feature Grid, Service Cards, Testimonials, Logo Strip, Stats, Pricing, FAQ, CTA, Form (placeholder), Blog Feed, Case Studies. Har block ka JSON schema + server-side validation. Admin arbitrary JS/React upload nahi kar sakta. Naya block type = developer kaam.
 
 **Backend:**
+
 - Endpoints (`/api/v1/admin/...` permission-scoped): pages CRUD/duplicate/archive/enable-disable, versions list/compare/restore, save draft, validate, publish (transaction: published version pointer + outbox event atomically), schedule (BackgroundService), rollback (previous version pointer + audit with reason), media upload/list/patch/delete, menus, global sections, theme, redirects, SEO.
 - Public read: `GET /api/v1/public/pages/{slug}`, `/navigation`, `/site-settings`, `/theme`, `/sitemap` data (sirf **published**, cacheable).
 - Preview: signed short-lived token, draft content ke liye; noindex; revocable.
 - Worker: outbox dispatcher (at-least-once, lease, retry bounded), scheduled publish, cache revalidate call (website ka revalidate endpoint, `REVALIDATE_SECRET`).
 - Media: upload allowlist (MIME sniff), size limits (config), local disk storage adapter (dev) behind `IStorageProvider`; production object storage baad mein. Private/public rule.
 - Rich text sanitization (server-side), safe link validation.
-- New permissions: media.*, menus.*, theme.manage, redirects.manage, pages.schedule, pages.rollback etc. (matrix approval ke saath).
+- New permissions: media._, menus._, theme.manage, redirects.manage, pages.schedule, pages.rollback etc. (matrix approval ke saath).
 - Optimistic concurrency (rowversion) page edits par. Slug uniqueness validation. Audit events har sensitive action.
 
 **Admin UI:**
+
 - Page list (search/status/locale/updated/author/actions).
 - **Page editor:** left block inserter/tree (dnd-kit reorder), center live preview, right settings inspector (Formik+Yup, block schema se). Unsaved-changes warning, autosave draft (safe jagah), validation errors field ke paas.
 - Actions: Save draft, Preview, Publish, Schedule, Archive, Revision history (compare/restore), Rollback.
@@ -342,6 +366,7 @@ STEP 2.1: STEP 2 CLOSURE. Koi naya feature nahi. Sirf missing tests aur proof.
 **Goal:** Admin se publish kiya page website par dikhe. **Demo-ready milestone** (website + admin ek saath dikhane ke liye).
 
 **Scope:**
+
 - Dynamic catch-all route `app/[[...slug]]/page.tsx`: API se page fetch (server-side, `API_INTERNAL_BASE_URL`), block renderer (`type -> React component` map, unknown type safe fallback, har block ka typed props).
 - Global layout: header/footer/announcement bar menus aur settings API se. Theme tokens API se CSS variables mein inject.
 - **Cache:** ISR/tag-based revalidate; `POST /api/revalidate` (secret header `REVALIDATE_SECRET`) outbox worker call kare. Publish ke baad page refresh dikhe. Region-specific parts (phone, address, currency, consent text) request-time ya client-side resolve (CDN galat region cache na kare).
@@ -377,7 +402,7 @@ STEP 2.1: STEP 2 CLOSURE. Koi naya feature nahi. Sirf missing tests aur proof.
 - Data: `Contacts`, `Companies`, `Clients`, `Tasks` (due date, assignee, status), `ActivityTimeline` (notes, emails, status changes), tags, custom fields (limited, admin configurable).
 - Lead -> Contact/Client conversion (Qualified/Won), follow-up date/reminders, overdue alerts (dashboard + email via worker), assignment rules (simple).
 - Admin: lead/client detail page (timeline, notes, tasks, emails), Clients list, Tasks list (my tasks, overdue), CSV import/export (contacts/leads).
-- Permissions: clients.*, tasks.* (matrix approval).
+- Permissions: clients._, tasks._ (matrix approval).
 - Tests: conversion, timeline entries, overdue job, permission matrix.
 
 **Acceptance:** lead ko client banao, task assign, overdue reminder dikhe.
@@ -449,11 +474,13 @@ STEP 2.1: STEP 2 CLOSURE. Koi naya feature nahi. Sirf missing tests aur proof.
 ---
 
 ## STEP 14+ — LATER (P1/P2, alag approval)
+
 Pipeline kanban, lead scoring, tag segments + broadcast email, 2-step follow-up sequence, scheduled/approval workflow expand, analytics dashboard, **multi-tenant**, client portal, client website builder, WhatsApp Business API (official only), social publishing, automation builder (n8n sirf reference, license restricted), AI features, Hindi/other locales.
 
 ---
 
 ## 7. OPEN DECISIONS (user se poochho, assume mat karo)
+
 - Analytics tool (Umami vs GA4)
 - Email provider production (Resend/Brevo/SES/Zoho: free limits verify)
 - Hosting details (droplet size, region), domain DNS
@@ -465,6 +492,7 @@ Pipeline kanban, lead scoring, tag segments + broadcast email, 2-step follow-up 
 ---
 
 ## 8. DEFINITION OF DONE (first release)
+
 - Nexora website approved pages, responsive, SEO crawlable, sitemap/robots/canonical/metadata.
 - Admin secure login, roles/permissions backend par enforce.
 - Admin pages create/edit/duplicate/archive, blocks, preview, publish, schedule, rollback, history + audit.
@@ -493,6 +521,7 @@ Kaam ke baad Section 3 exit gate + Section 4 report format. Commit mat karna. Ph
 ---
 
 ## 10. USER KE LIYE QUICK CHECKLIST (har step ke baad)
+
 1. Test output mein `Skipped: 0` aur test names dikhe?
 2. Teeno apps local par chal rahe hain? (`/health/ready` 200)
 3. Step ka end-to-end proof (screenshot/curl) dekha?
@@ -501,4 +530,4 @@ Kaam ke baad Section 3 exit gate + Section 4 report format. Commit mat karna. Ph
 6. Tab hi local commit approve karo (push alag).
 7. Phir agla step.
 
-*(Is file ko step complete hone par update karte raho: Roadmap table ka status DONE karo.)*
+_(Is file ko step complete hone par update karte raho: Roadmap table ka status DONE karo.)_

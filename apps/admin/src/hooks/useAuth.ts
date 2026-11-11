@@ -28,4 +28,3 @@ export const useAuth = () => {
     hasRole,
   };
 };
-

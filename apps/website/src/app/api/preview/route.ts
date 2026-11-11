@@ -8,7 +8,9 @@ export async function GET(request: NextRequest) {
     return new NextResponse("Missing preview token", { status: 400 });
   }
 
-  const redirectUrl = new URL(`/preview?token=${encodeURIComponent(token)}`, request.url);
+  const redirectUrl = new URL(
+    `/preview?token=${encodeURIComponent(token)}`,
+    request.url,
+  );
   return NextResponse.redirect(redirectUrl);
 }
-

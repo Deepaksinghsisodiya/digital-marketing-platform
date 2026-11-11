@@ -45,7 +45,9 @@ export function App() {
 
   useEffect(() => {
     if (csrfData) {
-      dispatch(setCsrf({ token: csrfData.token, headerName: csrfData.headerName }));
+      dispatch(
+        setCsrf({ token: csrfData.token, headerName: csrfData.headerName }),
+      );
     }
   }, [csrfData, dispatch]);
 
@@ -61,75 +63,102 @@ export function App() {
     <ThemeProvider>
       <BrowserRouter>
         <Routes>
-        {/* Public Auth Routes */}
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/auth/forgot-password" element={<ForgotPasswordPage />} />
-        <Route path="/auth/reset-password" element={<ResetPasswordPage />} />
-        <Route path="/auth/setup-password" element={<ResetPasswordPage />} />
-        <Route path="/auth/change-password" element={<ChangePasswordPage />} />
+          {/* Public Auth Routes */}
+          <Route path="/login" element={<LoginPage />} />
+          <Route
+            path="/auth/forgot-password"
+            element={<ForgotPasswordPage />}
+          />
+          <Route path="/auth/reset-password" element={<ResetPasswordPage />} />
+          <Route path="/auth/setup-password" element={<ResetPasswordPage />} />
+          <Route
+            path="/auth/change-password"
+            element={<ChangePasswordPage />}
+          />
 
-        {/* Protected Admin Routes */}
-        <Route element={<ProtectedRoute />}>
-          <Route element={<AdminLayout />}>
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
-            <Route path="/dashboard" element={<DashboardPage />} />
+          {/* Protected Admin Routes */}
+          <Route element={<ProtectedRoute />}>
+            <Route element={<AdminLayout />}>
+              <Route path="/" element={<Navigate to="/dashboard" replace />} />
+              <Route path="/dashboard" element={<DashboardPage />} />
 
-            {/* Users & Staff - Guarded by users.view */}
-            <Route element={<ProtectedRoute requiredPermission="users.view" />}>
-              <Route path="/users" element={<UsersPage />} />
-            </Route>
+              {/* Users & Staff - Guarded by users.view */}
+              <Route
+                element={<ProtectedRoute requiredPermission="users.view" />}
+              >
+                <Route path="/users" element={<UsersPage />} />
+              </Route>
 
-            {/* Roles Matrix - Guarded by roles.view */}
-            <Route element={<ProtectedRoute requiredPermission="roles.view" />}>
-              <Route path="/roles" element={<RolesPage />} />
-            </Route>
+              {/* Roles Matrix - Guarded by roles.view */}
+              <Route
+                element={<ProtectedRoute requiredPermission="roles.view" />}
+              >
+                <Route path="/roles" element={<RolesPage />} />
+              </Route>
 
-            {/* Audit Trail - Guarded by audit.view */}
-            <Route element={<ProtectedRoute requiredPermission="audit.view" />}>
-              <Route path="/audit-logs" element={<AuditLogsPage />} />
-            </Route>
+              {/* Audit Trail - Guarded by audit.view */}
+              <Route
+                element={<ProtectedRoute requiredPermission="audit.view" />}
+              >
+                <Route path="/audit-logs" element={<AuditLogsPage />} />
+              </Route>
 
-            {/* Settings - Guarded by settings.view */}
-            <Route element={<ProtectedRoute requiredPermission="settings.view" />}>
-              <Route path="/settings" element={<SettingsPage />} />
-            </Route>
+              {/* Settings - Guarded by settings.view */}
+              <Route
+                element={<ProtectedRoute requiredPermission="settings.view" />}
+              >
+                <Route path="/settings" element={<SettingsPage />} />
+              </Route>
 
-            {/* CMS Pages, Media & Menus - Guarded by pages.view */}
-            <Route element={<ProtectedRoute requiredPermission="pages.view" />}>
-              <Route path="/cms/pages" element={<PagesListPage />} />
-              <Route path="/cms/pages/:id/edit" element={<PageEditorPage />} />
-              <Route path="/posts" element={<PostsPage />} />
-              <Route path="/media" element={<MediaLibraryPage />} />
-              <Route path="/menus" element={<MenusPage />} />
-            </Route>
+              {/* CMS Pages, Media & Menus - Guarded by pages.view */}
+              <Route
+                element={<ProtectedRoute requiredPermission="pages.view" />}
+              >
+                <Route path="/cms/pages" element={<PagesListPage />} />
+                <Route
+                  path="/cms/pages/:id/edit"
+                  element={<PageEditorPage />}
+                />
+                <Route path="/posts" element={<PostsPage />} />
+                <Route path="/media" element={<MediaLibraryPage />} />
+                <Route path="/menus" element={<MenusPage />} />
+              </Route>
 
-            {/* Leads & Inquiries - Guarded by leads.view */}
-            <Route element={<ProtectedRoute requiredPermission="leads.view" />}>
-              <Route path="/leads" element={<LeadsPage />} />
-            </Route>
+              {/* Leads & Inquiries - Guarded by leads.view */}
+              <Route
+                element={<ProtectedRoute requiredPermission="leads.view" />}
+              >
+                <Route path="/leads" element={<LeadsPage />} />
+              </Route>
 
-            {/* Clients & Accounts - Guarded by clients.view */}
-            <Route element={<ProtectedRoute requiredPermission="clients.view" />}>
-              <Route path="/clients" element={<ClientsPage />} />
-            </Route>
+              {/* Clients & Accounts - Guarded by clients.view */}
+              <Route
+                element={<ProtectedRoute requiredPermission="clients.view" />}
+              >
+                <Route path="/clients" element={<ClientsPage />} />
+              </Route>
 
-            {/* Tasks & Actions - Guarded by tasks.view */}
-            <Route element={<ProtectedRoute requiredPermission="tasks.view" />}>
-              <Route path="/tasks" element={<TasksPage />} />
-            </Route>
+              {/* Tasks & Actions - Guarded by tasks.view */}
+              <Route
+                element={<ProtectedRoute requiredPermission="tasks.view" />}
+              >
+                <Route path="/tasks" element={<TasksPage />} />
+              </Route>
 
-            {/* Email Templates & Outbox - Guarded by settings.view */}
-            <Route element={<ProtectedRoute requiredPermission="settings.view" />}>
-              <Route path="/emails" element={<EmailTemplatesPage />} />
+              {/* Email Templates & Outbox - Guarded by settings.view */}
+              <Route
+                element={<ProtectedRoute requiredPermission="settings.view" />}
+              >
+                <Route path="/emails" element={<EmailTemplatesPage />} />
+              </Route>
             </Route>
           </Route>
-        </Route>
 
-        {/* Fallback */}
-        <Route path="*" element={<Navigate to="/login" replace />} />
-      </Routes>
-    </BrowserRouter>
-  </ThemeProvider>
+          {/* Fallback */}
+          <Route path="*" element={<Navigate to="/login" replace />} />
+        </Routes>
+      </BrowserRouter>
+    </ThemeProvider>
   );
 }
 export default App;

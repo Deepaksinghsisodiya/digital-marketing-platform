@@ -25,7 +25,7 @@ const rawBaseQuery = fetchBaseQuery({
 export const baseQueryWithReauth: typeof rawBaseQuery = async (
   args,
   api,
-  extraOptions
+  extraOptions,
 ) => {
   let result = await rawBaseQuery(args, api, extraOptions);
 
@@ -49,7 +49,11 @@ export const baseQueryWithReauth: typeof rawBaseQuery = async (
     typeof result.error.data === "string" &&
     result.error.data.includes("antiforgery")
   ) {
-    const csrfResult = await rawBaseQuery("/api/v1/auth/csrf", api, extraOptions);
+    const csrfResult = await rawBaseQuery(
+      "/api/v1/auth/csrf",
+      api,
+      extraOptions,
+    );
     if (csrfResult.data) {
       const data = csrfResult.data as { token: string; headerName: string };
       api.dispatch(setCsrf({ token: data.token, headerName: data.headerName }));
@@ -63,7 +67,23 @@ export const baseQueryWithReauth: typeof rawBaseQuery = async (
 export const apiSlice = createApi({
   reducerPath: "api",
   baseQuery: baseQueryWithReauth,
-  tagTypes: ["User", "Role", "AuditLog", "Settings", "CurrentProfile", "CmsPage", "Lead", "EmailTemplate", "EmailLog", "Client", "Task", "BlogPost", "PipelineStage", "CountryRegion", "Media", "Menu"],
+  tagTypes: [
+    "User",
+    "Role",
+    "AuditLog",
+    "Settings",
+    "CurrentProfile",
+    "CmsPage",
+    "Lead",
+    "EmailTemplate",
+    "EmailLog",
+    "Client",
+    "Task",
+    "BlogPost",
+    "PipelineStage",
+    "CountryRegion",
+    "Media",
+    "Menu",
+  ],
   endpoints: () => ({}),
 });
-

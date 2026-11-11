@@ -6,10 +6,14 @@ export async function POST(request: NextRequest) {
     request.headers.get("x-revalidate-secret") ||
     request.nextUrl.searchParams.get("secret");
 
-  const expectedSecret = process.env.REVALIDATE_SECRET || "nexora_revalidate_secret_dev";
+  const expectedSecret =
+    process.env.REVALIDATE_SECRET || "nexora_revalidate_secret_dev";
 
   if (!secret || secret !== expectedSecret) {
-    return NextResponse.json({ error: "Invalid revalidation secret." }, { status: 401 });
+    return NextResponse.json(
+      { error: "Invalid revalidation secret." },
+      { status: 401 },
+    );
   }
 
   try {
@@ -29,12 +33,15 @@ export async function POST(request: NextRequest) {
 
     // Default revalidate all CMS pages
     revalidateTag("cms-pages");
-    return NextResponse.json({ revalidated: true, tag: "cms-pages", now: Date.now() });
+    return NextResponse.json({
+      revalidated: true,
+      tag: "cms-pages",
+      now: Date.now(),
+    });
   } catch (err) {
     return NextResponse.json(
       { error: "Error during revalidation", details: String(err) },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
-

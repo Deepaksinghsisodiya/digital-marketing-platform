@@ -13,4 +13,3 @@ export const RichTextBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
     </section>
   );
 };
-

@@ -15,9 +15,15 @@ const nextConfig: NextConfig = {
         source: "/:path*",
         headers: [
           { key: "X-Content-Type-Options", value: "nosniff" },
-          { key: "Content-Security-Policy", value: `frame-ancestors ${cspFrameAncestors};` },
+          {
+            key: "Content-Security-Policy",
+            value: `frame-ancestors ${cspFrameAncestors};`,
+          },
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
-          { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
+          {
+            key: "Permissions-Policy",
+            value: "camera=(), microphone=(), geolocation=()",
+          },
         ],
       },
     ];

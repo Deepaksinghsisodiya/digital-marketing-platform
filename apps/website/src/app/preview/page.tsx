@@ -22,9 +22,12 @@ export default async function PreviewPage({ searchParams }: PreviewPageProps) {
     return (
       <div className="min-h-screen flex items-center justify-center p-6 text-center">
         <div className="max-w-md rounded-2xl border border-red-200 bg-red-50 p-8">
-          <h2 className="text-lg font-bold text-red-900">Missing Preview Token</h2>
+          <h2 className="text-lg font-bold text-red-900">
+            Missing Preview Token
+          </h2>
           <p className="mt-2 text-xs text-red-700">
-            A valid short-lived preview token is required to preview draft pages. Please generate a new preview link from the Admin CMS.
+            A valid short-lived preview token is required to preview draft
+            pages. Please generate a new preview link from the Admin CMS.
           </p>
         </div>
       </div>
@@ -40,9 +43,13 @@ export default async function PreviewPage({ searchParams }: PreviewPageProps) {
     return (
       <div className="min-h-screen flex items-center justify-center p-6 text-center">
         <div className="max-w-md rounded-2xl border border-amber-200 bg-amber-50 p-8">
-          <h2 className="text-lg font-bold text-amber-900">Preview Expired or Invalid</h2>
+          <h2 className="text-lg font-bold text-amber-900">
+            Preview Expired or Invalid
+          </h2>
           <p className="mt-2 text-xs text-amber-700">
-            This draft preview token has either expired (tokens expire after 4 hours) or the page was deleted. Please generate a fresh preview link in the Admin CMS.
+            This draft preview token has either expired (tokens expire after 4
+            hours) or the page was deleted. Please generate a fresh preview link
+            in the Admin CMS.
           </p>
         </div>
       </div>
@@ -63,11 +70,13 @@ export default async function PreviewPage({ searchParams }: PreviewPageProps) {
       <Header settings={siteSettings} currentRegionCode={previewPage.locale} />
 
       <main className="flex-1">
-        <BlockRenderer blocks={previewPage.blocks} userRegion={previewPage.locale} />
+        <BlockRenderer
+          blocks={previewPage.blocks}
+          userRegion={previewPage.locale}
+        />
       </main>
 
       <Footer settings={siteSettings} />
     </div>
   );
 }
-

@@ -32,22 +32,26 @@ const STATUS_CONFIG: Record<
 > = {
   1: {
     label: "Active Account",
-    badgeClass: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20",
+    badgeClass:
+      "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20",
     dotClass: "bg-emerald-500",
   },
   2: {
     label: "Prospect",
-    badgeClass: "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20",
+    badgeClass:
+      "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20",
     dotClass: "bg-blue-500",
   },
   3: {
     label: "Inactive",
-    badgeClass: "bg-slate-500/10 text-slate-700 dark:text-slate-400 border-slate-500/20",
+    badgeClass:
+      "bg-slate-500/10 text-slate-700 dark:text-slate-400 border-slate-500/20",
     dotClass: "bg-slate-400",
   },
   4: {
     label: "Churned",
-    badgeClass: "bg-rose-500/10 text-rose-700 dark:text-rose-400 border-rose-500/20",
+    badgeClass:
+      "bg-rose-500/10 text-rose-700 dark:text-rose-400 border-rose-500/20",
     dotClass: "bg-rose-500",
   },
 };
@@ -63,10 +67,14 @@ const REGION_FLAGS: Record<string, { flag: string; name: string }> = {
 export const ClientsPage: React.FC = () => {
   const [search, setSearch] = useState("");
   const [selectedRegion, setSelectedRegion] = useState("");
-  const [selectedStatus, setSelectedStatus] = useState<ClientStatus | undefined>(undefined);
+  const [selectedStatus, setSelectedStatus] = useState<
+    ClientStatus | undefined
+  >(undefined);
   const [page, setPage] = useState(1);
 
-  const { data: dynamicStages } = useGetPipelineStagesQuery({ category: "Client" });
+  const { data: dynamicStages } = useGetPipelineStagesQuery({
+    category: "Client",
+  });
   const { data: dynamicRegions } = useGetCountryRegionsQuery();
 
   // Queries & Mutations
@@ -78,7 +86,8 @@ export const ClientsPage: React.FC = () => {
     status: selectedStatus,
   });
 
-  const [createClient, { isLoading: creatingClient }] = useCreateClientMutation();
+  const [createClient, { isLoading: creatingClient }] =
+    useCreateClientMutation();
   const [updateClientStatus] = useUpdateClientStatusMutation();
   const [addContact] = useAddClientContactMutation();
   const [addActivity] = useAddClientActivityMutation();
@@ -86,10 +95,8 @@ export const ClientsPage: React.FC = () => {
 
   // Selected client for detail slide-over
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
-  const { data: clientDetail, isLoading: loadingDetail } = useGetClientByIdQuery(
-    selectedClientId!,
-    { skip: !selectedClientId }
-  );
+  const { data: clientDetail, isLoading: loadingDetail } =
+    useGetClientByIdQuery(selectedClientId!, { skip: !selectedClientId });
 
   // Modal states
   const [createModalOpen, setCreateModalOpen] = useState(false);
@@ -181,7 +188,9 @@ export const ClientsPage: React.FC = () => {
       await createTask({
         clientId: selectedClientId,
         title: newTaskTitle.trim(),
-        dueDateUtc: newTaskDueDate ? new Date(newTaskDueDate).toISOString() : null,
+        dueDateUtc: newTaskDueDate
+          ? new Date(newTaskDueDate).toISOString()
+          : null,
       }).unwrap();
       setTaskModalOpen(false);
       setNewTaskTitle("");
@@ -202,7 +211,8 @@ export const ClientsPage: React.FC = () => {
   };
 
   const totalClients = clientsData?.totalCount ?? 0;
-  const activeCount = clientsData?.items.filter((c) => c.status === 1).length ?? 0;
+  const activeCount =
+    clientsData?.items.filter((c) => c.status === 1).length ?? 0;
 
   return (
     <div className="space-y-6">
@@ -218,7 +228,8 @@ export const ClientsPage: React.FC = () => {
             </span>
           </div>
           <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
-            Manage institutional client portfolios, account stakeholders, SLA follow-up tasks, and interaction telemetry.
+            Manage institutional client portfolios, account stakeholders, SLA
+            follow-up tasks, and interaction telemetry.
           </p>
         </div>
 
@@ -236,12 +247,16 @@ export const ClientsPage: React.FC = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="p-4 rounded-2xl bg-white dark:bg-[#0c1222] border border-slate-200/80 dark:border-slate-800/80 shadow-sm">
           <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
-            <span className="text-[11px] font-bold uppercase tracking-wider">Total Portfolio</span>
+            <span className="text-[11px] font-bold uppercase tracking-wider">
+              Total Portfolio
+            </span>
             <div className="p-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400">
               <Building2 className="w-3.5 h-3.5" />
             </div>
           </div>
-          <div className="text-2xl font-extrabold text-slate-900 dark:text-white">{totalClients}</div>
+          <div className="text-2xl font-extrabold text-slate-900 dark:text-white">
+            {totalClients}
+          </div>
           <div className="mt-1 flex items-center gap-1.5 text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold">
             <TrendingUp className="w-3 h-3" />
             <span>Active enterprise accounts</span>
@@ -250,7 +265,9 @@ export const ClientsPage: React.FC = () => {
 
         <div className="p-4 rounded-2xl bg-white dark:bg-[#0c1222] border border-slate-200/80 dark:border-slate-800/80 shadow-sm">
           <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
-            <span className="text-[11px] font-bold uppercase tracking-wider">Active Pipeline</span>
+            <span className="text-[11px] font-bold uppercase tracking-wider">
+              Active Pipeline
+            </span>
             <div className="p-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400">
               <CheckCircle2 className="w-3.5 h-3.5" />
             </div>
@@ -258,29 +275,43 @@ export const ClientsPage: React.FC = () => {
           <div className="text-2xl font-extrabold text-slate-900 dark:text-white">
             {activeCount > 0 ? `${activeCount} Retainers` : "Enterprise"}
           </div>
-          <div className="mt-1 text-[11px] text-slate-500 font-medium">Under verified SLA</div>
+          <div className="mt-1 text-[11px] text-slate-500 font-medium">
+            Under verified SLA
+          </div>
         </div>
 
         <div className="p-4 rounded-2xl bg-white dark:bg-[#0c1222] border border-slate-200/80 dark:border-slate-800/80 shadow-sm">
           <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
-            <span className="text-[11px] font-bold uppercase tracking-wider">Global Reach</span>
+            <span className="text-[11px] font-bold uppercase tracking-wider">
+              Global Reach
+            </span>
             <div className="p-1.5 rounded-lg bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400">
               <Globe className="w-3.5 h-3.5" />
             </div>
           </div>
-          <div className="text-2xl font-extrabold text-slate-900 dark:text-white">India & US</div>
-          <div className="mt-1 text-[11px] text-slate-500 font-medium">Multi-currency & tax ready</div>
+          <div className="text-2xl font-extrabold text-slate-900 dark:text-white">
+            India & US
+          </div>
+          <div className="mt-1 text-[11px] text-slate-500 font-medium">
+            Multi-currency & tax ready
+          </div>
         </div>
 
         <div className="p-4 rounded-2xl bg-white dark:bg-[#0c1222] border border-slate-200/80 dark:border-slate-800/80 shadow-sm">
           <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
-            <span className="text-[11px] font-bold uppercase tracking-wider">Security & Audit</span>
+            <span className="text-[11px] font-bold uppercase tracking-wider">
+              Security & Audit
+            </span>
             <div className="p-1.5 rounded-lg bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400">
               <UserCheck className="w-3.5 h-3.5" />
             </div>
           </div>
-          <div className="text-2xl font-extrabold text-emerald-600 dark:text-emerald-400">SOC-2 Type II</div>
-          <div className="mt-1 text-[11px] text-slate-500 font-medium">Immutable audit trail</div>
+          <div className="text-2xl font-extrabold text-emerald-600 dark:text-emerald-400">
+            SOC-2 Type II
+          </div>
+          <div className="mt-1 text-[11px] text-slate-500 font-medium">
+            Immutable audit trail
+          </div>
         </div>
       </div>
 
@@ -314,7 +345,11 @@ export const ClientsPage: React.FC = () => {
           <select
             value={selectedStatus ?? ""}
             onChange={(e) =>
-              setSelectedStatus(e.target.value ? (Number(e.target.value) as ClientStatus) : undefined)
+              setSelectedStatus(
+                e.target.value
+                  ? (Number(e.target.value) as ClientStatus)
+                  : undefined,
+              )
             }
             className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500"
           >
@@ -351,15 +386,20 @@ export const ClientsPage: React.FC = () => {
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60 text-slate-700 dark:text-slate-300">
                 {clientsData?.items.map((c: ClientSummary) => {
-                  const dynStage = dynamicStages?.find((s) => s.value === c.status);
-                  const statusConf = STATUS_CONFIG[c.status] || STATUS_CONFIG[1];
-                  const dynRegion = dynamicRegions?.find((r) => r.code.toLowerCase() === c.region.toLowerCase());
+                  const dynStage = dynamicStages?.find(
+                    (s) => s.value === c.status,
+                  );
+                  const statusConf =
+                    STATUS_CONFIG[c.status] || STATUS_CONFIG[1];
+                  const dynRegion = dynamicRegions?.find(
+                    (r) => r.code.toLowerCase() === c.region.toLowerCase(),
+                  );
                   const reg = dynRegion
                     ? { flag: dynRegion.flagEmoji, name: dynRegion.name }
-                    : (REGION_FLAGS[c.region.toLowerCase()] || {
+                    : REGION_FLAGS[c.region.toLowerCase()] || {
                         flag: "🌐",
                         name: c.region.toUpperCase(),
-                      });
+                      };
                   return (
                     <tr
                       key={c.id}
@@ -411,7 +451,9 @@ export const ClientsPage: React.FC = () => {
                       <td className="px-4 py-3.5">
                         <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-800/80 text-slate-800 dark:text-slate-200 font-semibold text-[11px] border border-slate-200/60 dark:border-slate-700/60">
                           <span>{reg.flag}</span>
-                          <span className="font-mono uppercase">{c.region}</span>
+                          <span className="font-mono uppercase">
+                            {c.region}
+                          </span>
                         </span>
                       </td>
 
@@ -419,10 +461,27 @@ export const ClientsPage: React.FC = () => {
                       <td className="px-4 py-3.5">
                         <span
                           className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold border ${statusConf.badgeClass}`}
-                          style={dynStage ? { borderColor: `${dynStage.colorHex}40`, backgroundColor: `${dynStage.colorHex}15`, color: dynStage.colorHex } : undefined}
+                          style={
+                            dynStage
+                              ? {
+                                  borderColor: `${dynStage.colorHex}40`,
+                                  backgroundColor: `${dynStage.colorHex}15`,
+                                  color: dynStage.colorHex,
+                                }
+                              : undefined
+                          }
                         >
-                          <span className={`w-1.5 h-1.5 rounded-full ${statusConf.dotClass}`} style={dynStage ? { backgroundColor: dynStage.colorHex } : undefined} />
-                          <span>{dynStage?.displayName || statusConf.label}</span>
+                          <span
+                            className={`w-1.5 h-1.5 rounded-full ${statusConf.dotClass}`}
+                            style={
+                              dynStage
+                                ? { backgroundColor: dynStage.colorHex }
+                                : undefined
+                            }
+                          />
+                          <span>
+                            {dynStage?.displayName || statusConf.label}
+                          </span>
                         </span>
                       </td>
 
@@ -453,8 +512,12 @@ export const ClientsPage: React.FC = () => {
                 })}
                 {clientsData?.items.length === 0 && (
                   <tr>
-                    <td colSpan={7} className="px-6 py-12 text-center text-slate-400">
-                      No client accounts matching current search query or filter.
+                    <td
+                      colSpan={7}
+                      className="px-6 py-12 text-center text-slate-400"
+                    >
+                      No client accounts matching current search query or
+                      filter.
                     </td>
                   </tr>
                 )}
@@ -467,7 +530,8 @@ export const ClientsPage: React.FC = () => {
         {clientsData && clientsData.totalPages > 1 && (
           <div className="px-5 py-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 bg-slate-50/50 dark:bg-slate-900/40">
             <div>
-              Showing {clientsData.items.length} of {clientsData.totalCount} accounts
+              Showing {clientsData.items.length} of {clientsData.totalCount}{" "}
+              accounts
             </div>
             <div className="flex gap-2">
               <button
@@ -540,7 +604,10 @@ export const ClientsPage: React.FC = () => {
                     value={clientDetail.status}
                     onChange={async (e) => {
                       const newStatus = Number(e.target.value) as ClientStatus;
-                      await updateClientStatus({ id: clientDetail.id, status: newStatus });
+                      await updateClientStatus({
+                        id: clientDetail.id,
+                        status: newStatus,
+                      });
                     }}
                     className="text-xs rounded-lg border border-slate-200 dark:border-slate-700 px-3 py-1.5 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   >
@@ -554,19 +621,25 @@ export const ClientsPage: React.FC = () => {
                 {/* Overview Dossier Cards */}
                 <div className="grid grid-cols-2 gap-3 text-xs bg-slate-50 dark:bg-slate-900/60 p-4 rounded-xl border border-slate-200/80 dark:border-slate-800/80">
                   <div>
-                    <span className="text-slate-400 font-medium block text-[11px]">Primary Contact</span>
+                    <span className="text-slate-400 font-medium block text-[11px]">
+                      Primary Contact
+                    </span>
                     <span className="font-bold text-slate-900 dark:text-white">
                       {clientDetail.primaryContactEmail}
                     </span>
                   </div>
                   <div>
-                    <span className="text-slate-400 font-medium block text-[11px]">Direct Phone</span>
+                    <span className="text-slate-400 font-medium block text-[11px]">
+                      Direct Phone
+                    </span>
                     <span className="font-bold text-slate-900 dark:text-white">
                       {clientDetail.primaryContactPhone ?? "—"}
                     </span>
                   </div>
                   <div>
-                    <span className="text-slate-400 font-medium block text-[11px]">Website</span>
+                    <span className="text-slate-400 font-medium block text-[11px]">
+                      Website
+                    </span>
                     <span className="font-bold text-indigo-600 dark:text-indigo-400">
                       {clientDetail.website ? (
                         <a
@@ -584,7 +657,9 @@ export const ClientsPage: React.FC = () => {
                     </span>
                   </div>
                   <div>
-                    <span className="text-slate-400 font-medium block text-[11px]">Tax ID / GSTIN</span>
+                    <span className="text-slate-400 font-medium block text-[11px]">
+                      Tax ID / GSTIN
+                    </span>
                     <span className="font-bold text-slate-900 dark:text-white">
                       {clientDetail.taxId ?? "—"}
                     </span>
@@ -657,11 +732,16 @@ export const ClientsPage: React.FC = () => {
                         className="p-3 border border-slate-200/80 dark:border-slate-800/80 rounded-xl flex items-center justify-between text-xs bg-slate-50/50 dark:bg-slate-900/40"
                       >
                         <div>
-                          <div className="font-bold text-slate-900 dark:text-white">{task.title}</div>
+                          <div className="font-bold text-slate-900 dark:text-white">
+                            {task.title}
+                          </div>
                           {task.dueDateUtc && (
                             <div className="text-slate-400 text-[11px] mt-0.5 flex items-center gap-1">
                               <Calendar className="w-3 h-3" />
-                              <span>Due: {new Date(task.dueDateUtc).toLocaleDateString()}</span>
+                              <span>
+                                Due:{" "}
+                                {new Date(task.dueDateUtc).toLocaleDateString()}
+                              </span>
                             </div>
                           )}
                         </div>
@@ -677,7 +757,9 @@ export const ClientsPage: React.FC = () => {
                       </div>
                     ))}
                     {clientDetail.tasks.length === 0 && (
-                      <p className="text-xs text-slate-400">No scheduled tasks for this account.</p>
+                      <p className="text-xs text-slate-400">
+                        No scheduled tasks for this account.
+                      </p>
                     )}
                   </div>
                 </div>
@@ -715,9 +797,13 @@ export const ClientsPage: React.FC = () => {
                           <span className="font-bold text-slate-700 dark:text-slate-300 uppercase">
                             {act.activityType}
                           </span>
-                          <span>{new Date(act.createdAtUtc).toLocaleString()}</span>
+                          <span>
+                            {new Date(act.createdAtUtc).toLocaleString()}
+                          </span>
                         </div>
-                        <p className="text-slate-800 dark:text-slate-200 mt-1">{act.description}</p>
+                        <p className="text-slate-800 dark:text-slate-200 mt-1">
+                          {act.description}
+                        </p>
                       </div>
                     ))}
                   </div>

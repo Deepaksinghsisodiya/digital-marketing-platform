@@ -37,21 +37,30 @@ import {
 } from "lucide-react";
 
 export const SettingsPage: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<"identity" | "pipelines" | "regions" | "smtp" | "sections">("identity");
+  const [activeTab, setActiveTab] = useState<
+    "identity" | "pipelines" | "regions" | "smtp" | "sections"
+  >("identity");
 
   // Site Settings Query & Mutation
   const { data: settings, isLoading, refetch } = useGetSettingsQuery();
   const [updateSettings, { isLoading: isSaving }] = useUpdateSettingsMutation();
-  const [testSmtpConnection, { isLoading: isTestingSmtp }] = useTestSmtpConnectionMutation();
+  const [testSmtpConnection, { isLoading: isTestingSmtp }] =
+    useTestSmtpConnectionMutation();
 
   // Lookups Queries & Mutations
-  const { data: pipelineStages, refetch: refetchStages } = useGetAdminPipelineStagesQuery();
-  const [createStage, { isLoading: creatingStage }] = useCreatePipelineStageMutation();
-  const [updateStage, { isLoading: updatingStage }] = useUpdatePipelineStageMutation();
+  const { data: pipelineStages, refetch: refetchStages } =
+    useGetAdminPipelineStagesQuery();
+  const [createStage, { isLoading: creatingStage }] =
+    useCreatePipelineStageMutation();
+  const [updateStage, { isLoading: updatingStage }] =
+    useUpdatePipelineStageMutation();
 
-  const { data: countryRegions, refetch: refetchRegions } = useGetAdminCountryRegionsQuery();
-  const [createRegion, { isLoading: creatingRegion }] = useCreateCountryRegionMutation();
-  const [updateRegion, { isLoading: updatingRegion }] = useUpdateCountryRegionMutation();
+  const { data: countryRegions, refetch: refetchRegions } =
+    useGetAdminCountryRegionsQuery();
+  const [createRegion, { isLoading: creatingRegion }] =
+    useCreateCountryRegionMutation();
+  const [updateRegion, { isLoading: updatingRegion }] =
+    useUpdateCountryRegionMutation();
 
   // Tab 1: Identity Form State
   const [companyName, setCompanyName] = useState("");
@@ -61,7 +70,8 @@ export const SettingsPage: React.FC = () => {
   const [address, setAddress] = useState("");
   const [defaultRegion, setDefaultRegion] = useState("IN");
   const [timeZoneId, setTimeZoneId] = useState("Asia/Kolkata");
-  const [supportedRegions, setSupportedRegions] = useState("IN, US, AE, GB, SG");
+  const [supportedRegions, setSupportedRegions] =
+    useState("IN, US, AE, GB, SG");
   const [versionToken, setVersionToken] = useState("");
   const [logoMediaId, setLogoMediaId] = useState<string | null>(null);
   const [logoPreviewUrl, setLogoPreviewUrl] = useState<string | null>(null);
@@ -83,7 +93,9 @@ export const SettingsPage: React.FC = () => {
 
   // Tab 3: Regions State
   const [regionModalOpen, setRegionModalOpen] = useState(false);
-  const [editingRegion, setEditingRegion] = useState<CountryRegion | null>(null);
+  const [editingRegion, setEditingRegion] = useState<CountryRegion | null>(
+    null,
+  );
   const [regCode, setRegCode] = useState("");
   const [regName, setRegName] = useState("");
   const [regCurrencyCode, setRegCurrencyCode] = useState("");
@@ -109,7 +121,9 @@ export const SettingsPage: React.FC = () => {
   } | null>(null);
 
   // Tab 5: Website Section Visibility State
-  const [sectionVisibility, setSectionVisibility] = useState<Record<string, boolean>>({
+  const [sectionVisibility, setSectionVisibility] = useState<
+    Record<string, boolean>
+  >({
     showHero: true,
     showMetricsBar: true,
     showCapabilitiesGrid: true,
@@ -133,7 +147,9 @@ export const SettingsPage: React.FC = () => {
       if (settings.logoUrl) {
         setLogoPreviewUrl(settings.logoUrl);
       } else if (settings.logoMediaId) {
-        setLogoPreviewUrl(`/api/v1/public/media/${settings.logoMediaId}/download`);
+        setLogoPreviewUrl(
+          `/api/v1/public/media/${settings.logoMediaId}/download`,
+        );
       } else {
         setLogoPreviewUrl(null);
       }
@@ -210,7 +226,9 @@ export const SettingsPage: React.FC = () => {
     }
   };
 
-  const applySmtpPreset = (preset: "mailpit" | "sendgrid" | "ses" | "gmail") => {
+  const applySmtpPreset = (
+    preset: "mailpit" | "sendgrid" | "ses" | "gmail",
+  ) => {
     if (preset === "mailpit") {
       setSmtpHost("localhost");
       setSmtpPort(1025);
@@ -260,7 +278,8 @@ export const SettingsPage: React.FC = () => {
         smtpUseSsl,
         smtpUserName: smtpUserName.trim() || null,
         smtpPassword: smtpPassword.trim() || null,
-        smtpFromEmail: smtpFromEmail.trim() || supportEmail || "noreply@nexora.local",
+        smtpFromEmail:
+          smtpFromEmail.trim() || supportEmail || "noreply@nexora.local",
         smtpFromName: smtpFromName.trim() || companyName || "Nexora Platform",
         sectionVisibilityJson: JSON.stringify(sectionVisibility),
       }).unwrap();
@@ -268,7 +287,8 @@ export const SettingsPage: React.FC = () => {
       setVersionToken(res.versionToken);
       setFeedback({
         type: "success",
-        message: "SMTP Mail Gateway configuration saved and activated successfully!",
+        message:
+          "SMTP Mail Gateway configuration saved and activated successfully!",
       });
     } catch (err: unknown) {
       const apiErr = err as { data?: { error?: string } };
@@ -281,7 +301,9 @@ export const SettingsPage: React.FC = () => {
 
   const handleTestSmtp = async () => {
     if (!testRecipientEmail) {
-      alert("Please enter a recipient email address to test the SMTP connection.");
+      alert(
+        "Please enter a recipient email address to test the SMTP connection.",
+      );
       return;
     }
     setTestEmailResult(null);
@@ -292,20 +314,25 @@ export const SettingsPage: React.FC = () => {
         useSsl: smtpUseSsl,
         userName: smtpUserName.trim() || undefined,
         password: smtpPassword.trim() || undefined,
-        fromEmail: smtpFromEmail.trim() || supportEmail || "noreply@nexora.local",
+        fromEmail:
+          smtpFromEmail.trim() || supportEmail || "noreply@nexora.local",
         fromName: smtpFromName.trim() || companyName || "Nexora Platform",
         recipientEmail: testRecipientEmail.trim(),
       }).unwrap();
 
       setTestEmailResult({
         success: true,
-        message: res.message || "Test email delivered successfully! SMTP connection verified.",
+        message:
+          res.message ||
+          "Test email delivered successfully! SMTP connection verified.",
       });
     } catch (err: unknown) {
       const apiErr = err as { data?: { error?: string } };
       setTestEmailResult({
         success: false,
-        message: apiErr?.data?.error || "SMTP test failed. Check host, port, credentials, or TLS settings.",
+        message:
+          apiErr?.data?.error ||
+          "SMTP test failed. Check host, port, credentials, or TLS settings.",
       });
     }
   };
@@ -342,7 +369,8 @@ export const SettingsPage: React.FC = () => {
       setVersionToken(res.versionToken);
       setFeedback({
         type: "success",
-        message: "Website section visibility saved! The live website will reflect these toggles immediately.",
+        message:
+          "Website section visibility saved! The live website will reflect these toggles immediately.",
       });
     } catch (err: unknown) {
       const apiErr = err as { data?: { error?: string } };
@@ -359,7 +387,10 @@ export const SettingsPage: React.FC = () => {
     setStageKey("");
     setStageDisplayName("");
     setStageColorHex("#3b82f6");
-    setStageOrderIndex((pipelineStages?.filter((s) => s.category === selectedCategory).length ?? 0));
+    setStageOrderIndex(
+      pipelineStages?.filter((s) => s.category === selectedCategory).length ??
+        0,
+    );
     setStageModalOpen(true);
   };
 
@@ -474,7 +505,7 @@ export const SettingsPage: React.FC = () => {
           phonePrefix: regPhonePrefix,
           taxLabel: regTaxLabel,
           isDefault: regIsDefault,
-          orderIndex: (countryRegions?.length ?? 0),
+          orderIndex: countryRegions?.length ?? 0,
         }).unwrap();
       }
       setRegionModalOpen(false);
@@ -517,7 +548,7 @@ export const SettingsPage: React.FC = () => {
   }
 
   const filteredStages = (pipelineStages || []).filter(
-    (s) => s.category.toLowerCase() === selectedCategory.toLowerCase()
+    (s) => s.category.toLowerCase() === selectedCategory.toLowerCase(),
   );
 
   return (
@@ -529,7 +560,9 @@ export const SettingsPage: React.FC = () => {
             Platform Master Configuration
           </h1>
           <p className="mt-1 text-xs sm:text-sm text-slate-500 dark:text-slate-400">
-            Dynamically configure enterprise branding, lead & CRM lifecycle stages, global multi-region presets, custom SMTP server, and live website visibility toggles.
+            Dynamically configure enterprise branding, lead & CRM lifecycle
+            stages, global multi-region presets, custom SMTP server, and live
+            website visibility toggles.
           </p>
         </div>
 
@@ -621,8 +654,8 @@ export const SettingsPage: React.FC = () => {
             feedback.type === "success"
               ? "bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400"
               : feedback.type === "conflict"
-              ? "bg-amber-500/10 border border-amber-500/30 text-amber-600 dark:text-amber-400"
-              : "bg-red-500/10 border border-red-500/30 text-red-600 dark:text-red-400"
+                ? "bg-amber-500/10 border border-amber-500/30 text-amber-600 dark:text-amber-400"
+                : "bg-red-500/10 border border-red-500/30 text-red-600 dark:text-red-400"
           }`}
         >
           <div className="flex items-center gap-2">
@@ -738,7 +771,9 @@ export const SettingsPage: React.FC = () => {
                       />
                     ) : (
                       <span className="text-xl font-black text-indigo-600 dark:text-indigo-400">
-                        {companyName ? companyName.charAt(0).toUpperCase() : "N"}
+                        {companyName
+                          ? companyName.charAt(0).toUpperCase()
+                          : "N"}
                       </span>
                     )}
                   </div>
@@ -750,7 +785,9 @@ export const SettingsPage: React.FC = () => {
                         onClick={() => setIsLogoModalOpen(true)}
                         className="px-3.5 py-1.5 text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-sm transition"
                       >
-                        {logoPreviewUrl ? "Change Logo" : "Choose / Upload Logo"}
+                        {logoPreviewUrl
+                          ? "Change Logo"
+                          : "Choose / Upload Logo"}
                       </button>
 
                       {logoPreviewUrl && (
@@ -767,7 +804,8 @@ export const SettingsPage: React.FC = () => {
                       )}
                     </div>
                     <p className="text-[11px] text-slate-400">
-                      Recommended: Transparent PNG, SVG, or WebP. Displayed in Admin navbar and Public website.
+                      Recommended: Transparent PNG, SVG, or WebP. Displayed in
+                      Admin navbar and Public website.
                     </p>
                   </div>
                 </div>
@@ -792,7 +830,8 @@ export const SettingsPage: React.FC = () => {
                 >
                   {(countryRegions || []).map((r) => (
                     <option key={r.code} value={r.code}>
-                      {r.flagEmoji} {r.name} ({r.currencyCode} - {r.currencySymbol})
+                      {r.flagEmoji} {r.name} ({r.currencyCode} -{" "}
+                      {r.currencySymbol})
                     </option>
                   ))}
                   {(countryRegions || []).length === 0 && (
@@ -885,7 +924,9 @@ export const SettingsPage: React.FC = () => {
               <table className="min-w-full divide-y divide-slate-100 dark:divide-slate-800/70 text-xs">
                 <thead className="bg-slate-50/80 dark:bg-slate-900/60 text-slate-400 font-bold uppercase tracking-wider text-[11px]">
                   <tr>
-                    <th className="px-5 py-3.5 text-left">Order & Visual Badge</th>
+                    <th className="px-5 py-3.5 text-left">
+                      Order & Visual Badge
+                    </th>
                     <th className="px-4 py-3.5 text-left">Display Name</th>
                     <th className="px-4 py-3.5 text-left">Stage Key</th>
                     <th className="px-4 py-3.5 text-left">Numeric Value</th>
@@ -896,10 +937,15 @@ export const SettingsPage: React.FC = () => {
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60 text-slate-700 dark:text-slate-300">
                   {filteredStages.map((s) => (
-                    <tr key={s.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/40 transition">
+                    <tr
+                      key={s.id}
+                      className="hover:bg-slate-50/50 dark:hover:bg-slate-800/40 transition"
+                    >
                       <td className="px-5 py-3.5">
                         <div className="flex items-center gap-2.5">
-                          <span className="font-mono text-slate-400 font-bold w-4">#{s.orderIndex}</span>
+                          <span className="font-mono text-slate-400 font-bold w-4">
+                            #{s.orderIndex}
+                          </span>
                           <span
                             className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold border"
                             style={{
@@ -926,11 +972,13 @@ export const SettingsPage: React.FC = () => {
                         {s.value}
                       </td>
                       <td className="px-4 py-3.5">
-                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                          s.isSystem
-                            ? "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400"
-                            : "bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800/40"
-                        }`}>
+                        <span
+                          className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                            s.isSystem
+                              ? "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400"
+                              : "bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800/40"
+                          }`}
+                        >
                           {s.isSystem ? "System Native" : "Custom"}
                         </span>
                       </td>
@@ -961,7 +1009,10 @@ export const SettingsPage: React.FC = () => {
                   ))}
                   {filteredStages.length === 0 && (
                     <tr>
-                      <td colSpan={7} className="px-6 py-10 text-center text-slate-400">
+                      <td
+                        colSpan={7}
+                        className="px-6 py-10 text-center text-slate-400"
+                      >
                         No stages configured for this pipeline category.
                       </td>
                     </tr>
@@ -978,7 +1029,8 @@ export const SettingsPage: React.FC = () => {
         <div className="space-y-6">
           <div className="flex items-center justify-between">
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              Configure country compliance, localized currency formatting, phone prefixes, and tax structures dynamically.
+              Configure country compliance, localized currency formatting, phone
+              prefixes, and tax structures dynamically.
             </p>
 
             <button
@@ -1008,7 +1060,10 @@ export const SettingsPage: React.FC = () => {
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60 text-slate-700 dark:text-slate-300">
                   {(countryRegions || []).map((r) => (
-                    <tr key={r.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/40 transition">
+                    <tr
+                      key={r.id}
+                      className="hover:bg-slate-50/50 dark:hover:bg-slate-800/40 transition"
+                    >
                       <td className="px-5 py-3.5">
                         <div className="flex items-center gap-2">
                           <span className="text-base">{r.flagEmoji}</span>
@@ -1026,7 +1081,9 @@ export const SettingsPage: React.FC = () => {
                         <span className="font-bold text-slate-900 dark:text-white mr-1.5">
                           {r.currencySymbol}
                         </span>
-                        <span className="font-mono text-slate-500">{r.currencyCode}</span>
+                        <span className="font-mono text-slate-500">
+                          {r.currencyCode}
+                        </span>
                       </td>
                       <td className="px-4 py-3.5 font-mono text-slate-600 dark:text-slate-400">
                         {r.phonePrefix}
@@ -1070,8 +1127,12 @@ export const SettingsPage: React.FC = () => {
                   ))}
                   {(countryRegions || []).length === 0 && (
                     <tr>
-                      <td colSpan={7} className="px-6 py-10 text-center text-slate-400">
-                        No global regions configured. Click &quot;Add Global Country&quot; to start.
+                      <td
+                        colSpan={7}
+                        className="px-6 py-10 text-center text-slate-400"
+                      >
+                        No global regions configured. Click &quot;Add Global
+                        Country&quot; to start.
                       </td>
                     </tr>
                   )}
@@ -1104,13 +1165,17 @@ export const SettingsPage: React.FC = () => {
                   )}
                 </div>
                 <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                  Configure live outbound mail server for lead inquiry acknowledgments, CRM notifications, password resets, and audit alerts.
+                  Configure live outbound mail server for lead inquiry
+                  acknowledgments, CRM notifications, password resets, and audit
+                  alerts.
                 </p>
               </div>
 
               {/* Quick Presets */}
               <div className="flex items-center gap-1.5 flex-wrap">
-                <span className="text-[11px] font-bold uppercase text-slate-400 mr-1">Presets:</span>
+                <span className="text-[11px] font-bold uppercase text-slate-400 mr-1">
+                  Presets:
+                </span>
                 <button
                   type="button"
                   onClick={() => applySmtpPreset("mailpit")}
@@ -1181,8 +1246,12 @@ export const SettingsPage: React.FC = () => {
                   onChange={(e) => setSmtpUseSsl(e.target.checked)}
                   className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 w-4 h-4"
                 />
-                <label htmlFor="smtpUseSsl" className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                  Enable SSL / TLS Encryption (Mandatory for port 465; recommended for port 587 via STARTTLS)
+                <label
+                  htmlFor="smtpUseSsl"
+                  className="text-xs font-semibold text-slate-700 dark:text-slate-300"
+                >
+                  Enable SSL / TLS Encryption (Mandatory for port 465;
+                  recommended for port 587 via STARTTLS)
                 </label>
               </div>
 
@@ -1210,7 +1279,11 @@ export const SettingsPage: React.FC = () => {
                       onClick={() => setSmtpShowPassword(!smtpShowPassword)}
                       className="text-[11px] text-indigo-600 dark:text-indigo-400 font-semibold inline-flex items-center gap-1"
                     >
-                      {smtpShowPassword ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
+                      {smtpShowPassword ? (
+                        <EyeOff className="w-3 h-3" />
+                      ) : (
+                        <Eye className="w-3 h-3" />
+                      )}
                       <span>{smtpShowPassword ? "Hide" : "Show"}</span>
                     </button>
                   </div>
@@ -1261,7 +1334,11 @@ export const SettingsPage: React.FC = () => {
                   className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-md shadow-indigo-600/30 transition disabled:opacity-50"
                 >
                   <Save className="w-4 h-4" />
-                  <span>{isSaving ? "Saving Configuration..." : "Save SMTP Gateway Settings"}</span>
+                  <span>
+                    {isSaving
+                      ? "Saving Configuration..."
+                      : "Save SMTP Gateway Settings"}
+                  </span>
                 </button>
               </div>
             </form>
@@ -1276,7 +1353,9 @@ export const SettingsPage: React.FC = () => {
               </h4>
             </div>
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              Trigger a live SMTP connection test with the parameters above. A diagnostic email will be sent immediately to verify socket connection, TLS negotiation, and mail relay.
+              Trigger a live SMTP connection test with the parameters above. A
+              diagnostic email will be sent immediately to verify socket
+              connection, TLS negotiation, and mail relay.
             </p>
 
             <div className="flex flex-col sm:flex-row items-center gap-3 pt-1">
@@ -1337,7 +1416,9 @@ export const SettingsPage: React.FC = () => {
                   Dynamic Public Website Section Visibility
                 </h3>
                 <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                  Toggle individual sections on the public homepage on or off in real time without code deployments. Changes persist immediately in the platform database.
+                  Toggle individual sections on the public homepage on or off in
+                  real time without code deployments. Changes persist
+                  immediately in the platform database.
                 </p>
               </div>
 
@@ -1358,7 +1439,9 @@ export const SettingsPage: React.FC = () => {
                   className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-md shadow-indigo-600/30 transition disabled:opacity-50"
                 >
                   <Save className="w-4 h-4" />
-                  <span>{isSaving ? "Saving..." : "Save Visibility Settings"}</span>
+                  <span>
+                    {isSaving ? "Saving..." : "Save Visibility Settings"}
+                  </span>
                 </button>
               </div>
             </div>
@@ -1369,37 +1452,43 @@ export const SettingsPage: React.FC = () => {
                 {
                   key: "showHero",
                   title: "Hero Banner & Value Proposition",
-                  description: "Main above-the-fold headline, enterprise badges, and primary call-to-action buttons.",
+                  description:
+                    "Main above-the-fold headline, enterprise badges, and primary call-to-action buttons.",
                   icon: Layout,
                 },
                 {
                   key: "showMetricsBar",
                   title: "Key Metrics & Live Telemetry",
-                  description: "Enterprise metrics bar displaying pipeline influenced, account audits, and attribution stats.",
+                  description:
+                    "Enterprise metrics bar displaying pipeline influenced, account audits, and attribution stats.",
                   icon: BarChart3,
                 },
                 {
                   key: "showCapabilitiesGrid",
                   title: "Enterprise Capabilities 6-Grid",
-                  description: "Comprehensive grid showcasing SEO, multi-channel attribution, AI audience modeling, and tracking.",
+                  description:
+                    "Comprehensive grid showcasing SEO, multi-channel attribution, AI audience modeling, and tracking.",
                   icon: Grid,
                 },
                 {
                   key: "showBlogInsights",
                   title: "Thought Leadership & Recent Articles",
-                  description: "Dynamically populated recent articles and strategic guides pulled from the blog collection.",
+                  description:
+                    "Dynamically populated recent articles and strategic guides pulled from the blog collection.",
                   icon: BookOpen,
                 },
                 {
                   key: "showCtaBanner",
                   title: "Bottom Enterprise Conversion CTA Banner",
-                  description: "High-contrast conversion banner inviting visitors to schedule an executive growth diagnostic.",
+                  description:
+                    "High-contrast conversion banner inviting visitors to schedule an executive growth diagnostic.",
                   icon: Megaphone,
                 },
                 {
                   key: "showFaq",
                   title: "Enterprise FAQ & Compliance Matrix",
-                  description: "Interactive FAQ section answering enterprise security, onboarding, and multi-country questions.",
+                  description:
+                    "Interactive FAQ section answering enterprise security, onboarding, and multi-country questions.",
                   icon: HelpCircle,
                 },
               ].map((item) => {
@@ -1456,7 +1545,9 @@ export const SettingsPage: React.FC = () => {
                       type="button"
                       aria-label={`Toggle ${item.title}`}
                       className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                        isEnabled ? "bg-indigo-600" : "bg-slate-300 dark:bg-slate-700"
+                        isEnabled
+                          ? "bg-indigo-600"
+                          : "bg-slate-300 dark:bg-slate-700"
                       }`}
                     >
                       <span
@@ -1472,7 +1563,8 @@ export const SettingsPage: React.FC = () => {
 
             <div className="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-800">
               <span className="text-xs text-slate-500 dark:text-slate-400">
-                Tip: After saving, reload the public website tab to verify that the disabled sections are removed from the DOM.
+                Tip: After saving, reload the public website tab to verify that
+                the disabled sections are removed from the DOM.
               </span>
               <button
                 type="button"
@@ -1481,7 +1573,9 @@ export const SettingsPage: React.FC = () => {
                 className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-md shadow-indigo-600/30 transition disabled:opacity-50"
               >
                 <Save className="w-4 h-4" />
-                <span>{isSaving ? "Saving..." : "Save Visibility Settings"}</span>
+                <span>
+                  {isSaving ? "Saving..." : "Save Visibility Settings"}
+                </span>
               </button>
             </div>
           </div>
@@ -1494,7 +1588,9 @@ export const SettingsPage: React.FC = () => {
           <div className="bg-white dark:bg-[#0c1222] rounded-2xl border border-slate-200/80 dark:border-slate-800/80 p-6 max-w-md w-full shadow-2xl space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="font-bold text-base text-slate-900 dark:text-white">
-                {editingStage ? `Edit ${editingStage.displayName}` : `Add New ${selectedCategory} Stage`}
+                {editingStage
+                  ? `Edit ${editingStage.displayName}`
+                  : `Add New ${selectedCategory} Stage`}
               </h3>
               <button
                 onClick={() => setStageModalOpen(false)}
@@ -1528,7 +1624,11 @@ export const SettingsPage: React.FC = () => {
                     type="text"
                     required
                     value={stageKey}
-                    onChange={(e) => setStageKey(e.target.value.toLowerCase().replace(/\s+/g, "_"))}
+                    onChange={(e) =>
+                      setStageKey(
+                        e.target.value.toLowerCase().replace(/\s+/g, "_"),
+                      )
+                    }
                     placeholder="e.g. demo_scheduled"
                     className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-mono text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   />
@@ -1596,7 +1696,9 @@ export const SettingsPage: React.FC = () => {
           <div className="bg-white dark:bg-[#0c1222] rounded-2xl border border-slate-200/80 dark:border-slate-800/80 p-6 max-w-md w-full shadow-2xl space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="font-bold text-base text-slate-900 dark:text-white">
-                {editingRegion ? `Edit Country: ${editingRegion.name}` : "Add New Global Country Region"}
+                {editingRegion
+                  ? `Edit Country: ${editingRegion.name}`
+                  : "Add New Global Country Region"}
               </h3>
               <button
                 onClick={() => setRegionModalOpen(false)}
@@ -1661,7 +1763,9 @@ export const SettingsPage: React.FC = () => {
                     type="text"
                     required
                     value={regCurrencyCode}
-                    onChange={(e) => setRegCurrencyCode(e.target.value.toUpperCase())}
+                    onChange={(e) =>
+                      setRegCurrencyCode(e.target.value.toUpperCase())
+                    }
                     placeholder="EUR"
                     className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-mono uppercase text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   />
@@ -1720,7 +1824,10 @@ export const SettingsPage: React.FC = () => {
                   onChange={(e) => setRegIsDefault(e.target.checked)}
                   className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
                 />
-                <label htmlFor="regIsDefault" className="text-xs font-medium text-slate-700 dark:text-slate-300">
+                <label
+                  htmlFor="regIsDefault"
+                  className="text-xs font-medium text-slate-700 dark:text-slate-300"
+                >
                   Set as platform default home region
                 </label>
               </div>
@@ -1738,7 +1845,9 @@ export const SettingsPage: React.FC = () => {
                   disabled={creatingRegion || updatingRegion}
                   className="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-md shadow-indigo-600/30"
                 >
-                  {creatingRegion || updatingRegion ? "Saving..." : "Save Country"}
+                  {creatingRegion || updatingRegion
+                    ? "Saving..."
+                    : "Save Country"}
                 </button>
               </div>
             </form>
@@ -1755,7 +1864,9 @@ export const SettingsPage: React.FC = () => {
           if (asset?.id) {
             setLogoMediaId(asset.id);
           } else {
-            const match = url.match(/\/api\/v1\/public\/media\/([0-9a-fA-F-]{36})/);
+            const match = url.match(
+              /\/api\/v1\/public\/media\/([0-9a-fA-F-]{36})/,
+            );
             if (match && match[1]) {
               setLogoMediaId(match[1]);
             }

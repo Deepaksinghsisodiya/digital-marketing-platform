@@ -49,7 +49,10 @@ export const MenusPage: React.FC = () => {
   const [newMenuTitle, setNewMenuTitle] = useState("");
   const [newMenuRegion, setNewMenuRegion] = useState("");
 
-  const [feedback, setFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null);
+  const [feedback, setFeedback] = useState<{
+    type: "success" | "error";
+    message: string;
+  } | null>(null);
 
   // Select first menu once loaded if none selected
   useEffect(() => {
@@ -92,32 +95,47 @@ export const MenusPage: React.FC = () => {
       setNewMenuRegion("");
       await refetch();
       handleSelectMenu(created);
-      setFeedback({ type: "success", message: "Navigation menu created successfully." });
+      setFeedback({
+        type: "success",
+        message: "Navigation menu created successfully.",
+      });
     } catch (err: unknown) {
       const errorObj = err as { data?: { error?: string } };
-      setFeedback({ type: "error", message: errorObj?.data?.error || "Failed to create menu." });
+      setFeedback({
+        type: "error",
+        message: errorObj?.data?.error || "Failed to create menu.",
+      });
     }
   };
 
   const handleDeleteMenu = async () => {
     if (!selectedMenuId) return;
-    if (!window.confirm("Are you sure you want to delete this navigation menu?")) return;
+    if (
+      !window.confirm("Are you sure you want to delete this navigation menu?")
+    )
+      return;
 
     try {
       await deleteMenu(selectedMenuId).unwrap();
       setSelectedMenuId(null);
       await refetch();
-      setFeedback({ type: "success", message: "Navigation menu deleted successfully." });
+      setFeedback({
+        type: "success",
+        message: "Navigation menu deleted successfully.",
+      });
     } catch (err: unknown) {
       const errorObj = err as { data?: { error?: string } };
-      setFeedback({ type: "error", message: errorObj?.data?.error || "Failed to delete menu." });
+      setFeedback({
+        type: "error",
+        message: errorObj?.data?.error || "Failed to delete menu.",
+      });
     }
   };
 
   // Flatten items into flat list with hierarchical display
   const flattenItems = (
     list: NavigationMenuItemDto[],
-    depth = 0
+    depth = 0,
   ): { item: NavigationMenuItemDto; depth: number }[] => {
     let result: { item: NavigationMenuItemDto; depth: number }[] = [];
     const sorted = [...list].sort((a, b) => a.displayOrder - b.displayOrder);
@@ -131,9 +149,14 @@ export const MenusPage: React.FC = () => {
   };
 
   // Flat representation of all items for SaveMenuRequest
-  const buildSavePayloadItems = (itemList: NavigationMenuItemDto[]): SaveMenuItemRequest[] => {
+  const buildSavePayloadItems = (
+    itemList: NavigationMenuItemDto[],
+  ): SaveMenuItemRequest[] => {
     const flattened: SaveMenuItemRequest[] = [];
-    const traverse = (nodes: NavigationMenuItemDto[], parentId?: string | null) => {
+    const traverse = (
+      nodes: NavigationMenuItemDto[],
+      parentId?: string | null,
+    ) => {
       nodes.forEach((n, idx) => {
         flattened.push({
           label: n.label,
@@ -162,13 +185,22 @@ export const MenusPage: React.FC = () => {
     };
 
     try {
-      const updated = await saveMenu({ id: selectedMenuId, request: payload }).unwrap();
+      const updated = await saveMenu({
+        id: selectedMenuId,
+        request: payload,
+      }).unwrap();
       handleSelectMenu(updated);
       await refetch();
-      setFeedback({ type: "success", message: "Navigation menu and links saved successfully." });
+      setFeedback({
+        type: "success",
+        message: "Navigation menu and links saved successfully.",
+      });
     } catch (err: unknown) {
       const errorObj = err as { data?: { error?: string } };
-      setFeedback({ type: "error", message: errorObj?.data?.error || "Failed to save menu." });
+      setFeedback({
+        type: "error",
+        message: errorObj?.data?.error || "Failed to save menu.",
+      });
     }
   };
 
@@ -194,7 +226,9 @@ export const MenusPage: React.FC = () => {
 
     if (editingItemId) {
       // Update existing item in state
-      const updateNode = (nodes: NavigationMenuItemDto[]): NavigationMenuItemDto[] => {
+      const updateNode = (
+        nodes: NavigationMenuItemDto[],
+      ): NavigationMenuItemDto[] => {
         return nodes.map((node) => {
           if (node.id === editingItemId) {
             return {
@@ -225,7 +259,9 @@ export const MenusPage: React.FC = () => {
       if (!itemParentId) {
         setItems([...items, newItem]);
       } else {
-        const addToParent = (nodes: NavigationMenuItemDto[]): NavigationMenuItemDto[] => {
+        const addToParent = (
+          nodes: NavigationMenuItemDto[],
+        ): NavigationMenuItemDto[] => {
           return nodes.map((node) => {
             if (node.id === itemParentId) {
               return {
@@ -247,7 +283,9 @@ export const MenusPage: React.FC = () => {
   };
 
   const handleDeleteItem = (itemId: string) => {
-    const removeNode = (nodes: NavigationMenuItemDto[]): NavigationMenuItemDto[] => {
+    const removeNode = (
+      nodes: NavigationMenuItemDto[],
+    ): NavigationMenuItemDto[] => {
       return nodes
         .filter((node) => node.id !== itemId)
         .map((node) => ({
@@ -289,7 +327,8 @@ export const MenusPage: React.FC = () => {
             <span>Navigation Menus</span>
           </h2>
           <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-            Control dynamic header navigation, footer link groups, and regional menus
+            Control dynamic header navigation, footer link groups, and regional
+            menus
           </p>
         </div>
 
@@ -315,7 +354,11 @@ export const MenusPage: React.FC = () => {
               : "bg-rose-50 dark:bg-rose-950/40 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-800"
           }`}
         >
-          {feedback.type === "success" ? <Check className="w-4 h-4 shrink-0" /> : <AlertCircle className="w-4 h-4 shrink-0" />}
+          {feedback.type === "success" ? (
+            <Check className="w-4 h-4 shrink-0" />
+          ) : (
+            <AlertCircle className="w-4 h-4 shrink-0" />
+          )}
           <span>{feedback.message}</span>
         </div>
       )}
@@ -328,9 +371,13 @@ export const MenusPage: React.FC = () => {
             Menu Collections
           </span>
           {isLoading ? (
-            <div className="py-8 text-center text-xs text-slate-400">Loading menus...</div>
+            <div className="py-8 text-center text-xs text-slate-400">
+              Loading menus...
+            </div>
           ) : menus.length === 0 ? (
-            <div className="py-8 text-center text-xs text-slate-400">No menus created yet.</div>
+            <div className="py-8 text-center text-xs text-slate-400">
+              No menus created yet.
+            </div>
           ) : (
             menus.map((m) => {
               const isSelected = m.id === selectedMenuId;
@@ -351,7 +398,8 @@ export const MenusPage: React.FC = () => {
                         isSelected ? "text-indigo-200" : "text-slate-400"
                       }`}
                     >
-                      key: {m.key} {m.regionCode ? `(${m.regionCode})` : "(Global)"}
+                      key: {m.key}{" "}
+                      {m.regionCode ? `(${m.regionCode})` : "(Global)"}
                     </span>
                   </div>
                   <span
@@ -399,7 +447,9 @@ export const MenusPage: React.FC = () => {
                   <input
                     type="text"
                     value={activeMenuKey}
-                    onChange={(e) => setActiveMenuKey(e.target.value.toLowerCase())}
+                    onChange={(e) =>
+                      setActiveMenuKey(e.target.value.toLowerCase())
+                    }
                     placeholder="e.g. header"
                     className="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-mono text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   />
@@ -412,7 +462,9 @@ export const MenusPage: React.FC = () => {
                   <input
                     type="text"
                     value={activeMenuRegion}
-                    onChange={(e) => setActiveMenuRegion(e.target.value.toUpperCase())}
+                    onChange={(e) =>
+                      setActiveMenuRegion(e.target.value.toUpperCase())
+                    }
                     placeholder="e.g. IN, US (leave blank for Global)"
                     className="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-mono text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   />
@@ -441,7 +493,8 @@ export const MenusPage: React.FC = () => {
 
                 {flatItemList.length === 0 ? (
                   <div className="py-12 text-center border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-xl text-slate-400 text-xs">
-                    No links added to this menu yet. Click &quot;Add Link Item&quot; above.
+                    No links added to this menu yet. Click &quot;Add Link
+                    Item&quot; above.
                   </div>
                 ) : (
                   <div className="border border-slate-200 dark:border-slate-800 rounded-xl divide-y divide-slate-100 dark:divide-slate-800/80 overflow-hidden">
@@ -449,11 +502,15 @@ export const MenusPage: React.FC = () => {
                       <div
                         key={item.id}
                         className="p-3.5 flex items-center justify-between hover:bg-slate-50/50 dark:hover:bg-slate-950/40 transition gap-4"
-                        style={{ paddingLeft: `${Math.max(14, depth * 28 + 14)}px` }}
+                        style={{
+                          paddingLeft: `${Math.max(14, depth * 28 + 14)}px`,
+                        }}
                       >
                         <div className="flex items-center gap-3 min-w-0">
                           {depth > 0 && (
-                            <span className="text-slate-300 dark:text-slate-700">└─</span>
+                            <span className="text-slate-300 dark:text-slate-700">
+                              └─
+                            </span>
                           )}
                           <div className="truncate">
                             <span className="text-sm font-semibold text-slate-900 dark:text-white">
@@ -525,7 +582,9 @@ export const MenusPage: React.FC = () => {
                   className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold shadow-sm flex items-center gap-2 transition disabled:opacity-50"
                 >
                   <Save className="w-4 h-4" />
-                  <span>{isSaving ? "Saving Changes..." : "Save Navigation Menu"}</span>
+                  <span>
+                    {isSaving ? "Saving Changes..." : "Save Navigation Menu"}
+                  </span>
                 </button>
               </div>
             </div>
@@ -670,7 +729,9 @@ export const MenusPage: React.FC = () => {
                 <input
                   type="text"
                   value={newMenuRegion}
-                  onChange={(e) => setNewMenuRegion(e.target.value.toUpperCase())}
+                  onChange={(e) =>
+                    setNewMenuRegion(e.target.value.toUpperCase())
+                  }
                   placeholder="e.g. IN, US (leave blank for Global)"
                   className="w-full px-3.5 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-mono text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />

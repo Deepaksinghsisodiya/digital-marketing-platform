@@ -1,7 +1,15 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useLoginMutation } from "../../store/api/adminApi";
-import { ShieldCheck, Lock, Mail, AlertCircle, ArrowRight, Eye, EyeOff } from "lucide-react";
+import {
+  ShieldCheck,
+  Lock,
+  Mail,
+  AlertCircle,
+  ArrowRight,
+  Eye,
+  EyeOff,
+} from "lucide-react";
 
 export const LoginPage: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -111,7 +119,11 @@ export const LoginPage: React.FC = () => {
                   className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-200 focus:outline-none"
                   aria-label={showPassword ? "Hide password" : "Show password"}
                 >
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
                 </button>
               </div>
             </div>

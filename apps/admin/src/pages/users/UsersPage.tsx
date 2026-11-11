@@ -36,9 +36,10 @@ export const UsersPage: React.FC = () => {
   const [inviteError, setInviteError] = useState<string | null>(null);
 
   // Action feedback
-  const [actionMsg, setActionMsg] = useState<{ text: string; type: "success" | "error" } | null>(
-    null
-  );
+  const [actionMsg, setActionMsg] = useState<{
+    text: string;
+    type: "success" | "error";
+  } | null>(null);
 
   const { data, isLoading, refetch } = useGetUsersQuery({
     page,
@@ -48,8 +49,10 @@ export const UsersPage: React.FC = () => {
   });
 
   const [inviteUser, { isLoading: isInviting }] = useInviteUserMutation();
-  const [resendInvitation, { isLoading: isResending }] = useResendInvitationMutation();
-  const [sendUserPasswordReset, { isLoading: isResetting }] = useSendUserPasswordResetMutation();
+  const [resendInvitation, { isLoading: isResending }] =
+    useResendInvitationMutation();
+  const [sendUserPasswordReset, { isLoading: isResetting }] =
+    useSendUserPasswordResetMutation();
   const [updateUser] = useUpdateUserMutation();
   const [deleteUser] = useDeleteUserMutation();
 
@@ -70,11 +73,13 @@ export const UsersPage: React.FC = () => {
   };
 
   const handleSendResetPassword = async (userId: string, email: string) => {
-    if (!window.confirm(`Send password reset instructions to ${email}?`)) return;
+    if (!window.confirm(`Send password reset instructions to ${email}?`))
+      return;
     try {
       const res = await sendUserPasswordReset(userId).unwrap();
       setActionMsg({
-        text: res.message || `Password reset link sent to ${email} successfully!`,
+        text:
+          res.message || `Password reset link sent to ${email} successfully!`,
         type: "success",
       });
     } catch (err: unknown) {
@@ -87,7 +92,8 @@ export const UsersPage: React.FC = () => {
   };
 
   const isOwner = currentUser?.roles?.includes("Owner");
-  const canManageUsers = isOwner || currentUser?.permissions?.includes("users.manage");
+  const canManageUsers =
+    isOwner || currentUser?.permissions?.includes("users.manage");
 
   const handleInvite = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -115,13 +121,15 @@ export const UsersPage: React.FC = () => {
 
   const handleToggleSuspend = async (
     targetUserId: string,
-    isCurrentlySuspended: boolean
+    isCurrentlySuspended: boolean,
   ) => {
     try {
       await updateUser({
         id: targetUserId,
         isSuspended: !isCurrentlySuspended,
-        suspensionReason: isCurrentlySuspended ? undefined : "Manual administrative suspension",
+        suspensionReason: isCurrentlySuspended
+          ? undefined
+          : "Manual administrative suspension",
       }).unwrap();
 
       setActionMsg({
@@ -138,7 +146,10 @@ export const UsersPage: React.FC = () => {
   };
 
   const handleDelete = async (targetUserId: string) => {
-    if (!window.confirm("Are you sure you want to permanently delete this user?")) return;
+    if (
+      !window.confirm("Are you sure you want to permanently delete this user?")
+    )
+      return;
     try {
       await deleteUser(targetUserId).unwrap();
       setActionMsg({ text: "User removed successfully.", type: "success" });
@@ -156,7 +167,9 @@ export const UsersPage: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Staff & Users</h2>
+          <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+            Staff & Users
+          </h2>
           <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
             Manage agency operators, roles, and status
           </p>
@@ -247,10 +260,17 @@ export const UsersPage: React.FC = () => {
                   const isSelf = u.id === currentUser?.id;
 
                   return (
-                    <tr key={u.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+                    <tr
+                      key={u.id}
+                      className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors"
+                    >
                       <td className="px-6 py-4">
-                        <div className="font-semibold text-slate-900 dark:text-white">{u.fullName}</div>
-                        <div className="text-xs text-slate-500 dark:text-slate-400 font-mono">{u.email}</div>
+                        <div className="font-semibold text-slate-900 dark:text-white">
+                          {u.fullName}
+                        </div>
+                        <div className="text-xs text-slate-500 dark:text-slate-400 font-mono">
+                          {u.email}
+                        </div>
                       </td>
                       <td className="px-6 py-4">
                         <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
@@ -281,7 +301,9 @@ export const UsersPage: React.FC = () => {
                           <div className="inline-flex items-center gap-2">
                             {isInvited && (
                               <button
-                                onClick={() => handleResendInvite(u.id, u.email)}
+                                onClick={() =>
+                                  handleResendInvite(u.id, u.email)
+                                }
                                 disabled={isResending}
                                 title="Resend invitation link"
                                 className="p-1.5 rounded-lg border border-indigo-500/30 text-indigo-400 hover:bg-indigo-500/10 transition-colors disabled:opacity-40"
@@ -290,7 +312,9 @@ export const UsersPage: React.FC = () => {
                               </button>
                             )}
                             <button
-                              onClick={() => handleSendResetPassword(u.id, u.email)}
+                              onClick={() =>
+                                handleSendResetPassword(u.id, u.email)
+                              }
                               disabled={isResetting}
                               title="Send password reset link"
                               className="p-1.5 rounded-lg border border-purple-500/30 text-purple-400 hover:bg-purple-500/10 transition-colors disabled:opacity-40"
@@ -298,8 +322,12 @@ export const UsersPage: React.FC = () => {
                               <Key className="w-3.5 h-3.5" />
                             </button>
                             <button
-                              onClick={() => handleToggleSuspend(u.id, isSuspended)}
-                              title={isSuspended ? "Reactivate user" : "Suspend user"}
+                              onClick={() =>
+                                handleToggleSuspend(u.id, isSuspended)
+                              }
+                              title={
+                                isSuspended ? "Reactivate user" : "Suspend user"
+                              }
                               className={`p-1.5 rounded-lg border text-xs transition-colors ${
                                 isSuspended
                                   ? "border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10"
@@ -366,7 +394,9 @@ export const UsersPage: React.FC = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl w-full max-w-md p-6 shadow-2xl text-slate-900 dark:text-slate-100">
             <div className="flex items-center justify-between mb-5">
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white">Invite New Team Member</h3>
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white">
+                Invite New Team Member
+              </h3>
               <button
                 onClick={() => setIsInviteOpen(false)}
                 className="text-slate-400 hover:text-slate-600 dark:hover:text-white"

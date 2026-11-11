@@ -46,7 +46,9 @@ export default async function ContactPage() {
                   Accelerate Your Pipeline Velocity.
                 </h1>
                 <p className="mt-4 text-slate-600 text-base leading-relaxed">
-                  Connect directly with our senior growth architects for a diagnostic on your full-funnel attribution, search dominance, and multi-region conversion mechanics.
+                  Connect directly with our senior growth architects for a
+                  diagnostic on your full-funnel attribution, search dominance,
+                  and multi-region conversion mechanics.
                 </p>
               </div>
 
@@ -57,9 +59,12 @@ export default async function ContactPage() {
                     <Clock className="w-5 h-5" />
                   </div>
                   <div>
-                    <h4 className="font-bold text-sm text-slate-900">4-Hour SLA Response</h4>
+                    <h4 className="font-bold text-sm text-slate-900">
+                      4-Hour SLA Response
+                    </h4>
                     <p className="text-xs text-slate-500 mt-0.5">
-                      Dedicated enterprise account directors evaluate every submission promptly.
+                      Dedicated enterprise account directors evaluate every
+                      submission promptly.
                     </p>
                   </div>
                 </div>
@@ -69,9 +74,12 @@ export default async function ContactPage() {
                     <ShieldCheck className="w-5 h-5" />
                   </div>
                   <div>
-                    <h4 className="font-bold text-sm text-slate-900">Zero-Compromise Compliance</h4>
+                    <h4 className="font-bold text-sm text-slate-900">
+                      Zero-Compromise Compliance
+                    </h4>
                     <p className="text-xs text-slate-500 mt-0.5">
-                      Fully compliant with Digital Personal Data Protection (DPDP) Act 2023 & GDPR standards.
+                      Fully compliant with Digital Personal Data Protection
+                      (DPDP) Act 2023 & GDPR standards.
                     </p>
                   </div>
                 </div>
@@ -81,9 +89,12 @@ export default async function ContactPage() {
                     <Globe2 className="w-5 h-5" />
                   </div>
                   <div>
-                    <h4 className="font-bold text-sm text-slate-900">Cross-Border Execution</h4>
+                    <h4 className="font-bold text-sm text-slate-900">
+                      Cross-Border Execution
+                    </h4>
                     <p className="text-xs text-slate-500 mt-0.5">
-                      Dual-entity operations spanning India (Bengaluru) and North America (San Francisco).
+                      Dual-entity operations spanning India (Bengaluru) and
+                      North America (San Francisco).
                     </p>
                   </div>
                 </div>
@@ -92,15 +103,21 @@ export default async function ContactPage() {
               {/* Testimonial Quote */}
               <div className="p-6 rounded-3xl bg-slate-900 text-white shadow-xl space-y-4">
                 <p className="text-xs sm:text-sm text-slate-300 italic leading-relaxed">
-                  &ldquo;Nexora restructured our commercial demand generation architecture across both US and India markets within 3 weeks. Pipeline predictability increased 340%.&rdquo;
+                  &ldquo;Nexora restructured our commercial demand generation
+                  architecture across both US and India markets within 3 weeks.
+                  Pipeline predictability increased 340%.&rdquo;
                 </p>
                 <div className="flex items-center gap-3 pt-2 border-t border-slate-800">
                   <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center font-black text-xs">
                     AC
                   </div>
                   <div>
-                    <div className="font-bold text-xs text-white">Ananya Rao</div>
-                    <div className="text-[11px] text-slate-400">Head of Global Demand &bull; Apex Cloud Solutions</div>
+                    <div className="font-bold text-xs text-white">
+                      Ananya Rao
+                    </div>
+                    <div className="text-[11px] text-slate-400">
+                      Head of Global Demand &bull; Apex Cloud Solutions
+                    </div>
                   </div>
                 </div>
               </div>

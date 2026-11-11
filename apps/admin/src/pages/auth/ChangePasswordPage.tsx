@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useChangePasswordMutation, useLogoutMutation } from "../../store/api/adminApi";
+import {
+  useChangePasswordMutation,
+  useLogoutMutation,
+} from "../../store/api/adminApi";
 import { useAppDispatch } from "../../store/hooks";
 import { logout } from "../../store/slices/authSlice";
 import {
@@ -38,9 +41,11 @@ export const ChangePasswordPage: React.FC = () => {
   const hasLower = /[a-z]/.test(newPassword);
   const hasDigit = /[0-9]/.test(newPassword);
   const hasSpecial = /[^A-Za-z0-9]/.test(newPassword);
-  const isCriteriaMet = hasMinLength && hasUpper && hasLower && hasDigit && hasSpecial;
+  const isCriteriaMet =
+    hasMinLength && hasUpper && hasLower && hasDigit && hasSpecial;
 
-  const passwordsMatch = newPassword.length > 0 && newPassword === confirmPassword;
+  const passwordsMatch =
+    newPassword.length > 0 && newPassword === confirmPassword;
 
   const handleLogout = async () => {
     try {
@@ -59,7 +64,9 @@ export const ChangePasswordPage: React.FC = () => {
     setSuccessMsg(null);
 
     if (!isCriteriaMet) {
-      setErrorMsg("New password does not meet the 12-character enterprise complexity requirements.");
+      setErrorMsg(
+        "New password does not meet the 12-character enterprise complexity requirements.",
+      );
       return;
     }
 
@@ -74,7 +81,9 @@ export const ChangePasswordPage: React.FC = () => {
         newPassword,
       }).unwrap();
 
-      setSuccessMsg("Password changed successfully! Redirecting to dashboard...");
+      setSuccessMsg(
+        "Password changed successfully! Redirecting to dashboard...",
+      );
       setTimeout(() => {
         navigate("/dashboard");
       }, 1500);
@@ -124,7 +133,10 @@ export const ChangePasswordPage: React.FC = () => {
                 htmlFor="currentPassword"
                 className="block text-xs font-semibold uppercase tracking-wider text-slate-300"
               >
-                Current Password <span className="text-slate-500 text-[10px] lowercase">(optional if initial setup)</span>
+                Current Password{" "}
+                <span className="text-slate-500 text-[10px] lowercase">
+                  (optional if initial setup)
+                </span>
               </label>
               <div className="mt-2 relative rounded-xl shadow-sm">
                 <input
@@ -141,7 +153,11 @@ export const ChangePasswordPage: React.FC = () => {
                   className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-200 focus:outline-none"
                   aria-label="Toggle current password visibility"
                 >
-                  {showCurrent ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  {showCurrent ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
                 </button>
               </div>
             </div>
@@ -169,7 +185,11 @@ export const ChangePasswordPage: React.FC = () => {
                   className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-200 focus:outline-none"
                   aria-label="Toggle new password visibility"
                 >
-                  {showNew ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  {showNew ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
                 </button>
               </div>
 
@@ -179,20 +199,55 @@ export const ChangePasswordPage: React.FC = () => {
                   Security Complexity Rules:
                 </div>
                 <div className="grid grid-cols-2 gap-1.5">
-                  <span className={`flex items-center gap-1.5 ${hasMinLength ? "text-emerald-400" : "text-slate-500"}`}>
-                    {hasMinLength ? <Check className="w-3.5 h-3.5" /> : <XIcon className="w-3.5 h-3.5" />} 12+ characters
+                  <span
+                    className={`flex items-center gap-1.5 ${hasMinLength ? "text-emerald-400" : "text-slate-500"}`}
+                  >
+                    {hasMinLength ? (
+                      <Check className="w-3.5 h-3.5" />
+                    ) : (
+                      <XIcon className="w-3.5 h-3.5" />
+                    )}{" "}
+                    12+ characters
                   </span>
-                  <span className={`flex items-center gap-1.5 ${hasUpper ? "text-emerald-400" : "text-slate-500"}`}>
-                    {hasUpper ? <Check className="w-3.5 h-3.5" /> : <XIcon className="w-3.5 h-3.5" />} 1 Uppercase (A-Z)
+                  <span
+                    className={`flex items-center gap-1.5 ${hasUpper ? "text-emerald-400" : "text-slate-500"}`}
+                  >
+                    {hasUpper ? (
+                      <Check className="w-3.5 h-3.5" />
+                    ) : (
+                      <XIcon className="w-3.5 h-3.5" />
+                    )}{" "}
+                    1 Uppercase (A-Z)
                   </span>
-                  <span className={`flex items-center gap-1.5 ${hasLower ? "text-emerald-400" : "text-slate-500"}`}>
-                    {hasLower ? <Check className="w-3.5 h-3.5" /> : <XIcon className="w-3.5 h-3.5" />} 1 Lowercase (a-z)
+                  <span
+                    className={`flex items-center gap-1.5 ${hasLower ? "text-emerald-400" : "text-slate-500"}`}
+                  >
+                    {hasLower ? (
+                      <Check className="w-3.5 h-3.5" />
+                    ) : (
+                      <XIcon className="w-3.5 h-3.5" />
+                    )}{" "}
+                    1 Lowercase (a-z)
                   </span>
-                  <span className={`flex items-center gap-1.5 ${hasDigit ? "text-emerald-400" : "text-slate-500"}`}>
-                    {hasDigit ? <Check className="w-3.5 h-3.5" /> : <XIcon className="w-3.5 h-3.5" />} 1 Digit (0-9)
+                  <span
+                    className={`flex items-center gap-1.5 ${hasDigit ? "text-emerald-400" : "text-slate-500"}`}
+                  >
+                    {hasDigit ? (
+                      <Check className="w-3.5 h-3.5" />
+                    ) : (
+                      <XIcon className="w-3.5 h-3.5" />
+                    )}{" "}
+                    1 Digit (0-9)
                   </span>
-                  <span className={`flex items-center gap-1.5 col-span-2 ${hasSpecial ? "text-emerald-400" : "text-slate-500"}`}>
-                    {hasSpecial ? <Check className="w-3.5 h-3.5" /> : <XIcon className="w-3.5 h-3.5" />} 1 Special symbol (@$!%*?&#)
+                  <span
+                    className={`flex items-center gap-1.5 col-span-2 ${hasSpecial ? "text-emerald-400" : "text-slate-500"}`}
+                  >
+                    {hasSpecial ? (
+                      <Check className="w-3.5 h-3.5" />
+                    ) : (
+                      <XIcon className="w-3.5 h-3.5" />
+                    )}{" "}
+                    1 Special symbol (@$!%*?&#)
                   </span>
                 </div>
               </div>
@@ -227,12 +282,18 @@ export const ChangePasswordPage: React.FC = () => {
                   className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-200 focus:outline-none"
                   aria-label="Toggle confirm password visibility"
                 >
-                  {showConfirm ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  {showConfirm ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
                 </button>
               </div>
 
               {confirmPassword.length > 0 && (
-                <div className={`mt-1.5 text-[11px] font-medium flex items-center gap-1 ${passwordsMatch ? "text-emerald-400" : "text-red-400"}`}>
+                <div
+                  className={`mt-1.5 text-[11px] font-medium flex items-center gap-1 ${passwordsMatch ? "text-emerald-400" : "text-red-400"}`}
+                >
                   {passwordsMatch ? (
                     <>
                       <Check className="w-3.5 h-3.5" /> Passwords match

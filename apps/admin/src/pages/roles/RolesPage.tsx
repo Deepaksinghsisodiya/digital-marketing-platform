@@ -27,92 +27,117 @@ const PERMISSION_METADATA: Record<
 > = {
   "users.view": {
     label: "View Users",
-    description: "Inspect team member accounts, login activity, and active roles",
+    description:
+      "Inspect team member accounts, login activity, and active roles",
     category: "Users & Access",
   },
   "users.manage": {
     label: "Manage Users",
-    description: "Invite new operators, suspend accounts, and update role bindings",
+    description:
+      "Invite new operators, suspend accounts, and update role bindings",
     category: "Users & Access",
   },
   "roles.view": {
     label: "View RBAC Matrix",
-    description: "Inspect security policy matrix and evaluated role permissions",
+    description:
+      "Inspect security policy matrix and evaluated role permissions",
     category: "Security & Roles",
   },
   "audit.view": {
     label: "View Security Audit Log",
-    description: "Access immutable forensic audit trail and request correlation telemetry",
+    description:
+      "Access immutable forensic audit trail and request correlation telemetry",
     category: "Security & Roles",
   },
   "settings.view": {
     label: "View Platform Settings",
-    description: "Read enterprise identity, regional presets, and multi-country configurations",
+    description:
+      "Read enterprise identity, regional presets, and multi-country configurations",
     category: "System Settings",
   },
   "settings.manage": {
     label: "Modify Platform Settings",
-    description: "Update company branding, custom SMTP mail gateway, and global visibility",
+    description:
+      "Update company branding, custom SMTP mail gateway, and global visibility",
     category: "System Settings",
   },
   "pages.view": {
     label: "View CMS Pages",
-    description: "Browse CMS block schemas, draft versions, and sitemap entries",
+    description:
+      "Browse CMS block schemas, draft versions, and sitemap entries",
     category: "Website CMS & Content",
   },
   "pages.edit": {
     label: "Edit CMS Pages",
-    description: "Create draft versions, arrange block trees, and configure schema properties",
+    description:
+      "Create draft versions, arrange block trees, and configure schema properties",
     category: "Website CMS & Content",
   },
   "pages.publish": {
     label: "Publish CMS Pages",
-    description: "Promote draft pages live to the public website CDN and SSR engine",
+    description:
+      "Promote draft pages live to the public website CDN and SSR engine",
     category: "Website CMS & Content",
   },
   "leads.view": {
     label: "View Inbound Leads",
-    description: "Review captured marketing inquiries, UTM attribution, and consent logs",
+    description:
+      "Review captured marketing inquiries, UTM attribution, and consent logs",
     category: "Inbound Marketing",
   },
   "leads.manage": {
     label: "Manage Lead Funnel",
-    description: "Update pipeline statuses, append audit notes, and assign handlers",
+    description:
+      "Update pipeline statuses, append audit notes, and assign handlers",
     category: "Inbound Marketing",
   },
   "leads.export": {
     label: "Export Lead Data",
-    description: "Download bulk customer inquiries and compliance verification data",
+    description:
+      "Download bulk customer inquiries and compliance verification data",
     category: "Inbound Marketing",
   },
   "clients.view": {
     label: "View Agency Clients",
-    description: "Browse CRM client directory, primary contacts, and interaction history",
+    description:
+      "Browse CRM client directory, primary contacts, and interaction history",
     category: "Agency CRM",
   },
   "clients.manage": {
     label: "Manage Agency Clients",
-    description: "Convert leads to client accounts, modify contracts, and assign contacts",
+    description:
+      "Convert leads to client accounts, modify contracts, and assign contacts",
     category: "Agency CRM",
   },
   "tasks.view": {
     label: "View Tasks & Actions",
-    description: "Track follow-ups, account action items, and milestone deadlines",
+    description:
+      "Track follow-ups, account action items, and milestone deadlines",
     category: "Task Operations",
   },
   "tasks.manage": {
     label: "Manage Tasks & Deadlines",
-    description: "Create action items, assign users, prioritize urgencies, and resolve tasks",
+    description:
+      "Create action items, assign users, prioritize urgencies, and resolve tasks",
     category: "Task Operations",
   },
 };
 
 export const RolesPage: React.FC = () => {
-  const { data: roles, isLoading: rolesLoading, refetch: refetchRoles } = useGetRolesQuery();
-  const { data: permissions, isLoading: permsLoading, refetch: refetchPerms } = useGetPermissionsQuery();
+  const {
+    data: roles,
+    isLoading: rolesLoading,
+    refetch: refetchRoles,
+  } = useGetRolesQuery();
+  const {
+    data: permissions,
+    isLoading: permsLoading,
+    refetch: refetchPerms,
+  } = useGetPermissionsQuery();
 
   const [createRole, { isLoading: isCreating }] = useCreateRoleMutation();
-  const [updateRolePermissions, { isLoading: isUpdating }] = useUpdateRolePermissionsMutation();
+  const [updateRolePermissions, { isLoading: isUpdating }] =
+    useUpdateRolePermissionsMutation();
   const [deleteRole, { isLoading: isDeleting }] = useDeleteRoleMutation();
 
   // Modals & Drawers
@@ -125,7 +150,10 @@ export const RolesPage: React.FC = () => {
   const [editingRole, setEditingRole] = useState<RoleDto | null>(null);
   const [selectedPermissions, setSelectedPermissions] = useState<string[]>([]);
 
-  const [feedback, setFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null);
+  const [feedback, setFeedback] = useState<{
+    type: "success" | "error";
+    message: string;
+  } | null>(null);
 
   if (rolesLoading || permsLoading) {
     return (
@@ -140,18 +168,24 @@ export const RolesPage: React.FC = () => {
   const permList = permissions || [];
 
   // Group permissions by Category
-  const groupedPerms = permList.reduce((acc, permKey) => {
-    const meta = PERMISSION_METADATA[permKey] || {
-      label: permKey,
-      description: permKey,
-      category: "Additional Capabilities",
-    };
-    if (!acc[meta.category]) {
-      acc[meta.category] = [];
-    }
-    acc[meta.category]!.push({ key: permKey, ...meta });
-    return acc;
-  }, {} as Record<string, { key: string; label: string; description: string; category: string }[]>);
+  const groupedPerms = permList.reduce(
+    (acc, permKey) => {
+      const meta = PERMISSION_METADATA[permKey] || {
+        label: permKey,
+        description: permKey,
+        category: "Additional Capabilities",
+      };
+      if (!acc[meta.category]) {
+        acc[meta.category] = [];
+      }
+      acc[meta.category]!.push({ key: permKey, ...meta });
+      return acc;
+    },
+    {} as Record<
+      string,
+      { key: string; label: string; description: string; category: string }[]
+    >,
+  );
 
   const openCreateModal = () => {
     setNewRoleName("");
@@ -162,7 +196,9 @@ export const RolesPage: React.FC = () => {
 
   const openEditModal = (role: RoleDto) => {
     setEditingRole(role);
-    setSelectedPermissions(role.name === "Owner" ? [...permList] : [...role.permissions]);
+    setSelectedPermissions(
+      role.name === "Owner" ? [...permList] : [...role.permissions],
+    );
     setEditRoleModalOpen(true);
   };
 
@@ -214,7 +250,11 @@ export const RolesPage: React.FC = () => {
   };
 
   const handleDelete = async (roleName: string) => {
-    if (!window.confirm(`Are you sure you want to permanently delete role '${roleName}'? This action cannot be undone.`)) {
+    if (
+      !window.confirm(
+        `Are you sure you want to permanently delete role '${roleName}'? This action cannot be undone.`,
+      )
+    ) {
       return;
     }
     try {
@@ -231,7 +271,8 @@ export const RolesPage: React.FC = () => {
     }
   };
 
-  const isSystemRole = (name: string) => ["Owner", "Admin", "Editor", "Sales"].includes(name);
+  const isSystemRole = (name: string) =>
+    ["Owner", "Admin", "Editor", "Sales"].includes(name);
 
   return (
     <div className="space-y-6 w-full max-w-7xl 2xl:max-w-full">
@@ -247,7 +288,8 @@ export const RolesPage: React.FC = () => {
             </span>
           </div>
           <p className="mt-1 text-xs sm:text-sm text-slate-500 dark:text-slate-400">
-            Granular access controls enforced server-side via ASP.NET Core dynamic claim policies and security stamps.
+            Granular access controls enforced server-side via ASP.NET Core
+            dynamic claim policies and security stamps.
           </p>
         </div>
 
@@ -296,7 +338,8 @@ export const RolesPage: React.FC = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {roleList.map((r) => {
           const isSys = isSystemRole(r.name);
-          const permCount = r.name === "Owner" ? permList.length : r.permissions.length;
+          const permCount =
+            r.name === "Owner" ? permList.length : r.permissions.length;
           return (
             <div
               key={r.name}
@@ -327,7 +370,10 @@ export const RolesPage: React.FC = () => {
 
               <div className="pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between">
                 <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">
-                  <strong className="text-indigo-600 dark:text-indigo-400 font-bold">{permCount}</strong> of {permList.length} perms
+                  <strong className="text-indigo-600 dark:text-indigo-400 font-bold">
+                    {permCount}
+                  </strong>{" "}
+                  of {permList.length} perms
                 </span>
 
                 <div className="flex items-center gap-1.5">
@@ -369,7 +415,8 @@ export const RolesPage: React.FC = () => {
             </h3>
           </div>
           <span className="text-xs text-slate-400">
-            Click edit on any custom role card above to adjust individual permissions.
+            Click edit on any custom role card above to adjust individual
+            permissions.
           </span>
         </div>
 
@@ -423,7 +470,8 @@ export const RolesPage: React.FC = () => {
 
                       {roleList.map((r) => {
                         const hasPerm =
-                          r.name === "Owner" || r.permissions.includes(perm.key);
+                          r.name === "Owner" ||
+                          r.permissions.includes(perm.key);
                         return (
                           <td key={r.name} className="px-4 py-3 text-center">
                             {hasPerm ? (
@@ -457,7 +505,8 @@ export const RolesPage: React.FC = () => {
                   Create New Custom Role
                 </h3>
                 <p className="text-xs text-slate-500">
-                  Assign tailored granular permissions to suit your agency organizational chart.
+                  Assign tailored granular permissions to suit your agency
+                  organizational chart.
                 </p>
               </div>
               <button
@@ -468,7 +517,10 @@ export const RolesPage: React.FC = () => {
               </button>
             </div>
 
-            <form onSubmit={handleCreateSubmit} className="space-y-4 overflow-y-auto pr-1">
+            <form
+              onSubmit={handleCreateSubmit}
+              className="space-y-4 overflow-y-auto pr-1"
+            >
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
@@ -507,12 +559,16 @@ export const RolesPage: React.FC = () => {
                     type="button"
                     onClick={() =>
                       setNewRolePermissions(
-                        newRolePermissions.length === permList.length ? [] : [...permList]
+                        newRolePermissions.length === permList.length
+                          ? []
+                          : [...permList],
                       )
                     }
                     className="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline"
                   >
-                    {newRolePermissions.length === permList.length ? "Deselect All" : "Select All Capabilities"}
+                    {newRolePermissions.length === permList.length
+                      ? "Deselect All"
+                      : "Select All Capabilities"}
                   </button>
                 </div>
 
@@ -539,10 +595,15 @@ export const RolesPage: React.FC = () => {
                                 checked={checked}
                                 onChange={(e) => {
                                   if (e.target.checked) {
-                                    setNewRolePermissions([...newRolePermissions, perm.key]);
+                                    setNewRolePermissions([
+                                      ...newRolePermissions,
+                                      perm.key,
+                                    ]);
                                   } else {
                                     setNewRolePermissions(
-                                      newRolePermissions.filter((k) => k !== perm.key)
+                                      newRolePermissions.filter(
+                                        (k) => k !== perm.key,
+                                      ),
                                     );
                                   }
                                 }}
@@ -596,7 +657,8 @@ export const RolesPage: React.FC = () => {
                   Configure Permissions: {editingRole.name}
                 </h3>
                 <p className="text-xs text-slate-500">
-                  Update permissions for this role. Active users with this role will immediately inherit these capabilities.
+                  Update permissions for this role. Active users with this role
+                  will immediately inherit these capabilities.
                 </p>
               </div>
               <button
@@ -607,21 +669,29 @@ export const RolesPage: React.FC = () => {
               </button>
             </div>
 
-            <form onSubmit={handleSavePermissions} className="space-y-4 overflow-y-auto pr-1">
+            <form
+              onSubmit={handleSavePermissions}
+              className="space-y-4 overflow-y-auto pr-1"
+            >
               <div className="flex items-center justify-between mb-1">
                 <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                  Select Capabilities ({selectedPermissions.length} / {permList.length})
+                  Select Capabilities ({selectedPermissions.length} /{" "}
+                  {permList.length})
                 </span>
                 <button
                   type="button"
                   onClick={() =>
                     setSelectedPermissions(
-                      selectedPermissions.length === permList.length ? [] : [...permList]
+                      selectedPermissions.length === permList.length
+                        ? []
+                        : [...permList],
                     )
                   }
                   className="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline"
                 >
-                  {selectedPermissions.length === permList.length ? "Deselect All" : "Select All Capabilities"}
+                  {selectedPermissions.length === permList.length
+                    ? "Deselect All"
+                    : "Select All Capabilities"}
                 </button>
               </div>
 
@@ -648,10 +718,15 @@ export const RolesPage: React.FC = () => {
                               checked={checked}
                               onChange={(e) => {
                                 if (e.target.checked) {
-                                  setSelectedPermissions([...selectedPermissions, perm.key]);
+                                  setSelectedPermissions([
+                                    ...selectedPermissions,
+                                    perm.key,
+                                  ]);
                                 } else {
                                   setSelectedPermissions(
-                                    selectedPermissions.filter((k) => k !== perm.key)
+                                    selectedPermissions.filter(
+                                      (k) => k !== perm.key,
+                                    ),
                                   );
                                 }
                               }}

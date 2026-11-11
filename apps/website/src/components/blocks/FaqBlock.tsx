@@ -13,16 +13,21 @@ export const FaqBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
   const title = (content.title as string) || "Frequently Asked Questions";
   const items = (content.items as FaqItem[]) || [
     {
-      question: "How quickly can Nexora deploy our custom marketing infrastructure?",
-      answer: "Initial campaigns and tracking architecture typically go live within 7 to 14 business days, with real-time attribution and CRM synchronization enabled from day one.",
+      question:
+        "How quickly can Nexora deploy our custom marketing infrastructure?",
+      answer:
+        "Initial campaigns and tracking architecture typically go live within 7 to 14 business days, with real-time attribution and CRM synchronization enabled from day one.",
     },
     {
       question: "Does Nexora support global multi-country campaigns worldwide?",
-      answer: "Yes. Nexora natively handles multi-region routing, localized currencies (USD, EUR, GBP, INR, AED, SGD), international phone formatting, and global regulatory compliance (DPDP, GDPR, CCPA).",
+      answer:
+        "Yes. Nexora natively handles multi-region routing, localized currencies (USD, EUR, GBP, INR, AED, SGD), international phone formatting, and global regulatory compliance (DPDP, GDPR, CCPA).",
     },
     {
-      question: "Can our marketing team edit website pages without developer support?",
-      answer: "Yes, our modern Admin portal provides a visual block builder to update headlines, banners, features, and blog content with live preview and version rollback.",
+      question:
+        "Can our marketing team edit website pages without developer support?",
+      answer:
+        "Yes, our modern Admin portal provides a visual block builder to update headlines, banners, features, and blog content with live preview and version rollback.",
     },
   ];
 
@@ -32,9 +37,12 @@ export const FaqBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold text-indigo-700 bg-indigo-50 border border-indigo-200 uppercase tracking-widest">
           <HelpCircle className="w-3.5 h-3.5" /> Direct Answers
         </span>
-        <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">{title}</h2>
+        <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
+          {title}
+        </h2>
         <p className="text-base text-slate-600">
-          Everything you need to know about our enterprise infrastructure and performance guarantees.
+          Everything you need to know about our enterprise infrastructure and
+          performance guarantees.
         </p>
       </div>
 
@@ -67,8 +75,12 @@ export const FaqBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
             <MessageSquare className="w-5 h-5" />
           </div>
           <div>
-            <h4 className="text-sm font-bold text-slate-900">Have a custom question about attribution or enterprise security?</h4>
-            <p className="text-xs text-slate-500">Our engineering and growth team responds within 2 hours.</p>
+            <h4 className="text-sm font-bold text-slate-900">
+              Have a custom question about attribution or enterprise security?
+            </h4>
+            <p className="text-xs text-slate-500">
+              Our engineering and growth team responds within 2 hours.
+            </p>
           </div>
         </div>
         <Link
@@ -82,4 +94,3 @@ export const FaqBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
     </section>
   );
 };
-

@@ -6,10 +6,11 @@ interface ProtectedRouteProps {
   requiredPermission?: string;
 }
 
-export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ requiredPermission }) => {
-  const { user, isAuthenticated, isInitialized, mustChangePassword } = useAppSelector(
-    (state) => state.auth
-  );
+export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
+  requiredPermission,
+}) => {
+  const { user, isAuthenticated, isInitialized, mustChangePassword } =
+    useAppSelector((state) => state.auth);
 
   if (!isInitialized) {
     return (
@@ -54,4 +55,3 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ requiredPermissi
 
   return <Outlet />;
 };
-

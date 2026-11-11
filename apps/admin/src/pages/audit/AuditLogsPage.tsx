@@ -62,13 +62,19 @@ export const AuditLogsPage: React.FC = () => {
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80">
               {isLoading ? (
                 <tr>
-                  <td colSpan={5} className="py-8 text-center text-slate-400 dark:text-slate-500">
+                  <td
+                    colSpan={5}
+                    className="py-8 text-center text-slate-400 dark:text-slate-500"
+                  >
                     Loading audit trail...
                   </td>
                 </tr>
               ) : !data || data.items.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="py-8 text-center text-slate-400 dark:text-slate-500">
+                  <td
+                    colSpan={5}
+                    className="py-8 text-center text-slate-400 dark:text-slate-500"
+                  >
                     No audit records found.
                   </td>
                 </tr>
@@ -76,7 +82,10 @@ export const AuditLogsPage: React.FC = () => {
                 data.items.map((log) => {
                   const isSuccess = log.outcome === "Success";
                   return (
-                    <tr key={log.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+                    <tr
+                      key={log.id}
+                      className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors"
+                    >
                       <td className="px-6 py-3 font-mono text-xs font-semibold text-indigo-600 dark:text-indigo-300">
                         {log.action}
                       </td>
@@ -107,9 +116,14 @@ export const AuditLogsPage: React.FC = () => {
                         )}
                       </td>
                       <td className="px-6 py-3 text-xs text-slate-500 dark:text-slate-400 max-w-xs truncate">
-                        <span className="font-mono text-slate-700 dark:text-slate-300">{log.ipAddress || "127.0.0.1"}</span>
+                        <span className="font-mono text-slate-700 dark:text-slate-300">
+                          {log.ipAddress || "127.0.0.1"}
+                        </span>
                         {log.userAgent && (
-                          <div className="text-[10px] text-slate-400 dark:text-slate-500 truncate" title={log.userAgent}>
+                          <div
+                            className="text-[10px] text-slate-400 dark:text-slate-500 truncate"
+                            title={log.userAgent}
+                          >
                             {log.userAgent}
                           </div>
                         )}
@@ -117,7 +131,10 @@ export const AuditLogsPage: React.FC = () => {
                       <td className="px-6 py-3 text-xs text-slate-500 dark:text-slate-400 whitespace-nowrap">
                         <span className="flex items-center gap-1 font-mono">
                           <Clock className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
-                          {new Date(log.timestampUtc).toISOString().replace("T", " ").substring(0, 19)}
+                          {new Date(log.timestampUtc)
+                            .toISOString()
+                            .replace("T", " ")
+                            .substring(0, 19)}
                         </span>
                       </td>
                     </tr>

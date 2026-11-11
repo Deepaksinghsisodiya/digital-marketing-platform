@@ -45,21 +45,24 @@ const DEFAULT_MOCK_VARIABLES: MockVariables = {
   "support.email": "support@nexora.local",
   "user.name": "Alex Morgan",
   "user.role": "Sales",
-  "invite.link": "http://localhost:5173/auth/setup-password?token=sample_invite_token",
-  "reset.link": "http://localhost:5173/auth/reset-password?token=sample_reset_token",
-  "expires_hours": "48",
-  "expires_minutes": "30",
-  "timestamp": "2026-11-11 21:00 UTC",
+  "invite.link":
+    "http://localhost:5173/auth/setup-password?token=sample_invite_token",
+  "reset.link":
+    "http://localhost:5173/auth/reset-password?token=sample_reset_token",
+  expires_hours: "48",
+  expires_minutes: "30",
+  timestamp: "2026-11-11 21:00 UTC",
   "client.name": "Sarah Jenkins",
   "client.company": "Acme Global Corp",
   "manager.name": "Rahul Verma",
   "manager.email": "rahul.v@nexora.local",
   "proposal.title": "Enterprise Performance Marketing Q1-Q2",
   "proposal.url": "http://localhost:5173/proposals/sample_scope",
-  "expires_at": "2026-12-01",
+  expires_at: "2026-12-01",
   "milestone.title": "Full-Funnel Tracking & Google Ads Setup",
   "project.name": "Scale2026 Growth Accelerator",
-  "summary": "Configured server-side conversion tracking, launched 4 search campaigns, and established ROI dashboards.",
+  summary:
+    "Configured server-side conversion tracking, launched 4 search campaigns, and established ROI dashboards.",
   "report.month": "November 2026",
   "report.leads_count": "142 Qualified Leads",
   "report.conversion_rate": "4.8%",
@@ -68,33 +71,65 @@ const DEFAULT_MOCK_VARIABLES: MockVariables = {
   "task.title": "Finalize Q1 Search Retargeting Ad Creatives",
   "task.priority": "High",
   "task.due_date": "2026-11-15",
-  "assigned_by": "Vikram Malhotra",
+  assigned_by: "Vikram Malhotra",
 };
 
 const VARIABLE_TAGS = [
   { tag: "{{lead.name}}", label: "Lead Name", sample: "Vikram Malhotra" },
   { tag: "{{lead.company}}", label: "Company", sample: "Apex Global Ventures" },
-  { tag: "{{lead.email}}", label: "Lead Email", sample: "vikram.m@apexventures.io" },
+  {
+    tag: "{{lead.email}}",
+    label: "Lead Email",
+    sample: "vikram.m@apexventures.io",
+  },
   { tag: "{{user.name}}", label: "User Name", sample: "Alex Morgan" },
   { tag: "{{user.role}}", label: "Role", sample: "Sales" },
   { tag: "{{client.name}}", label: "Client Contact", sample: "Sarah Jenkins" },
-  { tag: "{{client.company}}", label: "Client Company", sample: "Acme Global Corp" },
-  { tag: "{{task.title}}", label: "Task Title", sample: "Finalize Ad Creatives" },
-  { tag: "{{platform.companyName}}", label: "Platform Name", sample: "Nexora Digital" },
-  { tag: "{{action.url}}", label: "Action URL", sample: "http://localhost:5173/admin" },
+  {
+    tag: "{{client.company}}",
+    label: "Client Company",
+    sample: "Acme Global Corp",
+  },
+  {
+    tag: "{{task.title}}",
+    label: "Task Title",
+    sample: "Finalize Ad Creatives",
+  },
+  {
+    tag: "{{platform.companyName}}",
+    label: "Platform Name",
+    sample: "Nexora Digital",
+  },
+  {
+    tag: "{{action.url}}",
+    label: "Action URL",
+    sample: "http://localhost:5173/admin",
+  },
 ];
 
 export const EmailTemplatesPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"templates" | "logs">("templates");
-  const { data: templates, isLoading: loadingTemplates, refetch: refetchTemplates } = useGetEmailTemplatesQuery();
-  const { data: logs, isLoading: loadingLogs, refetch: refetchLogs } = useGetEmailLogsQuery(100);
+  const {
+    data: templates,
+    isLoading: loadingTemplates,
+    refetch: refetchTemplates,
+  } = useGetEmailTemplatesQuery();
+  const {
+    data: logs,
+    isLoading: loadingLogs,
+    refetch: refetchLogs,
+  } = useGetEmailLogsQuery(100);
 
-  const [updateTemplate, { isLoading: updating }] = useUpdateEmailTemplateMutation();
-  const [sendTestEmail, { isLoading: sendingTest }] = useSendTestEmailMutation();
-  const [processOutbox, { isLoading: processingOutbox }] = useProcessOutboxMutation();
+  const [updateTemplate, { isLoading: updating }] =
+    useUpdateEmailTemplateMutation();
+  const [sendTestEmail, { isLoading: sendingTest }] =
+    useSendTestEmailMutation();
+  const [processOutbox, { isLoading: processingOutbox }] =
+    useProcessOutboxMutation();
 
   // Selected template for full visual studio mode
-  const [selectedTemplate, setSelectedTemplate] = useState<EmailTemplateDto | null>(null);
+  const [selectedTemplate, setSelectedTemplate] =
+    useState<EmailTemplateDto | null>(null);
   const [editName, setEditName] = useState("");
   const [editSubject, setEditSubject] = useState("");
   const [editHtml, setEditHtml] = useState("");
@@ -105,16 +140,23 @@ export const EmailTemplatesPage: React.FC = () => {
 
   // Editor Sub-tabs & Viewport
   const [editorTab, setEditorTab] = useState<"html" | "plain">("html");
-  const [previewDevice, setPreviewDevice] = useState<"desktop" | "mobile">("desktop");
+  const [previewDevice, setPreviewDevice] = useState<"desktop" | "mobile">(
+    "desktop",
+  );
   const [previewKey, setPreviewKey] = useState(0);
 
   // Mock variables for live rendering
-  const [mockVars, setMockVars] = useState<MockVariables>(DEFAULT_MOCK_VARIABLES);
+  const [mockVars, setMockVars] = useState<MockVariables>(
+    DEFAULT_MOCK_VARIABLES,
+  );
   const [showVarsEditor, setShowVarsEditor] = useState(false);
 
   // Test email recipient
   const [testEmailTo, setTestEmailTo] = useState("admin@nexora.local");
-  const [testFeedback, setTestFeedback] = useState<{ success?: string; error?: string } | null>(null);
+  const [testFeedback, setTestFeedback] = useState<{
+    success?: string;
+    error?: string;
+  } | null>(null);
 
   // Logs filters & search
   const [logSearch, setLogSearch] = useState("");
@@ -178,11 +220,15 @@ export const EmailTemplatesPage: React.FC = () => {
         variables: mockVars,
       }).unwrap();
 
-      setTestFeedback({ success: `Dispatched successfully to ${testEmailTo}! Delivered to Mailpit (:8025)` });
+      setTestFeedback({
+        success: `Dispatched successfully to ${testEmailTo}! Delivered to Mailpit (:8025)`,
+      });
       refetchLogs();
     } catch (err: unknown) {
       const error = err as { data?: { error?: string } };
-      setTestFeedback({ error: error?.data?.error ?? "Failed to send test email." });
+      setTestFeedback({
+        error: error?.data?.error ?? "Failed to send test email.",
+      });
     }
   };
 
@@ -190,7 +236,9 @@ export const EmailTemplatesPage: React.FC = () => {
     try {
       const res = await processOutbox().unwrap();
       refetchLogs();
-      alert(`Outbox batch executed: ${res.processedCount} messages dispatched.`);
+      alert(
+        `Outbox batch executed: ${res.processedCount} messages dispatched.`,
+      );
     } catch {
       alert("Failed to process outbox queue.");
     }
@@ -223,7 +271,8 @@ export const EmailTemplatesPage: React.FC = () => {
       const matchesSearch =
         l.recipientEmail.toLowerCase().includes(logSearch.toLowerCase()) ||
         l.subject.toLowerCase().includes(logSearch.toLowerCase()) ||
-        (l.templateKey && l.templateKey.toLowerCase().includes(logSearch.toLowerCase()));
+        (l.templateKey &&
+          l.templateKey.toLowerCase().includes(logSearch.toLowerCase()));
 
       const matchesStatus =
         logStatusFilter === "all" ? true : l.status === logStatusFilter;
@@ -259,7 +308,8 @@ export const EmailTemplatesPage: React.FC = () => {
                 </span>
               </div>
               <p className="text-xs text-slate-500 dark:text-slate-400">
-                Visual transactional email designer with live merge tag rendering
+                Visual transactional email designer with live merge tag
+                rendering
               </p>
             </div>
           </div>
@@ -297,7 +347,11 @@ export const EmailTemplatesPage: React.FC = () => {
               disabled={updating}
               className="inline-flex items-center gap-2 px-5 py-2 rounded-xl text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-500 shadow-md shadow-indigo-600/30 transition disabled:opacity-50"
             >
-              {updating ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
+              {updating ? (
+                <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+              ) : (
+                <Sparkles className="w-3.5 h-3.5" />
+              )}
               <span>{updating ? "Saving..." : "Save Template"}</span>
             </button>
           </div>
@@ -341,7 +395,9 @@ export const EmailTemplatesPage: React.FC = () => {
                   <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
                     Subject Line Template
                   </label>
-                  <span className="text-[11px] font-mono text-slate-400">Supports merge tags</span>
+                  <span className="text-[11px] font-mono text-slate-400">
+                    Supports merge tags
+                  </span>
                 </div>
                 <input
                   type="text"
@@ -364,7 +420,9 @@ export const EmailTemplatesPage: React.FC = () => {
                     className="text-[11px] font-semibold text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1"
                   >
                     <Sliders className="w-3 h-3" />
-                    <span>{showVarsEditor ? "Hide Sample Data" : "Edit Sample Data"}</span>
+                    <span>
+                      {showVarsEditor ? "Hide Sample Data" : "Edit Sample Data"}
+                    </span>
                   </button>
                 </div>
                 <div className="flex flex-wrap gap-1.5">
@@ -449,7 +507,9 @@ export const EmailTemplatesPage: React.FC = () => {
                 </div>
 
                 <span className="text-[11px] text-slate-400 font-mono">
-                  {editorTab === "html" ? `${editHtml.length} characters` : `${editPlain.length} characters`}
+                  {editorTab === "html"
+                    ? `${editHtml.length} characters`
+                    : `${editPlain.length} characters`}
                 </span>
               </div>
 
@@ -463,7 +523,8 @@ export const EmailTemplatesPage: React.FC = () => {
                     placeholder="<!DOCTYPE html><html><body><h1>Hello {{lead.name}}</h1></body></html>"
                   />
                   <p className="text-[11px] text-slate-400 mt-1">
-                    Tip: Inline styles and standard responsive table layouts ensure 100% email client compatibility.
+                    Tip: Inline styles and standard responsive table layouts
+                    ensure 100% email client compatibility.
                   </p>
                 </div>
               ) : (
@@ -488,7 +549,9 @@ export const EmailTemplatesPage: React.FC = () => {
                     Send Live Test Delivery
                   </h3>
                 </div>
-                <span className="text-[11px] text-slate-400">Routes to Mailpit (:8025)</span>
+                <span className="text-[11px] text-slate-400">
+                  Routes to Mailpit (:8025)
+                </span>
               </div>
 
               {testFeedback?.success && (
@@ -518,7 +581,11 @@ export const EmailTemplatesPage: React.FC = () => {
                   disabled={sendingTest}
                   className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white bg-slate-900 dark:bg-indigo-600 hover:bg-slate-800 dark:hover:bg-indigo-500 shadow-sm transition disabled:opacity-50"
                 >
-                  {sendingTest ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
+                  {sendingTest ? (
+                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                  ) : (
+                    <Send className="w-3.5 h-3.5" />
+                  )}
                   <span>{sendingTest ? "Sending..." : "Dispatch Test"}</span>
                 </button>
               </form>
@@ -586,7 +653,9 @@ export const EmailTemplatesPage: React.FC = () => {
                   <div className="w-2.5 h-2.5 rounded-full bg-red-400" />
                   <div className="w-2.5 h-2.5 rounded-full bg-amber-400" />
                   <div className="w-2.5 h-2.5 rounded-full bg-emerald-400" />
-                  <span className="text-[11px] font-mono text-slate-400 ml-2">Inbox Preview</span>
+                  <span className="text-[11px] font-mono text-slate-400 ml-2">
+                    Inbox Preview
+                  </span>
                 </div>
                 <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
                   {previewDevice === "mobile" ? "Mobile View" : "Desktop View"}
@@ -596,13 +665,17 @@ export const EmailTemplatesPage: React.FC = () => {
               {/* Email Envelope Metadata */}
               <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/50 space-y-1.5 text-xs">
                 <div className="flex items-baseline gap-2">
-                  <span className="font-bold text-slate-400 w-16">Subject:</span>
+                  <span className="font-bold text-slate-400 w-16">
+                    Subject:
+                  </span>
                   <span className="font-bold text-slate-900 dark:text-white text-sm">
                     {renderedPreviewSubject}
                   </span>
                 </div>
                 <div className="flex items-baseline gap-2">
-                  <span className="font-semibold text-slate-400 w-16">From:</span>
+                  <span className="font-semibold text-slate-400 w-16">
+                    From:
+                  </span>
                   <span className="text-slate-700 dark:text-slate-300 font-mono text-[11px]">
                     Nexora Growth &lt;noreply@nexora.local&gt;
                   </span>
@@ -650,7 +723,8 @@ export const EmailTemplatesPage: React.FC = () => {
             </span>
           </div>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-            Visual HTML template designer, dynamic merge variable tags, live sandbox preview, and transactional delivery telemetry.
+            Visual HTML template designer, dynamic merge variable tags, live
+            sandbox preview, and transactional delivery telemetry.
           </p>
         </div>
 
@@ -672,8 +746,12 @@ export const EmailTemplatesPage: React.FC = () => {
             disabled={processingOutbox}
             className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 px-4 py-2 text-xs font-bold text-white shadow-md shadow-indigo-600/30 transition disabled:opacity-50"
           >
-            <Play className={`w-3.5 h-3.5 ${processingOutbox ? "animate-spin" : ""}`} />
-            <span>{processingOutbox ? "Processing Queue..." : "Run Outbox Worker"}</span>
+            <Play
+              className={`w-3.5 h-3.5 ${processingOutbox ? "animate-spin" : ""}`}
+            />
+            <span>
+              {processingOutbox ? "Processing Queue..." : "Run Outbox Worker"}
+            </span>
           </button>
         </div>
       </div>
@@ -732,7 +810,9 @@ export const EmailTemplatesPage: React.FC = () => {
                           : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700"
                       }`}
                     >
-                      <span className={`w-1.5 h-1.5 rounded-full ${t.isActive ? "bg-emerald-500" : "bg-slate-400"}`} />
+                      <span
+                        className={`w-1.5 h-1.5 rounded-full ${t.isActive ? "bg-emerald-500" : "bg-slate-400"}`}
+                      />
                       <span>{t.isActive ? "Active" : "Disabled"}</span>
                     </span>
                   </div>
@@ -753,7 +833,10 @@ export const EmailTemplatesPage: React.FC = () => {
 
                 <div className="flex items-center justify-between gap-2 border-t border-slate-200 dark:border-slate-800 pt-4 mt-5">
                   <span className="text-[11px] text-slate-400">
-                    Updated {new Date(t.updatedAtUtc || t.createdAtUtc).toLocaleDateString()}
+                    Updated{" "}
+                    {new Date(
+                      t.updatedAtUtc || t.createdAtUtc,
+                    ).toLocaleDateString()}
                   </span>
 
                   <button
@@ -790,7 +873,11 @@ export const EmailTemplatesPage: React.FC = () => {
               <select
                 value={logStatusFilter}
                 onChange={(e) =>
-                  setLogStatusFilter(e.target.value === "all" ? "all" : parseInt(e.target.value, 10))
+                  setLogStatusFilter(
+                    e.target.value === "all"
+                      ? "all"
+                      : parseInt(e.target.value, 10),
+                  )
                 }
                 className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white px-3 py-2 text-xs font-semibold focus:ring-2 focus:ring-indigo-500 focus:outline-none"
               >
@@ -812,7 +899,9 @@ export const EmailTemplatesPage: React.FC = () => {
           </div>
 
           {loadingLogs ? (
-            <div className="py-20 text-center text-slate-400 text-sm">Loading delivery logs...</div>
+            <div className="py-20 text-center text-slate-400 text-sm">
+              Loading delivery logs...
+            </div>
           ) : (
             <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden">
               <table className="min-w-full divide-y divide-slate-200 dark:divide-slate-800 text-xs">
@@ -828,7 +917,10 @@ export const EmailTemplatesPage: React.FC = () => {
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80 text-slate-700 dark:text-slate-300">
                   {filteredLogs.map((l) => (
-                    <tr key={l.id} className="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors">
+                    <tr
+                      key={l.id}
+                      className="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors"
+                    >
                       <td className="px-5 py-3.5 font-mono text-[11px] text-slate-500 whitespace-nowrap">
                         {new Date(l.createdAtUtc).toLocaleString()}
                       </td>
@@ -849,16 +941,26 @@ export const EmailTemplatesPage: React.FC = () => {
                             l.status === 2
                               ? "bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60"
                               : l.status === 3
-                              ? "bg-red-50 dark:bg-red-950/60 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800/60"
-                              : "bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800/60"
+                                ? "bg-red-50 dark:bg-red-950/60 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800/60"
+                                : "bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800/60"
                           }`}
                         >
                           <span
                             className={`w-1.5 h-1.5 rounded-full ${
-                              l.status === 2 ? "bg-emerald-500" : l.status === 3 ? "bg-red-500" : "bg-amber-500"
+                              l.status === 2
+                                ? "bg-emerald-500"
+                                : l.status === 3
+                                  ? "bg-red-500"
+                                  : "bg-amber-500"
                             }`}
                           />
-                          <span>{l.status === 2 ? "Dispatched" : l.status === 3 ? "Failed" : "Queued"}</span>
+                          <span>
+                            {l.status === 2
+                              ? "Dispatched"
+                              : l.status === 3
+                                ? "Failed"
+                                : "Queued"}
+                          </span>
                         </span>
                       </td>
                       <td className="px-5 py-3.5 text-slate-500">
@@ -867,14 +969,19 @@ export const EmailTemplatesPage: React.FC = () => {
                             {l.errorMessage}
                           </span>
                         ) : (
-                          <span className="text-emerald-500 text-[11px] font-mono">Mailpit OK</span>
+                          <span className="text-emerald-500 text-[11px] font-mono">
+                            Mailpit OK
+                          </span>
                         )}
                       </td>
                     </tr>
                   ))}
                   {filteredLogs.length === 0 && (
                     <tr>
-                      <td colSpan={6} className="px-5 py-12 text-center text-slate-400">
+                      <td
+                        colSpan={6}
+                        className="px-5 py-12 text-center text-slate-400"
+                      >
                         No delivery logs matched your filter.
                       </td>
                     </tr>

@@ -3,13 +3,14 @@
 > **Document Type:** Master Enterprise Gap Audit & Architectural Blueprint  
 > **Target Scope:** Admin Portal (`apps/admin`), Public Website (`apps/website`), Core API & Services (`backend/src`), and Database Persistence (`AppDbContext` / Migrations).  
 > **Version:** 2.5 Master Diagnostic  
-> **Date:** 2026-11-11  
+> **Date:** 2026-11-11
 
 ---
 
 ## 1. System Topology & Architecture Overview
 
 Nexora is an enterprise digital growth and marketing platform comprising:
+
 1. **Core Backend API (`Nexora.Api` :5201):** ASP.NET Core 10 Minimal APIs with EF Core, Identity, Serilog, and SQL Server persistence.
 2. **Background Worker (`Nexora.Worker`):** Background service for transactional outbox dispatch, scheduled retries, and lead SLA processing.
 3. **Admin Portal (`apps/admin` :5173 / :5174):** React 19, Vite, Redux Toolkit Query (RTK-Q), Tailwind CSS, Lucide icons.
@@ -23,6 +24,7 @@ Nexora is an enterprise digital growth and marketing platform comprising:
 ### 2.1. Global Shell & Layouts (`AdminLayout.tsx` & `Header.tsx`)
 
 #### A. Admin Shell (`apps/admin/src/layouts/AdminLayout.tsx`)
+
 - [ ] **Gap UI-01 (Dead Search Input / Command Palette):**
   - **Location:** `AdminLayout.tsx:473-479`
   - **Issue:** The top search input (`Search resources, CRM, leads...` with `Cmd+K` pill) is an unbound visual mockup. It has no `onChange`, no debounced query, and pressing `Cmd+K` or typing does nothing.
@@ -40,6 +42,7 @@ Nexora is an enterprise digital growth and marketing platform comprising:
   - **Issue:** Top header "Live Website" button is hardcoded to `http://localhost:3000` instead of reading `VITE_WEBSITE_URL` environment variable.
 
 #### B. Public Website Header (`apps/website/src/components/layout/Header.tsx`)
+
 - [ ] **Gap UI-05 (Missing Mobile Navigation Hamburger & Drawer — P0 CRITICAL):**
   - **Location:** `Header.tsx:93`
   - **Issue:** Navigation links are wrapped in `hidden lg:flex`. On screens smaller than 1024px (all mobile and tablet viewports), nav links completely vanish with NO hamburger toggle or mobile drawer. Mobile visitors cannot navigate the site.
@@ -54,27 +57,29 @@ Nexora is an enterprise digital growth and marketing platform comprising:
 ### 2.2. Authentication & Identity Flow
 
 #### A. Login Screen (`apps/admin/src/pages/auth/LoginPage.tsx`)
+
 - [ ] **Gap SEC-01 (Missing Password Eye On/Off Toggle):**
   - **Location:** `LoginPage.tsx:97-106`
   - **Issue:** Password input is fixed `type="password"`. Users typing complex passwords cannot toggle visibility to verify typing.
   - **Fix:** Add `showPassword` state and an `Eye` / `EyeOff` toggle button inside the input container.
 - [ ] **Gap SEC-02 (Generic Lockout Message):**
   - **Location:** `LoginPage.tsx:27-32`
-  - **Issue:** Backend locks out accounts after 5 consecutive failures for 15 minutes (`LockoutEnabled = true`). The UI renders generic *"Invalid email or password"*, giving no feedback that the account is locked.
-  - **Fix:** Detect 400/423 lockout response and display: *"Your account has been temporarily locked for 15 minutes due to multiple failed login attempts."*
+  - **Issue:** Backend locks out accounts after 5 consecutive failures for 15 minutes (`LockoutEnabled = true`). The UI renders generic _"Invalid email or password"_, giving no feedback that the account is locked.
+  - **Fix:** Detect 400/423 lockout response and display: _"Your account has been temporarily locked for 15 minutes due to multiple failed login attempts."_
 - [ ] **Gap SEC-03 (Redux Auth State Synchronization Lag):**
   - **Location:** `LoginPage.tsx:20-25`
   - **Issue:** `LoginPage` immediately redirects to `/auth/change-password` or `/dashboard` on `login.unwrap()`, but Redux `authSlice.mustChangePassword` is only updated when `useGetCurrentUserQuery()` refetches in the background.
   - **Fix:** Dispatch `mustChangePassword` directly into Redux upon login response.
 
 #### B. Force Password Change Screen (`apps/admin/src/pages/auth/ChangePasswordPage.tsx`)
+
 - [ ] **Gap SEC-04 (First-Time Login Flag Destructively Overwritten in Seeder — P0 CRITICAL):**
   - **Location:** `backend/src/Nexora.Infrastructure/Persistence/StartupSeeder.cs:259`
   - **Issue:** `StartupSeeder.cs` runs on every API start and explicitly executes `existingUser.MustChangePassword = false;`, wiping the flag for the admin user. As a result, the first-time password change prompt never triggers in development or restarted environments.
   - **Fix:** Remove the flag overwrite from `StartupSeeder.cs` so user's true `MustChangePassword` status is preserved.
 - [ ] **Gap SEC-05 (Current Password Mismatch on Initial Setup — P0 CRITICAL):**
   - **Location:** `ChangePasswordPage.tsx:87` vs `AuthEndpoints.cs:226`
-  - **Issue:** UI displays label: *"Current Password (Optional if initial setup)"*. But backend `ChangePasswordRequestDto` requires `CurrentPassword` as non-null string and calls `_userManager.ChangePasswordAsync`. Leaving it blank returns `400 Bad Request: Incorrect password`.
+  - **Issue:** UI displays label: _"Current Password (Optional if initial setup)"_. But backend `ChangePasswordRequestDto` requires `CurrentPassword` as non-null string and calls `_userManager.ChangePasswordAsync`. Leaving it blank returns `400 Bad Request: Incorrect password`.
   - **Fix:** Require `currentPassword` in the form or allow a backend bypass if user is authenticated and `MustChangePassword == true`.
 - [ ] **Gap SEC-06 (Missing Eye Toggle on All 3 Password Inputs):**
   - **Location:** `ChangePasswordPage.tsx:89-133`
@@ -98,6 +103,7 @@ Nexora is an enterprise digital growth and marketing platform comprising:
   - **Fix:** Guard `/auth/change-password` to redirect unauthenticated visitors to `/login`.
 
 #### C. Reset Password Screen (`apps/admin/src/pages/auth/ResetPasswordPage.tsx`)
+
 - [ ] **Gap SEC-11 (Missing Eye Toggles on Reset Password):**
   - **Location:** `ResetPasswordPage.tsx:125-155`
   - **Issue:** `newPassword` and `confirmPassword` lack Eye toggles.
@@ -323,13 +329,14 @@ flowchart TD
 
 ## 4. Current Test Suite Status
 
-| Test Suite | Total Tests | Passed | Failed | Skipped | Status |
-|---|:---:|:---:|:---:|:---:|:---:|
-| **Backend Integration Suite** (`Nexora.IntegrationTests`) | 97 | 97 | 0 | 0 | **100% Green** |
-| **Backend Unit Suites** (`Domain`, `Application`, `Infrastructure`) | 9 | 9 | 0 | 0 | **100% Green** |
-| **Admin Vitest Suite** (`apps/admin`) | 6 | 6 | 0 | 0 | **100% Green** |
-| **Website Vitest Suite** (`apps/website`) | 7 | 7 | 0 | 0 | **100% Green** |
-| **ESLint Workspace Linting** | All packages | 0 warnings | 0 errors | - | **100% Clean** |
+| Test Suite                                                          | Total Tests  |   Passed   |  Failed  | Skipped |     Status     |
+| ------------------------------------------------------------------- | :----------: | :--------: | :------: | :-----: | :------------: |
+| **Backend Integration Suite** (`Nexora.IntegrationTests`)           |      97      |     97     |    0     |    0    | **100% Green** |
+| **Backend Unit Suites** (`Domain`, `Application`, `Infrastructure`) |      9       |     9      |    0     |    0    | **100% Green** |
+| **Admin Vitest Suite** (`apps/admin`)                               |      6       |     6      |    0     |    0    | **100% Green** |
+| **Website Vitest Suite** (`apps/website`)                           |      7       |     7      |    0     |    0    | **100% Green** |
+| **ESLint Workspace Linting**                                        | All packages | 0 warnings | 0 errors |    -    | **100% Clean** |
 
 ---
-*Archived at `d:\Nexora-Digital-Marketing-Platform\AUDIT_GAPS_AND_ROADMAP.md`.*
+
+_Archived at `d:\Nexora-Digital-Marketing-Platform\AUDIT_GAPS_AND_ROADMAP.md`._

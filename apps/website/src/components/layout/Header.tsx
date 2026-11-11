@@ -4,7 +4,14 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import type { PublicSiteSettings, PublicMenu } from "../../lib/cms";
-import { Sparkles, ArrowRight, ShieldCheck, Globe2, Menu, X } from "lucide-react";
+import {
+  Sparkles,
+  ArrowRight,
+  ShieldCheck,
+  Globe2,
+  Menu,
+  X,
+} from "lucide-react";
 
 interface HeaderProps {
   settings?: PublicSiteSettings | null;
@@ -40,7 +47,8 @@ export const Header: React.FC<HeaderProps> = ({ settings, menu }) => {
     { id: "contact", label: "Contact", url: "/contact" },
   ];
 
-  const items = menu?.items && menu.items.length > 0 ? menu.items : defaultLinks;
+  const items =
+    menu?.items && menu.items.length > 0 ? menu.items : defaultLinks;
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-slate-800/80 bg-slate-950/80 backdrop-blur-xl transition-all">
@@ -48,10 +56,12 @@ export const Header: React.FC<HeaderProps> = ({ settings, menu }) => {
       <div className="bg-gradient-to-r from-indigo-950 via-slate-950 to-indigo-950 text-white text-[11px] py-2 px-4 text-center border-b border-indigo-900/40">
         <div className="max-w-[1720px] 2xl:max-w-[1920px] mx-auto flex items-center justify-center gap-2 font-medium">
           <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 font-bold border border-indigo-500/30 text-[10px]">
-            <Sparkles className="w-3 h-3 text-amber-300" /> Enterprise Engine 2.0
+            <Sparkles className="w-3 h-3 text-amber-300" /> Enterprise Engine
+            2.0
           </span>
           <span className="text-slate-300">
-            Global B2B Performance Marketing & Multi-Touch Attribution Infrastructure
+            Global B2B Performance Marketing & Multi-Touch Attribution
+            Infrastructure
           </span>
           <Link
             href="/contact"
@@ -83,7 +93,8 @@ export const Header: React.FC<HeaderProps> = ({ settings, menu }) => {
                 {companyName}
               </span>
               <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-indigo-500/15 text-indigo-300 text-[10px] font-bold border border-indigo-500/30">
-                <ShieldCheck className="w-2.5 h-2.5 text-emerald-400" /> SOC2 TYPE II
+                <ShieldCheck className="w-2.5 h-2.5 text-emerald-400" /> SOC2
+                TYPE II
               </span>
             </div>
             <span className="text-[10px] uppercase font-bold tracking-widest text-indigo-400 block mt-0.5">
@@ -144,7 +155,11 @@ export const Header: React.FC<HeaderProps> = ({ settings, menu }) => {
             className="lg:hidden p-2 rounded-xl text-slate-300 hover:text-white bg-slate-900/80 border border-slate-800 focus:outline-none"
             aria-label="Toggle navigation menu"
           >
-            {mobileMenuOpen ? <X className="w-6 h-6 text-indigo-400" /> : <Menu className="w-6 h-6" />}
+            {mobileMenuOpen ? (
+              <X className="w-6 h-6 text-indigo-400" />
+            ) : (
+              <Menu className="w-6 h-6" />
+            )}
           </button>
         </div>
       </div>
@@ -182,7 +197,9 @@ export const Header: React.FC<HeaderProps> = ({ settings, menu }) => {
             </Link>
 
             <a
-              href={process.env.NEXT_PUBLIC_ADMIN_URL || "http://localhost:5174"}
+              href={
+                process.env.NEXT_PUBLIC_ADMIN_URL || "http://localhost:5174"
+              }
               target="_blank"
               rel="noreferrer"
               onClick={() => setMobileMenuOpen(false)}

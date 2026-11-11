@@ -25,12 +25,20 @@ import {
   Check,
 } from "lucide-react";
 
-const BLOCK_TEMPLATES: Record<string, { label: string; defaultContent: Record<string, unknown>; defaultSettings: Record<string, unknown> }> = {
+const BLOCK_TEMPLATES: Record<
+  string,
+  {
+    label: string;
+    defaultContent: Record<string, unknown>;
+    defaultSettings: Record<string, unknown>;
+  }
+> = {
   Hero: {
     label: "Hero Section",
     defaultContent: {
       headline: "Accelerate Your Digital Growth",
-      subheadline: "AI-powered digital marketing strategies delivering measurable ROI.",
+      subheadline:
+        "AI-powered digital marketing strategies delivering measurable ROI.",
       primaryCtaText: "Get Started Free",
       primaryCtaLink: "/contact",
       secondaryCtaText: "Explore Solutions",
@@ -58,11 +66,23 @@ const BLOCK_TEMPLATES: Record<string, { label: string; defaultContent: Record<st
     label: "Feature Grid",
     defaultContent: {
       sectionTitle: "Built for Modern Scale",
-      sectionSubtitle: "Explore cutting-edge features tailored to your industry.",
+      sectionSubtitle:
+        "Explore cutting-edge features tailored to your industry.",
       features: [
-        { title: "Precision Audience Targeting", description: "Reach high-intent prospects across multi-channel campaigns." },
-        { title: "Real-time Attribution", description: "Full-funnel reporting with deterministic conversion metrics." },
-        { title: "Automated Experimentation", description: "Continuously test ad creatives and landing page copy." },
+        {
+          title: "Precision Audience Targeting",
+          description:
+            "Reach high-intent prospects across multi-channel campaigns.",
+        },
+        {
+          title: "Real-time Attribution",
+          description:
+            "Full-funnel reporting with deterministic conversion metrics.",
+        },
+        {
+          title: "Automated Experimentation",
+          description: "Continuously test ad creatives and landing page copy.",
+        },
       ],
     },
     defaultSettings: {
@@ -85,8 +105,14 @@ const BLOCK_TEMPLATES: Record<string, { label: string; defaultContent: Record<st
     defaultContent: {
       title: "Frequently Asked Questions",
       items: [
-        { question: "How fast can we launch campaigns?", answer: "Most clients deploy their first campaign within 48 hours." },
-        { question: "Does Nexora support multi-region governance?", answer: "Yes, multi-region compliance and localization are native." },
+        {
+          question: "How fast can we launch campaigns?",
+          answer: "Most clients deploy their first campaign within 48 hours.",
+        },
+        {
+          question: "Does Nexora support multi-region governance?",
+          answer: "Yes, multi-region compliance and localization are native.",
+        },
       ],
     },
     defaultSettings: {},
@@ -95,17 +121,20 @@ const BLOCK_TEMPLATES: Record<string, { label: string; defaultContent: Record<st
     label: "Client Testimonials & Proof",
     defaultContent: {
       sectionTitle: "Validated by Enterprise Leaders",
-      sectionSubtitle: "Discover how global brands scale predictable pipeline with Nexora.",
+      sectionSubtitle:
+        "Discover how global brands scale predictable pipeline with Nexora.",
       testimonials: [
         {
-          quote: "Nexora increased our pipeline velocity by 340% within two quarters.",
+          quote:
+            "Nexora increased our pipeline velocity by 340% within two quarters.",
           author: "Aditi Rao",
           role: "VP of Global Marketing",
           company: "Apex Cloud Enterprise",
           rating: 5,
         },
         {
-          quote: "The automated audience modeling and deterministic lead scoring transformed our conversion rates.",
+          quote:
+            "The automated audience modeling and deterministic lead scoring transformed our conversion rates.",
           author: "Marcus Vance",
           role: "Chief Commercial Officer",
           company: "Synapse Financial Networks",
@@ -119,14 +148,20 @@ const BLOCK_TEMPLATES: Record<string, { label: string; defaultContent: Record<st
     label: "Pricing & Engagement Tiers",
     defaultContent: {
       sectionTitle: "Predictable Growth Infrastructure",
-      sectionSubtitle: "Transparent engagement models engineered for enterprise marketing velocity.",
+      sectionSubtitle:
+        "Transparent engagement models engineered for enterprise marketing velocity.",
       plans: [
         {
           name: "Growth Engine",
-          description: "For scaling B2B businesses establishing full-funnel digital dominance.",
+          description:
+            "For scaling B2B businesses establishing full-funnel digital dominance.",
           monthlyPrice: "$2,490",
           annualPrice: "$1,990",
-          features: ["Multi-Touch Attribution Engine", "Deterministic Lead Scoring", "Weekly Growth Architect Advisory"],
+          features: [
+            "Multi-Touch Attribution Engine",
+            "Deterministic Lead Scoring",
+            "Weekly Growth Architect Advisory",
+          ],
           ctaText: "Launch Growth Engine",
           ctaLink: "/contact",
           isPopular: false,
@@ -134,10 +169,15 @@ const BLOCK_TEMPLATES: Record<string, { label: string; defaultContent: Record<st
         {
           name: "Enterprise Scale",
           badge: "Most Selected",
-          description: "For mid-to-large enterprises requiring multi-region campaign governance.",
+          description:
+            "For mid-to-large enterprises requiring multi-region campaign governance.",
           monthlyPrice: "$4,990",
           annualPrice: "$3,990",
-          features: ["Everything in Growth Engine", "Cross-Border Multi-Region Routing", "24/7 Dedicated Support & 99.9% SLA"],
+          features: [
+            "Everything in Growth Engine",
+            "Cross-Border Multi-Region Routing",
+            "24/7 Dedicated Support & 99.9% SLA",
+          ],
           ctaText: "Request Enterprise Pilot",
           ctaLink: "/contact",
           isPopular: true,
@@ -160,7 +200,11 @@ export const PageEditorPage: React.FC = () => {
   const navigate = useNavigate();
   const { hasPermission } = useAuth();
 
-  const { data: page, isLoading, refetch } = useGetPageByIdQuery(id || "", {
+  const {
+    data: page,
+    isLoading,
+    refetch,
+  } = useGetPageByIdQuery(id || "", {
     skip: !id,
   });
 
@@ -170,7 +214,9 @@ export const PageEditorPage: React.FC = () => {
 
   const [title, setTitle] = useState("");
   const [blocks, setBlocks] = useState<CmsBlock[]>([]);
-  const [selectedBlockIndex, setSelectedBlockIndex] = useState<number | null>(null);
+  const [selectedBlockIndex, setSelectedBlockIndex] = useState<number | null>(
+    null,
+  );
   const [activeTab, setActiveTab] = useState<"sections" | "seo">("sections");
   const [versionToken, setVersionToken] = useState("");
   const [metaTitle, setMetaTitle] = useState("");
@@ -179,10 +225,15 @@ export const PageEditorPage: React.FC = () => {
   const [noIndex, setNoIndex] = useState(false);
 
   // Status banner / Conflict state
-  const [saveMessage, setSaveMessage] = useState<{ text: string; type: "success" | "error" } | null>(null);
+  const [saveMessage, setSaveMessage] = useState<{
+    text: string;
+    type: "success" | "error";
+  } | null>(null);
 
   // Live preview settings
-  const [previewDevice, setPreviewDevice] = useState<"desktop" | "tablet" | "mobile">("desktop");
+  const [previewDevice, setPreviewDevice] = useState<
+    "desktop" | "tablet" | "mobile"
+  >("desktop");
   const [iframeKey, setIframeKey] = useState(0);
 
   useEffect(() => {
@@ -195,7 +246,7 @@ export const PageEditorPage: React.FC = () => {
       setCanonicalUrl(page.canonicalUrl || "");
       setNoIndex(page.noIndex);
       setSelectedBlockIndex((prev) =>
-        page.blocks && page.blocks.length > 0 && prev === null ? 0 : prev
+        page.blocks && page.blocks.length > 0 && prev === null ? 0 : prev,
       );
     }
   }, [page]);
@@ -269,7 +320,10 @@ export const PageEditorPage: React.FC = () => {
 
       const res = await saveDraft({ id, body: payload }).unwrap();
       setVersionToken(res.versionToken);
-      setSaveMessage({ text: "Draft saved. Updating live preview...", type: "success" });
+      setSaveMessage({
+        text: "Draft saved. Updating live preview...",
+        type: "success",
+      });
       setIframeKey((k) => k + 1);
       setTimeout(() => setSaveMessage(null), 3000);
     } catch (err: unknown) {
@@ -301,10 +355,11 @@ export const PageEditorPage: React.FC = () => {
     if (!id || !page) return;
     try {
       const res = await generatePreviewToken(id).unwrap();
-      const websiteUrl = import.meta.env.VITE_WEBSITE_URL || "http://localhost:3000";
+      const websiteUrl =
+        import.meta.env.VITE_WEBSITE_URL || "http://localhost:3000";
       window.open(
         `${websiteUrl}/api/preview?token=${res.token}&slug=${encodeURIComponent(page.slug)}`,
-        "_blank"
+        "_blank",
       );
     } catch {
       alert("Failed to generate preview token.");
@@ -329,7 +384,9 @@ export const PageEditorPage: React.FC = () => {
     return (
       <div className="flex h-96 items-center justify-center text-slate-400 gap-2">
         <RefreshCw className="w-5 h-5 animate-spin text-indigo-500" />
-        <span className="text-sm font-semibold">Loading Visual Page Studio...</span>
+        <span className="text-sm font-semibold">
+          Loading Visual Page Studio...
+        </span>
       </div>
     );
   }
@@ -338,14 +395,18 @@ export const PageEditorPage: React.FC = () => {
     return (
       <div className="p-12 text-center text-slate-500">
         Page not found.{" "}
-        <button onClick={() => navigate("/cms/pages")} className="text-indigo-600 underline font-semibold">
+        <button
+          onClick={() => navigate("/cms/pages")}
+          className="text-indigo-600 underline font-semibold"
+        >
           Return to Pages
         </button>
       </div>
     );
   }
 
-  const liveWebsiteBase = import.meta.env.VITE_WEBSITE_URL || "http://localhost:3000";
+  const liveWebsiteBase =
+    import.meta.env.VITE_WEBSITE_URL || "http://localhost:3000";
   const previewPagePath = page.slug === "home" ? "" : page.slug;
   const iframeTargetUrl = `${liveWebsiteBase}/${previewPagePath}`;
 
@@ -380,7 +441,9 @@ export const PageEditorPage: React.FC = () => {
                     : "bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800/60"
                 }`}
               >
-                <span className={`w-1.5 h-1.5 rounded-full ${page.status === 1 ? "bg-emerald-500" : "bg-amber-500"}`} />
+                <span
+                  className={`w-1.5 h-1.5 rounded-full ${page.status === 1 ? "bg-emerald-500" : "bg-amber-500"}`}
+                />
                 <span>{page.status === 1 ? "Live" : "Draft"}</span>
               </span>
             </div>
@@ -418,7 +481,11 @@ export const PageEditorPage: React.FC = () => {
               disabled={isSaving}
               className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-700 transition disabled:opacity-50"
             >
-              {isSaving ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
+              {isSaving ? (
+                <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+              ) : (
+                <Check className="w-3.5 h-3.5" />
+              )}
               <span>{isSaving ? "Saving..." : "Save Draft"}</span>
             </button>
           )}
@@ -429,7 +496,11 @@ export const PageEditorPage: React.FC = () => {
               disabled={isPublishing}
               className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-500 shadow-md shadow-emerald-600/30 transition disabled:opacity-50"
             >
-              {isPublishing ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
+              {isPublishing ? (
+                <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+              ) : (
+                <Sparkles className="w-3.5 h-3.5" />
+              )}
               <span>{isPublishing ? "Publishing..." : "Publish Live"}</span>
             </button>
           )}
@@ -474,7 +545,9 @@ export const PageEditorPage: React.FC = () => {
                   <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                     + Add Section Block
                   </span>
-                  <span className="text-[11px] text-slate-400">Click to append to bottom</span>
+                  <span className="text-[11px] text-slate-400">
+                    Click to append to bottom
+                  </span>
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                   {Object.entries(BLOCK_TEMPLATES).map(([type, template]) => (
@@ -487,7 +560,9 @@ export const PageEditorPage: React.FC = () => {
                       <span className="text-xs font-bold text-slate-800 dark:text-slate-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400">
                         {template.label}
                       </span>
-                      <span className="text-[10px] text-slate-400 font-mono mt-0.5">{type}</span>
+                      <span className="text-[10px] text-slate-400 font-mono mt-0.5">
+                        {type}
+                      </span>
                     </button>
                   ))}
                 </div>
@@ -499,12 +574,15 @@ export const PageEditorPage: React.FC = () => {
                   <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                     Sections Tree & Visibility
                   </span>
-                  <span className="text-[11px] text-slate-400">Reorder or toggle visibility</span>
+                  <span className="text-[11px] text-slate-400">
+                    Reorder or toggle visibility
+                  </span>
                 </div>
 
                 {blocks.length === 0 ? (
                   <p className="text-xs text-slate-400 py-6 text-center">
-                    No sections added yet. Use the component palette above to add one.
+                    No sections added yet. Use the component palette above to
+                    add one.
                   </p>
                 ) : (
                   blocks.map((b, idx) => {
@@ -532,9 +610,15 @@ export const PageEditorPage: React.FC = () => {
                                 handleToggleBlock(idx);
                               }}
                               className={`w-8 h-4 rounded-full transition-colors flex items-center px-0.5 flex-shrink-0 ${
-                                isEnabled ? "bg-emerald-500 justify-end" : "bg-slate-300 dark:bg-slate-700 justify-start"
+                                isEnabled
+                                  ? "bg-emerald-500 justify-end"
+                                  : "bg-slate-300 dark:bg-slate-700 justify-start"
                               }`}
-                              title={isEnabled ? "Section is Visible (Click to Hide)" : "Section is Hidden (Click to Show)"}
+                              title={
+                                isEnabled
+                                  ? "Section is Visible (Click to Hide)"
+                                  : "Section is Hidden (Click to Show)"
+                              }
                             >
                               <div className="w-3 h-3 rounded-full bg-white shadow-xs" />
                             </button>
@@ -547,8 +631,8 @@ export const PageEditorPage: React.FC = () => {
                                 isSelected
                                   ? "text-indigo-600 dark:text-indigo-400"
                                   : isEnabled
-                                  ? "text-slate-800 dark:text-slate-200"
-                                  : "text-slate-400 line-through"
+                                    ? "text-slate-800 dark:text-slate-200"
+                                    : "text-slate-400 line-through"
                               }`}
                             >
                               {BLOCK_TEMPLATES[b.type]?.label || b.type}
@@ -611,7 +695,12 @@ export const PageEditorPage: React.FC = () => {
                                   <input
                                     type="text"
                                     value={(b.content.headline as string) || ""}
-                                    onChange={(e) => updateSelectedBlockContent("headline", e.target.value)}
+                                    onChange={(e) =>
+                                      updateSelectedBlockContent(
+                                        "headline",
+                                        e.target.value,
+                                      )
+                                    }
                                     className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2 text-xs font-semibold text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                                   />
                                 </div>
@@ -621,8 +710,15 @@ export const PageEditorPage: React.FC = () => {
                                   </label>
                                   <textarea
                                     rows={2}
-                                    value={(b.content.subheadline as string) || ""}
-                                    onChange={(e) => updateSelectedBlockContent("subheadline", e.target.value)}
+                                    value={
+                                      (b.content.subheadline as string) || ""
+                                    }
+                                    onChange={(e) =>
+                                      updateSelectedBlockContent(
+                                        "subheadline",
+                                        e.target.value,
+                                      )
+                                    }
                                     className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2 text-xs text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                                   />
                                 </div>
@@ -633,8 +729,16 @@ export const PageEditorPage: React.FC = () => {
                                     </label>
                                     <input
                                       type="text"
-                                      value={(b.content.primaryCtaText as string) || ""}
-                                      onChange={(e) => updateSelectedBlockContent("primaryCtaText", e.target.value)}
+                                      value={
+                                        (b.content.primaryCtaText as string) ||
+                                        ""
+                                      }
+                                      onChange={(e) =>
+                                        updateSelectedBlockContent(
+                                          "primaryCtaText",
+                                          e.target.value,
+                                        )
+                                      }
                                       className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2 text-xs text-slate-900 dark:text-white"
                                     />
                                   </div>
@@ -644,8 +748,16 @@ export const PageEditorPage: React.FC = () => {
                                     </label>
                                     <input
                                       type="text"
-                                      value={(b.content.primaryCtaLink as string) || ""}
-                                      onChange={(e) => updateSelectedBlockContent("primaryCtaLink", e.target.value)}
+                                      value={
+                                        (b.content.primaryCtaLink as string) ||
+                                        ""
+                                      }
+                                      onChange={(e) =>
+                                        updateSelectedBlockContent(
+                                          "primaryCtaLink",
+                                          e.target.value,
+                                        )
+                                      }
                                       className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2 text-xs text-slate-900 dark:text-white"
                                     />
                                   </div>
@@ -662,8 +774,15 @@ export const PageEditorPage: React.FC = () => {
                                   </label>
                                   <input
                                     type="text"
-                                    value={(b.content.sectionTitle as string) || ""}
-                                    onChange={(e) => updateSelectedBlockContent("sectionTitle", e.target.value)}
+                                    value={
+                                      (b.content.sectionTitle as string) || ""
+                                    }
+                                    onChange={(e) =>
+                                      updateSelectedBlockContent(
+                                        "sectionTitle",
+                                        e.target.value,
+                                      )
+                                    }
                                     className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2 text-xs font-semibold text-slate-900 dark:text-white"
                                   />
                                 </div>
@@ -673,8 +792,16 @@ export const PageEditorPage: React.FC = () => {
                                   </label>
                                   <input
                                     type="text"
-                                    value={(b.content.sectionSubtitle as string) || ""}
-                                    onChange={(e) => updateSelectedBlockContent("sectionSubtitle", e.target.value)}
+                                    value={
+                                      (b.content.sectionSubtitle as string) ||
+                                      ""
+                                    }
+                                    onChange={(e) =>
+                                      updateSelectedBlockContent(
+                                        "sectionSubtitle",
+                                        e.target.value,
+                                      )
+                                    }
                                     className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2 text-xs text-slate-900 dark:text-white"
                                   />
                                 </div>
@@ -691,7 +818,12 @@ export const PageEditorPage: React.FC = () => {
                                   <input
                                     type="text"
                                     value={(b.content.headline as string) || ""}
-                                    onChange={(e) => updateSelectedBlockContent("headline", e.target.value)}
+                                    onChange={(e) =>
+                                      updateSelectedBlockContent(
+                                        "headline",
+                                        e.target.value,
+                                      )
+                                    }
                                     className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2 text-xs font-semibold text-slate-900 dark:text-white"
                                   />
                                 </div>
@@ -702,8 +834,15 @@ export const PageEditorPage: React.FC = () => {
                                     </label>
                                     <input
                                       type="text"
-                                      value={(b.content.buttonText as string) || ""}
-                                      onChange={(e) => updateSelectedBlockContent("buttonText", e.target.value)}
+                                      value={
+                                        (b.content.buttonText as string) || ""
+                                      }
+                                      onChange={(e) =>
+                                        updateSelectedBlockContent(
+                                          "buttonText",
+                                          e.target.value,
+                                        )
+                                      }
                                       className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2 text-xs text-slate-900 dark:text-white"
                                     />
                                   </div>
@@ -713,8 +852,15 @@ export const PageEditorPage: React.FC = () => {
                                     </label>
                                     <input
                                       type="text"
-                                      value={(b.content.buttonLink as string) || ""}
-                                      onChange={(e) => updateSelectedBlockContent("buttonLink", e.target.value)}
+                                      value={
+                                        (b.content.buttonLink as string) || ""
+                                      }
+                                      onChange={(e) =>
+                                        updateSelectedBlockContent(
+                                          "buttonLink",
+                                          e.target.value,
+                                        )
+                                      }
                                       className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2 text-xs text-slate-900 dark:text-white"
                                     />
                                   </div>
@@ -723,7 +869,9 @@ export const PageEditorPage: React.FC = () => {
                             )}
 
                             {/* FAQ & RichText Editor Fields */}
-                            {(b.type === "FAQ" || b.type === "RichText" || b.type === "Stats") && (
+                            {(b.type === "FAQ" ||
+                              b.type === "RichText" ||
+                              b.type === "Stats") && (
                               <div>
                                 <label className="block text-[11px] font-bold text-slate-500 mb-1">
                                   Raw Content JSON
@@ -737,7 +885,10 @@ export const PageEditorPage: React.FC = () => {
                                       const updated = [...blocks];
                                       const cur = updated[idx];
                                       if (cur) {
-                                        updated[idx] = { ...cur, content: parsed };
+                                        updated[idx] = {
+                                          ...cur,
+                                          content: parsed,
+                                        };
                                         setBlocks(updated);
                                       }
                                     } catch {
@@ -899,8 +1050,8 @@ export const PageEditorPage: React.FC = () => {
               previewDevice === "mobile"
                 ? "max-w-[390px]"
                 : previewDevice === "tablet"
-                ? "max-w-[768px]"
-                : "w-full"
+                  ? "max-w-[768px]"
+                  : "w-full"
             }`}
           >
             {/* Chrome Bar */}
@@ -911,7 +1062,9 @@ export const PageEditorPage: React.FC = () => {
                 <div className="w-2.5 h-2.5 rounded-full bg-emerald-400" />
                 <div className="ml-3 px-3 py-1 rounded-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-[10px] font-mono text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                  <span className="truncate max-w-[260px]">{iframeTargetUrl}</span>
+                  <span className="truncate max-w-[260px]">
+                    {iframeTargetUrl}
+                  </span>
                 </div>
               </div>
               <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">

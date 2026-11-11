@@ -19,7 +19,10 @@ export default async function RootLayout({
 
   return (
     <html lang={locale} suppressHydrationWarning>
-      <body className="min-h-screen antialiased bg-white text-slate-900 font-sans" suppressHydrationWarning>
+      <body
+        className="min-h-screen antialiased bg-white text-slate-900 font-sans"
+        suppressHydrationWarning
+      >
         <NextIntlClientProvider locale={locale} messages={messages}>
           {children}
           <CookieBanner />

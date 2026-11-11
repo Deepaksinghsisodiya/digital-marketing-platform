@@ -25,7 +25,7 @@ export const authSlice = createSlice({
   reducers: {
     setCsrf: (
       state,
-      action: PayloadAction<{ token: string; headerName?: string }>
+      action: PayloadAction<{ token: string; headerName?: string }>,
     ) => {
       state.csrfToken = action.payload.token;
       if (action.payload.headerName) {

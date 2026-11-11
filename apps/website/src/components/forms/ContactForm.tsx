@@ -6,7 +6,9 @@ interface ContactFormProps {
   initialRegion?: string;
 }
 
-export const ContactForm: React.FC<ContactFormProps> = ({ initialRegion = "in" }) => {
+export const ContactForm: React.FC<ContactFormProps> = ({
+  initialRegion = "in",
+}) => {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -20,7 +22,9 @@ export const ContactForm: React.FC<ContactFormProps> = ({ initialRegion = "in" }
   const [timeTrapToken, setTimeTrapToken] = useState<string | null>(null);
 
   const idempotencyKeyRef = useRef<string>(
-    typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : ""
+    typeof crypto !== "undefined" && crypto.randomUUID
+      ? crypto.randomUUID()
+      : "",
   );
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -62,12 +66,16 @@ export const ContactForm: React.FC<ContactFormProps> = ({ initialRegion = "in" }
     setReferenceNumber(null);
 
     if (!consentGiven) {
-      setErrorMessage("Please accept the privacy consent to submit your inquiry.");
+      setErrorMessage(
+        "Please accept the privacy consent to submit your inquiry.",
+      );
       return;
     }
 
     if (!apiUrl) {
-      setErrorMessage("API configuration error: NEXT_PUBLIC_API_URL is not set.");
+      setErrorMessage(
+        "API configuration error: NEXT_PUBLIC_API_URL is not set.",
+      );
       return;
     }
 
@@ -90,22 +98,32 @@ export const ContactForm: React.FC<ContactFormProps> = ({ initialRegion = "in" }
         idempotencyKey: idempotencyKeyRef.current || undefined,
       };
 
-      const res = await fetch(`${apiUrl}/api/v1/public/forms/contact/submissions`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...(idempotencyKeyRef.current ? { "X-Idempotency-Key": idempotencyKeyRef.current } : {}),
+      const res = await fetch(
+        `${apiUrl}/api/v1/public/forms/contact/submissions`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ...(idempotencyKeyRef.current
+              ? { "X-Idempotency-Key": idempotencyKeyRef.current }
+              : {}),
+          },
+          body: JSON.stringify(payload),
         },
-        body: JSON.stringify(payload),
-      });
+      );
 
       const data = await res.json().catch(() => ({}));
 
       if (!res.ok) {
-        throw new Error(data.error || "Failed to submit inquiry. Please try again.");
+        throw new Error(
+          data.error || "Failed to submit inquiry. Please try again.",
+        );
       }
 
-      setSubmitSuccess(data.message || "Thank you! Your inquiry has been submitted successfully.");
+      setSubmitSuccess(
+        data.message ||
+          "Thank you! Your inquiry has been submitted successfully.",
+      );
       if (data.referenceNumber) {
         setReferenceNumber(data.referenceNumber);
       }
@@ -119,7 +137,9 @@ export const ContactForm: React.FC<ContactFormProps> = ({ initialRegion = "in" }
       setConsentGiven(false);
     } catch (err: unknown) {
       const e = err as Error;
-      setErrorMessage(e.message || "Something went wrong. Please check your connection.");
+      setErrorMessage(
+        e.message || "Something went wrong. Please check your connection.",
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -132,7 +152,8 @@ export const ContactForm: React.FC<ContactFormProps> = ({ initialRegion = "in" }
           Request an Executive Consultation
         </h2>
         <p className="mt-1 text-sm text-slate-600">
-          Tell us about your digital growth goals. Our enterprise team will respond within 1 business day.
+          Tell us about your digital growth goals. Our enterprise team will
+          respond within 1 business day.
         </p>
       </div>
 
@@ -141,8 +162,12 @@ export const ContactForm: React.FC<ContactFormProps> = ({ initialRegion = "in" }
           <div className="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto text-xl font-bold">
             ✓
           </div>
-          <h3 className="text-lg font-bold text-emerald-900">Inquiry Received</h3>
-          <p className="text-xs text-emerald-700 leading-relaxed">{submitSuccess}</p>
+          <h3 className="text-lg font-bold text-emerald-900">
+            Inquiry Received
+          </h3>
+          <p className="text-xs text-emerald-700 leading-relaxed">
+            {submitSuccess}
+          </p>
           {referenceNumber && (
             <p className="text-xs font-mono bg-emerald-100 text-emerald-800 px-3 py-1 rounded-md inline-block">
               Reference: {referenceNumber}
@@ -295,8 +320,12 @@ export const ContactForm: React.FC<ContactFormProps> = ({ initialRegion = "in" }
               onChange={(e) => setConsentGiven(e.target.checked)}
               className="mt-1 h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
             />
-            <label htmlFor="consent" className="text-xs text-slate-600 leading-relaxed">
-              I consent to Nexora processing my contact details to evaluate our business inquiry and contact me regarding enterprise solutions.
+            <label
+              htmlFor="consent"
+              className="text-xs text-slate-600 leading-relaxed"
+            >
+              I consent to Nexora processing my contact details to evaluate our
+              business inquiry and contact me regarding enterprise solutions.
             </label>
           </div>
 
@@ -314,4 +343,3 @@ export const ContactForm: React.FC<ContactFormProps> = ({ initialRegion = "in" }
     </div>
   );
 };
-

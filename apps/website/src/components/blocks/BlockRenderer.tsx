@@ -25,7 +25,10 @@ interface BlockRendererProps {
   userRegion?: string;
 }
 
-export const BlockRenderer: React.FC<BlockRendererProps> = ({ blocks, userRegion }) => {
+export const BlockRenderer: React.FC<BlockRendererProps> = ({
+  blocks,
+  userRegion,
+}) => {
   if (!blocks || blocks.length === 0) {
     return null;
   }
@@ -54,7 +57,9 @@ export const BlockRenderer: React.FC<BlockRendererProps> = ({ blocks, userRegion
         if (!Component) {
           // Gracefully skip unknown block and log warning
           // eslint-disable-next-line no-console
-          console.warn(`[BlockRenderer] Unknown block type: '${block.type}'. Skipping rendering.`);
+          console.warn(
+            `[BlockRenderer] Unknown block type: '${block.type}'. Skipping rendering.`,
+          );
           return null;
         }
 
