@@ -1296,6 +1296,16 @@ namespace Nexora.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("AnnouncementBarJson")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(max)")
+                        .HasDefaultValue("{}");
+
+                    b.Property<string>("BookingUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
                     b.Property<string>("CompanyName")
                         .IsRequired()
                         .HasMaxLength(200)
@@ -1308,6 +1318,9 @@ namespace Nexora.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasMaxLength(10)
                         .HasColumnType("nvarchar(10)");
+
+                    b.Property<Guid?>("FaviconMediaId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("LegalName")
                         .IsRequired()
@@ -1360,6 +1373,12 @@ namespace Nexora.Infrastructure.Persistence.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
+                    b.Property<string>("SocialLinksJson")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(max)")
+                        .HasDefaultValue("{}");
+
                     b.Property<string>("SupportEmail")
                         .IsRequired()
                         .HasMaxLength(256)
@@ -1374,10 +1393,22 @@ namespace Nexora.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("ThemeTokensJson")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(max)")
+                        .HasDefaultValue("{}");
+
                     b.Property<string>("TimeZoneId")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("TrackingCodesJson")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(max)")
+                        .HasDefaultValue("{}");
 
                     b.Property<DateTime?>("UpdatedAtUtc")
                         .HasColumnType("datetime2");
@@ -1398,11 +1429,19 @@ namespace Nexora.Infrastructure.Persistence.Migrations
 
                     b.ToTable("SiteSettings", null, t =>
                         {
+                            t.HasCheckConstraint("CK_SiteSettings_AnnouncementBar_Json", "ISJSON([AnnouncementBarJson]) = 1");
+
                             t.HasCheckConstraint("CK_SiteSettings_SectionVisibility_Json", "ISJSON([SectionVisibilityJson]) = 1");
 
                             t.HasCheckConstraint("CK_SiteSettings_Singleton", "[SingletonId] = 1");
 
+                            t.HasCheckConstraint("CK_SiteSettings_SocialLinks_Json", "ISJSON([SocialLinksJson]) = 1");
+
                             t.HasCheckConstraint("CK_SiteSettings_SupportedRegions_Json", "ISJSON([SupportedRegions]) = 1");
+
+                            t.HasCheckConstraint("CK_SiteSettings_ThemeTokens_Json", "ISJSON([ThemeTokensJson]) = 1");
+
+                            t.HasCheckConstraint("CK_SiteSettings_TrackingCodes_Json", "ISJSON([TrackingCodesJson]) = 1");
                         });
                 });
 

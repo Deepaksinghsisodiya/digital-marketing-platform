@@ -34,11 +34,12 @@ import {
   BookOpen,
   HelpCircle,
   Megaphone,
+  Palette,
 } from "lucide-react";
 
 export const SettingsPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<
-    "identity" | "pipelines" | "regions" | "smtp" | "sections"
+    "identity" | "theme" | "pipelines" | "regions" | "smtp" | "sections"
   >("identity");
 
   // Site Settings Query & Mutation
@@ -81,6 +82,15 @@ export const SettingsPage: React.FC = () => {
     type: "success" | "error" | "conflict";
     message: string;
   } | null>(null);
+
+  // Tab: Theme Tokens State
+  const [primaryColor, setPrimaryColor] = useState("#7657ff");
+  const [accentColor, setAccentColor] = useState("#3685ff");
+  const [navyColor, setNavyColor] = useState("#10162f");
+  const [fontSans, setFontSans] = useState("Inter");
+  const [fontHeading, setFontHeading] = useState("Plus Jakarta Sans");
+  const [borderRadius, setBorderRadius] = useState("0.5rem");
+  const [buttonStyle, setButtonStyle] = useState("rounded");
 
   // Tab 2: Pipeline Stages State
   const [selectedCategory, setSelectedCategory] = useState<string>("Lead");
@@ -161,6 +171,21 @@ export const SettingsPage: React.FC = () => {
       setSmtpPassword(settings.smtpPassword || "");
       setSmtpFromEmail(settings.smtpFromEmail || "noreply@nexora.local");
       setSmtpFromName(settings.smtpFromName || "Nexora Growth Platform");
+
+      if (settings.themeTokensJson) {
+        try {
+          const parsed = JSON.parse(settings.themeTokensJson);
+          if (parsed.primaryColor) setPrimaryColor(parsed.primaryColor);
+          if (parsed.accentColor) setAccentColor(parsed.accentColor);
+          if (parsed.navyColor) setNavyColor(parsed.navyColor);
+          if (parsed.fontSans) setFontSans(parsed.fontSans);
+          if (parsed.fontHeading) setFontHeading(parsed.fontHeading);
+          if (parsed.radius) setBorderRadius(parsed.radius);
+          if (parsed.buttonStyle) setButtonStyle(parsed.buttonStyle);
+        } catch {
+          // fallback
+        }
+      }
 
       if (settings.sectionVisibilityJson) {
         try {
@@ -295,6 +320,54 @@ export const SettingsPage: React.FC = () => {
       setFeedback({
         type: "error",
         message: apiErr?.data?.error || "Failed to save SMTP settings.",
+      });
+    }
+  };
+
+  const handleSaveThemeTokens = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setFeedback(null);
+    try {
+      const tokensPayload = JSON.stringify({
+        primaryColor,
+        accentColor,
+        navyColor,
+        fontSans,
+        fontHeading,
+        radius: borderRadius,
+        buttonStyle,
+      });
+
+      const regionsList = supportedRegions
+        .split(",")
+        .map((s) => s.trim().toUpperCase())
+        .filter(Boolean);
+
+      const res = await updateSettings({
+        companyName,
+        legalName: legalName || null,
+        supportEmail,
+        supportPhone,
+        address: address || null,
+        defaultRegion,
+        supportedRegions: regionsList,
+        timeZoneId,
+        logoMediaId,
+        versionToken,
+        themeTokensJson: tokensPayload,
+      }).unwrap();
+
+      if (res.versionToken) setVersionToken(res.versionToken);
+      setFeedback({
+        type: "success",
+        message:
+          "Dynamic theme design tokens saved and applied to the platform!",
+      });
+    } catch (err: unknown) {
+      const apiErr = err as { data?: { error?: string } };
+      setFeedback({
+        type: "error",
+        message: apiErr?.data?.error || "Failed to update theme tokens.",
       });
     }
   };
@@ -597,6 +670,19 @@ export const SettingsPage: React.FC = () => {
 
         <button
           type="button"
+          onClick={() => setActiveTab("theme")}
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
+            activeTab === "theme"
+              ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
+              : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60"
+          }`}
+        >
+          <Palette className="w-4 h-4" />
+          <span>Theme & Design Tokens</span>
+        </button>
+
+        <button
+          type="button"
           onClick={() => setActiveTab("pipelines")}
           className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
             activeTab === "pipelines"
@@ -882,6 +968,248 @@ export const SettingsPage: React.FC = () => {
               <Save className="w-4 h-4" />
               <span>{isSaving ? "Saving..." : "Save Identity Settings"}</span>
             </button>
+          </div>
+        </form>
+      )}
+
+      {/* Tab: Dynamic Theme Tokens */}
+      {activeTab === "theme" && (
+        <form onSubmit={handleSaveThemeTokens} className="space-y-6">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm space-y-6">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
+              <div>
+                <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                  <Palette className="w-5 h-5 text-indigo-600" />
+                  <span>Dynamic Brand Colors & Tokens</span>
+                </h3>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Customize core CSS variable tokens. These settings directly
+                  style both the public website and admin dashboard without
+                  redeploying code.
+                </p>
+              </div>
+
+              <button
+                type="submit"
+                disabled={isSaving}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md shadow-indigo-600/25 transition disabled:opacity-50"
+              >
+                <Save className="w-4 h-4" />
+                <span>{isSaving ? "Saving..." : "Save Theme Tokens"}</span>
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Primary Brand Color */}
+              <div className="space-y-2 p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30">
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                  Primary Brand Color
+                </label>
+                <div className="flex items-center gap-3">
+                  <input
+                    type="color"
+                    value={primaryColor}
+                    onChange={(e) => setPrimaryColor(e.target.value)}
+                    className="w-10 h-10 rounded-lg cursor-pointer border-0 bg-transparent p-0"
+                  />
+                  <input
+                    type="text"
+                    value={primaryColor}
+                    onChange={(e) => setPrimaryColor(e.target.value)}
+                    className="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 font-mono"
+                  />
+                </div>
+                <p className="text-[11px] text-slate-400">
+                  Used for primary action buttons, active states, and highlights
+                  (--nexora-purple).
+                </p>
+              </div>
+
+              {/* Accent Color */}
+              <div className="space-y-2 p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30">
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                  Accent Color
+                </label>
+                <div className="flex items-center gap-3">
+                  <input
+                    type="color"
+                    value={accentColor}
+                    onChange={(e) => setAccentColor(e.target.value)}
+                    className="w-10 h-10 rounded-lg cursor-pointer border-0 bg-transparent p-0"
+                  />
+                  <input
+                    type="text"
+                    value={accentColor}
+                    onChange={(e) => setAccentColor(e.target.value)}
+                    className="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 font-mono"
+                  />
+                </div>
+                <p className="text-[11px] text-slate-400">
+                  Used for secondary buttons, badges, and gradient accents
+                  (--nexora-blue).
+                </p>
+              </div>
+
+              {/* Dark Navy Background */}
+              <div className="space-y-2 p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30">
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                  Dark Background Color
+                </label>
+                <div className="flex items-center gap-3">
+                  <input
+                    type="color"
+                    value={navyColor}
+                    onChange={(e) => setNavyColor(e.target.value)}
+                    className="w-10 h-10 rounded-lg cursor-pointer border-0 bg-transparent p-0"
+                  />
+                  <input
+                    type="text"
+                    value={navyColor}
+                    onChange={(e) => setNavyColor(e.target.value)}
+                    className="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 font-mono"
+                  />
+                </div>
+                <p className="text-[11px] text-slate-400">
+                  Used for dark hero backgrounds, footer, and midnight sections
+                  (--nexora-navy).
+                </p>
+              </div>
+            </div>
+
+            {/* Typography & Radii */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 pt-4 border-t border-slate-100 dark:border-slate-800">
+              <div className="space-y-2">
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                  Heading Typography
+                </label>
+                <select
+                  value={fontHeading}
+                  onChange={(e) => setFontHeading(e.target.value)}
+                  className="w-full px-3 py-2.5 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 font-semibold"
+                >
+                  <option value="Plus Jakarta Sans">
+                    Plus Jakarta Sans (Modern MNC)
+                  </option>
+                  <option value="Inter">Inter (Clean Tech)</option>
+                  <option value="Poppins">Poppins (Friendly Geometric)</option>
+                  <option value="Outfit">Outfit (High-End SaaS)</option>
+                  <option value="Playfair Display">
+                    Playfair Display (Editorial Luxury)
+                  </option>
+                </select>
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                  Body Typography
+                </label>
+                <select
+                  value={fontSans}
+                  onChange={(e) => setFontSans(e.target.value)}
+                  className="w-full px-3 py-2.5 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 font-semibold"
+                >
+                  <option value="Inter">Inter (Standard Enterprise)</option>
+                  <option value="system-ui">System UI (Native OS)</option>
+                  <option value="Open Sans">Open Sans (High Legibility)</option>
+                  <option value="Roboto">Roboto (Google Neutral)</option>
+                </select>
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                  Corner Radius
+                </label>
+                <select
+                  value={borderRadius}
+                  onChange={(e) => setBorderRadius(e.target.value)}
+                  className="w-full px-3 py-2.5 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 font-semibold"
+                >
+                  <option value="0.25rem">
+                    0.25rem (Sharp / Modern Minimalist)
+                  </option>
+                  <option value="0.5rem">0.5rem (Default Enterprise)</option>
+                  <option value="0.75rem">0.75rem (Rounded Modern)</option>
+                  <option value="1rem">1.0rem (Organic / Soft UI)</option>
+                </select>
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                  Button Style Preset
+                </label>
+                <select
+                  value={buttonStyle}
+                  onChange={(e) => setButtonStyle(e.target.value)}
+                  className="w-full px-3 py-2.5 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 font-semibold"
+                >
+                  <option value="rounded">Rounded Rectangle</option>
+                  <option value="pill">Pill (Fully Rounded)</option>
+                  <option value="sharp">Sharp (Clean Rectangle)</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Live Visual Preview */}
+            <div className="p-6 rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/20 space-y-4">
+              <h4 className="text-xs font-black uppercase tracking-wider text-slate-500">
+                Live Token Preview
+              </h4>
+              <div
+                className="p-6 rounded-xl border flex flex-wrap items-center justify-between gap-4 transition-all"
+                style={{
+                  backgroundColor: navyColor,
+                  borderRadius: borderRadius,
+                  fontFamily: fontSans,
+                }}
+              >
+                <div>
+                  <h5
+                    className="text-lg font-black text-white"
+                    style={{ fontFamily: fontHeading }}
+                  >
+                    Next-Generation Marketing Platform
+                  </h5>
+                  <p className="text-xs text-slate-300 mt-1">
+                    Previewing live typography and button styles under{" "}
+                    {fontHeading} and {primaryColor}.
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    className="px-5 py-2.5 text-xs font-bold text-white shadow-lg transition-transform active:scale-95"
+                    style={{
+                      backgroundColor: primaryColor,
+                      borderRadius:
+                        buttonStyle === "pill"
+                          ? "9999px"
+                          : buttonStyle === "sharp"
+                            ? "0px"
+                            : borderRadius,
+                    }}
+                  >
+                    Primary Action
+                  </button>
+
+                  <button
+                    type="button"
+                    className="px-5 py-2.5 text-xs font-bold text-white border border-white/20 transition-transform active:scale-95"
+                    style={{
+                      backgroundColor: accentColor,
+                      borderRadius:
+                        buttonStyle === "pill"
+                          ? "9999px"
+                          : buttonStyle === "sharp"
+                            ? "0px"
+                            : borderRadius,
+                    }}
+                  >
+                    Accent Action
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         </form>
       )}

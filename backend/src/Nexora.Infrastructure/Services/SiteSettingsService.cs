@@ -43,6 +43,9 @@ public class SiteSettingsService : ISiteSettingsService
         var logoUrl = settings.LogoMediaId.HasValue
             ? $"/api/v1/public/media/{settings.LogoMediaId.Value}/download"
             : null;
+        var faviconUrl = settings.FaviconMediaId.HasValue
+            ? $"/api/v1/public/media/{settings.FaviconMediaId.Value}/download"
+            : null;
 
         return new PublicSiteSettingsDto(
             CompanyName: settings.CompanyName,
@@ -53,7 +56,14 @@ public class SiteSettingsService : ISiteSettingsService
             TimeZoneId: settings.TimeZoneId,
             LogoMediaId: settings.LogoMediaId,
             LogoUrl: logoUrl,
-            SectionVisibilityJson: string.IsNullOrWhiteSpace(settings.SectionVisibilityJson) ? "{}" : settings.SectionVisibilityJson);
+            FaviconMediaId: settings.FaviconMediaId,
+            FaviconUrl: faviconUrl,
+            SectionVisibilityJson: string.IsNullOrWhiteSpace(settings.SectionVisibilityJson) ? "{}" : settings.SectionVisibilityJson,
+            ThemeTokensJson: string.IsNullOrWhiteSpace(settings.ThemeTokensJson) ? "{}" : settings.ThemeTokensJson,
+            SocialLinksJson: string.IsNullOrWhiteSpace(settings.SocialLinksJson) ? "{}" : settings.SocialLinksJson,
+            TrackingCodesJson: string.IsNullOrWhiteSpace(settings.TrackingCodesJson) ? "{}" : settings.TrackingCodesJson,
+            BookingUrl: settings.BookingUrl,
+            AnnouncementBarJson: string.IsNullOrWhiteSpace(settings.AnnouncementBarJson) ? "{}" : settings.AnnouncementBarJson);
     }
 
     public async Task<(bool Success, string? Error, bool Conflict, SiteSettingsDto? Settings)> UpdateSettingsAsync(
@@ -110,11 +120,17 @@ public class SiteSettingsService : ISiteSettingsService
             settings.SmtpIsConfigured = !string.IsNullOrWhiteSpace(settings.SmtpHost);
         }
 
-        // Section visibility
+        // Section visibility & Theme tokens
         if (dto.SectionVisibilityJson != null)
         {
             settings.SectionVisibilityJson = dto.SectionVisibilityJson;
         }
+        if (dto.FaviconMediaId.HasValue) settings.FaviconMediaId = dto.FaviconMediaId;
+        if (dto.ThemeTokensJson != null) settings.ThemeTokensJson = dto.ThemeTokensJson;
+        if (dto.SocialLinksJson != null) settings.SocialLinksJson = dto.SocialLinksJson;
+        if (dto.TrackingCodesJson != null) settings.TrackingCodesJson = dto.TrackingCodesJson;
+        if (dto.BookingUrl != null) settings.BookingUrl = dto.BookingUrl;
+        if (dto.AnnouncementBarJson != null) settings.AnnouncementBarJson = dto.AnnouncementBarJson;
 
         settings.UpdatedByUserId = actingUserId;
         settings.MarkUpdated();
@@ -171,6 +187,9 @@ public class SiteSettingsService : ISiteSettingsService
         var logoUrl = entity.LogoMediaId.HasValue
             ? $"/api/v1/public/media/{entity.LogoMediaId.Value}/download"
             : null;
+        var faviconUrl = entity.FaviconMediaId.HasValue
+            ? $"/api/v1/public/media/{entity.FaviconMediaId.Value}/download"
+            : null;
 
         return new SiteSettingsDto(
             Id: entity.Id,
@@ -184,6 +203,8 @@ public class SiteSettingsService : ISiteSettingsService
             TimeZoneId: entity.TimeZoneId,
             LogoMediaId: entity.LogoMediaId,
             LogoUrl: logoUrl,
+            FaviconMediaId: entity.FaviconMediaId,
+            FaviconUrl: faviconUrl,
             SmtpHost: entity.SmtpHost,
             SmtpPort: entity.SmtpPort,
             SmtpUseSsl: entity.SmtpUseSsl,
@@ -192,6 +213,11 @@ public class SiteSettingsService : ISiteSettingsService
             SmtpFromName: entity.SmtpFromName,
             SmtpIsConfigured: entity.SmtpIsConfigured,
             SectionVisibilityJson: string.IsNullOrWhiteSpace(entity.SectionVisibilityJson) ? "{}" : entity.SectionVisibilityJson,
+            ThemeTokensJson: string.IsNullOrWhiteSpace(entity.ThemeTokensJson) ? "{}" : entity.ThemeTokensJson,
+            SocialLinksJson: string.IsNullOrWhiteSpace(entity.SocialLinksJson) ? "{}" : entity.SocialLinksJson,
+            TrackingCodesJson: string.IsNullOrWhiteSpace(entity.TrackingCodesJson) ? "{}" : entity.TrackingCodesJson,
+            BookingUrl: entity.BookingUrl,
+            AnnouncementBarJson: string.IsNullOrWhiteSpace(entity.AnnouncementBarJson) ? "{}" : entity.AnnouncementBarJson,
             VersionToken: Convert.ToBase64String(entity.Version),
             CreatedAtUtc: entity.CreatedAtUtc,
             UpdatedAtUtc: entity.UpdatedAtUtc);

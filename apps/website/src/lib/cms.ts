@@ -33,7 +33,14 @@ export interface PublicSiteSettings {
   timeZoneId: string;
   logoMediaId?: string | null;
   logoUrl?: string | null;
+  faviconMediaId?: string | null;
+  faviconUrl?: string | null;
   sectionVisibilityJson?: string;
+  themeTokensJson?: string;
+  socialLinksJson?: string;
+  trackingCodesJson?: string;
+  bookingUrl?: string | null;
+  announcementBarJson?: string;
 }
 
 const API_BASE =

@@ -193,6 +193,10 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
                 tb.HasCheckConstraint("CK_SiteSettings_Singleton", "[SingletonId] = 1");
                 tb.HasCheckConstraint("CK_SiteSettings_SupportedRegions_Json", "ISJSON([SupportedRegions]) = 1");
                 tb.HasCheckConstraint("CK_SiteSettings_SectionVisibility_Json", "ISJSON([SectionVisibilityJson]) = 1");
+                tb.HasCheckConstraint("CK_SiteSettings_ThemeTokens_Json", "ISJSON([ThemeTokensJson]) = 1");
+                tb.HasCheckConstraint("CK_SiteSettings_SocialLinks_Json", "ISJSON([SocialLinksJson]) = 1");
+                tb.HasCheckConstraint("CK_SiteSettings_TrackingCodes_Json", "ISJSON([TrackingCodesJson]) = 1");
+                tb.HasCheckConstraint("CK_SiteSettings_AnnouncementBar_Json", "ISJSON([AnnouncementBarJson]) = 1");
             });
 
             b.HasKey(s => s.Id);
@@ -229,6 +233,12 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
             b.Property(s => s.SmtpFromEmail).HasMaxLength(256);
             b.Property(s => s.SmtpFromName).HasMaxLength(200);
             b.Property(s => s.SectionVisibilityJson).HasColumnType("nvarchar(max)").HasDefaultValue("{}");
+            b.Property(s => s.FaviconMediaId);
+            b.Property(s => s.ThemeTokensJson).HasColumnType("nvarchar(max)").HasDefaultValue("{}");
+            b.Property(s => s.SocialLinksJson).HasColumnType("nvarchar(max)").HasDefaultValue("{}");
+            b.Property(s => s.TrackingCodesJson).HasColumnType("nvarchar(max)").HasDefaultValue("{}");
+            b.Property(s => s.BookingUrl).HasMaxLength(500);
+            b.Property(s => s.AnnouncementBarJson).HasColumnType("nvarchar(max)").HasDefaultValue("{}");
 
             // Optimistic concurrency using SQL Server rowversion
             b.Property(s => s.Version).IsRowVersion();

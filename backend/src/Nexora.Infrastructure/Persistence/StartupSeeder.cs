@@ -152,12 +152,42 @@ public static class StartupSeeder
                 Address = address,
                 DefaultRegion = defaultRegion,
                 SupportedRegions = defaultSupported,
-                TimeZoneId = timeZoneId
+                TimeZoneId = timeZoneId,
+                ThemeTokensJson = """
+                {
+                  "primaryColor": "#7657ff",
+                  "accentColor": "#3685ff",
+                  "navyColor": "#10162f",
+                  "fontSans": "Inter",
+                  "fontHeading": "Plus Jakarta Sans",
+                  "radius": "0.5rem",
+                  "buttonStyle": "rounded"
+                }
+                """
             };
 
             context.SiteSettings.Add(initialSettings);
             await context.SaveChangesAsync();
             logger.LogInformation("Singleton SiteSettings initialized with configuration defaults.");
+        }
+        else
+        {
+            var existingSettings = await context.SiteSettings.FirstOrDefaultAsync(s => s.SingletonId == 1);
+            if (existingSettings != null && (string.IsNullOrWhiteSpace(existingSettings.ThemeTokensJson) || existingSettings.ThemeTokensJson == "{}"))
+            {
+                existingSettings.ThemeTokensJson = """
+                {
+                  "primaryColor": "#7657ff",
+                  "accentColor": "#3685ff",
+                  "navyColor": "#10162f",
+                  "fontSans": "Inter",
+                  "fontHeading": "Plus Jakarta Sans",
+                  "radius": "0.5rem",
+                  "buttonStyle": "rounded"
+                }
+                """;
+                await context.SaveChangesAsync();
+            }
         }
 
         // 2b. Seed Default 'contact' FormDefinition

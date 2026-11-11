@@ -106,6 +106,7 @@ public static class MediaEndpoints
         publicGroup.MapGet("/{id:guid}/download", async (
             Guid id,
             IMediaService mediaService,
+            HttpContext httpContext,
             CancellationToken ct) =>
         {
             var file = await mediaService.GetMediaDownloadAsync(id, ct);
@@ -114,6 +115,7 @@ public static class MediaEndpoints
                 return Results.NotFound(new { error = "Media asset file not found." });
             }
 
+            httpContext.Response.Headers.CacheControl = "public, max-age=86400";
             return Results.File(
                 file.Value.Stream,
                 file.Value.ContentType,
@@ -126,6 +128,7 @@ public static class MediaEndpoints
         publicGroup.MapGet("/{id:guid}", async (
             Guid id,
             IMediaService mediaService,
+            HttpContext httpContext,
             CancellationToken ct) =>
         {
             var file = await mediaService.GetMediaDownloadAsync(id, ct);
@@ -134,6 +137,7 @@ public static class MediaEndpoints
                 return Results.NotFound(new { error = "Media asset file not found." });
             }
 
+            httpContext.Response.Headers.CacheControl = "public, max-age=86400";
             return Results.File(
                 file.Value.Stream,
                 file.Value.ContentType,
@@ -146,6 +150,7 @@ public static class MediaEndpoints
             string path,
             AppDbContext db,
             IStorageService storage,
+            HttpContext httpContext,
             CancellationToken ct) =>
         {
             if (string.IsNullOrWhiteSpace(path))
@@ -161,6 +166,11 @@ public static class MediaEndpoints
                 cleanKey = cleanKey[..^9].TrimEnd('/', '\\');
                 isDownload = true;
             }
+
+            var normalizedKeyForward = cleanKey.Replace('\\', '/');
+            var normalizedKeyBackward = cleanKey.Replace('/', '\\');
+
+            httpContext.Response.Headers.CacheControl = "public, max-age=86400";
 
             // 1. If path is a GUID, find asset by ID
             if (Guid.TryParse(cleanKey, out var assetId))
@@ -179,7 +189,8 @@ public static class MediaEndpoints
             }
 
             // 2. Try finding asset by StorageKey
-            var asset = await db.MediaAssets.AsNoTracking().FirstOrDefaultAsync(a => a.StorageKey == cleanKey, ct);
+            var asset = await db.MediaAssets.AsNoTracking().FirstOrDefaultAsync(
+                a => a.StorageKey == normalizedKeyForward || a.StorageKey == normalizedKeyBackward, ct);
             if (asset != null)
             {
                 var stream = await storage.OpenReadAsync(asset.StorageKey, ct);
@@ -192,7 +203,8 @@ public static class MediaEndpoints
             }
 
             // 3. Direct read from storage
-            var directStream = await storage.OpenReadAsync(cleanKey, ct);
+            var directStream = await storage.OpenReadAsync(normalizedKeyForward, ct) 
+                ?? await storage.OpenReadAsync(normalizedKeyBackward, ct);
             if (directStream != null)
             {
                 var ext = System.IO.Path.GetExtension(cleanKey)?.ToLowerInvariant();

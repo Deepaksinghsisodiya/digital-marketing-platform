@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useAppSelector } from "../store/hooks";
 import {
@@ -61,6 +61,25 @@ export const AdminLayout: React.FC = () => {
     (settings?.logoMediaId
       ? `/api/v1/public/media/${settings.logoMediaId}/download`
       : null);
+
+  useEffect(() => {
+    if (settings?.themeTokensJson) {
+      try {
+        const tokens = JSON.parse(settings.themeTokensJson);
+        const root = document.documentElement;
+        if (tokens.primaryColor)
+          root.style.setProperty("--nexora-purple", tokens.primaryColor);
+        if (tokens.accentColor)
+          root.style.setProperty("--nexora-blue", tokens.accentColor);
+        if (tokens.navyColor)
+          root.style.setProperty("--nexora-navy", tokens.navyColor);
+        if (tokens.radius)
+          root.style.setProperty("--nexora-radius-md", tokens.radius);
+      } catch {
+        // Fallback
+      }
+    }
+  }, [settings?.themeTokensJson]);
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);

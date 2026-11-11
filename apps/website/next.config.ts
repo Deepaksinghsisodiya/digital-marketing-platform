@@ -9,6 +9,15 @@ const cspFrameAncestors = process.env.CSP_FRAME_ANCESTORS
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  async rewrites() {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5201";
+    return [
+      {
+        source: "/api/:path*",
+        destination: `${apiUrl}/api/:path*`,
+      },
+    ];
+  },
   async headers() {
     return [
       {

@@ -24,6 +24,7 @@ public class SiteSettings : BaseEntity
     public string TimeZoneId { get; set; } = string.Empty;
 
     public Guid? LogoMediaId { get; set; }
+    public Guid? FaviconMediaId { get; set; }
 
     // SMTP Email Server Configuration
     public string SmtpHost { get; set; } = string.Empty;
@@ -35,8 +36,13 @@ public class SiteSettings : BaseEntity
     public string SmtpFromName { get; set; } = string.Empty;
     public bool SmtpIsConfigured { get; set; } = false;
 
-    // Website Section Visibility Configuration (JSON dictionary)
+    // Website Section Visibility & Theme Tokens
     public string SectionVisibilityJson { get; set; } = "{}";
+    public string ThemeTokensJson { get; set; } = "{}";
+    public string SocialLinksJson { get; set; } = "{}";
+    public string TrackingCodesJson { get; set; } = "{}";
+    public string? BookingUrl { get; set; }
+    public string AnnouncementBarJson { get; set; } = "{}";
 
     [Timestamp]
     public byte[] Version { get; set; } = [];

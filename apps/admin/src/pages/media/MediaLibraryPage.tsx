@@ -30,13 +30,42 @@ export function resolveMediaUrl(url: string | null | undefined): string {
   ) {
     return url;
   }
-  const base = API_BASE_URL.replace(/\/$/, "");
   let cleanPath = url.trim();
   if (!cleanPath.startsWith("/") && !cleanPath.startsWith("api/")) {
     cleanPath = `/api/v1/public/media/${cleanPath}`;
   } else if (!cleanPath.startsWith("/")) {
     cleanPath = `/${cleanPath}`;
   }
+
+  // In browser with local Vite dev proxy, relative /api path is completely immune to CORS,
+  // cross-port mismatch (5173 vs 5174), and private network restrictions.
+  if (typeof window !== "undefined") {
+    return cleanPath;
+  }
+
+  const base = API_BASE_URL.replace(/\/$/, "");
+  return `${base}${cleanPath}`;
+}
+
+export function resolveAbsoluteMediaUrl(
+  url: string | null | undefined,
+): string {
+  if (!url) return "";
+  if (
+    url.startsWith("http://") ||
+    url.startsWith("https://") ||
+    url.startsWith("blob:") ||
+    url.startsWith("data:")
+  ) {
+    return url;
+  }
+  let cleanPath = url.trim();
+  if (!cleanPath.startsWith("/") && !cleanPath.startsWith("api/")) {
+    cleanPath = `/api/v1/public/media/${cleanPath}`;
+  } else if (!cleanPath.startsWith("/")) {
+    cleanPath = `/${cleanPath}`;
+  }
+  const base = (API_BASE_URL || "http://localhost:5201").replace(/\/$/, "");
   return `${base}${cleanPath}`;
 }
 
@@ -305,7 +334,7 @@ export const MediaLibraryPage: React.FC = () => {
     useDeleteMediaAssetMutation();
 
   const handleCopyUrl = (asset: MediaAssetDto) => {
-    navigator.clipboard.writeText(resolveMediaUrl(asset.url));
+    navigator.clipboard.writeText(resolveAbsoluteMediaUrl(asset.url));
     setCopiedId(asset.id);
     setTimeout(() => setCopiedId(null), 2000);
   };
@@ -494,7 +523,7 @@ export const MediaLibraryPage: React.FC = () => {
                         )}
                       </button>
                       <a
-                        href={resolveMediaUrl(asset.url)}
+                        href={resolveAbsoluteMediaUrl(asset.url)}
                         target="_blank"
                         rel="noreferrer"
                         title="Open in new tab"

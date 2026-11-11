@@ -12,6 +12,8 @@ public record SiteSettingsDto(
     string TimeZoneId,
     Guid? LogoMediaId,
     string? LogoUrl,
+    Guid? FaviconMediaId,
+    string? FaviconUrl,
     string SmtpHost,
     int SmtpPort,
     bool SmtpUseSsl,
@@ -20,6 +22,11 @@ public record SiteSettingsDto(
     string? SmtpFromName,
     bool SmtpIsConfigured,
     string SectionVisibilityJson,
+    string ThemeTokensJson,
+    string SocialLinksJson,
+    string TrackingCodesJson,
+    string? BookingUrl,
+    string AnnouncementBarJson,
     string VersionToken,
     DateTime CreatedAtUtc,
     DateTime? UpdatedAtUtc);
@@ -33,7 +40,14 @@ public record PublicSiteSettingsDto(
     string TimeZoneId,
     Guid? LogoMediaId,
     string? LogoUrl,
-    string SectionVisibilityJson);
+    Guid? FaviconMediaId,
+    string? FaviconUrl,
+    string SectionVisibilityJson,
+    string ThemeTokensJson,
+    string SocialLinksJson,
+    string TrackingCodesJson,
+    string? BookingUrl,
+    string AnnouncementBarJson);
 
 public record UpdateSiteSettingsDto(
     string CompanyName,
@@ -45,6 +59,7 @@ public record UpdateSiteSettingsDto(
     string[] SupportedRegions,
     string TimeZoneId,
     Guid? LogoMediaId,
+    Guid? FaviconMediaId = null,
     string? SmtpHost = null,
     int? SmtpPort = null,
     bool? SmtpUseSsl = null,
@@ -53,6 +68,11 @@ public record UpdateSiteSettingsDto(
     string? SmtpFromEmail = null,
     string? SmtpFromName = null,
     string? SectionVisibilityJson = null,
+    string? ThemeTokensJson = null,
+    string? SocialLinksJson = null,
+    string? TrackingCodesJson = null,
+    string? BookingUrl = null,
+    string? AnnouncementBarJson = null,
     string VersionToken = "");
 
 public record TestSmtpConnectionDto(

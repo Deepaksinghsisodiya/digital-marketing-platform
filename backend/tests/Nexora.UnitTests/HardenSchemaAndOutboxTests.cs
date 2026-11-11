@@ -120,5 +120,21 @@ public class HardenSchemaAndOutboxTests
         preview.TokenHash.Length.ShouldBe(64);
         preview.TokenHash.ShouldBe(computedHash);
     }
+
+    [Fact]
+    public void SiteSettings_ThemeAndBrandingTokens_DefaultsShouldBeConfigured()
+    {
+        var settings = new SiteSettings
+        {
+            CompanyName = "Nexora Technologies",
+            ThemeTokensJson = "{\"primaryColor\":\"#7657ff\",\"accentColor\":\"#3685ff\"}",
+            BookingUrl = "https://cal.com/nexora/growth-audit",
+            AnnouncementBarJson = "{\"enabled\":true,\"text\":\"Spring Growth Sprint Open\"}"
+        };
+
+        settings.ThemeTokensJson.ShouldContain("#7657ff");
+        settings.BookingUrl.ShouldBe("https://cal.com/nexora/growth-audit");
+        settings.AnnouncementBarJson.ShouldContain("Spring Growth Sprint");
+    }
 }
 

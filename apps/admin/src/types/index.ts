@@ -75,6 +75,8 @@ export interface SiteSettingsDto {
   timeZoneId: string;
   logoMediaId?: string | null;
   logoUrl?: string | null;
+  faviconMediaId?: string | null;
+  faviconUrl?: string | null;
   versionToken: string;
   updatedAtUtc: string;
   smtpHost?: string | null;
@@ -86,6 +88,11 @@ export interface SiteSettingsDto {
   smtpFromName?: string | null;
   smtpIsConfigured?: boolean;
   sectionVisibilityJson?: string | null;
+  themeTokensJson?: string | null;
+  socialLinksJson?: string | null;
+  trackingCodesJson?: string | null;
+  bookingUrl?: string | null;
+  announcementBarJson?: string | null;
 }
 
 export interface UpdateSiteSettingsRequest {
@@ -99,6 +106,8 @@ export interface UpdateSiteSettingsRequest {
   timeZoneId: string;
   logoMediaId?: string | null;
   logoUrl?: string | null;
+  faviconMediaId?: string | null;
+  faviconUrl?: string | null;
   versionToken: string;
   smtpHost?: string | null;
   smtpPort?: number | null;
@@ -108,6 +117,11 @@ export interface UpdateSiteSettingsRequest {
   smtpFromEmail?: string | null;
   smtpFromName?: string | null;
   sectionVisibilityJson?: string | null;
+  themeTokensJson?: string | null;
+  socialLinksJson?: string | null;
+  trackingCodesJson?: string | null;
+  bookingUrl?: string | null;
+  announcementBarJson?: string | null;
 }
 
 export interface TestSmtpConnectionRequest {
