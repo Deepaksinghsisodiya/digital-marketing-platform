@@ -355,6 +355,8 @@ app.MapAdminUserEndpoints();
 app.MapAdminAuditEndpoints();
 app.MapSettingsEndpoints();
 app.MapCmsEndpoints();
+app.MapMediaEndpoints();
+app.MapMenuEndpoints();
 app.MapLeadEndpoints();
 app.MapEmailEndpoints();
 app.MapClientEndpoints();

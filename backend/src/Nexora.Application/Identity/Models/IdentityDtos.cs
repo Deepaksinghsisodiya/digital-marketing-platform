@@ -28,7 +28,7 @@ public record LoginRequestDto(
     bool RememberMe = false);
 
 public record ChangePasswordRequestDto(
-    string CurrentPassword,
+    string? CurrentPassword,
     string NewPassword);
 
 public record ForgotPasswordRequestDto(

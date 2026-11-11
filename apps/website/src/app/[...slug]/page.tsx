@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { cookies } from "next/headers";
 import { REGION_CONFIG, resolveRegion } from "../../config/region";
-import { getPublicPage, getPublicSiteSettings, type CmsBlock, type PublicPageDetail } from "../../lib/cms";
+import { getPublicPage, getPublicSiteSettings, getPublicMenu, type CmsBlock, type PublicPageDetail } from "../../lib/cms";
 import { Header } from "../../components/layout/Header";
 import { Footer } from "../../components/layout/Footer";
 import { BlockRenderer } from "../../components/blocks/BlockRenderer";
@@ -216,9 +216,10 @@ export default async function DynamicCmsPage({ params }: PageProps) {
   const currentRegionCode = cookieStore.get(REGION_CONFIG.cookieName)?.value;
   const region = resolveRegion(currentRegionCode);
 
-  const [cmsPageRaw, siteSettings] = await Promise.all([
+  const [cmsPageRaw, siteSettings, headerMenu] = await Promise.all([
     getPublicPage(slugPath, region.code),
     getPublicSiteSettings(),
+    getPublicMenu("header", region.code),
   ]);
 
   let cmsPage: PublicPageDetail | null = cmsPageRaw;
@@ -247,7 +248,7 @@ export default async function DynamicCmsPage({ params }: PageProps) {
 
   return (
     <div className="min-h-screen flex flex-col justify-between bg-white text-slate-900">
-      <Header settings={siteSettings} currentRegionCode={region.code} />
+      <Header settings={siteSettings} currentRegionCode={region.code} menu={headerMenu} />
 
       <main className="flex-1">
         <BlockRenderer blocks={cmsPage.blocks} userRegion={region.code} />

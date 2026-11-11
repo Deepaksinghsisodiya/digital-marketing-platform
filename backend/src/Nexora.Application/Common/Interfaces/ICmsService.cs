@@ -37,6 +37,10 @@ public interface ICmsService
         Guid actingUserId,
         CancellationToken ct = default);
 
+    Task<IReadOnlyList<PageVersionSummaryDto>> GetPageVersionsAsync(
+        Guid pageId,
+        CancellationToken ct = default);
+
     Task<PreviewTokenDto?> GeneratePreviewTokenAsync(
         Guid pageId,
         TimeSpan? lifetime = null,

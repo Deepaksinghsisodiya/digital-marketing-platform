@@ -6,7 +6,6 @@ import type {
   UserSummary,
   RoleDto,
   CreateRoleRequest,
-  UpdateRolePermissionsRequest,
   AuditLogDto,
   SiteSettingsDto,
   UpdateSiteSettingsRequest,
@@ -42,6 +41,11 @@ import type {
   UpdateBlogPostRequest,
   PipelineStage,
   CountryRegion,
+  MediaAssetDto,
+  NavigationMenuDto,
+  SaveMenuRequest,
+  PageVersionSummaryDto,
+  RollbackPageRequest,
 } from "../../types";
 
 export const adminApi = apiSlice.injectEndpoints({
@@ -132,6 +136,20 @@ export const adminApi = apiSlice.injectEndpoints({
         body,
       }),
       invalidatesTags: ["User", "AuditLog"],
+    }),
+    resendInvitation: builder.mutation<{ success: boolean; message: string }, string>({
+      query: (id) => ({
+        url: `/api/v1/admin/users/${id}/resend-invitation`,
+        method: "POST",
+      }),
+      invalidatesTags: ["User", "AuditLog"],
+    }),
+    sendUserPasswordReset: builder.mutation<{ success: boolean; message: string }, string>({
+      query: (id) => ({
+        url: `/api/v1/admin/users/${id}/reset-password`,
+        method: "POST",
+      }),
+      invalidatesTags: ["AuditLog"],
     }),
     updateUser: builder.mutation<
       { success: boolean; message: string },
@@ -574,6 +592,81 @@ export const adminApi = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["CountryRegion", "Settings"],
     }),
+
+    // Media Library
+    getMediaAssets: builder.query<
+      PaginatedResult<MediaAssetDto>,
+      { page?: number; pageSize?: number; search?: string; mimeType?: string } | void
+    >({
+      query: (params) => ({
+        url: "/api/v1/admin/media",
+        params: params ? {
+          page: params.page || 1,
+          pageSize: params.pageSize || 24,
+          search: params.search || undefined,
+          mimeType: params.mimeType || undefined,
+        } : { page: 1, pageSize: 24 },
+      }),
+      providesTags: ["Media"],
+    }),
+    getMediaAssetById: builder.query<MediaAssetDto, string>({
+      query: (id) => `/api/v1/admin/media/${id}`,
+      providesTags: (_result, _err, id) => [{ type: "Media", id }],
+    }),
+    uploadMedia: builder.mutation<MediaAssetDto, FormData>({
+      query: (formData) => ({
+        url: "/api/v1/admin/media/upload",
+        method: "POST",
+        body: formData,
+      }),
+      invalidatesTags: ["Media"],
+    }),
+    deleteMediaAsset: builder.mutation<{ success: boolean }, string>({
+      query: (id) => ({
+        url: `/api/v1/admin/media/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Media"],
+    }),
+
+    // Navigation Menus
+    getAdminMenus: builder.query<NavigationMenuDto[], void>({
+      query: () => "/api/v1/admin/menus",
+      providesTags: ["Menu"],
+    }),
+    getAdminMenuById: builder.query<NavigationMenuDto, string>({
+      query: (id) => `/api/v1/admin/menus/${id}`,
+      providesTags: (_result, _err, id) => [{ type: "Menu", id }],
+    }),
+    saveAdminMenu: builder.mutation<NavigationMenuDto, { id?: string; request: SaveMenuRequest }>({
+      query: ({ id, request }) => ({
+        url: id ? `/api/v1/admin/menus/${id}` : "/api/v1/admin/menus",
+        method: id ? "PUT" : "POST",
+        body: request,
+      }),
+      invalidatesTags: ["Menu"],
+    }),
+    deleteAdminMenu: builder.mutation<{ success: boolean }, string>({
+      query: (id) => ({
+        url: `/api/v1/admin/menus/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Menu"],
+    }),
+
+    // Page Versions & Rollback
+    getPageVersions: builder.query<PageVersionSummaryDto[], string>({
+      query: (pageId) => `/api/v1/admin/pages/${pageId}/versions`,
+      providesTags: (_result, _err, pageId) => [{ type: "CmsPage", id: `versions-${pageId}` }],
+    }),
+    rollbackPage: builder.mutation<{ success: boolean }, { pageId: string; request: RollbackPageRequest }>({
+      query: ({ pageId, request }) => ({
+        url: `/api/v1/admin/pages/${pageId}/rollback`,
+        method: "POST",
+        body: request,
+      }),
+      invalidatesTags: ["CmsPage"],
+    }),
   }),
 });
 
@@ -588,6 +681,8 @@ export const {
   useResetPasswordMutation,
   useGetUsersQuery,
   useInviteUserMutation,
+  useResendInvitationMutation,
+  useSendUserPasswordResetMutation,
   useUpdateUserMutation,
   useDeleteUserMutation,
   useGetRolesQuery,
@@ -640,5 +735,15 @@ export const {
   useGetAdminCountryRegionsQuery,
   useCreateCountryRegionMutation,
   useUpdateCountryRegionMutation,
+  useGetMediaAssetsQuery,
+  useGetMediaAssetByIdQuery,
+  useUploadMediaMutation,
+  useDeleteMediaAssetMutation,
+  useGetAdminMenusQuery,
+  useGetAdminMenuByIdQuery,
+  useSaveAdminMenuMutation,
+  useDeleteAdminMenuMutation,
+  useGetPageVersionsQuery,
+  useRollbackPageMutation,
 } = adminApi;
 

@@ -318,6 +318,30 @@ public sealed class CmsService : ICmsService
         return (true, null);
     }
 
+    public async Task<IReadOnlyList<PageVersionSummaryDto>> GetPageVersionsAsync(
+        Guid pageId,
+        CancellationToken ct = default)
+    {
+        var page = await _context.Pages
+            .Include(p => p.Versions)
+            .AsNoTracking()
+            .FirstOrDefaultAsync(p => p.Id == pageId, ct);
+
+        if (page == null) return Array.Empty<PageVersionSummaryDto>();
+
+        return page.Versions
+            .OrderByDescending(v => v.VersionNumber)
+            .Select(v => new PageVersionSummaryDto(
+                v.Id,
+                v.VersionNumber,
+                v.Note,
+                page.PublishedVersionId == v.Id,
+                v.CreatedAtUtc,
+                v.PublishedAtUtc,
+                v.CreatedByUserId))
+            .ToList();
+    }
+
     public async Task<PreviewTokenDto?> GeneratePreviewTokenAsync(
         Guid pageId,
         TimeSpan? lifetime = null,

@@ -34,6 +34,10 @@ public class SiteSettingsService : ISiteSettingsService
             .FirstOrDefaultAsync(s => s.SingletonId == 1, ct)
             ?? throw new InvalidOperationException("SiteSettings singleton row not found in database.");
 
+        var logoUrl = settings.LogoMediaId.HasValue
+            ? $"/api/v1/public/media/{settings.LogoMediaId.Value}/download"
+            : null;
+
         return new PublicSiteSettingsDto(
             CompanyName: settings.CompanyName,
             SupportEmail: settings.SupportEmail,
@@ -42,6 +46,7 @@ public class SiteSettingsService : ISiteSettingsService
             SupportedRegions: settings.SupportedRegions,
             TimeZoneId: settings.TimeZoneId,
             LogoMediaId: settings.LogoMediaId,
+            LogoUrl: logoUrl,
             SectionVisibilityJson: string.IsNullOrWhiteSpace(settings.SectionVisibilityJson) ? "{}" : settings.SectionVisibilityJson);
     }
 
@@ -79,7 +84,7 @@ public class SiteSettingsService : ISiteSettingsService
         settings.DefaultRegion = dto.DefaultRegion ?? settings.DefaultRegion;
         settings.SupportedRegions = dto.SupportedRegions ?? settings.SupportedRegions;
         settings.TimeZoneId = dto.TimeZoneId ?? settings.TimeZoneId;
-        settings.LogoMediaId = dto.LogoMediaId ?? settings.LogoMediaId;
+        settings.LogoMediaId = dto.LogoMediaId;
 
         // SMTP settings
         if (dto.SmtpHost != null)
@@ -155,6 +160,10 @@ public class SiteSettingsService : ISiteSettingsService
 
     private static SiteSettingsDto MapToDto(SiteSettings entity)
     {
+        var logoUrl = entity.LogoMediaId.HasValue
+            ? $"/api/v1/public/media/{entity.LogoMediaId.Value}/download"
+            : null;
+
         return new SiteSettingsDto(
             Id: entity.Id,
             CompanyName: entity.CompanyName,
@@ -166,6 +175,7 @@ public class SiteSettingsService : ISiteSettingsService
             SupportedRegions: entity.SupportedRegions,
             TimeZoneId: entity.TimeZoneId,
             LogoMediaId: entity.LogoMediaId,
+            LogoUrl: logoUrl,
             SmtpHost: entity.SmtpHost,
             SmtpPort: entity.SmtpPort,
             SmtpUseSsl: entity.SmtpUseSsl,

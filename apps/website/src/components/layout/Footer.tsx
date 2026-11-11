@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import React from "react";
 import Link from "next/link";
 import type { PublicSiteSettings } from "../../lib/cms";
@@ -9,15 +10,39 @@ export const Footer: React.FC<{ settings?: PublicSiteSettings | null }> = ({ set
   const supportEmail = settings?.supportEmail || "growth@nexora.digital";
   const supportPhone = settings?.supportPhone || "+1 (800) 555-0199";
 
+  const apiBase =
+    process.env.INTERNAL_API_URL ||
+    process.env.NEXT_PUBLIC_API_URL ||
+    "http://localhost:5201";
+
+  const rawLogo =
+    settings?.logoUrl ||
+    (settings?.logoMediaId
+      ? `/api/v1/public/media/${settings.logoMediaId}/download`
+      : null);
+  const logoUrl = rawLogo
+    ? rawLogo.startsWith("http")
+      ? rawLogo
+      : `${apiBase}${rawLogo.startsWith("/") ? "" : "/"}${rawLogo}`
+    : null;
+
   return (
     <footer className="border-t border-slate-800 bg-slate-950 text-slate-400 text-xs">
       <div className="max-w-[1720px] 2xl:max-w-[1920px] mx-auto px-6 sm:px-10 lg:px-12 xl:px-16 py-16 grid grid-cols-1 md:grid-cols-5 gap-10">
         {/* Brand Column */}
         <div className="space-y-4 md:col-span-2">
           <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-pink-500 flex items-center justify-center text-white font-black text-lg shadow-md shadow-indigo-600/30">
-              N
-            </div>
+            {logoUrl ? (
+              <img
+                src={logoUrl}
+                alt={companyName}
+                className="w-10 h-10 object-contain rounded-2xl bg-slate-900 border border-slate-800 p-1"
+              />
+            ) : (
+              <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-pink-500 flex items-center justify-center text-white font-black text-lg shadow-md shadow-indigo-600/30">
+                {companyName ? companyName.charAt(0).toUpperCase() : "N"}
+              </div>
+            )}
             <div>
               <span className="font-black text-white text-base tracking-tight block">
                 {companyName}

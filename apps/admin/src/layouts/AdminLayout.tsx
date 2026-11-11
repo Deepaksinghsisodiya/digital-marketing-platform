@@ -1,7 +1,12 @@
 import React, { useState } from "react";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useAppSelector } from "../store/hooks";
-import { useLogoutMutation, useLogoutEverywhereMutation } from "../store/api/adminApi";
+import {
+  useLogoutMutation,
+  useLogoutEverywhereMutation,
+  useGetSettingsQuery,
+} from "../store/api/adminApi";
+import { resolveMediaUrl } from "../pages/media/MediaLibraryPage";
 import {
   LayoutDashboard,
   Users,
@@ -23,10 +28,10 @@ import {
   Search,
   Bell,
   ExternalLink,
-  Activity,
   Layers,
-  Sparkles,
   Command,
+  Image,
+  FolderTree,
 } from "lucide-react";
 import { useTheme } from "../context/ThemeContext";
 
@@ -48,12 +53,15 @@ export const AdminLayout: React.FC = () => {
   const navigate = useNavigate();
   const [logoutMutation] = useLogoutMutation();
   const [logoutEverywhereMutation] = useLogoutEverywhereMutation();
+  const { data: settings } = useGetSettingsQuery();
+
+  const companyName = settings?.companyName || "Nexora";
+  const logoUrl = settings?.logoUrl || (settings?.logoMediaId ? `/api/v1/public/media/${settings.logoMediaId}/download` : null);
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const [searchFocused, setSearchFocused] = useState(false);
 
-  const permissions = user?.permissions || [];
   const hasPerm = (p: string): boolean => Boolean(user?.permissions?.includes(p) || user?.roles?.includes("Owner"));
 
   const navGroups: NavGroup[] = [
@@ -77,6 +85,19 @@ export const AdminLayout: React.FC = () => {
           name: "Blog & Insights",
           path: "/posts",
           icon: BookOpen,
+          show: hasPerm("pages.view"),
+        },
+        {
+          name: "Media Library",
+          path: "/media",
+          icon: Image,
+          show: hasPerm("pages.view"),
+          badge: "Assets",
+        },
+        {
+          name: "Navigation Menus",
+          path: "/menus",
+          icon: FolderTree,
           show: hasPerm("pages.view"),
         },
         {
@@ -164,6 +185,8 @@ export const AdminLayout: React.FC = () => {
     if (path.startsWith("/dashboard")) return "Executive Dashboard";
     if (path.startsWith("/cms")) return "Website CMS Engine";
     if (path.startsWith("/posts")) return "Blog & Content Intelligence";
+    if (path.startsWith("/media")) return "Digital Media & Assets";
+    if (path.startsWith("/menus")) return "Navigation Menus";
     if (path.startsWith("/leads")) return "Leads & Demand Capture";
     if (path.startsWith("/clients")) return "Enterprise Accounts & CRM";
     if (path.startsWith("/tasks")) return "Task & Follow-up Actions";
@@ -183,15 +206,23 @@ export const AdminLayout: React.FC = () => {
     .slice(0, 2);
 
   return (
-    <div className="min-h-screen bg-slate-100/60 dark:bg-[#070b14] text-slate-900 dark:text-slate-100 flex flex-col lg:flex-row font-sans transition-colors duration-200">
+    <div className="h-screen overflow-hidden bg-slate-100/60 dark:bg-[#070b14] text-slate-900 dark:text-slate-100 flex flex-col lg:flex-row font-sans transition-colors duration-200">
       {/* Mobile Topbar */}
       <div className="lg:hidden flex items-center justify-between p-4 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 sticky top-0 z-50">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-indigo-600 to-violet-600 flex items-center justify-center font-black text-white shadow-md shadow-indigo-600/30">
-            N
-          </div>
+          {logoUrl ? (
+            <img
+              src={resolveMediaUrl(logoUrl)}
+              alt={companyName}
+              className="w-8 h-8 rounded-lg object-contain bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-0.5 shadow-sm"
+            />
+          ) : (
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-indigo-600 to-violet-600 flex items-center justify-center font-black text-white shadow-md shadow-indigo-600/30">
+              {companyName ? companyName.charAt(0).toUpperCase() : "N"}
+            </div>
+          )}
           <div>
-            <span className="font-bold text-slate-900 dark:text-white text-base">Nexora</span>
+            <span className="font-bold text-slate-900 dark:text-white text-base truncate max-w-[150px] inline-block align-middle">{companyName}</span>
             <span className="ml-1.5 text-[10px] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/60 px-1.5 py-0.5 rounded border border-indigo-200 dark:border-indigo-800/40">
               Admin
             </span>
@@ -218,27 +249,35 @@ export const AdminLayout: React.FC = () => {
       <aside
         className={`${
           mobileMenuOpen ? "fixed inset-0 z-50 overflow-y-auto" : "hidden"
-        } lg:block w-full lg:w-72 bg-white dark:bg-[#0c1222] border-r border-slate-200/90 dark:border-slate-800/90 flex-shrink-0 flex flex-col justify-between transition-colors duration-200 shadow-sm`}
+        } lg:flex lg:h-screen lg:w-72 bg-white dark:bg-[#0c1222] border-r border-slate-200/90 dark:border-slate-800/90 flex-shrink-0 flex-col justify-between transition-colors duration-200 shadow-sm z-30 overflow-y-auto`}
       >
         <div className="flex flex-col h-full justify-between">
           <div>
             {/* Brand Header */}
             <div className="flex items-center justify-between px-6 py-5 border-b border-slate-200/80 dark:border-slate-800/80">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-purple-600 flex items-center justify-center font-black text-white shadow-lg shadow-indigo-600/30">
-                  N
-                </div>
+                {logoUrl ? (
+                  <img
+                    src={resolveMediaUrl(logoUrl)}
+                    alt={companyName}
+                    className="w-10 h-10 rounded-xl object-contain bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-1 shadow-md"
+                  />
+                ) : (
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-purple-600 flex items-center justify-center font-black text-white shadow-lg shadow-indigo-600/30">
+                    {companyName ? companyName.charAt(0).toUpperCase() : "N"}
+                  </div>
+                )}
                 <div>
                   <div className="flex items-center gap-1.5">
-                    <h1 className="font-extrabold text-slate-900 dark:text-white text-base tracking-tight leading-tight">
-                      Nexora
+                    <h1 className="font-extrabold text-slate-900 dark:text-white text-base tracking-tight leading-tight truncate max-w-[130px]">
+                      {companyName}
                     </h1>
                     <span className="text-[10px] font-black uppercase tracking-wider text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/80 px-1.5 py-0.5 rounded border border-indigo-200/70 dark:border-indigo-800/60">
                       v2.4
                     </span>
                   </div>
-                  <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
-                    Enterprise Marketing Suite
+                  <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium block truncate max-w-[140px]">
+                    Enterprise Suite
                   </span>
                 </div>
               </div>
@@ -398,9 +437,9 @@ export const AdminLayout: React.FC = () => {
       </aside>
 
       {/* Main Content Area with Top Header Bar */}
-      <div className="flex-1 flex flex-col min-w-0 min-h-screen">
+      <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
         {/* Global Desktop & Tablet Topbar */}
-        <header className="flex items-center justify-between px-6 sm:px-8 py-3.5 bg-white/90 dark:bg-[#0c1222]/90 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800/80 sticky top-0 z-40 transition-colors">
+        <header className="flex items-center justify-between px-6 sm:px-8 py-3.5 bg-white/90 dark:bg-[#0c1222]/90 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800/80 flex-shrink-0 z-20 transition-colors">
           {/* Breadcrumbs & Route Info */}
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2 text-xs font-semibold text-slate-400">
@@ -480,7 +519,7 @@ export const AdminLayout: React.FC = () => {
         </header>
 
         {/* Page Content Outlet */}
-        <main className="flex-1 w-full max-w-[1850px] 2xl:max-w-[2200px] mx-auto p-6 md:p-8 lg:p-10 xl:p-12">
+        <main className="flex-1 overflow-y-auto w-full max-w-[1850px] 2xl:max-w-[2200px] mx-auto p-6 md:p-8 lg:p-10 xl:p-12">
           <Outlet />
         </main>
       </div>

@@ -12,29 +12,17 @@ import {
 import { useAuth } from "../../hooks/useAuth";
 import type { LeadStatus } from "../../types";
 import {
-  Inbox,
   Search,
-  Filter,
   Download,
   ArrowUpRight,
-  Sparkles,
   Phone,
   Mail,
-  Building2,
-  Calendar,
   ShieldCheck,
-  CheckCircle2,
-  Clock,
-  Compass,
   X,
   UserPlus,
-  Send,
-  Activity,
-  AlertTriangle,
   Kanban,
   Table as TableIcon,
   ChevronRight,
-  Copy,
   ExternalLink,
 } from "lucide-react";
 

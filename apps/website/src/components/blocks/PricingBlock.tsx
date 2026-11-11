@@ -1,9 +1,15 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import type { CmsBlock } from "../../lib/cms";
+import { REGION_CONFIG } from "../../config/region";
 import { Check, Sparkles, ArrowRight, ShieldCheck } from "lucide-react";
+
+interface RegionalPricing {
+  monthly: string;
+  annual: string;
+}
 
 interface PricingPlan {
   name: string;
@@ -11,6 +17,7 @@ interface PricingPlan {
   description: string;
   monthlyPrice: string;
   annualPrice: string;
+  regionalPricing?: Record<string, RegionalPricing>;
   features: string[];
   ctaText: string;
   ctaLink: string;
@@ -20,18 +27,40 @@ interface PricingPlan {
 export const PricingBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
   const { content } = block;
   const [billingPeriod, setBillingPeriod] = useState<"monthly" | "annual">("annual");
+  const [regionCode, setRegionCode] = useState<string>(REGION_CONFIG.defaultRegion);
+
+  useEffect(() => {
+    if (typeof document !== "undefined") {
+      const match = document.cookie.match(
+        new RegExp(`(^|;\\s*)(${REGION_CONFIG.cookieName})=([^;]*)`)
+      );
+      if (match && match[3]) {
+        setRegionCode(match[3].toUpperCase());
+      } else {
+        const params = new URLSearchParams(window.location.search);
+        const urlRegion = params.get("region");
+        if (urlRegion) setRegionCode(urlRegion.toUpperCase());
+      }
+    }
+  }, []);
+
+  const isIndia = regionCode === "IN";
 
   const sectionTitle = (content.sectionTitle as string) || "Predictable Growth Infrastructure";
   const sectionSubtitle =
     (content.sectionSubtitle as string) ||
     "Transparent engagement models engineered for enterprise marketing velocity, verifiable attribution, and compliance.";
 
-  const plans: PricingPlan[] = (content.plans as PricingPlan[]) || [
+  const rawPlans: PricingPlan[] = (content.plans as PricingPlan[]) || [
     {
       name: "Growth Engine",
       description: "For scaling B2B businesses establishing full-funnel digital dominance.",
       monthlyPrice: "$2,490",
       annualPrice: "$1,990",
+      regionalPricing: {
+        IN: { monthly: "₹1,89,000", annual: "₹1,49,000" },
+        US: { monthly: "$2,490", annual: "$1,990" },
+      },
       features: [
         "Multi-Touch Attribution Engine",
         "Deterministic Lead Scoring & Tracking",
@@ -49,6 +78,10 @@ export const PricingBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
       description: "For mid-to-large enterprises requiring multi-region campaign governance.",
       monthlyPrice: "$4,990",
       annualPrice: "$3,990",
+      regionalPricing: {
+        IN: { monthly: "₹3,79,000", annual: "₹2,99,000" },
+        US: { monthly: "$4,990", annual: "$3,990" },
+      },
       features: [
         "Everything in Growth Engine, plus:",
         "Cross-Border Multi-Region Routing",
@@ -66,6 +99,10 @@ export const PricingBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
       description: "Tailored private infrastructure for Fortune 1000 and regulated entities.",
       monthlyPrice: "Custom",
       annualPrice: "Custom",
+      regionalPricing: {
+        IN: { monthly: "Custom", annual: "Custom" },
+        US: { monthly: "Custom", annual: "Custom" },
+      },
       features: [
         "Dedicated Isolated Cloud Cluster",
         "Custom Data Protection & DPDP Audits",
@@ -79,6 +116,26 @@ export const PricingBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
       isPopular: false,
     },
   ];
+
+  const plans = rawPlans.map((plan) => {
+    const regionPricing = plan.regionalPricing?.[regionCode];
+    if (regionPricing) {
+      return {
+        ...plan,
+        monthlyPrice: regionPricing.monthly,
+        annualPrice: regionPricing.annual,
+      };
+    }
+    if (isIndia && !plan.regionalPricing) {
+      if (plan.name.includes("Growth")) {
+        return { ...plan, monthlyPrice: "₹1,89,000", annualPrice: "₹1,49,000" };
+      }
+      if (plan.name.includes("Enterprise")) {
+        return { ...plan, monthlyPrice: "₹3,79,000", annualPrice: "₹2,99,000" };
+      }
+    }
+    return plan;
+  });
 
   return (
     <section className="relative py-24 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white overflow-hidden border-t border-slate-900">

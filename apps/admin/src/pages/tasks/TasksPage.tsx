@@ -7,19 +7,13 @@ import {
 } from "../../store/api/adminApi";
 import type { TaskItemDto, TaskItemStatus, TaskPriority } from "../../types";
 import {
-  CheckSquare,
   Plus,
-  Calendar,
   AlertCircle,
   Clock,
   Briefcase,
   Kanban,
   ListFilter,
-  CheckCircle2,
   ChevronRight,
-  Filter,
-  X,
-  AlertTriangle,
 } from "lucide-react";
 
 const PRIORITY_MAP: Record<number, { label: string; badgeClass: string }> = {
@@ -47,7 +41,7 @@ export const TasksPage: React.FC = () => {
   const [selectedStatus, setSelectedStatus] = useState<TaskItemStatus | undefined>(undefined);
   const [selectedPriority, setSelectedPriority] = useState<TaskPriority | undefined>(undefined);
   const [overdueOnly, setOverdueOnly] = useState(false);
-  const [page, setPage] = useState(1);
+  const page = 1;
 
   const { data: tasksData, isLoading, refetch } = useGetTasksQuery({
     page: viewMode === "kanban" ? 1 : page,

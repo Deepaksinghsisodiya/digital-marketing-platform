@@ -79,3 +79,43 @@ public record MediaAssetDto(
     string Url,
     DateTime CreatedAtUtc);
 
+public record PageVersionSummaryDto(
+    Guid Id,
+    int VersionNumber,
+    string? Note,
+    bool IsPublished,
+    DateTime CreatedAtUtc,
+    DateTime? PublishedAtUtc,
+    Guid? CreatedByUserId);
+
+public record RollbackPageRequest(
+    int VersionNumber);
+
+public record NavigationMenuItemDto(
+    Guid Id,
+    string Label,
+    string Url,
+    int DisplayOrder,
+    Guid? ParentItemId,
+    IReadOnlyList<NavigationMenuItemDto> Children);
+
+public record NavigationMenuDto(
+    Guid Id,
+    string Key,
+    string Title,
+    string? RegionCode,
+    IReadOnlyList<NavigationMenuItemDto> Items);
+
+public record SaveMenuItemRequest(
+    string Label,
+    string Url,
+    int DisplayOrder,
+    Guid? ParentItemId = null);
+
+public record SaveMenuRequest(
+    string Key,
+    string Title,
+    string? RegionCode = null,
+    IReadOnlyList<SaveMenuItemRequest>? Items = null);
+
+

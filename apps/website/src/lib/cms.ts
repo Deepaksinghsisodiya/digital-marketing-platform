@@ -32,6 +32,7 @@ export interface PublicSiteSettings {
   supportedRegions: string[];
   timeZoneId: string;
   logoMediaId?: string | null;
+  logoUrl?: string | null;
   sectionVisibilityJson?: string;
 }
 
@@ -97,6 +98,45 @@ export async function getPublicSiteSettings(): Promise<PublicSiteSettings | null
   } catch (err) {
     // eslint-disable-next-line no-console
     console.warn("Public site settings fetch error:", err);
+    return null;
+  }
+}
+
+export interface PublicMenuItem {
+  id: string;
+  label: string;
+  url: string;
+  displayOrder: number;
+  parentItemId?: string | null;
+  children: PublicMenuItem[];
+}
+
+export interface PublicMenu {
+  id: string;
+  key: string;
+  title: string;
+  regionCode?: string | null;
+  items: PublicMenuItem[];
+}
+
+export async function getPublicMenu(
+  key: string,
+  region?: string
+): Promise<PublicMenu | null> {
+  const url = `${API_BASE}/api/v1/public/menus/${encodeURIComponent(key)}${
+    region ? `?region=${encodeURIComponent(region)}` : ""
+  }`;
+
+  try {
+    const res = await fetch(url, {
+      cache: "no-store",
+    });
+
+    if (!res.ok) return null;
+    return (await res.json()) as PublicMenu;
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.warn(`Public menu fetch error for key '${key}':`, err);
     return null;
   }
 }

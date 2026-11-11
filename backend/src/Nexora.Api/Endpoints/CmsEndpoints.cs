@@ -134,6 +134,46 @@ public static class CmsEndpoints
         .WithName("GeneratePreviewToken")
         .WithSummary("Generate short-lived token to preview draft page.");
 
+        adminGroup.MapGet("/{id:guid}/versions", async (
+            Guid id,
+            ICmsService cmsService,
+            CancellationToken ct) =>
+        {
+            var versions = await cmsService.GetPageVersionsAsync(id, ct);
+            return Results.Ok(versions);
+        })
+        .RequireAuthorization(Permissions.PagesView)
+        .WithName("GetPageVersions")
+        .WithSummary("Retrieve history timeline of page versions.");
+
+        adminGroup.MapPost("/{id:guid}/rollback", async (
+            Guid id,
+            [FromBody] RollbackPageRequest request,
+            ICmsService cmsService,
+            ICurrentUserService currentUser,
+            CancellationToken ct) =>
+        {
+            var (success, error) = await cmsService.RollbackPageAsync(
+                id,
+                request.VersionNumber,
+                currentUser.UserId ?? Guid.Empty,
+                ct);
+
+            if (!success)
+            {
+                if (error != null && error.Contains("not found", StringComparison.OrdinalIgnoreCase))
+                {
+                    return Results.NotFound(new { error });
+                }
+                return Results.BadRequest(new { error });
+            }
+
+            return Results.Ok(new { success = true, versionNumber = request.VersionNumber });
+        })
+        .RequireAuthorization(Permissions.PagesPublish)
+        .WithName("RollbackPageVersion")
+        .WithSummary("Rollback page published content to a previous version number.");
+
         // 2. Public CMS Endpoints (Anonymous, Cached)
         var publicGroup = app.MapGroup("/api/v1/public")
             .WithTags("Public CMS");

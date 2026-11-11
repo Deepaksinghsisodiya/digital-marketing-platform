@@ -256,7 +256,6 @@ public static class StartupSeeder
                     await userManager.ResetPasswordAsync(existingUser, token, seedPassword);
                 }
                 existingUser.Status = UserStatus.Active;
-                existingUser.MustChangePassword = false;
                 await userManager.UpdateAsync(existingUser);
 
                 if (!await userManager.IsInRoleAsync(existingUser, Roles.Owner))
@@ -267,29 +266,107 @@ public static class StartupSeeder
             }
         }
 
-        // 4. Seed Default Email Templates
-        if (!await context.EmailTemplates.AnyAsync(t => t.Key == "lead-auto-reply"))
+        // 4. Seed Default Email Templates (Inbound, Auth, Client Lifecycle, and CRM Tasks)
+        var templatesToSeed = new List<EmailTemplate>
         {
-            var autoReply = new EmailTemplate(
+            new EmailTemplate(
                 key: "lead-auto-reply",
                 name: "Lead Inquiry Auto-Reply",
                 subjectTemplate: "Thank you for contacting Nexora, {{lead.name}}!",
                 bodyHtmlTemplate: "<h2>Inquiry Received</h2><p>Dear {{lead.name}},</p><p>Thank you for contacting Nexora. We have received your business inquiry and our team is evaluating your project details.</p><p>An enterprise growth consultant will be in touch shortly.</p><br/><p>Warm regards,<br/><strong>Nexora Digital Team</strong></p>",
-                bodyPlainTextTemplate: "Dear {{lead.name}},\n\nThank you for contacting Nexora. We have received your inquiry and our team will be in touch shortly.\n\nWarm regards,\nNexora Digital Team");
+                bodyPlainTextTemplate: "Dear {{lead.name}},\n\nThank you for contacting Nexora. We have received your inquiry and our team will be in touch shortly.\n\nWarm regards,\nNexora Digital Team"),
 
-            context.EmailTemplates.Add(autoReply);
-        }
-
-        if (!await context.EmailTemplates.AnyAsync(t => t.Key == "lead-internal-notification"))
-        {
-            var internalNotif = new EmailTemplate(
+            new EmailTemplate(
                 key: "lead-internal-notification",
                 name: "New Lead Internal Alert",
                 subjectTemplate: "[New Inbound Lead] {{lead.name}} ({{lead.company}} - {{lead.region}})",
                 bodyHtmlTemplate: "<h2>New Inbound Lead Captured</h2><p><strong>Name:</strong> {{lead.name}}</p><p><strong>Email:</strong> {{lead.email}}</p><p><strong>Phone:</strong> {{lead.phone}}</p><p><strong>Company:</strong> {{lead.company}}</p><p><strong>Region:</strong> {{lead.region}}</p>",
-                bodyPlainTextTemplate: "New Inbound Lead Captured:\nName: {{lead.name}}\nEmail: {{lead.email}}\nPhone: {{lead.phone}}\nCompany: {{lead.company}}\nRegion: {{lead.region}}");
+                bodyPlainTextTemplate: "New Inbound Lead Captured:\nName: {{lead.name}}\nEmail: {{lead.email}}\nPhone: {{lead.phone}}\nCompany: {{lead.company}}\nRegion: {{lead.region}}"),
 
-            context.EmailTemplates.Add(internalNotif);
+            new EmailTemplate(
+                key: "user-invitation",
+                name: "Staff Invitation & Role Setup",
+                subjectTemplate: "Invitation to Nexora Digital Marketing Platform",
+                bodyHtmlTemplate: "<h2>Welcome to Nexora</h2><p>Hello <strong>{{user.name}}</strong>,</p><p>You have been invited to join the <strong>{{platform.companyName}}</strong> workspace as a <strong>{{user.role}}</strong>.</p><p><a href=\"{{invite.link}}\" style=\"display:inline-block;padding:12px 24px;background-color:#4f46e5;color:#ffffff;text-decoration:none;border-radius:8px;font-weight:600;\">Set Password &amp; Activate Account</a></p><p>Or copy this link to your browser:<br/><a href=\"{{invite.link}}\">{{invite.link}}</a></p><p>This invitation link will expire in {{expires_hours}} hours.</p><br/><p>Warm regards,<br/><strong>{{platform.companyName}} Admin Team</strong></p>",
+                bodyPlainTextTemplate: "Hello {{user.name}},\n\nYou have been invited to join the {{platform.companyName}} workspace as a {{user.role}}.\n\nSet your password and activate your account using the link below:\n{{invite.link}}\n\nThis invitation link will expire in {{expires_hours}} hours.\n\nWarm regards,\n{{platform.companyName}} Admin Team"),
+
+            new EmailTemplate(
+                key: "user-password-reset",
+                name: "Staff Password Reset Request",
+                subjectTemplate: "Reset Your Nexora Account Password",
+                bodyHtmlTemplate: "<h2>Password Reset Request</h2><p>Hello <strong>{{user.name}}</strong>,</p><p>We received a request to reset your password for your <strong>{{platform.companyName}}</strong> account.</p><p><a href=\"{{reset.link}}\" style=\"display:inline-block;padding:12px 24px;background-color:#dc2626;color:#ffffff;text-decoration:none;border-radius:8px;font-weight:600;\">Reset Password</a></p><p>Or copy this link to your browser:<br/><a href=\"{{reset.link}}\">{{reset.link}}</a></p><p>If you did not request this reset, you can safely ignore this email.</p><br/><p>Warm regards,<br/><strong>{{platform.companyName}} Security Team</strong></p>",
+                bodyPlainTextTemplate: "Hello {{user.name}},\n\nWe received a request to reset your password for your {{platform.companyName}} account.\n\nReset your password using the link below:\n{{reset.link}}\n\nIf you did not request this, you can safely ignore this email.\n\nWarm regards,\n{{platform.companyName}} Security Team"),
+
+            new EmailTemplate(
+                key: "user-password-changed",
+                name: "Security Alert: Password Changed",
+                subjectTemplate: "Security Alert: Password Changed for {{user.name}}",
+                bodyHtmlTemplate: "<h2>Password Changed Successfully</h2><p>Hello <strong>{{user.name}}</strong>,</p><p>This is a confirmation that the password for your <strong>{{platform.companyName}}</strong> account was changed at {{timestamp}}.</p><p>If you made this change, no further action is required.</p><p><strong>Didn't make this change?</strong> Please contact support immediately at <a href=\"mailto:{{support.email}}\">{{support.email}}</a>.</p><br/><p>Warm regards,<br/><strong>{{platform.companyName}} Security Team</strong></p>",
+                bodyPlainTextTemplate: "Hello {{user.name}},\n\nThis is a confirmation that the password for your {{platform.companyName}} account was changed at {{timestamp}}.\n\nIf you made this change, no further action is required. If you did not make this change, please contact support immediately at {{support.email}}.\n\nWarm regards,\n{{platform.companyName}} Security Team"),
+
+            new EmailTemplate(
+                key: "user-account-locked",
+                name: "Security Alert: Account Temporarily Locked",
+                subjectTemplate: "Security Notice: Account Temporarily Locked",
+                bodyHtmlTemplate: "<h2>Account Temporarily Locked</h2><p>Hello <strong>{{user.name}}</strong>,</p><p>Your <strong>{{platform.companyName}}</strong> account has been temporarily locked due to multiple consecutive failed sign-in attempts.</p><p>Your account will automatically unlock after {{lockout_duration}} minutes. Alternatively, an administrator can unlock your profile.</p><p>If you believe someone is trying to access your account, reach out to <a href=\"mailto:{{support.email}}\">{{support.email}}</a>.</p><br/><p>Warm regards,<br/><strong>{{platform.companyName}} Security Team</strong></p>",
+                bodyPlainTextTemplate: "Hello {{user.name}},\n\nYour {{platform.companyName}} account has been temporarily locked due to multiple failed sign-in attempts.\n\nYour account will automatically unlock after {{lockout_duration}} minutes.\n\nIf you believe this is unauthorized, contact {{support.email}}.\n\nWarm regards,\n{{platform.companyName}} Security Team"),
+
+            new EmailTemplate(
+                key: "user-role-updated",
+                name: "Staff Role Privilege Update",
+                subjectTemplate: "Role Privileges Updated - {{platform.companyName}}",
+                bodyHtmlTemplate: "<h2>Privileges Updated</h2><p>Hello <strong>{{user.name}}</strong>,</p><p>Your account role in <strong>{{platform.companyName}}</strong> has been updated to <strong>{{user.role}}</strong> by an administrator.</p><p>Your updated platform permissions are now active across the admin workspace.</p><p><a href=\"{{action.url}}\" style=\"display:inline-block;padding:12px 24px;background-color:#0284c7;color:#ffffff;text-decoration:none;border-radius:8px;font-weight:600;\">Open Workspace</a></p><br/><p>Warm regards,<br/><strong>{{platform.companyName}} Operations</strong></p>",
+                bodyPlainTextTemplate: "Hello {{user.name}},\n\nYour account role in {{platform.companyName}} has been updated to {{user.role}}.\n\nYour new permissions are now active: {{action.url}}\n\nWarm regards,\n{{platform.companyName}} Operations"),
+
+            new EmailTemplate(
+                key: "client-welcome-onboarding",
+                name: "Client Welcome & Onboarding",
+                subjectTemplate: "Welcome to {{platform.companyName}} - Let's Accelerate Your Growth, {{client.name}}!",
+                bodyHtmlTemplate: "<h2>Welcome to {{platform.companyName}}!</h2><p>Dear <strong>{{client.name}}</strong>,</p><p>We are thrilled to officially welcome <strong>{{client.company}}</strong> to the {{platform.companyName}} family. Our team is dedicated to scaling your digital acquisition and brand impact.</p><p>Your Dedicated Growth Manager is <strong>{{manager.name}}</strong> (<a href=\"mailto:{{manager.email}}\">{{manager.email}}</a>).</p><h3>Next Steps for Your Onboarding:</h3><ul><li>Schedule your Strategy Kickoff session.</li><li>Grant access to your analytics and advertising properties.</li><li>Review initial keyword &amp; performance benchmarks.</li></ul><p>We look forward to achieving exceptional results together.</p><br/><p>Warm regards,<br/><strong>{{platform.companyName}} Client Success Team</strong></p>",
+                bodyPlainTextTemplate: "Dear {{client.name}},\n\nWelcome to {{platform.companyName}}! We are thrilled to partner with {{client.company}}.\n\nYour Dedicated Growth Manager: {{manager.name}} ({{manager.email}}).\n\nNext steps: strategy kickoff, asset handover, and benchmark reviews.\n\nWarm regards,\n{{platform.companyName}} Client Success Team"),
+
+            new EmailTemplate(
+                key: "client-proposal-sent",
+                name: "Client Proposal & Scope Dispatch",
+                subjectTemplate: "Commercial Proposal: {{proposal.title}} for {{client.company}}",
+                bodyHtmlTemplate: "<h2>Commercial Growth Proposal</h2><p>Dear <strong>{{client.name}}</strong>,</p><p>Our growth strategists have tailored a bespoke digital marketing proposal for <strong>{{client.company}}</strong>: <em>{{proposal.title}}</em>.</p><p><a href=\"{{proposal.url}}\" style=\"display:inline-block;padding:12px 24px;background-color:#4f46e5;color:#ffffff;text-decoration:none;border-radius:8px;font-weight:600;\">Review Proposal &amp; Scope</a></p><p>This proposal is valid until <strong>{{expires_at}}</strong>.</p><p>Feel free to reach out directly with any questions or refinements.</p><br/><p>Warm regards,<br/><strong>{{platform.companyName}} Enterprise Partnerships</strong></p>",
+                bodyPlainTextTemplate: "Dear {{client.name}},\n\nOur growth strategists have tailored a proposal for {{client.company}}: {{proposal.title}}.\n\nReview proposal: {{proposal.url}}\nValid until: {{expires_at}}\n\nWarm regards,\n{{platform.companyName}} Enterprise Partnerships"),
+
+            new EmailTemplate(
+                key: "client-milestone-completed",
+                name: "Campaign Milestone Completed",
+                subjectTemplate: "Milestone Completed: {{milestone.title}} ({{client.company}})",
+                bodyHtmlTemplate: "<h2>Milestone Achieved 🎉</h2><p>Dear <strong>{{client.name}}</strong>,</p><p>We are pleased to report that the milestone <strong>{{milestone.title}}</strong> for project <em>{{project.name}}</em> has been successfully completed!</p><div style=\"background-color:#f8fafc;padding:16px;border-left:4px solid #10b981;margin:16px 0;\"><p><strong>Summary of Deliverables:</strong></p><p>{{summary}}</p></div><p>Our team has commenced execution on the next project phase.</p><br/><p>Warm regards,<br/><strong>{{platform.companyName}} Performance Team</strong></p>",
+                bodyPlainTextTemplate: "Dear {{client.name}},\n\nMilestone completed: {{milestone.title}} for {{project.name}}.\n\nSummary:\n{{summary}}\n\nWarm regards,\n{{platform.companyName}} Performance Team"),
+
+            new EmailTemplate(
+                key: "client-monthly-performance-report",
+                name: "Monthly Marketing Performance Report",
+                subjectTemplate: "Monthly Performance Report ({{report.month}}) - {{client.company}}",
+                bodyHtmlTemplate: "<h2>Monthly Growth Executive Summary</h2><p>Dear <strong>{{client.name}}</strong>,</p><p>Your monthly digital marketing performance report for <strong>{{report.month}}</strong> is ready for review.</p><div style=\"background-color:#f1f5f9;padding:16px;border-radius:8px;margin:16px 0;\"><ul><li><strong>Inbound Leads Generated:</strong> {{report.leads_count}}</li><li><strong>Target Conversion Rate:</strong> {{report.conversion_rate}}</li><li><strong>Attributed Pipeline Value:</strong> {{report.pipeline_value}}</li></ul></div><p><a href=\"{{report.download_url}}\" style=\"display:inline-block;padding:12px 24px;background-color:#0284c7;color:#ffffff;text-decoration:none;border-radius:8px;font-weight:600;\">Download Full Analytics Report (PDF)</a></p><br/><p>Warm regards,<br/><strong>{{platform.companyName}} Analytics Division</strong></p>",
+                bodyPlainTextTemplate: "Dear {{client.name}},\n\nYour monthly performance report for {{report.month}} is ready.\n\nLeads: {{report.leads_count}}\nConversion Rate: {{report.conversion_rate}}\nPipeline Value: {{report.pipeline_value}}\n\nDownload: {{report.download_url}}\n\nWarm regards,\n{{platform.companyName}} Analytics Division"),
+
+            new EmailTemplate(
+                key: "task-assigned",
+                name: "CRM Task Assignment",
+                subjectTemplate: "[Task Assigned] {{task.title}} - Due {{task.due_date}}",
+                bodyHtmlTemplate: "<h2>New Task Assigned</h2><p>Hello <strong>{{user.name}}</strong>,</p><p>You have been assigned a new task by <strong>{{assigned_by}}</strong> for client <strong>{{client.name}}</strong>.</p><div style=\"background-color:#f8fafc;padding:16px;border-radius:8px;margin:16px 0;\"><p><strong>Task:</strong> {{task.title}}</p><p><strong>Priority:</strong> {{task.priority}}</p><p><strong>Due Date:</strong> {{task.due_date}}</p></div><p><a href=\"{{action.url}}\" style=\"display:inline-block;padding:10px 20px;background-color:#4f46e5;color:#ffffff;text-decoration:none;border-radius:8px;font-weight:600;\">View Task in CRM</a></p><br/><p>Warm regards,<br/><strong>Nexora Task Manager</strong></p>",
+                bodyPlainTextTemplate: "Hello {{user.name}},\n\nYou have been assigned a new task: {{task.title}}\nClient: {{client.name}}\nPriority: {{task.priority}}\nDue Date: {{task.due_date}}\nAssigned By: {{assigned_by}}\n\nView: {{action.url}}"),
+
+            new EmailTemplate(
+                key: "task-overdue-alert",
+                name: "CRM Task Deadline Overdue",
+                subjectTemplate: "⚠️ URGENT: Overdue Task - {{task.title}}",
+                bodyHtmlTemplate: "<h2>Overdue Task Alert ⚠️</h2><p>Hello <strong>{{user.name}}</strong>,</p><p>The task <strong>{{task.title}}</strong> for client <strong>{{client.name}}</strong> was due on <strong>{{task.due_date}}</strong> and is currently flagged as overdue.</p><p><a href=\"{{action.url}}\" style=\"display:inline-block;padding:10px 20px;background-color:#dc2626;color:#ffffff;text-decoration:none;border-radius:8px;font-weight:600;\">Update Status in CRM</a></p><br/><p>Warm regards,<br/><strong>Nexora Task Automation</strong></p>",
+                bodyPlainTextTemplate: "Hello {{user.name}},\n\nTask overdue alert: {{task.title}} for {{client.name}} was due on {{task.due_date}}.\n\nUpdate: {{action.url}}")
+        };
+
+        foreach (var tpl in templatesToSeed)
+        {
+            if (!await context.EmailTemplates.AnyAsync(t => t.Key == tpl.Key))
+            {
+                context.EmailTemplates.Add(tpl);
+            }
         }
 
         // 5. Seed Initial Blog Posts
@@ -559,6 +636,50 @@ public static class StartupSeeder
             catch (DbUpdateException ex)
             {
                 logger.LogDebug(ex, "CountryRegions already seeded by another instance.");
+            }
+        }
+
+        // 9. Seed Default Navigation Menus (Header & Footer)
+        if (!await context.NavigationMenus.AnyAsync())
+        {
+            var headerMenu = new NavigationMenu
+            {
+                Key = "header",
+                Title = "Main Navigation",
+                RegionCode = null,
+                Items = new List<NavigationMenuItem>
+                {
+                    new() { Label = "Solutions", Url = "/solutions", DisplayOrder = 0 },
+                    new() { Label = "Case Studies", Url = "/case-studies", DisplayOrder = 1 },
+                    new() { Label = "About Us", Url = "/about", DisplayOrder = 2 },
+                    new() { Label = "Blog", Url = "/blog", DisplayOrder = 3 },
+                    new() { Label = "Contact", Url = "/contact", DisplayOrder = 4 }
+                }
+            };
+
+            var footerMenu = new NavigationMenu
+            {
+                Key = "footer",
+                Title = "Footer Navigation",
+                RegionCode = null,
+                Items = new List<NavigationMenuItem>
+                {
+                    new() { Label = "Privacy Policy", Url = "/privacy", DisplayOrder = 0 },
+                    new() { Label = "Terms of Service", Url = "/terms", DisplayOrder = 1 },
+                    new() { Label = "Security & Trust", Url = "/trust", DisplayOrder = 2 },
+                    new() { Label = "Contact Support", Url = "/contact", DisplayOrder = 3 }
+                }
+            };
+
+            context.NavigationMenus.AddRange(headerMenu, footerMenu);
+            try
+            {
+                await context.SaveChangesAsync();
+                logger.LogInformation("Seeded default header and footer navigation menus.");
+            }
+            catch (DbUpdateException ex)
+            {
+                logger.LogDebug(ex, "NavigationMenus already seeded by another instance.");
             }
         }
         else

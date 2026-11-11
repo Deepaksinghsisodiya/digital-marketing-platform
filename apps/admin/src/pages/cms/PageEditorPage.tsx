@@ -13,20 +13,15 @@ import {
   ArrowLeft,
   Sparkles,
   Eye,
-  CheckCircle2,
-  AlertCircle,
   RefreshCw,
   ExternalLink,
   Laptop,
   Tablet,
   Smartphone,
-  Plus,
   Trash2,
   ChevronUp,
   ChevronDown,
   Layers,
-  Settings2,
-  Sliders,
   Check,
 } from "lucide-react";
 
@@ -315,8 +310,6 @@ export const PageEditorPage: React.FC = () => {
       alert("Failed to generate preview token.");
     }
   };
-
-  const selectedBlock = selectedBlockIndex !== null ? blocks[selectedBlockIndex] : null;
 
   const updateSelectedBlockContent = (key: string, val: unknown) => {
     if (selectedBlockIndex === null || !blocks[selectedBlockIndex]) return;

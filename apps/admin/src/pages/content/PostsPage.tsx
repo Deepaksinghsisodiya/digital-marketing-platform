@@ -7,6 +7,8 @@ import {
 } from "../../store/api/adminApi";
 import { BlogPostStatus } from "../../types";
 import type { BlogPostSummary, CreateBlogPostRequest } from "../../types";
+import { MediaPickerModal, resolveMediaUrl } from "../media/MediaLibraryPage";
+import { Image as ImageIcon, Trash2 } from "lucide-react";
 
 export const PostsPage: React.FC = () => {
   const [page, setPage] = useState(1);
@@ -28,6 +30,7 @@ export const PostsPage: React.FC = () => {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingPost, setEditingPost] = useState<BlogPostSummary | null>(null);
+  const [isMediaPickerOpen, setIsMediaPickerOpen] = useState(false);
 
   // Form State
   const [formData, setFormData] = useState<CreateBlogPostRequest>({
@@ -386,6 +389,52 @@ export const PostsPage: React.FC = () => {
               </div>
 
               <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Cover Image</label>
+                <div className="flex items-center gap-4">
+                  {formData.coverImageUrl ? (
+                    <div className="relative group w-28 h-20 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-100 flex-shrink-0">
+                      <img
+                        src={resolveMediaUrl(formData.coverImageUrl)}
+                        alt="Cover Preview"
+                        className="w-full h-full object-cover"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setFormData((prev) => ({ ...prev, coverImageUrl: "" }))}
+                        className="absolute inset-0 bg-rose-900/70 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition"
+                        title="Remove cover image"
+                      >
+                        <Trash2 className="w-5 h-5" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="w-28 h-20 rounded-lg border-2 border-dashed border-slate-200 dark:border-slate-700 flex flex-col items-center justify-center text-slate-400 flex-shrink-0">
+                      <ImageIcon className="w-6 h-6 text-slate-300" />
+                      <span className="text-[10px] mt-1">No cover</span>
+                    </div>
+                  )}
+
+                  <div className="flex-1 space-y-2">
+                    <button
+                      type="button"
+                      onClick={() => setIsMediaPickerOpen(true)}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-indigo-200 bg-indigo-50/60 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 text-xs font-semibold transition"
+                    >
+                      <ImageIcon className="w-4 h-4" />
+                      Choose from Media Library
+                    </button>
+                    <input
+                      type="text"
+                      placeholder="Or enter direct image URL..."
+                      value={formData.coverImageUrl || ""}
+                      onChange={(e) => setFormData((prev) => ({ ...prev, coverImageUrl: e.target.value }))}
+                      className="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1">Excerpt / Summary</label>
                 <textarea
                   rows={2}
@@ -441,6 +490,15 @@ export const PostsPage: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Media Picker Modal */}
+      <MediaPickerModal
+        isOpen={isMediaPickerOpen}
+        onClose={() => setIsMediaPickerOpen(false)}
+        onSelect={(url) => {
+          setFormData((prev) => ({ ...prev, coverImageUrl: url }));
+        }}
+      />
     </div>
   );
 };

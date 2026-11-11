@@ -12,22 +12,17 @@ import {
 } from "../../store/api/adminApi";
 import type { ClientSummary, ClientStatus } from "../../types";
 import {
-  Briefcase,
   Building2,
   Search,
-  Filter,
   Plus,
   ArrowUpRight,
   CheckCircle2,
-  Clock,
   Phone,
-  Mail,
   Globe,
   ExternalLink,
   X,
   UserCheck,
   Calendar,
-  AlertCircle,
   TrendingUp,
 } from "lucide-react";
 

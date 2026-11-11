@@ -27,6 +27,8 @@ import { EmailTemplatesPage } from "./pages/EmailTemplatesPage";
 import { ClientsPage } from "./pages/clients/ClientsPage";
 import { TasksPage } from "./pages/tasks/TasksPage";
 import { PostsPage } from "./pages/content/PostsPage";
+import { MediaLibraryPage } from "./pages/media/MediaLibraryPage";
+import { MenusPage } from "./pages/menus/MenusPage";
 
 import { ThemeProvider } from "./context/ThemeContext";
 
@@ -92,11 +94,13 @@ export function App() {
               <Route path="/settings" element={<SettingsPage />} />
             </Route>
 
-            {/* CMS Pages - Guarded by pages.view */}
+            {/* CMS Pages, Media & Menus - Guarded by pages.view */}
             <Route element={<ProtectedRoute requiredPermission="pages.view" />}>
               <Route path="/cms/pages" element={<PagesListPage />} />
               <Route path="/cms/pages/:id/edit" element={<PageEditorPage />} />
               <Route path="/posts" element={<PostsPage />} />
+              <Route path="/media" element={<MediaLibraryPage />} />
+              <Route path="/menus" element={<MenusPage />} />
             </Route>
 
             {/* Leads & Inquiries - Guarded by leads.view */}

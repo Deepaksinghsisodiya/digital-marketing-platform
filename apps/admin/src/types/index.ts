@@ -74,6 +74,7 @@ export interface SiteSettingsDto {
   supportedRegions: string[];
   timeZoneId: string;
   logoMediaId?: string | null;
+  logoUrl?: string | null;
   versionToken: string;
   updatedAtUtc: string;
   smtpHost?: string | null;
@@ -97,6 +98,7 @@ export interface UpdateSiteSettingsRequest {
   supportedRegions: string[];
   timeZoneId: string;
   logoMediaId?: string | null;
+  logoUrl?: string | null;
   versionToken: string;
   smtpHost?: string | null;
   smtpPort?: number | null;
@@ -546,4 +548,63 @@ export interface UpdateBlogPostRequest {
   status: BlogPostStatus;
   metaTitle?: string | null;
   metaDescription?: string | null;
+}
+
+// Step 4: Media, Menus, Versioning
+export interface MediaAssetDto {
+  id: string;
+  storageKey: string;
+  fileName: string;
+  mimeType: string;
+  sizeBytes: number;
+  width?: number | null;
+  height?: number | null;
+  altText?: string | null;
+  url: string;
+  createdAtUtc: string;
+}
+
+export interface NavigationMenuItemDto {
+  id: string;
+  label: string;
+  url: string;
+  displayOrder: number;
+  parentItemId?: string | null;
+  children: NavigationMenuItemDto[];
+}
+
+export interface NavigationMenuDto {
+  id: string;
+  key: string;
+  title: string;
+  regionCode?: string | null;
+  items: NavigationMenuItemDto[];
+}
+
+export interface SaveMenuItemRequest {
+  label: string;
+  url: string;
+  displayOrder: number;
+  parentItemId?: string | null;
+}
+
+export interface SaveMenuRequest {
+  key: string;
+  title: string;
+  regionCode?: string | null;
+  items?: SaveMenuItemRequest[] | null;
+}
+
+export interface PageVersionSummaryDto {
+  id: string;
+  versionNumber: number;
+  note?: string | null;
+  isPublished: boolean;
+  createdAtUtc: string;
+  publishedAtUtc?: string | null;
+  createdByUserId?: string | null;
+}
+
+export interface RollbackPageRequest {
+  versionNumber: number;
 }

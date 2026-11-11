@@ -28,7 +28,10 @@ export const ContactForm: React.FC<ContactFormProps> = ({ initialRegion = "in" }
   const [referenceNumber, setReferenceNumber] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  const apiUrl =
+    process.env.INTERNAL_API_URL ||
+    process.env.NEXT_PUBLIC_API_URL ||
+    "http://localhost:5201";
 
   useEffect(() => {
     if (!apiUrl) return;

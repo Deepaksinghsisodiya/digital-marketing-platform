@@ -77,6 +77,72 @@ public static class AdminUserEndpoints
         .WithTags("Users")
         .WithSummary("Invite a new team member with assigned role.");
 
+        // 2b. Resend Invitation
+        group.MapPost("/users/{id:guid}/resend-invitation", async (
+            Guid id,
+            IIdentityService identityService,
+            IAuditLogService auditLogService,
+            ICurrentUserService currentUser,
+            CancellationToken ct) =>
+        {
+            var (success, error) = await identityService.ResendInvitationAsync(id, ct);
+            if (!success)
+            {
+                return Results.BadRequest(new { error });
+            }
+
+            await auditLogService.LogAsync(
+                action: "users.invitation_resent",
+                resourceType: "User",
+                resourceId: id.ToString(),
+                outcome: "Success",
+                actorUserId: currentUser.UserId,
+                actorEmail: currentUser.Email,
+                ipAddress: currentUser.IpAddress,
+                userAgent: currentUser.UserAgent,
+                correlationId: currentUser.CorrelationId,
+                cancellationToken: ct);
+
+            return Results.Ok(new { success = true, message = "Invitation reminder sent successfully." });
+        })
+        .RequireAuthorization(Permissions.UsersManage)
+        .WithName("ResendInvitation")
+        .WithTags("Users")
+        .WithSummary("Resend an invitation email with a new activation token.");
+
+        // 2c. Send Password Reset
+        group.MapPost("/users/{id:guid}/reset-password", async (
+            Guid id,
+            IIdentityService identityService,
+            IAuditLogService auditLogService,
+            ICurrentUserService currentUser,
+            CancellationToken ct) =>
+        {
+            var (success, error) = await identityService.SendPasswordResetLinkAsync(id, ct);
+            if (!success)
+            {
+                return Results.BadRequest(new { error });
+            }
+
+            await auditLogService.LogAsync(
+                action: "users.password_reset_sent",
+                resourceType: "User",
+                resourceId: id.ToString(),
+                outcome: "Success",
+                actorUserId: currentUser.UserId,
+                actorEmail: currentUser.Email,
+                ipAddress: currentUser.IpAddress,
+                userAgent: currentUser.UserAgent,
+                correlationId: currentUser.CorrelationId,
+                cancellationToken: ct);
+
+            return Results.Ok(new { success = true, message = "Password reset link sent to user's email." });
+        })
+        .RequireAuthorization(Permissions.UsersManage)
+        .WithName("SendUserPasswordReset")
+        .WithTags("Users")
+        .WithSummary("Send password reset instructions to a user account.");
+
         // 3. Update User (Role change or Suspend/Unsuspend)
         group.MapPatch("/users/{id:guid}", async (
             Guid id,

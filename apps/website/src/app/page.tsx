@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import Link from "next/link";
 import { REGION_CONFIG, resolveRegion } from "../config/region";
-import { getPublicPage, getPublicSiteSettings } from "../lib/cms";
+import { getPublicPage, getPublicSiteSettings, getPublicMenu } from "../lib/cms";
 import { Header } from "../components/layout/Header";
 import { Footer } from "../components/layout/Footer";
 import { BlockRenderer } from "../components/blocks/BlockRenderer";
@@ -60,10 +60,11 @@ export default async function HomePage() {
   const currentRegionCode = cookieStore.get(REGION_CONFIG.cookieName)?.value;
   const region = resolveRegion(currentRegionCode);
 
-  const [cmsPage, siteSettings, latestPosts] = await Promise.all([
+  const [cmsPage, siteSettings, latestPosts, headerMenu] = await Promise.all([
     getPublicPage("home", region.code),
     getPublicSiteSettings(),
     getLatestPosts(),
+    getPublicMenu("header", region.code),
   ]);
 
   let sectionVisibility: Record<string, boolean> = {
@@ -97,7 +98,7 @@ export default async function HomePage() {
 
   return (
     <div className="min-h-screen flex flex-col justify-between bg-white text-slate-900">
-      <Header settings={siteSettings} currentRegionCode={region.code} />
+      <Header settings={siteSettings} currentRegionCode={region.code} menu={headerMenu} />
 
       <main className="flex-1">
         {filteredBlocks.length > 0 ? (

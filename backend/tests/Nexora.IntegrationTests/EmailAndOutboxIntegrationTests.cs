@@ -37,6 +37,17 @@ public class EmailAndOutboxIntegrationTests
         templates.ShouldNotBeNull();
         templates.ShouldContain(t => t.Key == "lead-auto-reply");
         templates.ShouldContain(t => t.Key == "lead-internal-notification");
+        templates.ShouldContain(t => t.Key == "user-invitation");
+        templates.ShouldContain(t => t.Key == "user-password-reset");
+        templates.ShouldContain(t => t.Key == "user-password-changed");
+        templates.ShouldContain(t => t.Key == "user-account-locked");
+        templates.ShouldContain(t => t.Key == "user-role-updated");
+        templates.ShouldContain(t => t.Key == "client-welcome-onboarding");
+        templates.ShouldContain(t => t.Key == "client-proposal-sent");
+        templates.ShouldContain(t => t.Key == "client-milestone-completed");
+        templates.ShouldContain(t => t.Key == "client-monthly-performance-report");
+        templates.ShouldContain(t => t.Key == "task-assigned");
+        templates.ShouldContain(t => t.Key == "task-overdue-alert");
     }
 
     [Fact]
@@ -174,6 +185,42 @@ public class EmailAndOutboxIntegrationTests
 
         log.ShouldNotBeNull();
         log.Status.ShouldBe(EmailDeliveryStatus.Sent);
+    }
+
+    [Fact]
+    public async Task TestSendEmail_ClientAndRoleTemplates_ShouldDeliverAndLogSuccessfully()
+    {
+        var (client, xsrfToken) = await CreateAuthenticatedAdminClientAsync();
+
+        var templatesToTest = new[]
+        {
+            ("client-welcome-onboarding", "onboarding_test@nexora.local"),
+            ("user-invitation", "invite_test@nexora.local"),
+            ("task-assigned", "task_test@nexora.local")
+        };
+
+        foreach (var (templateKey, recipient) in templatesToTest)
+        {
+            var req = new HttpRequestMessage(HttpMethod.Post, "/api/v1/admin/email-templates/test-send")
+            {
+                Content = JsonContent.Create(new SendTestEmailRequest(
+                    ToEmail: recipient,
+                    TemplateKey: templateKey))
+            };
+            req.Headers.Add("X-XSRF-TOKEN", xsrfToken);
+
+            var response = await client.SendAsync(req);
+            response.StatusCode.ShouldBe(HttpStatusCode.OK);
+
+            using var scope = _factory.Services.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            var log = await db.EmailLogs
+                .OrderByDescending(l => l.SentAtUtc)
+                .FirstOrDefaultAsync(l => l.RecipientEmail == recipient && l.TemplateKey == templateKey);
+
+            log.ShouldNotBeNull();
+            log.Status.ShouldBe(EmailDeliveryStatus.Sent);
+        }
     }
 
     private async Task<(HttpClient Client, string XsrfToken)> CreateAuthenticatedAdminClientAsync()

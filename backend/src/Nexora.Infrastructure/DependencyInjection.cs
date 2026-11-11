@@ -94,6 +94,9 @@ public static class DependencyInjection
         services.AddTransient<IEmailSender, MailKitEmailSender>();
 
         // Domain & Application service implementations
+        services.AddSingleton<IStorageService, Storage.LocalStorageService>();
+        services.AddScoped<IMediaService, MediaService>();
+        services.AddScoped<IMenuService, MenuService>();
         services.AddScoped<IAuditLogService, AuditLogService>();
         services.AddScoped<ISiteSettingsService, SiteSettingsService>();
         services.AddScoped<IIdentityService, IdentityService>();

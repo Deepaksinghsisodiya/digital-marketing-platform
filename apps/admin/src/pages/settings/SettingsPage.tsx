@@ -11,30 +11,23 @@ import {
   useUpdateCountryRegionMutation,
 } from "../../store/api/adminApi";
 import type { PipelineStage, CountryRegion } from "../../types";
+import { MediaPickerModal, resolveMediaUrl } from "../media/MediaLibraryPage";
 import {
   CheckCircle2,
   AlertCircle,
   Save,
   RefreshCw,
-  Sliders,
   Layers,
   Globe,
   Plus,
   Edit2,
   X,
-  Check,
   Building2,
-  Coins,
-  Palette,
   Mail,
   Server,
   Eye,
   EyeOff,
   Send,
-  SlidersHorizontal,
-  ToggleLeft,
-  ToggleRight,
-  ShieldCheck,
   Layout,
   BarChart3,
   Grid,
@@ -52,11 +45,11 @@ export const SettingsPage: React.FC = () => {
   const [testSmtpConnection, { isLoading: isTestingSmtp }] = useTestSmtpConnectionMutation();
 
   // Lookups Queries & Mutations
-  const { data: pipelineStages, isLoading: loadingStages, refetch: refetchStages } = useGetAdminPipelineStagesQuery();
+  const { data: pipelineStages, refetch: refetchStages } = useGetAdminPipelineStagesQuery();
   const [createStage, { isLoading: creatingStage }] = useCreatePipelineStageMutation();
   const [updateStage, { isLoading: updatingStage }] = useUpdatePipelineStageMutation();
 
-  const { data: countryRegions, isLoading: loadingRegions, refetch: refetchRegions } = useGetAdminCountryRegionsQuery();
+  const { data: countryRegions, refetch: refetchRegions } = useGetAdminCountryRegionsQuery();
   const [createRegion, { isLoading: creatingRegion }] = useCreateCountryRegionMutation();
   const [updateRegion, { isLoading: updatingRegion }] = useUpdateCountryRegionMutation();
 
@@ -70,6 +63,9 @@ export const SettingsPage: React.FC = () => {
   const [timeZoneId, setTimeZoneId] = useState("Asia/Kolkata");
   const [supportedRegions, setSupportedRegions] = useState("IN, US, AE, GB, SG");
   const [versionToken, setVersionToken] = useState("");
+  const [logoMediaId, setLogoMediaId] = useState<string | null>(null);
+  const [logoPreviewUrl, setLogoPreviewUrl] = useState<string | null>(null);
+  const [isLogoModalOpen, setIsLogoModalOpen] = useState(false);
 
   const [feedback, setFeedback] = useState<{
     type: "success" | "error" | "conflict";
@@ -133,6 +129,14 @@ export const SettingsPage: React.FC = () => {
       setTimeZoneId(settings.timeZoneId || "Asia/Kolkata");
       setSupportedRegions((settings.supportedRegions || []).join(", "));
       setVersionToken(settings.versionToken || "");
+      setLogoMediaId(settings.logoMediaId || null);
+      if (settings.logoUrl) {
+        setLogoPreviewUrl(settings.logoUrl);
+      } else if (settings.logoMediaId) {
+        setLogoPreviewUrl(`/api/v1/public/media/${settings.logoMediaId}/download`);
+      } else {
+        setLogoPreviewUrl(null);
+      }
 
       setSmtpHost(settings.smtpHost || "localhost");
       setSmtpPort(settings.smtpPort || 1025);
@@ -172,7 +176,7 @@ export const SettingsPage: React.FC = () => {
         defaultRegion,
         supportedRegions: regionsList,
         timeZoneId,
-        logoMediaId: null,
+        logoMediaId,
         versionToken,
         smtpHost: smtpHost.trim() || null,
         smtpPort: smtpPort ? Number(smtpPort) : null,
@@ -249,7 +253,7 @@ export const SettingsPage: React.FC = () => {
         defaultRegion,
         supportedRegions: regionsList,
         timeZoneId,
-        logoMediaId: null,
+        logoMediaId,
         versionToken,
         smtpHost: smtpHost.trim(),
         smtpPort: Number(smtpPort),
@@ -323,7 +327,7 @@ export const SettingsPage: React.FC = () => {
         defaultRegion,
         supportedRegions: regionsList,
         timeZoneId,
-        logoMediaId: null,
+        logoMediaId,
         versionToken,
         smtpHost: smtpHost ? smtpHost.trim() : null,
         smtpPort: smtpPort ? Number(smtpPort) : null,
@@ -717,6 +721,56 @@ export const SettingsPage: React.FC = () => {
                   className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   placeholder="Street, City, State, Country, Postal Code"
                 />
+              </div>
+
+              {/* Brand Logo & Icon */}
+              <div className="sm:col-span-2 pt-3 border-t border-slate-100 dark:border-slate-800/80">
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                  Platform Brand Logo & Emblem
+                </label>
+                <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                  <div className="w-16 h-16 rounded-2xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-center overflow-hidden p-1.5 shadow-inner">
+                    {logoPreviewUrl ? (
+                      <img
+                        src={resolveMediaUrl(logoPreviewUrl)}
+                        alt={companyName || "Logo"}
+                        className="w-full h-full object-contain"
+                      />
+                    ) : (
+                      <span className="text-xl font-black text-indigo-600 dark:text-indigo-400">
+                        {companyName ? companyName.charAt(0).toUpperCase() : "N"}
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setIsLogoModalOpen(true)}
+                        className="px-3.5 py-1.5 text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-sm transition"
+                      >
+                        {logoPreviewUrl ? "Change Logo" : "Choose / Upload Logo"}
+                      </button>
+
+                      {logoPreviewUrl && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setLogoMediaId(null);
+                            setLogoPreviewUrl(null);
+                          }}
+                          className="px-3.5 py-1.5 text-xs font-semibold text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-xl transition"
+                        >
+                          Remove Logo
+                        </button>
+                      )}
+                    </div>
+                    <p className="text-[11px] text-slate-400">
+                      Recommended: Transparent PNG, SVG, or WebP. Displayed in Admin navbar and Public website.
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -1691,6 +1745,23 @@ export const SettingsPage: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Brand Logo Picker Modal */}
+      <MediaPickerModal
+        isOpen={isLogoModalOpen}
+        onClose={() => setIsLogoModalOpen(false)}
+        onSelect={(url, _alt, asset) => {
+          setLogoPreviewUrl(url);
+          if (asset?.id) {
+            setLogoMediaId(asset.id);
+          } else {
+            const match = url.match(/\/api\/v1\/public\/media\/([0-9a-fA-F-]{36})/);
+            if (match && match[1]) {
+              setLogoMediaId(match[1]);
+            }
+          }
+        }}
+      />
     </div>
   );
 };

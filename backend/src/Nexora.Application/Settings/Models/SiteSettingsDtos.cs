@@ -11,6 +11,7 @@ public record SiteSettingsDto(
     string[] SupportedRegions,
     string TimeZoneId,
     Guid? LogoMediaId,
+    string? LogoUrl,
     string SmtpHost,
     int SmtpPort,
     bool SmtpUseSsl,
@@ -31,6 +32,7 @@ public record PublicSiteSettingsDto(
     string[] SupportedRegions,
     string TimeZoneId,
     Guid? LogoMediaId,
+    string? LogoUrl,
     string SectionVisibilityJson);
 
 public record UpdateSiteSettingsDto(

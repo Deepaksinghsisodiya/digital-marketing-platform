@@ -9,22 +9,15 @@ import {
 import type { RoleDto } from "../../types";
 import {
   ShieldCheck,
-  Shield,
   Check,
   Minus,
   Plus,
   Trash2,
   Edit2,
-  Lock,
   RefreshCw,
   X,
   AlertCircle,
   CheckCircle2,
-  Users,
-  Globe,
-  Settings,
-  FileText,
-  Briefcase,
   SlidersHorizontal,
 } from "lucide-react";
 

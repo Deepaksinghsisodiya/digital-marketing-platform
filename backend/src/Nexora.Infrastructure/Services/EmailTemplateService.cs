@@ -129,15 +129,53 @@ public class EmailTemplateService : IEmailTemplateService
         Dictionary<string, string>? testVariables,
         CancellationToken ct = default)
     {
-        var vars = testVariables ?? new Dictionary<string, string>
+        var vars = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
-            ["lead.name"] = "Jane Doe",
+            ["lead.name"] = "Vikram Malhotra",
             ["lead.email"] = toEmail,
-            ["lead.company"] = "Test Corp",
+            ["lead.company"] = "Apex Global Ventures",
             ["lead.phone"] = "+1 555-0199",
             ["lead.region"] = "US",
-            ["platform.companyName"] = "Nexora Platform"
+            ["platform.companyName"] = "Nexora Digital",
+            ["user.name"] = "Alex Morgan",
+            ["user.role"] = "Sales",
+            ["invite.link"] = "http://localhost:5173/auth/setup-password?token=sample_invite_token",
+            ["reset.link"] = "http://localhost:5173/auth/reset-password?token=sample_reset_token",
+            ["expires_hours"] = "48",
+            ["expires_minutes"] = "30",
+            ["timestamp"] = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm UTC"),
+            ["ip_address"] = "192.168.1.100",
+            ["support.email"] = "support@nexora.local",
+            ["lockout_duration"] = "15",
+            ["action.url"] = "http://localhost:5173/admin",
+            ["client.name"] = "Sarah Jenkins",
+            ["client.company"] = "Acme Global Corp",
+            ["manager.name"] = "Rahul Verma",
+            ["manager.email"] = "rahul.v@nexora.local",
+            ["proposal.title"] = "Enterprise Performance Marketing Q1-Q2",
+            ["proposal.url"] = "http://localhost:5173/proposals/prop_2026_01",
+            ["expires_at"] = DateTime.UtcNow.AddDays(14).ToString("yyyy-MM-dd"),
+            ["milestone.title"] = "Full-Funnel Tracking & Google Ads Setup",
+            ["project.name"] = "Scale2026 Growth Accelerator",
+            ["summary"] = "Configured server-side conversion tracking, launched 4 search campaigns, and established ROI dashboards.",
+            ["report.month"] = DateTime.UtcNow.ToString("MMMM yyyy"),
+            ["report.leads_count"] = "142 Qualified Leads",
+            ["report.conversion_rate"] = "4.8%",
+            ["report.pipeline_value"] = "$280,000",
+            ["report.download_url"] = "http://localhost:5173/reports/download/sample.pdf",
+            ["task.title"] = "Finalize Q1 Search Retargeting Ad Creatives",
+            ["task.priority"] = "High",
+            ["task.due_date"] = DateTime.UtcNow.AddDays(3).ToString("yyyy-MM-dd"),
+            ["assigned_by"] = "Vikram Malhotra"
         };
+
+        if (testVariables != null)
+        {
+            foreach (var kvp in testVariables)
+            {
+                vars[kvp.Key] = kvp.Value;
+            }
+        }
 
         try
         {

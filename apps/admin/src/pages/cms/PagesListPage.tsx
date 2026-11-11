@@ -1,17 +1,18 @@
-import React, { useState, useEffect, useRef } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import {
   useGetPagesQuery,
   useGetPageByIdQuery,
   useCreatePageMutation,
   useSavePageDraftMutation,
   usePublishPageMutation,
-  useGeneratePreviewTokenMutation,
+  useGetPageVersionsQuery,
+  useRollbackPageMutation,
   useGetSettingsQuery,
   useUpdateSettingsMutation,
 } from "../../store/api/adminApi";
 import { useAuth } from "../../hooks/useAuth";
-import type { CmsBlock, CreatePageRequest } from "../../types";
+import type { CmsBlock } from "../../types";
 import {
   Globe,
   Layout,
@@ -21,7 +22,6 @@ import {
   RefreshCw,
   ExternalLink,
   Plus,
-  Edit2,
   Trash2,
   Save,
   CheckCircle2,
@@ -33,17 +33,17 @@ import {
   SlidersHorizontal,
   BarChart3,
   Grid,
-  BookOpen,
   Megaphone,
   HelpCircle,
   FileText,
-  Eye,
-  EyeOff,
   ChevronDown,
   ChevronUp,
   Lock,
   Star,
   CreditCard,
+  History,
+  Clock,
+  RotateCcw,
 } from "lucide-react";
 
 const BLOCK_TEMPLATES: Record<
@@ -198,7 +198,6 @@ const BLOCK_TEMPLATES: Record<
 };
 
 export const PagesListPage: React.FC = () => {
-  const navigate = useNavigate();
   const { hasPermission } = useAuth();
 
   // View Mode: 'visual' (Split Live Studio) or 'directory' (Standard Management Table)
@@ -214,11 +213,11 @@ export const PagesListPage: React.FC = () => {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newSlug, setNewSlug] = useState("");
   const [newTitle, setNewTitle] = useState("");
-  const [newLocale, setNewLocale] = useState("en");
+  const newLocale = "en";
   const [createError, setCreateError] = useState("");
 
   // RTK Queries
-  const { data: pagesData, isLoading: loadingPages, refetch: refetchPages } = useGetPagesQuery({
+  const { data: pagesData, refetch: refetchPages } = useGetPagesQuery({
     page,
     pageSize: 50,
     search: search || undefined,
@@ -252,7 +251,15 @@ export const PagesListPage: React.FC = () => {
   const [saveDraft, { isLoading: isSavingDraft }] = useSavePageDraftMutation();
   const [publishPage, { isLoading: isPublishing }] = usePublishPageMutation();
   const [createPage, { isLoading: isCreating }] = useCreatePageMutation();
-  const [generatePreviewToken] = useGeneratePreviewTokenMutation();
+
+  // CMS Page Version History & Rollback
+  const [showVersionsModal, setShowVersionsModal] = useState(false);
+  const {
+    data: pageVersions = [],
+    isLoading: isLoadingVersions,
+    refetch: refetchVersions,
+  } = useGetPageVersionsQuery(selectedPageId, { skip: !selectedPageId });
+  const [rollbackPage, { isLoading: isRollingBack }] = useRollbackPageMutation();
 
   const [feedback, setFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null);
 
@@ -437,6 +444,36 @@ export const PagesListPage: React.FC = () => {
     } catch (err: unknown) {
       const errObj = err as { data?: { error?: string } };
       alert(errObj?.data?.error || "Failed to publish page.");
+    }
+  };
+
+  const handleRollback = async (versionNumber: number) => {
+    if (!selectedPageId) return;
+    if (
+      !window.confirm(
+        `Rollback to Version ${versionNumber}? Unsaved draft changes will be replaced.`
+      )
+    )
+      return;
+
+    try {
+      await rollbackPage({
+        pageId: selectedPageId,
+        request: { versionNumber },
+      }).unwrap();
+      setShowVersionsModal(false);
+      refetchPageDetail();
+      refetchPages();
+      refetchVersions();
+      setPreviewKey(Date.now());
+      setFeedback({
+        type: "success",
+        message: `Successfully restored Page Version ${versionNumber}!`,
+      });
+      setTimeout(() => setFeedback(null), 4000);
+    } catch (err: unknown) {
+      const errObj = err as { data?: { error?: string } };
+      alert(errObj?.data?.error || `Failed to rollback to version ${versionNumber}.`);
     }
   };
 
@@ -651,6 +688,21 @@ export const PagesListPage: React.FC = () => {
                 <ExternalLink className="w-3.5 h-3.5" />
                 <span className="hidden sm:inline">Open Live</span>
               </a>
+
+              <button
+                type="button"
+                onClick={() => setShowVersionsModal(true)}
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:text-indigo-600 transition"
+                title="Version History & 1-Click Rollback"
+              >
+                <History className="w-3.5 h-3.5 text-indigo-500" />
+                <span className="hidden sm:inline">Versions</span>
+                {pageVersions.length > 0 && (
+                  <span className="px-1.5 py-0.5 bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 rounded-md text-[10px] font-bold">
+                    {pageVersions.length}
+                  </span>
+                )}
+              </button>
 
               {hasPermission("pages.edit") && (
                 <button
@@ -1205,7 +1257,7 @@ export const PagesListPage: React.FC = () => {
                   onChange={(e) => {
                     setNewTitle(e.target.value);
                     if (!newSlug) {
-                      setNewSlug(e.target.value.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9\-]/g, ""));
+                      setNewSlug(e.target.value.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, ""));
                     }
                   }}
                   placeholder="e.g. Enterprise Security & Architecture"
@@ -1221,7 +1273,7 @@ export const PagesListPage: React.FC = () => {
                   type="text"
                   required
                   value={newSlug}
-                  onChange={(e) => setNewSlug(e.target.value.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9\-]/g, ""))}
+                  onChange={(e) => setNewSlug(e.target.value.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, ""))}
                   placeholder="e.g. enterprise-security"
                   className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-mono"
                 />
@@ -1244,6 +1296,93 @@ export const PagesListPage: React.FC = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Version History & Rollback Modal */}
+      {showVersionsModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col max-h-[80vh]">
+            <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+              <div>
+                <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                  <History className="w-4 h-4 text-indigo-600" />
+                  <span>Version History & Rollback</span>
+                </h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  Inspect immutable page versions and rollback to any historical point with 1-click.
+                </p>
+              </div>
+              <button
+                onClick={() => setShowVersionsModal(false)}
+                className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+              >
+                <Trash2 className="hidden" /> {/* Keep icon tree clean */}
+                <span className="text-sm font-bold">✕</span>
+              </button>
+            </div>
+
+            <div className="p-6 overflow-y-auto flex-1">
+              {isLoadingVersions ? (
+                <div className="py-12 text-center text-xs text-slate-400">
+                  Loading version timeline...
+                </div>
+              ) : pageVersions.length === 0 ? (
+                <div className="py-12 text-center text-xs text-slate-400">
+                  No previous versions recorded for this page yet. Revisions are created automatically whenever drafts are saved or published.
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {pageVersions.map((v) => (
+                    <div
+                      key={v.id}
+                      className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40 flex items-center justify-between gap-4 hover:border-slate-300 dark:hover:border-slate-700 transition"
+                    >
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/60">
+                            Version {v.versionNumber}
+                          </span>
+                          {v.isPublished && (
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">
+                              Published Live
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-xs text-slate-600 dark:text-slate-300">
+                          {v.note || "Automated draft snapshot"}
+                        </p>
+                        <div className="flex items-center gap-2 text-[11px] text-slate-400">
+                          <Clock className="w-3 h-3" />
+                          <span>{new Date(v.createdAtUtc).toLocaleString()}</span>
+                        </div>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => handleRollback(v.versionNumber)}
+                        disabled={isRollingBack}
+                        className="px-3.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-indigo-500 bg-white dark:bg-slate-900 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:text-indigo-600 flex items-center gap-1.5 shadow-sm transition disabled:opacity-50"
+                      >
+                        <RotateCcw className="w-3.5 h-3.5 text-indigo-500" />
+                        <span>Rollback</span>
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="px-6 py-3 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setShowVersionsModal(false)}
+                className="px-4 py-2 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-xl transition"
+              >
+                Close
+              </button>
+            </div>
           </div>
         </div>
       )}

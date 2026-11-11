@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import {
   useGetUsersQuery,
   useInviteUserMutation,
+  useResendInvitationMutation,
+  useSendUserPasswordResetMutation,
   useUpdateUserMutation,
   useDeleteUserMutation,
 } from "../../store/api/adminApi";
@@ -17,6 +19,7 @@ import {
   X,
   Mail,
   User,
+  Key,
 } from "lucide-react";
 
 export const UsersPage: React.FC = () => {
@@ -45,8 +48,43 @@ export const UsersPage: React.FC = () => {
   });
 
   const [inviteUser, { isLoading: isInviting }] = useInviteUserMutation();
+  const [resendInvitation, { isLoading: isResending }] = useResendInvitationMutation();
+  const [sendUserPasswordReset, { isLoading: isResetting }] = useSendUserPasswordResetMutation();
   const [updateUser] = useUpdateUserMutation();
   const [deleteUser] = useDeleteUserMutation();
+
+  const handleResendInvite = async (userId: string, email: string) => {
+    try {
+      const res = await resendInvitation(userId).unwrap();
+      setActionMsg({
+        text: res.message || `Invitation resent to ${email} successfully!`,
+        type: "success",
+      });
+    } catch (err: unknown) {
+      const apiErr = err as { data?: { error?: string } };
+      setActionMsg({
+        text: apiErr?.data?.error || "Failed to resend invitation.",
+        type: "error",
+      });
+    }
+  };
+
+  const handleSendResetPassword = async (userId: string, email: string) => {
+    if (!window.confirm(`Send password reset instructions to ${email}?`)) return;
+    try {
+      const res = await sendUserPasswordReset(userId).unwrap();
+      setActionMsg({
+        text: res.message || `Password reset link sent to ${email} successfully!`,
+        type: "success",
+      });
+    } catch (err: unknown) {
+      const apiErr = err as { data?: { error?: string } };
+      setActionMsg({
+        text: apiErr?.data?.error || "Failed to send password reset.",
+        type: "error",
+      });
+    }
+  };
 
   const isOwner = currentUser?.roles?.includes("Owner");
   const canManageUsers = isOwner || currentUser?.permissions?.includes("users.manage");
@@ -241,6 +279,24 @@ export const UsersPage: React.FC = () => {
                       <td className="px-6 py-4 text-right">
                         {canManageUsers && !isSelf && (
                           <div className="inline-flex items-center gap-2">
+                            {isInvited && (
+                              <button
+                                onClick={() => handleResendInvite(u.id, u.email)}
+                                disabled={isResending}
+                                title="Resend invitation link"
+                                className="p-1.5 rounded-lg border border-indigo-500/30 text-indigo-400 hover:bg-indigo-500/10 transition-colors disabled:opacity-40"
+                              >
+                                <Mail className="w-3.5 h-3.5" />
+                              </button>
+                            )}
+                            <button
+                              onClick={() => handleSendResetPassword(u.id, u.email)}
+                              disabled={isResetting}
+                              title="Send password reset link"
+                              className="p-1.5 rounded-lg border border-purple-500/30 text-purple-400 hover:bg-purple-500/10 transition-colors disabled:opacity-40"
+                            >
+                              <Key className="w-3.5 h-3.5" />
+                            </button>
                             <button
                               onClick={() => handleToggleSuspend(u.id, isSuspended)}
                               title={isSuspended ? "Reactivate user" : "Suspend user"}

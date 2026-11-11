@@ -3,7 +3,6 @@ import { useAppSelector } from "../../store/hooks";
 import {
   useGetUsersQuery,
   useGetAuditLogsQuery,
-  useGetSettingsQuery,
   useGetLeadStatsQuery,
   useGetClientsQuery,
 } from "../../store/api/adminApi";
@@ -11,8 +10,6 @@ import {
   Users,
   ShieldCheck,
   FileText,
-  Sliders,
-  CheckCircle2,
   Inbox,
   Clock,
   ArrowUpRight,
@@ -22,8 +19,6 @@ import {
   Layers,
   Activity,
   Globe,
-  Plus,
-  Compass,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -31,7 +26,6 @@ export const DashboardPage: React.FC = () => {
   const { user } = useAppSelector((state) => state.auth);
   const { data: usersData } = useGetUsersQuery({ page: 1, pageSize: 5 });
   const { data: auditData } = useGetAuditLogsQuery({ page: 1, pageSize: 6 });
-  const { data: settingsData } = useGetSettingsQuery();
   const { data: leadStats } = useGetLeadStatsQuery();
   const { data: clientsData } = useGetClientsQuery({ page: 1, pageSize: 5 });
 
