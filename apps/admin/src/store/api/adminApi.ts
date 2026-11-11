@@ -333,6 +333,20 @@ export const adminApi = apiSlice.injectEndpoints({
         method: "POST",
       }),
     }),
+    archivePage: builder.mutation<
+      { success: boolean; message: string },
+      string
+    >({
+      query: (id) => ({
+        url: `/api/v1/admin/pages/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: (_result, _error, id) => [
+        { type: "CmsPage", id },
+        "CmsPage",
+        "AuditLog",
+      ],
+    }),
 
     // Leads & Inquiries
     getLeads: builder.query<
@@ -846,6 +860,7 @@ export const {
   useSavePageDraftMutation,
   usePublishPageMutation,
   useGeneratePreviewTokenMutation,
+  useArchivePageMutation,
   useGetLeadsQuery,
   useGetLeadByIdQuery,
   useGetLeadStatsQuery,

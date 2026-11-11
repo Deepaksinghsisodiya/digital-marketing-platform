@@ -318,6 +318,36 @@ public sealed class CmsService : ICmsService
         return (true, null);
     }
 
+    public async Task<(bool Success, string? Error)> ArchivePageAsync(
+        Guid pageId,
+        Guid actingUserId,
+        CancellationToken ct = default)
+    {
+        var page = await _context.Pages.FirstOrDefaultAsync(p => p.Id == pageId, ct);
+        if (page == null) return (false, "Page not found.");
+
+        page.Status = PageStatus.Archived;
+        page.IsEnabled = false;
+        page.MarkUpdated();
+
+        await _context.SaveChangesAsync(ct);
+
+        await _auditLogService.LogAsync(
+            action: "cms.page.archive",
+            resourceType: "Page",
+            resourceId: pageId.ToString(),
+            outcome: "Success",
+            actorUserId: actingUserId,
+            actorEmail: null,
+            ipAddress: null,
+            userAgent: null,
+            correlationId: Guid.NewGuid().ToString("N"),
+            metadata: new() { ["slug"] = page.Slug, ["previousStatus"] = page.Status.ToString() },
+            cancellationToken: ct);
+
+        return (true, null);
+    }
+
     public async Task<IReadOnlyList<PageVersionSummaryDto>> GetPageVersionsAsync(
         Guid pageId,
         CancellationToken ct = default)

@@ -6,6 +6,7 @@ import {
   useCreatePageMutation,
   useSavePageDraftMutation,
   usePublishPageMutation,
+  useArchivePageMutation,
   useGetPageVersionsQuery,
   useRollbackPageMutation,
   useGetSettingsQuery,
@@ -316,6 +317,30 @@ export const PagesListPage: React.FC = () => {
   } = useGetPageVersionsQuery(selectedPageId, { skip: !selectedPageId });
   const [rollbackPage, { isLoading: isRollingBack }] =
     useRollbackPageMutation();
+  const [archivePage, { isLoading: isArchiving }] = useArchivePageMutation();
+
+  const handleArchive = async (id: string, title: string) => {
+    if (
+      !window.confirm(
+        `Are you sure you want to archive page "${title}"? It will be unpublished from the live site while preserving all version history.`,
+      )
+    ) {
+      return;
+    }
+    try {
+      await archivePage(id).unwrap();
+      refetchPages();
+      setFeedback({
+        type: "success",
+        message: `Page "${title}" archived successfully.`,
+      });
+    } catch {
+      setFeedback({
+        type: "error",
+        message: "Failed to archive page.",
+      });
+    }
+  };
 
   const [feedback, setFeedback] = useState<{
     type: "success" | "error";
@@ -1362,9 +1387,13 @@ export const PagesListPage: React.FC = () => {
                       {p.locale}
                     </td>
                     <td className="px-6 py-4">
-                      {p.status === 1 ? (
+                      {p.status === 2 ? (
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">
                           Published
+                        </span>
+                      ) : p.status === 3 ? (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-500/10 text-slate-500 border border-slate-500/20">
+                          Archived
                         </span>
                       ) : (
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-600 border border-amber-500/20">
@@ -1394,6 +1423,16 @@ export const PagesListPage: React.FC = () => {
                       >
                         Edit SEO
                       </Link>
+                      {p.status !== 3 && (
+                        <button
+                          type="button"
+                          onClick={() => handleArchive(p.id, p.title)}
+                          disabled={isArchiving}
+                          className="px-3 py-1 rounded-lg bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 font-medium hover:bg-rose-100 transition"
+                        >
+                          Archive
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))}

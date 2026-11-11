@@ -216,4 +216,33 @@ public class CmsIntegrationTests
         var invalid = await cmsService.GetPageByPreviewTokenAsync("invalid_or_revoked_token");
         invalid.ShouldBeNull();
     }
+
+    [Fact]
+    public async Task ArchivePage_ShouldSetArchivedStatus_AndRecordAuditLog()
+    {
+        using var scope = _factory.Services.CreateScope();
+        var cmsService = scope.ServiceProvider.GetRequiredService<ICmsService>();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var actingAdminId = Guid.NewGuid();
+
+        var slug = $"archive-{Guid.NewGuid():N}";
+        var (_, _, pageId) = await cmsService.CreatePageAsync(new CreatePageRequest(slug, "Page To Archive", "en"), actingAdminId);
+        pageId.ShouldNotBeNull();
+
+        // Archive page
+        var (ok, error) = await cmsService.ArchivePageAsync(pageId.Value, actingAdminId);
+        ok.ShouldBeTrue(error);
+
+        // Verify page entity in DB
+        var page = await db.Pages.FindAsync(pageId.Value);
+        page.ShouldNotBeNull();
+        page.Status.ShouldBe(Nexora.Domain.Entities.PageStatus.Archived);
+        page.IsEnabled.ShouldBeFalse();
+
+        // Verify audit log recorded
+        var audit = await db.AuditLogs
+            .FirstOrDefaultAsync(a => a.ResourceType == "Page" && a.ResourceId == pageId.Value.ToString() && a.Action == "cms.page.archive");
+        audit.ShouldNotBeNull();
+        audit.Outcome.ShouldBe("Success");
+    }
 }

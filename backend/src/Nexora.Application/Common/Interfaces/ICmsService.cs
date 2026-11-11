@@ -37,6 +37,11 @@ public interface ICmsService
         Guid actingUserId,
         CancellationToken ct = default);
 
+    Task<(bool Success, string? Error)> ArchivePageAsync(
+        Guid pageId,
+        Guid actingUserId,
+        CancellationToken ct = default);
+
     Task<IReadOnlyList<PageVersionSummaryDto>> GetPageVersionsAsync(
         Guid pageId,
         CancellationToken ct = default);

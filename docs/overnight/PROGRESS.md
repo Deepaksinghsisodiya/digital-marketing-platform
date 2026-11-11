@@ -2,10 +2,10 @@
 
 ## Global Status Dashboard
 
-- **Current Phase:** Phase 4 (Public Website - Industry-Standard Experience) -> Completed ✅
-- **Active Task:** Advancing to Phase 5 (Admin Panel - Modern Cockpit)
-- **Test Baseline:** 125 backend tests passing (Unit: 25, Arch: 3, Integration: 97), 0 failed, 0 skipped. Frontend Vitest: 14 passed (Admin: 6, Website: 8). Total: 139 passing tests.
-- **Gap Register:** 18 total gaps (12 Closed: GAP-01..06, 08..12, 18. Remaining: GAP-07, 13, 14, 15, 16, 17)
+- **Current Phase:** Phase 5 (Admin Panel - Modern Cockpit) -> Completed ✅
+- **Active Task:** Advancing to Phase 6 (Marketing Engine & Integrations)
+- **Test Baseline:** 126 backend tests passing (Unit: 25, Arch: 3, Integration: 98), 0 failed, 0 skipped. Frontend Vitest: 14 passed (Admin: 6, Website: 8). Total: 140 passing tests.
+- **Gap Register:** 18 total gaps (15 Closed: GAP-01..14, 18. Remaining: GAP-15, 16, 17)
 - **Known Blockers:** 0
 
 ---
@@ -64,3 +64,12 @@
 - [x] All 125 backend tests passed (25 Unit, 3 Arch, 97 Integration; 0 failed, 0 skipped). Logged to `docs/overnight/logs/test-output-phase-4.txt`.
 - [x] All 14 frontend tests passed (Admin: 6, Website: 8).
 - [x] Linter clean, Prettier clean, production builds for Website and Admin both succeeded.
+
+### Phase 5: Admin Panel — Modern Cockpit (COMPLETED)
+
+- [x] **Page Soft-Archive (GAP-07):** Added `DELETE /api/v1/admin/pages/{id}` endpoint and `ArchivePageAsync` in `CmsService` to set `Status = PageStatus.Archived` and `IsEnabled = false` instead of cascade delete, preserving version history and audit log. Added integration test `ArchivePage_ShouldSetArchivedStatus_AndRecordAuditLog`.
+- [x] **Global Command Palette (GAP-13):** Created `apps/admin/src/components/CommandPalette.tsx` accessible via `Ctrl+K` / `Cmd+K` keyboard shortcut or topbar quick search button with dynamic CMS page search, instant route navigation, and keyboard arrow controls.
+- [x] **Notifications & Telemetry Drawer (GAP-14):** Created `apps/admin/src/components/NotificationDrawer.tsx` slide-over drawer connected to real-time audit logs and inbound leads feed, accessible via the topbar notification bell.
+- [x] All 126 backend tests passed (25 Unit, 3 Arch, 98 Integration; 0 failed, 0 skipped). Raw output captured in `docs/overnight/logs/test-output-phase-5.txt`.
+- [x] All 14 frontend tests passed (Admin: 6, Website: 8).
+- [x] Linter clean, Prettier clean, and production build `pnpm --filter @nexora/admin build` succeeded.

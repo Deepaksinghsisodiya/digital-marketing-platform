@@ -34,6 +34,8 @@ import {
   FolderTree,
 } from "lucide-react";
 import { useTheme } from "../context/ThemeContext";
+import { CommandPalette } from "../components/CommandPalette";
+import { NotificationDrawer } from "../components/NotificationDrawer";
 
 interface NavGroup {
   label: string;
@@ -83,7 +85,19 @@ export const AdminLayout: React.FC = () => {
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
-  const [searchFocused, setSearchFocused] = useState(false);
+  const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
+  const [notificationDrawerOpen, setNotificationDrawerOpen] = useState(false);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setCommandPaletteOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   const hasPerm = (p: string): boolean =>
     Boolean(user?.permissions?.includes(p) || user?.roles?.includes("Owner"));
@@ -503,27 +517,22 @@ export const AdminLayout: React.FC = () => {
 
           {/* Search, Actions & Profile Bar */}
           <div className="flex items-center gap-2.5 sm:gap-3">
-            {/* Quick search input */}
-            <div
-              className={`relative hidden md:flex items-center rounded-xl border transition-all ${
-                searchFocused
-                  ? "border-indigo-500 ring-2 ring-indigo-500/20 w-72 lg:w-80 bg-white dark:bg-slate-900"
-                  : "border-slate-200 dark:border-slate-800 w-52 lg:w-64 bg-slate-50 dark:bg-slate-900/60"
-              }`}
+            {/* Quick search button triggering Command Palette */}
+            <button
+              type="button"
+              onClick={() => setCommandPaletteOpen(true)}
+              className="relative hidden md:flex items-center rounded-xl border border-slate-200 dark:border-slate-800 w-52 lg:w-64 bg-slate-50 dark:bg-slate-900/60 hover:border-indigo-500/60 hover:bg-white dark:hover:bg-slate-900 transition-all text-left group"
+              title="Open Global Command Palette (Ctrl+K)"
             >
-              <Search className="w-3.5 h-3.5 text-slate-400 ml-3 flex-shrink-0" />
-              <input
-                type="text"
-                placeholder="Search resources, CRM, leads..."
-                onFocus={() => setSearchFocused(true)}
-                onBlur={() => setSearchFocused(false)}
-                className="w-full bg-transparent px-2.5 py-1.5 text-xs text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none"
-              />
+              <Search className="w-3.5 h-3.5 text-slate-400 ml-3 flex-shrink-0 group-hover:text-indigo-500 transition-colors" />
+              <span className="w-full bg-transparent px-2.5 py-1.5 text-xs text-slate-400 select-none">
+                Search or press...
+              </span>
               <div className="mr-2 hidden lg:flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-slate-200/80 dark:bg-slate-800 text-[10px] font-mono text-slate-500">
                 <Command className="w-2.5 h-2.5" />
                 <span>K</span>
               </div>
-            </div>
+            </button>
 
             {/* View Live Website Pill */}
             <a
@@ -541,11 +550,12 @@ export const AdminLayout: React.FC = () => {
             <div className="relative">
               <button
                 type="button"
+                onClick={() => setNotificationDrawerOpen(true)}
                 className="p-2 rounded-xl text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                title="System Notifications"
+                title="System Notifications & Telemetry"
               >
                 <Bell className="w-4 h-4" />
-                <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-indigo-500" />
+                <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-indigo-500 animate-pulse" />
               </button>
             </div>
 
@@ -569,6 +579,18 @@ export const AdminLayout: React.FC = () => {
           <Outlet />
         </main>
       </div>
+
+      {/* Global Command Palette Modal */}
+      <CommandPalette
+        isOpen={commandPaletteOpen}
+        onClose={() => setCommandPaletteOpen(false)}
+      />
+
+      {/* Slide-over Notifications & Telemetry Drawer */}
+      <NotificationDrawer
+        isOpen={notificationDrawerOpen}
+        onClose={() => setNotificationDrawerOpen(false)}
+      />
     </div>
   );
 };

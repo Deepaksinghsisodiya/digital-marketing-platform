@@ -124,6 +124,24 @@ public static class CmsEndpoints
         .WithName("PublishPage")
         .WithSummary("Publish current draft version to live site (Pages.Publish required).");
 
+        adminGroup.MapDelete("/{id:guid}", async (
+            Guid id,
+            ICmsService cmsService,
+            ICurrentUserService currentUser,
+            CancellationToken ct) =>
+        {
+            var (success, error) = await cmsService.ArchivePageAsync(
+                id,
+                currentUser.UserId ?? Guid.Empty,
+                ct);
+
+            if (!success) return Results.BadRequest(new { error });
+            return Results.Ok(new { success = true, message = "Page archived successfully." });
+        })
+        .RequireAuthorization(Permissions.PagesEdit)
+        .WithName("ArchivePage")
+        .WithSummary("Archive CMS page without destroying version history.");
+
         adminGroup.MapPost("/{id:guid}/preview-token", async (
             Guid id,
             ICmsService cmsService,
