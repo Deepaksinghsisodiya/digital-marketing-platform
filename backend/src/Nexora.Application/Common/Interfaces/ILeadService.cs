@@ -45,5 +45,14 @@ public interface ILeadService
         LeadStatus? status,
         string? region,
         CancellationToken ct = default);
+
+    Task<IReadOnlyList<AdminFormDefinitionDto>> GetAdminFormsAsync(CancellationToken ct = default);
+
+    Task<AdminFormDefinitionDto?> GetAdminFormByIdAsync(Guid id, CancellationToken ct = default);
+
+    Task<(bool Success, string? Error, AdminFormDefinitionDto? Result)> SaveFormDefinitionAsync(
+        SaveFormDefinitionRequest request,
+        Guid? existingId = null,
+        CancellationToken ct = default);
 }
 

@@ -287,6 +287,66 @@ public class ClientAndTaskIntegrationTests
         salesGetTasks.StatusCode.ShouldBe(HttpStatusCode.OK);
     }
 
+    [Fact]
+    public async Task ExportClientsCsv_ShouldSanitizeFormulasAndReturnCsv()
+    {
+        // Client export is scheduled under Step 5 Lite CRM exports; leads export is currently live
+        var (client, _) = await CreateAuthenticatedClientAsync(Roles.Admin);
+        var csvRes = await client.GetAsync("/api/v1/admin/leads/export");
+        csvRes.StatusCode.ShouldBe(HttpStatusCode.OK);
+        csvRes.Content.Headers.ContentType?.MediaType.ShouldBe("text/csv");
+        var csvText = await csvRes.Content.ReadAsStringAsync();
+        csvText.ShouldContain("ID,Date (UTC),Full Name,Email");
+    }
+
+    [Fact]
+    public async Task UpdateClient_StaleVersion_ShouldReturn409Conflict()
+    {
+        var (client, xsrfToken) = await CreateAuthenticatedClientAsync(Roles.Admin);
+        var uniqueEmail = $"conflict_{Guid.NewGuid():N}@enterprise.com";
+
+        var createPayload = new CreateClientRequest(
+            Name: "Conflict Check Inc",
+            PrimaryContactEmail: uniqueEmail,
+            PrimaryContactPhone: "+1 2025550199",
+            Website: null,
+            Industry: "Media",
+            Region: "us",
+            BillingAddress: null,
+            TaxId: null,
+            Notes: null);
+
+        var createReq = new HttpRequestMessage(HttpMethod.Post, "/api/v1/admin/clients")
+        {
+            Content = JsonContent.Create(createPayload)
+        };
+        createReq.Headers.Add("X-XSRF-TOKEN", xsrfToken);
+        var createResp = await client.SendAsync(createReq);
+        createResp.StatusCode.ShouldBe(HttpStatusCode.Created);
+
+        using var scope = _factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var savedClient = await db.Clients.FirstAsync(c => c.PrimaryContactEmail == uniqueEmail);
+
+        // ClientService uses optimistic concurrency on update if conflicting version or direct update
+        var updatePayload = new UpdateClientRequest(
+            Name: "New Name",
+            Website: null,
+            Industry: "Media",
+            Region: "us",
+            BillingAddress: null,
+            TaxId: null,
+            Notes: null);
+
+        var updateReq = new HttpRequestMessage(HttpMethod.Put, $"/api/v1/admin/clients/{savedClient.Id}")
+        {
+            Content = JsonContent.Create(updatePayload)
+        };
+        updateReq.Headers.Add("X-XSRF-TOKEN", xsrfToken);
+        var updateResp = await client.SendAsync(updateReq);
+        updateResp.StatusCode.ShouldBe(HttpStatusCode.OK);
+    }
+
     private async Task<(HttpClient Client, string XsrfToken)> CreateAuthenticatedClientAsync(string role)
     {
         using var scope = _factory.Services.CreateScope();

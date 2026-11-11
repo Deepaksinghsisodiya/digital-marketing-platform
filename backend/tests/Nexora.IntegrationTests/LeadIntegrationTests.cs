@@ -617,4 +617,330 @@ public class LeadIntegrationTests
         var body = await res.Content.ReadAsStringAsync();
         body.ShouldContain("Token has expired");
     }
+
+    [Fact]
+    public async Task SubmitForm_OversizedPayload_ShouldReturn413Or400()
+    {
+        var client = _factory.CreateClient();
+        var formDefRes = await client.GetAsync("/api/v1/public/forms/contact");
+        var formDef = await formDefRes.Content.ReadFromJsonAsync<PublicFormDto>();
+        formDef.ShouldNotBeNull();
+
+        var hugeName = new string('A', 500); // Exceeds 200 char limit
+        var payload = new SubmitFormRequest(
+            FullName: hugeName,
+            Email: $"huge_{Guid.NewGuid():N}@test.com",
+            ConsentGiven: true,
+            TimeTrapToken: formDef.TimeTrapToken);
+
+        var res = await client.PostAsJsonAsync("/api/v1/public/forms/contact/submissions", payload);
+        res.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        var body = await res.Content.ReadAsStringAsync();
+        body.ShouldContain("maximum allowed length");
+    }
+
+    [Fact]
+    public async Task SubmitForm_SelectInvalidOption_ShouldRejectWith400()
+    {
+        var client = _factory.CreateClient();
+        var formDefRes = await client.GetAsync("/api/v1/public/forms/contact");
+        var formDef = await formDefRes.Content.ReadFromJsonAsync<PublicFormDto>();
+        formDef.ShouldNotBeNull();
+
+        var payload = new SubmitFormRequest(
+            FullName: "Invalid Option User",
+            Email: $"invalidopt_{Guid.NewGuid():N}@test.com",
+            Region: "invalid_overlong_region_code",
+            ConsentGiven: true,
+            TimeTrapToken: formDef.TimeTrapToken);
+
+        var res = await client.PostAsJsonAsync("/api/v1/public/forms/contact/submissions", payload);
+        res.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        var body = await res.Content.ReadAsStringAsync();
+        body.ShouldContain("Invalid region format");
+    }
+
+    [Fact]
+    public void SpamTokenSecret_MissingInProduction_ShouldThrow()
+    {
+        var inMemory = new Dictionary<string, string?>
+        {
+            ["SPAM_TOKEN_SECRET"] = ""
+        };
+        var config = new ConfigurationBuilder().AddInMemoryCollection(inMemory).Build();
+        
+        using var scope = _factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var audit = scope.ServiceProvider.GetRequiredService<IAuditLogService>();
+        var clientFactory = scope.ServiceProvider.GetRequiredService<IHttpClientFactory>();
+        var logger = scope.ServiceProvider.GetRequiredService<Microsoft.Extensions.Logging.ILogger<Nexora.Infrastructure.Services.LeadService>>();
+
+        // Create prod env mock
+        var prodEnv = new Microsoft.Extensions.Hosting.Internal.HostingEnvironment
+        {
+            EnvironmentName = "Production"
+        };
+
+        var leadService = new Nexora.Infrastructure.Services.LeadService(db, audit, config, clientFactory, prodEnv, logger);
+
+        Should.Throw<InvalidOperationException>(() =>
+        {
+            leadService.GenerateTimeTrapToken("contact");
+        }).Message.ShouldContain("SPAM_TOKEN_SECRET is required in Production");
+    }
+
+    [Fact]
+    public async Task SubmitForm_Turnstile_InvalidToken_ShouldReturn400BadRequest()
+    {
+        var customFactory = _factory.WithWebHostBuilder(builder =>
+        {
+            builder.ConfigureServices(services =>
+            {
+                services.AddHttpClient("Turnstile")
+                    .ConfigurePrimaryHttpMessageHandler(() => new MockHttpMessageHandler(_ =>
+                        new HttpResponseMessage(HttpStatusCode.OK)
+                        {
+                            Content = new StringContent("{\"success\":false,\"error-codes\":[\"invalid-input-response\"]}", System.Text.Encoding.UTF8, "application/json")
+                        }));
+            });
+            builder.ConfigureAppConfiguration((_, config) =>
+            {
+                config.AddInMemoryCollection(new Dictionary<string, string?>
+                {
+                    ["SpamProtection:EnforceTurnstile"] = "true",
+                    ["SkipTurnstileVerification"] = "false",
+                    ["TURNSTILE_SECRET_KEY"] = "dummy_secret_key"
+                });
+            });
+        });
+
+        var client = customFactory.CreateClient();
+        var formDefRes = await client.GetAsync("/api/v1/public/forms/contact");
+        var formDef = await formDefRes.Content.ReadFromJsonAsync<PublicFormDto>();
+        formDef.ShouldNotBeNull();
+
+        var payload = new SubmitFormRequest(
+            FullName: "Invalid Turnstile User",
+            Email: $"badturnstile_{Guid.NewGuid():N}@test.com",
+            ConsentGiven: true,
+            TimeTrapToken: formDef.TimeTrapToken,
+            TurnstileToken: "bad_token_value");
+
+        var res = await client.PostAsJsonAsync("/api/v1/public/forms/contact/submissions", payload);
+        res.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        var body = await res.Content.ReadAsStringAsync();
+        body.ShouldContain("Turnstile verification failed");
+    }
+
+    [Fact]
+    public async Task SubmitForm_Turnstile_OutageFailClosed_ShouldReturn503ServiceUnavailable()
+    {
+        var customFactory = _factory.WithWebHostBuilder(builder =>
+        {
+            builder.ConfigureServices(services =>
+            {
+                services.AddHttpClient("Turnstile")
+                    .ConfigurePrimaryHttpMessageHandler(() => new MockHttpMessageHandler(_ =>
+                        new HttpResponseMessage(HttpStatusCode.InternalServerError)));
+            });
+            builder.ConfigureAppConfiguration((_, config) =>
+            {
+                config.AddInMemoryCollection(new Dictionary<string, string?>
+                {
+                    ["SpamProtection:EnforceTurnstile"] = "true",
+                    ["SkipTurnstileVerification"] = "false",
+                    ["SpamProtection:FailClosed"] = "true",
+                    ["TURNSTILE_SECRET_KEY"] = "dummy_secret_key"
+                });
+            });
+        });
+
+        var client = customFactory.CreateClient();
+        var formDefRes = await client.GetAsync("/api/v1/public/forms/contact");
+        var formDef = await formDefRes.Content.ReadFromJsonAsync<PublicFormDto>();
+        formDef.ShouldNotBeNull();
+
+        var payload = new SubmitFormRequest(
+            FullName: "Outage Turnstile User",
+            Email: $"outage_{Guid.NewGuid():N}@test.com",
+            ConsentGiven: true,
+            TimeTrapToken: formDef.TimeTrapToken,
+            TurnstileToken: "token_during_outage");
+
+        var res = await client.PostAsJsonAsync("/api/v1/public/forms/contact/submissions", payload);
+        res.StatusCode.ShouldBe(HttpStatusCode.ServiceUnavailable);
+        var body = await res.Content.ReadAsStringAsync();
+        body.ShouldContain("temporarily unavailable");
+    }
+
+    [Fact]
+    public async Task SubmitForm_Turnstile_HostnameMismatch_ShouldReturn400BadRequest()
+    {
+        var customFactory = _factory.WithWebHostBuilder(builder =>
+        {
+            builder.ConfigureServices(services =>
+            {
+                services.AddHttpClient("Turnstile")
+                    .ConfigurePrimaryHttpMessageHandler(() => new MockHttpMessageHandler(_ =>
+                        new HttpResponseMessage(HttpStatusCode.OK)
+                        {
+                            Content = new StringContent("{\"success\":true,\"hostname\":\"unauthorized-domain.com\"}", System.Text.Encoding.UTF8, "application/json")
+                        }));
+            });
+            builder.ConfigureAppConfiguration((_, config) =>
+            {
+                config.AddInMemoryCollection(new Dictionary<string, string?>
+                {
+                    ["SpamProtection:EnforceTurnstile"] = "true",
+                    ["SkipTurnstileVerification"] = "false",
+                    ["TURNSTILE_SECRET_KEY"] = "dummy_secret_key"
+                });
+            });
+        });
+
+        var client = customFactory.CreateClient();
+        var formDefRes = await client.GetAsync("/api/v1/public/forms/contact");
+        var formDef = await formDefRes.Content.ReadFromJsonAsync<PublicFormDto>();
+        formDef.ShouldNotBeNull();
+
+        var payload = new SubmitFormRequest(
+            FullName: "Hostname Mismatch User",
+            Email: $"hostmismatch_{Guid.NewGuid():N}@test.com",
+            ConsentGiven: true,
+            TimeTrapToken: formDef.TimeTrapToken,
+            TurnstileToken: "valid_token_wrong_host");
+
+        var res = await client.PostAsJsonAsync("/api/v1/public/forms/contact/submissions", payload);
+        res.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        var body = await res.Content.ReadAsStringAsync();
+        body.ShouldContain("not in the allowed domain list");
+    }
+
+    [Fact]
+    public async Task SubmitForm_PublicFormRateLimit_ShouldReturn429TooManyRequests()
+    {
+        var customFactory = _factory.WithWebHostBuilder(builder =>
+        {
+            builder.ConfigureAppConfiguration((_, config) =>
+            {
+                config.AddInMemoryCollection(new Dictionary<string, string?>
+                {
+                    ["RateLimiting:PublicFormPermitLimit"] = "2",
+                    ["RateLimiting:WindowSeconds"] = "60"
+                });
+            });
+        });
+
+        var client = customFactory.CreateClient();
+        var formDefRes = await client.GetAsync("/api/v1/public/forms/contact");
+        var formDef = await formDefRes.Content.ReadFromJsonAsync<PublicFormDto>();
+        formDef.ShouldNotBeNull();
+
+        var payload = new SubmitFormRequest(
+            FullName: "Rate Limit User",
+            Email: $"ratelimit_{Guid.NewGuid():N}@test.com",
+            ConsentGiven: true,
+            TimeTrapToken: formDef.TimeTrapToken);
+
+        // First 2 requests succeed or return standard response
+        var res1 = await client.PostAsJsonAsync("/api/v1/public/forms/contact/submissions", payload);
+        res1.StatusCode.ShouldNotBe(HttpStatusCode.TooManyRequests);
+
+        var res2 = await client.PostAsJsonAsync("/api/v1/public/forms/contact/submissions", payload);
+        res2.StatusCode.ShouldNotBe(HttpStatusCode.TooManyRequests);
+
+        // 3rd request from same client exceeds permit limit (2) and gets rejected with 429
+        var res3 = await client.PostAsJsonAsync("/api/v1/public/forms/contact/submissions", payload);
+        res3.StatusCode.ShouldBe(HttpStatusCode.TooManyRequests);
+    }
+
+    [Fact]
+    public async Task SaveFormDefinition_SchemaValidation_DuplicateField_ShouldRejectWith400()
+    {
+        using var scope = _factory.Services.CreateScope();
+        var idService = scope.ServiceProvider.GetRequiredService<IIdentityService>();
+        var adminEmail = $"admin_schema_{Guid.NewGuid():N}@example.com";
+        var (_, _, _, token) = await idService.InviteUserAsync(adminEmail, "Schema Admin", Roles.Admin);
+        await idService.ResetPasswordAsync(adminEmail, token!, "AdminPass@123");
+
+        var client = _factory.CreateClient(new WebApplicationFactoryClientOptions { HandleCookies = true });
+        await client.PostAsJsonAsync("/api/v1/auth/login", new LoginRequestDto(adminEmail, "AdminPass@123", false));
+
+        var duplicateSchema = """
+        [
+            { "id": "firstName", "name": "firstName", "label": "First Name", "type": "text" },
+            { "id": "firstName", "name": "firstName", "label": "Duplicate First Name", "type": "text" }
+        ]
+        """;
+
+        var payload = new SaveFormDefinitionRequest(
+            FormKey: $"dup_form_{Guid.NewGuid():N}",
+            Name: "Duplicate Field Form",
+            SchemaJson: duplicateSchema,
+            SettingsJson: "{}");
+
+        var csrf = await client.GetFromJsonAsync<CsrfTokenResponse>("/api/v1/auth/csrf");
+        var postReq = new HttpRequestMessage(HttpMethod.Post, "/api/v1/admin/forms")
+        {
+            Content = JsonContent.Create(payload)
+        };
+        postReq.Headers.Add("X-XSRF-TOKEN", csrf!.token);
+
+        var res = await client.SendAsync(postReq);
+        res.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        var body = await res.Content.ReadAsStringAsync();
+        body.ShouldContain("Duplicate field name/id 'firstName'");
+    }
+
+    [Fact]
+    public async Task SaveFormDefinition_SchemaValidation_InvalidFieldType_ShouldRejectWith400()
+    {
+        using var scope = _factory.Services.CreateScope();
+        var idService = scope.ServiceProvider.GetRequiredService<IIdentityService>();
+        var adminEmail = $"admin_schema2_{Guid.NewGuid():N}@example.com";
+        var (_, _, _, token) = await idService.InviteUserAsync(adminEmail, "Schema Admin 2", Roles.Admin);
+        await idService.ResetPasswordAsync(adminEmail, token!, "AdminPass@123");
+
+        var client = _factory.CreateClient(new WebApplicationFactoryClientOptions { HandleCookies = true });
+        await client.PostAsJsonAsync("/api/v1/auth/login", new LoginRequestDto(adminEmail, "AdminPass@123", false));
+
+        var invalidTypeSchema = """
+        [
+            { "id": "customInput", "name": "customInput", "label": "Weird Field", "type": "unsupported_magic_type" }
+        ]
+        """;
+
+        var payload = new SaveFormDefinitionRequest(
+            FormKey: $"invalid_type_form_{Guid.NewGuid():N}",
+            Name: "Invalid Type Form",
+            SchemaJson: invalidTypeSchema,
+            SettingsJson: "{}");
+
+        var csrf2 = await client.GetFromJsonAsync<CsrfTokenResponse>("/api/v1/auth/csrf");
+        var postReq2 = new HttpRequestMessage(HttpMethod.Post, "/api/v1/admin/forms")
+        {
+            Content = JsonContent.Create(payload)
+        };
+        postReq2.Headers.Add("X-XSRF-TOKEN", csrf2!.token);
+
+        var res = await client.SendAsync(postReq2);
+        res.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        var body = await res.Content.ReadAsStringAsync();
+        body.ShouldContain("has invalid type 'unsupported_magic_type'");
+    }
+
+    private sealed class MockHttpMessageHandler : HttpMessageHandler
+    {
+        private readonly Func<HttpRequestMessage, HttpResponseMessage> _handler;
+
+        public MockHttpMessageHandler(Func<HttpRequestMessage, HttpResponseMessage> handler)
+        {
+            _handler = handler;
+        }
+
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        {
+            return Task.FromResult(_handler(request));
+        }
+    }
 }

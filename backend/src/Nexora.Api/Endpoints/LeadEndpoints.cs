@@ -57,6 +57,10 @@ public static class LeadEndpoints
                 {
                     return Results.NotFound(new { error = response.Error });
                 }
+                if (response.Error != null && (response.Error.Contains("temporarily unavailable", StringComparison.OrdinalIgnoreCase) || response.Error.Contains("Verification service unavailable", StringComparison.OrdinalIgnoreCase)))
+                {
+                    return Results.Json(new { error = response.Error }, statusCode: StatusCodes.Status503ServiceUnavailable);
+                }
                 return Results.BadRequest(new { error = response.Error });
             }
 
@@ -64,7 +68,7 @@ public static class LeadEndpoints
         })
         .WithName("SubmitPublicForm")
         .WithSummary("Inbound form intake endpoint for lead capture.")
-        .RequireRateLimiting("AuthRateLimit");
+        .RequireRateLimiting("PublicFormRateLimit");
 
         // 2. Admin Leads Inbox & Management
         var adminGroup = app.MapGroup("/api/v1/admin/leads")
@@ -177,5 +181,61 @@ public static class LeadEndpoints
         .RequireAuthorization(Permissions.LeadsManage)
         .WithName("AddLeadNote")
         .WithSummary("Append internal follow-up note to lead timeline.");
+
+        // 3. Admin Form Definitions
+        var adminFormsGroup = app.MapGroup("/api/v1/admin/forms")
+            .WithTags("Form Definitions (Admin)")
+            .RequireAuthorization();
+
+        adminFormsGroup.MapGet("/", async (
+            ILeadService leadService,
+            CancellationToken ct) =>
+        {
+            var forms = await leadService.GetAdminFormsAsync(ct);
+            return Results.Ok(forms);
+        })
+        .RequireAuthorization(Permissions.SettingsView)
+        .WithName("GetAdminForms")
+        .WithSummary("List all custom form definitions.");
+
+        adminFormsGroup.MapGet("/{id:guid}", async (
+            Guid id,
+            ILeadService leadService,
+            CancellationToken ct) =>
+        {
+            var form = await leadService.GetAdminFormByIdAsync(id, ct);
+            if (form == null) return Results.NotFound(new { error = "Form definition not found." });
+            return Results.Ok(form);
+        })
+        .RequireAuthorization(Permissions.SettingsView)
+        .WithName("GetAdminFormById")
+        .WithSummary("Get form definition by ID.");
+
+        adminFormsGroup.MapPost("/", async (
+            [FromBody] SaveFormDefinitionRequest request,
+            ILeadService leadService,
+            CancellationToken ct) =>
+        {
+            var (success, error, result) = await leadService.SaveFormDefinitionAsync(request, null, ct);
+            if (!success) return Results.BadRequest(new { error });
+            return Results.Ok(result);
+        })
+        .RequireAuthorization(Permissions.SettingsManage)
+        .WithName("CreateFormDefinition")
+        .WithSummary("Create new dynamic form schema.");
+
+        adminFormsGroup.MapPut("/{id:guid}", async (
+            Guid id,
+            [FromBody] SaveFormDefinitionRequest request,
+            ILeadService leadService,
+            CancellationToken ct) =>
+        {
+            var (success, error, result) = await leadService.SaveFormDefinitionAsync(request, id, ct);
+            if (!success) return Results.BadRequest(new { error });
+            return Results.Ok(result);
+        })
+        .RequireAuthorization(Permissions.SettingsManage)
+        .WithName("UpdateFormDefinition")
+        .WithSummary("Update existing dynamic form schema.");
     }
 }

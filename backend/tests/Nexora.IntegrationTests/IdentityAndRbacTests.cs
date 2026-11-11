@@ -760,8 +760,44 @@ public class IdentityAndRbacTests
 
         (await adminClient.GetAsync("/api/v1/admin/settings")).StatusCode.ShouldBe(HttpStatusCode.OK); // settings.view
         (await adminClient.GetAsync("/api/v1/admin/pages")).StatusCode.ShouldBe(HttpStatusCode.OK); // pages.view
-        (await adminClient.PostAsJsonAsync($"/api/v1/admin/pages/{Guid.NewGuid()}/publish", new { })).StatusCode.ShouldBe(HttpStatusCode.BadRequest); // pages.publish authorized (route reached, page guid not found in service returns badrequest)
-        (await adminClient.PostAsJsonAsync("/api/v1/admin/users/invite", new { email = "new@example.com" })).StatusCode.ShouldBe(HttpStatusCode.Forbidden); // users.manage
+
+        // Exact status assertion for pages.publish: 404 on non-existent page, 200 on real page publish
+        var adminCsrf = await adminClient.GetFromJsonAsync<CsrfTokenResponse>("/api/v1/auth/csrf");
+
+        var nonExistentPageId = Guid.NewGuid();
+        var publishNotFoundReq = new HttpRequestMessage(HttpMethod.Post, $"/api/v1/admin/pages/{nonExistentPageId}/publish")
+        {
+            Content = JsonContent.Create(new { })
+        };
+        publishNotFoundReq.Headers.Add("X-XSRF-TOKEN", adminCsrf!.token);
+        (await adminClient.SendAsync(publishNotFoundReq)).StatusCode.ShouldBe(HttpStatusCode.NotFound);
+
+        var createPageReq = new HttpRequestMessage(HttpMethod.Post, "/api/v1/admin/pages")
+        {
+            Content = JsonContent.Create(new Nexora.Application.CMS.DTOs.CreatePageRequest(
+                Title: "Admin Publishable Page",
+                Slug: $"admin-page-{Guid.NewGuid():N}",
+                Locale: "en"))
+        };
+        createPageReq.Headers.Add("X-XSRF-TOKEN", adminCsrf.token);
+        var createPageRes = await adminClient.SendAsync(createPageReq);
+        createPageRes.StatusCode.ShouldBe(HttpStatusCode.Created);
+        var createdDoc = await createPageRes.Content.ReadFromJsonAsync<System.Text.Json.JsonElement>();
+        var createdPageId = createdDoc.GetProperty("pageId").GetGuid();
+
+        var publishOkReq = new HttpRequestMessage(HttpMethod.Post, $"/api/v1/admin/pages/{createdPageId}/publish")
+        {
+            Content = JsonContent.Create(new { })
+        };
+        publishOkReq.Headers.Add("X-XSRF-TOKEN", adminCsrf.token);
+        (await adminClient.SendAsync(publishOkReq)).StatusCode.ShouldBe(HttpStatusCode.OK);
+
+        var inviteReq = new HttpRequestMessage(HttpMethod.Post, "/api/v1/admin/users/invite")
+        {
+            Content = JsonContent.Create(new { email = "new@example.com" })
+        };
+        inviteReq.Headers.Add("X-XSRF-TOKEN", adminCsrf.token);
+        (await adminClient.SendAsync(inviteReq)).StatusCode.ShouldBe(HttpStatusCode.Forbidden); // users.manage
 
         // 5. Owner client
         var ownerEmail = $"matrix_owner_{Guid.NewGuid():N}@example.com";

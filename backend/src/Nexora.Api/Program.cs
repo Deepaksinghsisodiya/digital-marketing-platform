@@ -202,6 +202,21 @@ builder.Services.AddRateLimiter(options =>
             QueueLimit = 0
         });
     });
+
+    options.AddPolicy("PublicFormRateLimit", httpContext =>
+    {
+        var ip = httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+        var permitLimit = builder.Configuration.GetValue("RateLimiting:PublicFormPermitLimit", 100);
+        var windowSeconds = builder.Configuration.GetValue("RateLimiting:WindowSeconds", 60);
+
+        return RateLimitPartition.GetFixedWindowLimiter(ip, _ => new FixedWindowRateLimiterOptions
+        {
+            PermitLimit = permitLimit,
+            Window = TimeSpan.FromSeconds(windowSeconds),
+            QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+            QueueLimit = 0
+        });
+    });
 });
 
 // 9. Antiforgery (CSRF)

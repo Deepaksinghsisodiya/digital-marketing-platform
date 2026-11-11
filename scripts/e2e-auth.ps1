@@ -129,8 +129,12 @@ if ($forceChange) {
     Write-Host "[STEP 5] Read-Only verification mode (Password change skipped. Use -ForcePasswordChange + E2E_NEW_PASSWORD to rotate)." -ForegroundColor Yellow
 }
 
-# Step 7: Access /api/v1/admin/settings now -> Expect 200 OK
-$settingsAfter = Invoke-RestMethod -Uri "$baseUrl/api/v1/admin/settings" -Method Get -WebSession $session -UseBasicParsing
-Write-Host "[STEP 7] /api/v1/admin/settings: Status 200 OK (Company: $($settingsAfter.companyName))" -ForegroundColor Green
+# Step 7: Access /api/v1/admin/settings
+if ($forceChange -or -not $meResp.mustChangePassword) {
+    $settingsAfter = Invoke-RestMethod -Uri "$baseUrl/api/v1/admin/settings" -Method Get -WebSession $session -UseBasicParsing
+    Write-Host "[STEP 7] /api/v1/admin/settings: Status 200 OK (Company: $($settingsAfter.companyName))" -ForegroundColor Green
+} else {
+    Write-Host "[STEP 7] Read-only verification complete. Settings endpoint remains protected until password change." -ForegroundColor Yellow
+}
 Write-Host "=== LIVE E2E FLOW PASSED 100% ===" -ForegroundColor Cyan
 

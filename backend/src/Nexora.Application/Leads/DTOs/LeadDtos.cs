@@ -105,3 +105,25 @@ public record LeadStatsDto(
     int ClosedLeads,
     int SpamLeads);
 
+public record AdminFormDefinitionDto(
+    Guid Id,
+    string FormKey,
+    string Name,
+    string? Title,
+    string? Description,
+    string SchemaJson,
+    string SettingsJson,
+    bool IsActive,
+    DateTime CreatedAtUtc,
+    DateTime? UpdatedAtUtc);
+
+public record SaveFormDefinitionRequest(
+    string FormKey,
+    string Name,
+    string SchemaJson,
+    string SettingsJson,
+    string? Title = null,
+    string? Description = null,
+    bool IsActive = true);
+
+

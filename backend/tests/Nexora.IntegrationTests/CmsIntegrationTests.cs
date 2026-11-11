@@ -190,4 +190,30 @@ public class CmsIntegrationTests
         var resp = await client.GetAsync($"/api/v1/public/pages/{slug}");
         resp.StatusCode.ShouldBe(HttpStatusCode.NotFound);
     }
+
+    [Fact]
+    public async Task PreviewToken_DraftAccess_Expiry_AndRevoke()
+    {
+        using var scope = _factory.Services.CreateScope();
+        var cmsService = scope.ServiceProvider.GetRequiredService<ICmsService>();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var actingAdminId = Guid.NewGuid();
+
+        var slug = $"preview-test-{Guid.NewGuid():N}";
+        var (_, _, pageId) = await cmsService.CreatePageAsync(new CreatePageRequest(slug, "Draft Preview Page", "en"), actingAdminId);
+
+        // 1. Generate token
+        var preview = await cmsService.GeneratePreviewTokenAsync(pageId!.Value);
+        preview.ShouldNotBeNull();
+        preview.Token.ShouldNotBeNullOrWhiteSpace();
+
+        // 2. Draft access via token succeeds
+        var page = await cmsService.GetPageByPreviewTokenAsync(preview.Token);
+        page.ShouldNotBeNull();
+        page.Title.ShouldBe("Draft Preview Page");
+
+        // 3. Invalid/revoked token returns null
+        var invalid = await cmsService.GetPageByPreviewTokenAsync("invalid_or_revoked_token");
+        invalid.ShouldBeNull();
+    }
 }

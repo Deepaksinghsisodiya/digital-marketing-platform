@@ -195,8 +195,9 @@ public class LeadService : ILeadService
     {
         var secret = _configuration["TURNSTILE_SECRET_KEY"] ?? Environment.GetEnvironmentVariable("TURNSTILE_SECRET_KEY");
 
-        // Allow development/testing bypass
-        if (_environment.IsDevelopment() || _configuration.GetValue<bool>("SkipTurnstileVerification", false))
+        // Allow development/testing bypass unless EnforceTurnstile is explicitly enabled
+        var enforceTurnstile = _configuration.GetValue<bool>("SpamProtection:EnforceTurnstile", false);
+        if (!enforceTurnstile && (_environment.IsDevelopment() || _configuration.GetValue<bool>("SkipTurnstileVerification", false)))
         {
             if (string.IsNullOrWhiteSpace(turnstileToken) ||
                 turnstileToken == "XXXX.DUMMY.TOKEN.XXXX" ||
@@ -213,7 +214,7 @@ public class LeadService : ILeadService
 
         if (string.IsNullOrWhiteSpace(secret))
         {
-            if (_environment.IsProduction())
+            if (_environment.IsProduction() || enforceTurnstile)
             {
                 _logger.LogError("TURNSTILE_SECRET_KEY is missing in Production environment.");
                 return (false, "Verification service unavailable.");
@@ -224,7 +225,7 @@ public class LeadService : ILeadService
         try
         {
             var verifyUrl = _configuration["SpamProtection:TurnstileVerifyUrl"] ?? "https://challenges.cloudflare.com/turnstile/v0/siteverify";
-            var client = _httpClientFactory.CreateClient();
+            var client = _httpClientFactory.CreateClient("Turnstile");
             client.Timeout = TimeSpan.FromSeconds(5);
 
             var postData = new Dictionary<string, string>
@@ -242,9 +243,9 @@ public class LeadService : ILeadService
 
             if (!response.IsSuccessStatusCode)
             {
-                if (_environment.IsProduction())
+                if (_environment.IsProduction() || _configuration.GetValue<bool>("SpamProtection:FailClosed", true))
                 {
-                    return (false, "Verification service returned an error.");
+                    return (false, "Verification service temporarily unavailable.");
                 }
                 return (true, null);
             }
@@ -276,7 +277,7 @@ public class LeadService : ILeadService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Exception during Turnstile siteverify verification.");
-            if (_environment.IsProduction())
+            if (_environment.IsProduction() || _configuration.GetValue<bool>("SpamProtection:FailClosed", true))
             {
                 return (false, "Verification service temporarily unavailable.");
             }
@@ -329,12 +330,17 @@ public class LeadService : ILeadService
         }
 
         // 3. Validation (Nonce is NOT consumed on failure)
+        if (request.FullName != null && request.FullName.Length > 200)
+        {
+            return new SubmitFormResponse(false, null, string.Empty, "Full name exceeds maximum allowed length.");
+        }
+
         if (string.IsNullOrWhiteSpace(request.FullName))
         {
             return new SubmitFormResponse(false, null, string.Empty, "Full name is required.");
         }
 
-        if (string.IsNullOrWhiteSpace(request.Email) || !EmailRegex.IsMatch(request.Email.Trim()))
+        if (string.IsNullOrWhiteSpace(request.Email) || !EmailRegex.IsMatch(request.Email.Trim()) || request.Email.Length > 256)
         {
             return new SubmitFormResponse(false, null, string.Empty, "A valid email address is required.");
         }
@@ -342,6 +348,11 @@ public class LeadService : ILeadService
         if (!request.ConsentGiven)
         {
             return new SubmitFormResponse(false, null, string.Empty, "Explicit consent is required to process your request.");
+        }
+
+        if (request.Region != null && request.Region.Length > 10)
+        {
+            return new SubmitFormResponse(false, null, string.Empty, "Invalid region format.");
         }
 
         // 4. Turnstile Challenge Verification
@@ -772,5 +783,201 @@ public class LeadService : ILeadService
             value = "'" + value;
         }
         return "\"" + value.Replace("\"", "\"\"") + "\"";
+    }
+
+    public static (bool Valid, string? Error) ValidateFormSchema(string schemaJson)
+    {
+        if (string.IsNullOrWhiteSpace(schemaJson))
+        {
+            return (false, "SchemaJson cannot be empty.");
+        }
+
+        try
+        {
+            using var doc = JsonDocument.Parse(schemaJson);
+            if (doc.RootElement.ValueKind != JsonValueKind.Array)
+            {
+                return (false, "SchemaJson must be a JSON array of field definitions.");
+            }
+
+            var allowedTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+            {
+                "text", "email", "tel", "select", "textarea", "number", "checkbox", "date"
+            };
+
+            var seenNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            foreach (var element in doc.RootElement.EnumerateArray())
+            {
+                if (element.ValueKind != JsonValueKind.Object)
+                {
+                    return (false, "Each field definition must be a JSON object.");
+                }
+
+                var name = element.TryGetProperty("name", out var nameProp) ? nameProp.GetString() : null;
+                if (string.IsNullOrWhiteSpace(name))
+                {
+                    name = element.TryGetProperty("id", out var idProp) ? idProp.GetString() : null;
+                }
+
+                if (string.IsNullOrWhiteSpace(name))
+                {
+                    return (false, "Field definition missing required 'name' or 'id'.");
+                }
+
+                if (!seenNames.Add(name))
+                {
+                    return (false, $"Duplicate field name/id '{name}' in schema definition.");
+                }
+
+                if (!element.TryGetProperty("type", out var typeProp) || string.IsNullOrWhiteSpace(typeProp.GetString()))
+                {
+                    return (false, $"Field '{name}' is missing required 'type'.");
+                }
+
+                var type = typeProp.GetString()!;
+                if (!allowedTypes.Contains(type))
+                {
+                    return (false, $"Field '{name}' has invalid type '{type}'. Allowed types: {string.Join(", ", allowedTypes)}.");
+                }
+            }
+
+            return (true, null);
+        }
+        catch (JsonException ex)
+        {
+            return (false, $"SchemaJson is not valid JSON: {ex.Message}");
+        }
+    }
+
+    public async Task<IReadOnlyList<AdminFormDefinitionDto>> GetAdminFormsAsync(CancellationToken ct = default)
+    {
+        return await _context.FormDefinitions.AsNoTracking()
+            .OrderBy(f => f.Name)
+            .Select(f => new AdminFormDefinitionDto(
+                f.Id,
+                f.FormKey,
+                f.Name,
+                f.Title,
+                f.Description,
+                f.SchemaJson,
+                f.SettingsJson,
+                f.IsActive,
+                f.CreatedAtUtc,
+                f.UpdatedAtUtc))
+            .ToListAsync(ct);
+    }
+
+    public async Task<AdminFormDefinitionDto?> GetAdminFormByIdAsync(Guid id, CancellationToken ct = default)
+    {
+        var f = await _context.FormDefinitions.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id, ct);
+        if (f == null) return null;
+
+        return new AdminFormDefinitionDto(
+            f.Id,
+            f.FormKey,
+            f.Name,
+            f.Title,
+            f.Description,
+            f.SchemaJson,
+            f.SettingsJson,
+            f.IsActive,
+            f.CreatedAtUtc,
+            f.UpdatedAtUtc);
+    }
+
+    public async Task<(bool Success, string? Error, AdminFormDefinitionDto? Result)> SaveFormDefinitionAsync(
+        SaveFormDefinitionRequest request,
+        Guid? existingId = null,
+        CancellationToken ct = default)
+    {
+        if (string.IsNullOrWhiteSpace(request.FormKey))
+        {
+            return (false, "FormKey is required.", null);
+        }
+
+        if (string.IsNullOrWhiteSpace(request.Name))
+        {
+            return (false, "Name is required.", null);
+        }
+
+        var (schemaValid, schemaError) = ValidateFormSchema(request.SchemaJson);
+        if (!schemaValid)
+        {
+            return (false, schemaError, null);
+        }
+
+        if (!string.IsNullOrWhiteSpace(request.SettingsJson))
+        {
+            try
+            {
+                using var doc = JsonDocument.Parse(request.SettingsJson);
+                if (doc.RootElement.ValueKind != JsonValueKind.Object)
+                {
+                    return (false, "SettingsJson must be a valid JSON object.", null);
+                }
+            }
+            catch (JsonException ex)
+            {
+                return (false, $"SettingsJson is not valid JSON: {ex.Message}", null);
+            }
+        }
+
+        var normalizedKey = request.FormKey.Trim().ToLowerInvariant();
+
+        if (existingId.HasValue && existingId.Value != Guid.Empty)
+        {
+            var form = await _context.FormDefinitions.FirstOrDefaultAsync(f => f.Id == existingId.Value, ct);
+            if (form == null)
+            {
+                return (false, "Form definition not found.", null);
+            }
+
+            form.Update(request.Name, request.SchemaJson, request.SettingsJson, request.Title, request.Description, request.IsActive);
+            await _context.SaveChangesAsync(ct);
+
+            return (true, null, new AdminFormDefinitionDto(
+                form.Id,
+                form.FormKey,
+                form.Name,
+                form.Title,
+                form.Description,
+                form.SchemaJson,
+                form.SettingsJson,
+                form.IsActive,
+                form.CreatedAtUtc,
+                form.UpdatedAtUtc));
+        }
+        else
+        {
+            var keyExists = await _context.FormDefinitions.AnyAsync(f => f.FormKey == normalizedKey, ct);
+            if (keyExists)
+            {
+                return (false, $"A form definition with key '{normalizedKey}' already exists.", null);
+            }
+
+            var form = new FormDefinition(
+                normalizedKey,
+                request.Name,
+                request.SchemaJson,
+                request.SettingsJson,
+                request.Title,
+                request.Description);
+
+            _context.FormDefinitions.Add(form);
+            await _context.SaveChangesAsync(ct);
+
+            return (true, null, new AdminFormDefinitionDto(
+                form.Id,
+                form.FormKey,
+                form.Name,
+                form.Title,
+                form.Description,
+                form.SchemaJson,
+                form.SettingsJson,
+                form.IsActive,
+                form.CreatedAtUtc,
+                form.UpdatedAtUtc));
+        }
     }
 }

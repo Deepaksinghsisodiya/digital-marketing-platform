@@ -107,7 +107,14 @@ public static class CmsEndpoints
                 currentUser.UserId ?? Guid.Empty,
                 ct);
 
-            if (!success) return Results.BadRequest(new { error });
+            if (!success)
+            {
+                if (error != null && error.Contains("Page not found", StringComparison.OrdinalIgnoreCase))
+                {
+                    return Results.NotFound(new { error });
+                }
+                return Results.BadRequest(new { error });
+            }
             return Results.Ok(response);
         })
         .RequireAuthorization(Permissions.PagesPublish)
