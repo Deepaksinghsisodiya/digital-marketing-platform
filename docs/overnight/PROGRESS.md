@@ -2,10 +2,10 @@
 
 ## Global Status Dashboard
 
-- **Current Phase:** Phase 5 (Admin Panel - Modern Cockpit) -> Completed ✅
-- **Active Task:** Advancing to Phase 6 (Marketing Engine & Integrations)
-- **Test Baseline:** 126 backend tests passing (Unit: 25, Arch: 3, Integration: 98), 0 failed, 0 skipped. Frontend Vitest: 14 passed (Admin: 6, Website: 8). Total: 140 passing tests.
-- **Gap Register:** 18 total gaps (15 Closed: GAP-01..14, 18. Remaining: GAP-15, 16, 17)
+- **Current Phase:** Website UI Overhaul (W0 - W8) -> Completed ✅
+- **Active Task:** Platform Production Ready & Verified
+- **Test Baseline:** 135 backend tests passing (Unit: 30, Arch: 3, Integration: 102), 0 failed, 0 skipped. Frontend Vitest: 23 passed (Admin: 6, Website: 17). Total: 158 passing tests.
+- **Gap Register:** 18 total gaps (18 Closed: GAP-01..18). Broken links: 0 (38/38 200 OK).
 - **Known Blockers:** 0
 
 ---
@@ -93,3 +93,23 @@
 - [x] All 14 frontend tests passed (Admin: 6, Website: 8).
 - [x] Linter clean, Prettier clean.
 - [x] All 18 registered gaps in `docs/overnight/GAP_REGISTER.md` are 100% CLOSED.
+
+### Phase 8: Website Master UI Overhaul (W0 - W8) (COMPLETED)
+
+- [x] **Step W0 (Audit):** Executed comprehensive route and link audit. Discovered 31 out of 38 audited links returned 404. Authored `apps/website/scripts/check-links.mjs` and `docs/overnight/WEBSITE_AUDIT.md`.
+- [x] **Step W1 (Design System & Theme Primitives):** Added Radix UI primitives (Dialog, Accordion, Tabs) and CVA button variants. Added animation keyframes, marquee, and counter. Created dev-only `/design-system` page.
+- [x] **Step W2 (Global Layout Overhaul):** Rebuilt `Header.tsx` with 12 services in mega-menu, 8 industries, universal search trigger, and mobile drawer. Built `AnnouncementBar.tsx`, `SearchDialog.tsx` (Cmd+K), `Footer.tsx` (5-column dark), `MobileStickyBar.tsx`, and `FloatingWhatsApp.tsx`. Updated `CookieBanner.tsx` with category preferences.
+- [x] **Step W3 (Seed CMS Pages & Zero-404 Resolution):** Added backend public search endpoint `GET /api/v1/public/search`. Seeded all 12 services and 8 industry verticals with sample copy in `StartupSeeder.cs`. Created dedicated pages `/services`, `/industries`, `/tools/roi-calculator`, `/book-a-call`, `/search`, branded `not-found.tsx`, `error.tsx`, and `loading.tsx`.
+- [x] **Step W4 (Home & Block Library):** Added `LogoStripBlock.tsx` and `BentoGridBlock.tsx`. Enhanced `FaqBlock.tsx` with Radix Accordion and `FAQPage` JSON-LD schema injection.
+- [x] **Step W5 (Mobile & Viewport Verification):** Validated viewports 360px through 1920px. Added safe-area padding for mobile sticky bar. Zero horizontal scroll.
+- [x] **Step W6 (Performance, A11y, Security):** Injected `prefers-reduced-motion` override in `globals.css` and runtime animation controls. Ensured WCAG AA contrast, semantic landmarks, and rel="noopener noreferrer".
+- [x] **Step W7 (Admin Wiring):** Verified theme customizer, animation settings (`enabled`, `speed`), announcement bar, and menu editor in `SettingsPage.tsx`.
+- [x] **Step W8 (Verification & Test Evidence):**
+  - All 38 links verified 200 OK (0 broken links) via `node apps/website/scripts/check-links.mjs`.
+  - Backend tests: **135 passed**, 0 failed, 0 skipped. Output logged in `docs/overnight/logs/test-w8.txt`.
+  - Frontend website tests: **17 passed**, 0 failed (`apps/website`).
+  - Frontend admin tests: **6 passed**, 0 failed (`apps/admin`).
+  - Linter: Clean across all workspaces.
+  - Prettier: Clean across all files.
+  - Production builds: Both Next.js 15 Website and Vite Admin compiled cleanly with exit code 0.
+  - Authored comprehensive handover report in `docs/overnight/WEBSITE_REPORT.md`.

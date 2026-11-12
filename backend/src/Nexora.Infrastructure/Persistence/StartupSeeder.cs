@@ -536,13 +536,49 @@ public static class StartupSeeder
             }
         }
 
-        // 6b. Seed Neutral Sample CMS Pages (about, solutions, pricing, case-studies) to ensure zero 404s
+        // 6b. Seed Full Digital Marketing Suite CMS Pages to guarantee zero 404s
         var samplePages = new[]
         {
+            // Core Pages
             ("about", "About Us — Nexora", "Sample content — customize in Admin CMS. Nexora delivers enterprise digital marketing and growth infrastructure.", "About Nexora"),
             ("solutions", "Solutions & Capabilities — Nexora", "Sample content — customize in Admin CMS. Full-funnel performance marketing, search architecture, and pipeline acceleration.", "Growth Solutions"),
             ("pricing", "Transparent Enterprise Pricing — Nexora", "Sample content — customize in Admin CMS. Scalable enterprise growth tiers designed for high-performing marketing teams.", "Pricing Tiers"),
-            ("case-studies", "Client Case Studies — Nexora", "Sample content — customize in Admin CMS. Verifiable enterprise revenue growth and multi-touch attribution outcomes.", "Case Studies")
+            ("case-studies", "Client Case Studies — Nexora", "Sample content — customize in Admin CMS. Verifiable enterprise revenue growth and multi-touch attribution outcomes.", "Case Studies"),
+            ("services", "Full-Spectrum Digital Marketing Services — Nexora", "Sample content — customize in Admin CMS. 12 institutional marketing capabilities designed to capture and convert enterprise demand.", "Enterprise Services"),
+            ("industries", "Vertical Industry Solutions — Nexora", "Sample content — customize in Admin CMS. Specialized growth architectures tailored for vertical market dynamics.", "Industry Verticals"),
+            ("resources", "Marketing Knowledge Hub & Playbooks — Nexora", "Sample content — customize in Admin CMS. Tactical frameworks, conversion guides, and research briefs.", "Resources & Guides"),
+            ("book-a-call", "Schedule Strategic Growth Consultation — Nexora", "Sample content — customize in Admin CMS. Connect directly with our enterprise marketing architects.", "Book a Strategic Discovery Session"),
+
+            // 12 Specialized Digital Marketing Services
+            ("services/seo", "Search Engine Optimization (SEO) — Nexora", "Sample content — customize in Admin CMS. Technical audits, programmatic search architecture, and high-intent commercial keyword domination.", "High-Intent Enterprise SEO"),
+            ("services/content-marketing", "Content Marketing & Editorial Strategy — Nexora", "Sample content — customize in Admin CMS. Authoritative thought leadership and search-driven content engines.", "B2B Content Engines"),
+            ("services/social-media-marketing", "Social Media Marketing (SMM) — Nexora", "Sample content — customize in Admin CMS. Multi-channel organic and executive brand amplification across LinkedIn and Meta.", "Executive Social Amplification"),
+            ("services/paid-ads", "Paid Media (Google & Meta PPC) — Nexora", "Sample content — customize in Admin CMS. Algorithmic bid management, account-based retargeting, and negative matching.", "Performance Paid Media"),
+            ("services/email-marketing", "Lifecycle Email Marketing — Nexora", "Sample content — customize in Admin CMS. Automated lead nurturing sequences and behavioral drip trigger flows.", "Automated Lead Nurturing"),
+            ("services/whatsapp-marketing", "WhatsApp Business Marketing — Nexora", "Sample content — customize in Admin CMS. High-engagement conversational campaigns, transactional routing, and click-to-chat funnels.", "Conversational WhatsApp Funnels"),
+            ("services/web-design-development", "Web Design & Conversion Engineering — Nexora", "Sample content — customize in Admin CMS. Blazing fast Next.js architectures optimized for sub-second Core Web Vitals.", "High-Conversion Web Architecture"),
+            ("services/cro", "Conversion Rate Optimization (CRO) — Nexora", "Sample content — customize in Admin CMS. Multivariate A/B testing, heatmaps, and funnel drop-off remediation.", "Scientific Conversion Optimization"),
+            ("services/analytics-reporting", "Analytics & Attribution Reporting — Nexora", "Sample content — customize in Admin CMS. Deterministic server-side multi-touch attribution dashboards.", "Deterministic Multi-Touch Attribution"),
+            ("services/branding-creative", "Branding & Creative Design — Nexora", "Sample content — customize in Admin CMS. Visual identity systems, typography guidelines, and conversion creative.", "Enterprise Brand & Creative"),
+            ("services/influencer-marketing", "B2B & Enterprise Influencer Marketing — Nexora", "Sample content — customize in Admin CMS. Vetted industry voices, co-marketed webinars, and affiliate syndication.", "Creator & Influencer Partnerships"),
+            ("services/marketing-automation-crm", "Marketing Automation & CRM Architecture — Nexora", "Sample content — customize in Admin CMS. Seamless lead scoring, stage progression, and SLA assignment.", "Marketing Automation & CRM"),
+
+            // 8 Industry Verticals
+            ("industries/saas", "SaaS & Cloud Software Growth — Nexora", "Sample content — customize in Admin CMS. CAC-to-LTV expansion and product-led pipeline velocity.", "SaaS Performance Marketing"),
+            ("industries/ecommerce", "E-Commerce & DTC Performance — Nexora", "Sample content — customize in Admin CMS. ROAS maximization, feed optimization, and cart recovery.", "E-Commerce Scale Engine"),
+            ("industries/real-estate", "Real Estate & Property Development — Nexora", "Sample content — customize in Admin CMS. High-ticket investor acquisition and localized search targeting.", "Real Estate Lead Generation"),
+            ("industries/education", "Higher Education & EdTech — Nexora", "Sample content — customize in Admin CMS. Student recruitment cycles, programmatic landing funnels, and intake scaling.", "Education & EdTech Marketing"),
+            ("industries/healthcare", "Healthcare & Medical Services — Nexora", "Sample content — customize in Admin CMS. HIPAA/DPDP-compliant patient acquisition and doctor referrals.", "Compliant Healthcare Growth"),
+            ("industries/local-business", "Local Business & Multi-Location Services — Nexora", "Sample content — customize in Admin CMS. Hyper-local Google Maps ranking and localized review velocity.", "Multi-Location Local SEO"),
+            ("industries/professional-services", "Professional Services & Consulting — Nexora", "Sample content — customize in Admin CMS. RFP lead generation and partner credibility establishment.", "Professional Services Inbound"),
+            ("industries/hospitality", "Hospitality & Travel Marketing — Nexora", "Sample content — customize in Admin CMS. Direct booking maximization and seasonality surge management.", "Hospitality Direct Booking"),
+
+            // Legal & Compliance Pages
+            ("privacy", "Privacy Policy — Nexora", "Sample policy — legal review required. Our commitments to data protection, transparency, and regional compliance (DPDP, GDPR, CCPA).", "Privacy Policy"),
+            ("terms", "Terms of Service — Nexora", "Sample terms — legal review required. Contractual terms of service governing engagement and platform usage.", "Terms of Service"),
+            ("cookies", "Cookie Policy & Tracking Preferences — Nexora", "Sample policy — legal review required. Clear disclosure of essential, analytical, and marketing cookies.", "Cookie Policy & Transparency"),
+            ("accessibility", "Accessibility Statement (WCAG AA) — Nexora", "Sample statement. Our commitment to digital inclusion and Section 508 / WCAG AA compliance.", "Accessibility Statement"),
+            ("trust", "Trust, Security & Compliance — Nexora", "Sample content. Enterprise grade SOC 2 Type II controls, AES-256 data encryption, and audit logging.", "Enterprise Trust & Security")
         };
 
         foreach (var (slug, title, desc, headline) in samplePages)
@@ -696,8 +732,10 @@ public static class StartupSeeder
                 {
                     new() { Label = "Privacy Policy", Url = "/privacy", DisplayOrder = 0 },
                     new() { Label = "Terms of Service", Url = "/terms", DisplayOrder = 1 },
-                    new() { Label = "Security & Trust", Url = "/trust", DisplayOrder = 2 },
-                    new() { Label = "Contact Support", Url = "/contact", DisplayOrder = 3 }
+                    new() { Label = "Cookie Preferences", Url = "/cookies", DisplayOrder = 2 },
+                    new() { Label = "Accessibility (WCAG AA)", Url = "/accessibility", DisplayOrder = 3 },
+                    new() { Label = "Security & Trust", Url = "/trust", DisplayOrder = 4 },
+                    new() { Label = "Contact Support", Url = "/contact", DisplayOrder = 5 }
                 }
             };
 

@@ -12,7 +12,11 @@
   "dependencies": {
     "@nexora/contracts": "workspace:*",
     "@nexora/design-tokens": "workspace:*",
+    "@radix-ui/react-accordion": "^1.3.1",
+    "@radix-ui/react-dialog": "^1.3.1",
     "@radix-ui/react-slot": "^1.5.0",
+    "@radix-ui/react-tabs": "^1.2.1",
+    "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "i18n-iso-countries": "^7.14.0",
     "libphonenumber-js": "^1.11.20",
@@ -24,17 +28,17 @@
     "tailwind-merge": "^3.0.2"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3.3.1",
     "@nexora/typescript-config": "workspace:*",
     "@types/node": "^22.13.9",
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
     "autoprefixer": "^10.4.20",
+    "eslint": "^9.26.0",
+    "eslint-config-next": "^15.2.1",
     "postcss": "^8.5.3",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.7.3",
-    "vitest": "^3.0.8",
-    "eslint": "^9.26.0",
-    "@eslint/eslintrc": "^3.3.1",
-    "eslint-config-next": "^15.2.1"
+    "vitest": "^3.0.8"
   }
 }

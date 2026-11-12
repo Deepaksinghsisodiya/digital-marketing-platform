@@ -32,3 +32,14 @@ This log records every significant design, schema, security, and UI decision mad
 
 - **Context:** `SiteSettings.SmtpPassword` was previously persisted in plaintext in SQL Server.
 - **Decision:** Use ASP.NET Core `IDataProtectionProvider` with purpose `"Nexora.SmtpCredentials"`. Stored passwords are prefixed with `"enc:"` when encrypted. `MailKitEmailSender` seamlessly detects `"enc:"` and decrypts using the DPAPI data protector, preserving backwards compatibility with legacy plaintext entries if unencrypted.
+
+## DEC-006: Website UI Overhaul & Zero-404 Architecture (W0 - W8)
+
+- **Context:** User requested full execution of `NEXORA_WEBSITE_UI_OVERHAUL.md`, transforming the public website into an elite, 100% dynamic, multi-region digital marketing agency web platform with zero broken links and full admin customizability.
+- **Decision:**
+  1. Audit confirmed 31 missing routes/CMS pages across services, industries, tools, resources, and legal endpoints.
+  2. Implement comprehensive CSS theme tokens engine with dynamic runtime injection from `SiteSettings.ThemeTokensJson` including animation controls (`enabled`, `speed`, `reducedMotion`).
+  3. Overhaul global layout with mega-menus for 12 core digital marketing services and 8 industry verticals, search dialog (Cmd+K), region switcher, and sticky bottom bar for mobile.
+  4. Seed 12 full digital marketing services, 8 industries, and legal pages (`/privacy`, `/terms`, `/cookies`, `/accessibility`) in database seeder to guarantee zero 404s.
+  5. Add rich agency CMS blocks: Hero with animated growth dashboard SVG, Bento Grid, Logo Marquee, Process Timeline, Results counters, and Booking Modal.
+  6. Enforce WCAG AA contrast, 360px-1920px mobile responsiveness, and reduced-motion compliance.

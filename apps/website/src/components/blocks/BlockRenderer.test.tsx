@@ -159,6 +159,26 @@ describe("BlockRenderer", () => {
         },
         enabled: true,
       },
+      {
+        id: "b-logostrip",
+        type: "LogoStrip",
+        schemaVersion: 1,
+        settings: {},
+        content: {
+          title: "Trusted Partners Across Industry Sectors",
+        },
+        enabled: true,
+      },
+      {
+        id: "b-bentogrid",
+        type: "BentoGrid",
+        schemaVersion: 1,
+        settings: {},
+        content: {
+          sectionTitle: "Bento Performance Grid Architecture",
+        },
+        enabled: true,
+      },
     ];
 
     const html = renderToString(<BlockRenderer blocks={blocks} />);
@@ -167,5 +187,7 @@ describe("BlockRenderer", () => {
     expect(html).toContain("Growth ROI Modeling Tool");
     expect(html).toContain("4-Phase Execution Framework");
     expect(html).toContain("Book Executive Briefing");
+    expect(html).toContain("Trusted Partners Across Industry Sectors");
+    expect(html).toContain("Bento Performance Grid Architecture");
   });
 });

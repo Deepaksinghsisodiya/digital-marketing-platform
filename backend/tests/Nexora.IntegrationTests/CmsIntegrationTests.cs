@@ -245,4 +245,18 @@ public class CmsIntegrationTests
         audit.ShouldNotBeNull();
         audit.Outcome.ShouldBe("Success");
     }
+
+    [Fact]
+    public async Task PublicGlobalSearch_ShouldReturnPublishedPagesAndBlogPosts()
+    {
+        var client = _factory.CreateClient();
+
+        // Search for seeded content term 'Enterprise'
+        var response = await client.GetAsync("/api/v1/public/search?q=Enterprise");
+        response.StatusCode.ShouldBe(HttpStatusCode.OK);
+
+        var body = await response.Content.ReadFromJsonAsync<System.Text.Json.JsonElement>();
+        body.TryGetProperty("results", out var results).ShouldBeTrue();
+        results.GetArrayLength().ShouldBeGreaterThan(0);
+    }
 }

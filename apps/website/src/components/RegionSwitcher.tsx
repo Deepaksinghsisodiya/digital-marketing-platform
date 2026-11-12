@@ -1,15 +1,25 @@
 "use client";
 
-import { useTransition } from "react";
-import { REGION_CONFIG, type RegionDefinition } from "../config/region";
+import React, { useTransition } from "react";
+import {
+  REGION_CONFIG,
+  resolveRegion,
+  type RegionDefinition,
+} from "../config/region";
 import { Globe } from "lucide-react";
 
 interface RegionSwitcherProps {
-  currentRegion: RegionDefinition;
+  currentRegion?: RegionDefinition;
+  currentRegionCode?: string;
 }
 
-export function RegionSwitcher({ currentRegion }: RegionSwitcherProps) {
+export function RegionSwitcher({
+  currentRegion,
+  currentRegionCode,
+}: RegionSwitcherProps) {
   const [, startTransition] = useTransition();
+
+  const activeRegion = currentRegion || resolveRegion(currentRegionCode);
 
   const handleRegionChange = (newRegionCode: string) => {
     startTransition(() => {
@@ -22,7 +32,7 @@ export function RegionSwitcher({ currentRegion }: RegionSwitcherProps) {
     <div className="flex items-center gap-1.5 text-xs text-slate-700 bg-slate-100/80 hover:bg-slate-200/80 border border-slate-200 px-3 py-1.5 rounded-xl transition shadow-sm">
       <Globe className="w-3.5 h-3.5 text-indigo-600 flex-shrink-0" />
       <select
-        value={currentRegion.code}
+        value={activeRegion.code}
         onChange={(e) => handleRegionChange(e.target.value)}
         className="bg-transparent text-slate-800 font-semibold focus:outline-none cursor-pointer text-xs"
         aria-label="Select Target Region"

@@ -242,6 +242,56 @@ public static class CmsEndpoints
         })
         .WithName("GetPreviewPage")
         .WithSummary("Fetch draft page blocks using short-lived preview token.");
+
+        publicGroup.MapGet("/search", async (
+            [FromQuery] string? q,
+            AppDbContext db,
+            CancellationToken ct) =>
+        {
+            if (string.IsNullOrWhiteSpace(q) || q.Trim().Length < 2)
+            {
+                return Results.Ok(new { query = q ?? "", results = Array.Empty<object>() });
+            }
+
+            var cleanQuery = q.Trim();
+
+            var matchedPages = await db.Pages.AsNoTracking()
+                .Where(p => p.Status == PageStatus.Published && p.IsEnabled &&
+                            (EF.Functions.Like(p.Title, $"%{cleanQuery}%") ||
+                             EF.Functions.Like(p.Slug, $"%{cleanQuery}%") ||
+                             EF.Functions.Like(p.MetaDescription, $"%{cleanQuery}%")))
+                .Take(10)
+                .Select(p => new
+                {
+                    Type = "Page",
+                    Title = p.Title,
+                    Slug = p.Slug,
+                    Url = p.Slug == "home" ? "/" : $"/{p.Slug}",
+                    Description = p.MetaDescription
+                })
+                .ToListAsync(ct);
+
+            var matchedPosts = await db.BlogPosts.AsNoTracking()
+                .Where(b => b.Status == BlogPostStatus.Published &&
+                            (EF.Functions.Like(b.Title, $"%{cleanQuery}%") ||
+                             EF.Functions.Like(b.Excerpt, $"%{cleanQuery}%") ||
+                             EF.Functions.Like(b.Category, $"%{cleanQuery}%")))
+                .Take(10)
+                .Select(b => new
+                {
+                    Type = "Blog",
+                    Title = b.Title,
+                    Slug = b.Slug,
+                    Url = $"/blog/{b.Slug}",
+                    Description = (string?)b.Excerpt
+                })
+                .ToListAsync(ct);
+
+            var allResults = matchedPages.Concat(matchedPosts).Take(15);
+            return Results.Ok(new { query = cleanQuery, results = allResults });
+        })
+        .WithName("PublicGlobalSearch")
+        .WithSummary("Universal keyword search across published CMS pages and blog posts.");
     }
 }
 

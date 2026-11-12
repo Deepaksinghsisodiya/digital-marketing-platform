@@ -29,12 +29,16 @@ Runtime usage of GPL, AGPL, or proprietary paid dependencies is strictly prohibi
 
 ## 3. Frontend Website (`apps/website`)
 
-| Package      | Version | License | Purpose                        |
-| ------------ | ------- | ------- | ------------------------------ |
-| next         | 15.5.29 | MIT     | React Framework with SSR & RSC |
-| react        | ^19.0.0 | MIT     | UI Framework                   |
-| lucide-react | ^1.70.0 | ISC     | Iconography                    |
-| tailwindcss  | ^3.4.17 | MIT     | Styling                        |
+| Package                   | Version | License    | Purpose                        |
+| ------------------------- | ------- | ---------- | ------------------------------ |
+| next                      | 15.5.29 | MIT        | React Framework with SSR & RSC |
+| react                     | ^19.0.0 | MIT        | UI Framework                   |
+| lucide-react              | ^1.70.0 | ISC        | Iconography                    |
+| tailwindcss               | ^3.4.17 | MIT        | Styling                        |
+| @radix-ui/react-dialog    | ^1.1.6  | MIT        | Accessible Modal / Drawer      |
+| @radix-ui/react-accordion | ^1.2.3  | MIT        | Accessible Collapsible FAQ     |
+| @radix-ui/react-tabs      | ^1.1.3  | MIT        | Accessible Tab Panels          |
+| class-variance-authority  | ^0.7.1  | Apache-2.0 | Type-safe Component Variants   |
 
 ## 4. Fonts
 

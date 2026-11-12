@@ -27,6 +27,35 @@ const config: Config = {
         sans: [tokens.fonts.sans],
         mono: [tokens.fonts.mono],
       },
+      keyframes: {
+        marquee: {
+          "0%": { transform: "translateX(0%)" },
+          "100%": { transform: "translateX(calc(-100% - var(--gap, 2rem)))" },
+        },
+        "marquee-reverse": {
+          "0%": { transform: "translateX(calc(-100% - var(--gap, 2rem)))" },
+          "100%": { transform: "translateX(0%)" },
+        },
+        "accordion-down": {
+          from: { height: "0" },
+          to: { height: "var(--radix-accordion-content-height)" },
+        },
+        "accordion-up": {
+          from: { height: "var(--radix-accordion-content-height)" },
+          to: { height: "0" },
+        },
+        float: {
+          "0%, 100%": { transform: "translateY(0px)" },
+          "50%": { transform: "translateY(-8px)" },
+        },
+      },
+      animation: {
+        marquee: "marquee 30s linear infinite",
+        "marquee-reverse": "marquee-reverse 30s linear infinite",
+        "accordion-down": "accordion-down 0.2s ease-out",
+        "accordion-up": "accordion-up 0.2s ease-out",
+        float: "float 4s ease-in-out infinite",
+      },
     },
   },
   plugins: [],

@@ -12,6 +12,8 @@ import { ComparisonTable } from "./ComparisonTable";
 import { RoiCalculator } from "./RoiCalculator";
 import { ProcessSteps } from "./ProcessSteps";
 import { BookingEmbed } from "./BookingEmbed";
+import { LogoStripBlock } from "./LogoStripBlock";
+import { BentoGridBlock } from "./BentoGridBlock";
 
 const BLOCK_REGISTRY: Record<string, React.FC<{ block: CmsBlock }>> = {
   Hero: HeroBlock,
@@ -30,6 +32,10 @@ const BLOCK_REGISTRY: Record<string, React.FC<{ block: CmsBlock }>> = {
   Process: ProcessSteps,
   BookingEmbed: BookingEmbed,
   Booking: BookingEmbed,
+  LogoStrip: LogoStripBlock,
+  TrustStrip: LogoStripBlock,
+  BentoGrid: BentoGridBlock,
+  Bento: BentoGridBlock,
 };
 
 interface BlockRendererProps {

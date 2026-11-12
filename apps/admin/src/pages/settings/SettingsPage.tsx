@@ -91,6 +91,16 @@ export const SettingsPage: React.FC = () => {
   const [fontHeading, setFontHeading] = useState("Plus Jakarta Sans");
   const [borderRadius, setBorderRadius] = useState("0.5rem");
   const [buttonStyle, setButtonStyle] = useState("rounded");
+  const [animationEnabled, setAnimationEnabled] = useState(true);
+  const [animationSpeed, setAnimationSpeed] = useState<
+    "fast" | "normal" | "slow"
+  >("normal");
+  const [announcementEnabled, setAnnouncementEnabled] = useState(true);
+  const [announcementText, setAnnouncementText] = useState(
+    "Enterprise Engine 2.0 Global B2B Performance Marketing",
+  );
+  const [announcementLink, setAnnouncementLink] = useState("/book-a-call");
+  const [announcementBadge, setAnnouncementBadge] = useState("Enterprise 2.0");
 
   // Tab 2: Pipeline Stages State
   const [selectedCategory, setSelectedCategory] = useState<string>("Lead");
@@ -182,6 +192,25 @@ export const SettingsPage: React.FC = () => {
           if (parsed.fontHeading) setFontHeading(parsed.fontHeading);
           if (parsed.radius) setBorderRadius(parsed.radius);
           if (parsed.buttonStyle) setButtonStyle(parsed.buttonStyle);
+          if (parsed.animation) {
+            if (typeof parsed.animation.enabled === "boolean")
+              setAnimationEnabled(parsed.animation.enabled);
+            if (parsed.animation.speed)
+              setAnimationSpeed(parsed.animation.speed);
+          }
+        } catch {
+          // fallback
+        }
+      }
+
+      if (settings.announcementBarJson) {
+        try {
+          const parsed = JSON.parse(settings.announcementBarJson);
+          if (typeof parsed.enabled === "boolean")
+            setAnnouncementEnabled(parsed.enabled);
+          if (parsed.text) setAnnouncementText(parsed.text);
+          if (parsed.link) setAnnouncementLink(parsed.link);
+          if (parsed.badge) setAnnouncementBadge(parsed.badge);
         } catch {
           // fallback
         }
@@ -227,6 +256,12 @@ export const SettingsPage: React.FC = () => {
         smtpFromEmail: smtpFromEmail.trim() || null,
         smtpFromName: smtpFromName.trim() || null,
         sectionVisibilityJson: JSON.stringify(sectionVisibility),
+        announcementBarJson: JSON.stringify({
+          enabled: announcementEnabled,
+          text: announcementText,
+          link: announcementLink,
+          badge: announcementBadge,
+        }),
       }).unwrap();
 
       setVersionToken(res.versionToken);
@@ -307,6 +342,12 @@ export const SettingsPage: React.FC = () => {
           smtpFromEmail.trim() || supportEmail || "noreply@nexora.local",
         smtpFromName: smtpFromName.trim() || companyName || "Nexora Platform",
         sectionVisibilityJson: JSON.stringify(sectionVisibility),
+        announcementBarJson: JSON.stringify({
+          enabled: announcementEnabled,
+          text: announcementText,
+          link: announcementLink,
+          badge: announcementBadge,
+        }),
       }).unwrap();
 
       setVersionToken(res.versionToken);
@@ -336,6 +377,10 @@ export const SettingsPage: React.FC = () => {
         fontHeading,
         radius: borderRadius,
         buttonStyle,
+        animation: {
+          enabled: animationEnabled,
+          speed: animationSpeed,
+        },
       });
 
       const regionsList = supportedRegions
@@ -437,6 +482,12 @@ export const SettingsPage: React.FC = () => {
         smtpFromEmail: smtpFromEmail ? smtpFromEmail.trim() : null,
         smtpFromName: smtpFromName ? smtpFromName.trim() : null,
         sectionVisibilityJson: JSON.stringify(sectionVisibility),
+        announcementBarJson: JSON.stringify({
+          enabled: announcementEnabled,
+          text: announcementText,
+          link: announcementLink,
+          badge: announcementBadge,
+        }),
       }).unwrap();
 
       setVersionToken(res.versionToken);

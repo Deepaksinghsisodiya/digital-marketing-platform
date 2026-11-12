@@ -1,16 +1,32 @@
 /* eslint-disable @next/next/no-img-element */
-import React from "react";
+"use client";
+
+import React, { useState } from "react";
 import Link from "next/link";
 import type { PublicSiteSettings } from "../../lib/cms";
-import { ShieldCheck, Activity, Globe, ArrowUpRight } from "lucide-react";
+import {
+  ShieldCheck,
+  Globe,
+  ArrowUp,
+  ArrowUpRight,
+  Send,
+  CheckCircle2,
+  Lock,
+} from "lucide-react";
+import { Button } from "../ui/button";
 
 export const Footer: React.FC<{ settings?: PublicSiteSettings | null }> = ({
   settings,
 }) => {
+  const [newsletterEmail, setNewsletterEmail] = useState("");
+  const [subscribed, setSubscribed] = useState(false);
+
   const companyName = settings?.companyName || "NEXORA";
   const legalName = settings?.legalName || "Nexora Technologies Inc.";
   const supportEmail = settings?.supportEmail || "growth@nexora.digital";
   const supportPhone = settings?.supportPhone || "+1 (800) 555-0199";
+  const address =
+    settings?.address || "Global Performance Marketing Infrastructure";
 
   const apiBase =
     process.env.INTERNAL_API_URL ||
@@ -28,20 +44,36 @@ export const Footer: React.FC<{ settings?: PublicSiteSettings | null }> = ({
       : `${apiBase}${rawLogo.startsWith("/") ? "" : "/"}${rawLogo}`
     : null;
 
+  const handleNewsletterSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (newsletterEmail.trim().includes("@")) {
+      setSubscribed(true);
+      setNewsletterEmail("");
+    }
+  };
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const openCookiePreferences = () => {
+    window.dispatchEvent(new CustomEvent("nexora_open_cookie_preferences"));
+  };
+
   return (
     <footer className="border-t border-slate-800 bg-slate-950 text-slate-400 text-xs">
-      <div className="max-w-[1720px] 2xl:max-w-[1920px] mx-auto px-6 sm:px-10 lg:px-12 xl:px-16 py-16 grid grid-cols-1 md:grid-cols-5 gap-10">
-        {/* Brand Column */}
-        <div className="space-y-4 md:col-span-2">
+      <div className="max-w-[1720px] 2xl:max-w-[1920px] mx-auto px-6 sm:px-10 lg:px-12 xl:px-16 py-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-10">
+        {/* Brand & Mission Column (Span 2) */}
+        <div className="space-y-4 lg:col-span-2">
           <div className="flex items-center gap-2.5">
             {logoUrl ? (
               <img
                 src={logoUrl}
                 alt={companyName}
-                className="w-10 h-10 object-contain rounded-2xl bg-slate-900 border border-slate-800 p-1"
+                className="w-10 h-10 object-contain rounded-xl bg-slate-900 border border-slate-800 p-1"
               />
             ) : (
-              <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-pink-500 flex items-center justify-center text-white font-black text-lg shadow-md shadow-indigo-600/30">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-pink-500 flex items-center justify-center text-white font-black text-lg shadow-md shadow-indigo-600/30">
                 {companyName ? companyName.charAt(0).toUpperCase() : "N"}
               </div>
             )}
@@ -50,15 +82,15 @@ export const Footer: React.FC<{ settings?: PublicSiteSettings | null }> = ({
                 {companyName}
               </span>
               <span className="text-[10px] uppercase font-bold tracking-widest text-indigo-400">
-                Enterprise Growth Infrastructure
+                Digital Marketing Platform
               </span>
             </div>
           </div>
 
           <p className="text-slate-400 text-xs leading-relaxed max-w-sm">
-            Unified digital marketing platform powering deterministic
-            attribution, high-intent audience modeling, and verifiable B2B
-            revenue conversion across global enterprise markets.
+            Institutional digital marketing engine powering deterministic
+            multi-touch attribution, commercial SEO, and high-velocity demand
+            generation across global enterprise markets.
           </p>
 
           {/* System Status Pill */}
@@ -70,116 +102,286 @@ export const Footer: React.FC<{ settings?: PublicSiteSettings | null }> = ({
             <span className="text-slate-500">&bull;</span>
             <span className="text-slate-400">99.99% SLA Uptime</span>
           </div>
-        </div>
 
-        {/* Column 2: Platform Capabilities */}
-        <div>
-          <h4 className="text-xs font-bold uppercase tracking-wider text-white mb-4">
-            Capabilities
-          </h4>
-          <ul className="space-y-2.5 text-slate-400 font-medium">
-            <li>
-              <Link href="/solutions" className="hover:text-white transition">
-                Account-Based Marketing (ABM)
-              </Link>
-            </li>
-            <li>
-              <Link href="/solutions" className="hover:text-white transition">
-                High-Intent Commercial SEO
-              </Link>
-            </li>
-            <li>
-              <Link href="/solutions" className="hover:text-white transition">
-                Multi-Touch Server-Side Attribution
-              </Link>
-            </li>
-            <li>
-              <Link href="/solutions" className="hover:text-white transition">
-                Conversion Rate Optimization
-              </Link>
-            </li>
-            <li>
-              <Link href="/solutions" className="hover:text-white transition">
-                Automated Lead SLA Routing
-              </Link>
-            </li>
-          </ul>
-        </div>
-
-        {/* Column 3: Resources */}
-        <div>
-          <h4 className="text-xs font-bold uppercase tracking-wider text-white mb-4">
-            Resources
-          </h4>
-          <ul className="space-y-2.5 text-slate-400 font-medium">
-            <li>
-              <Link href="/blog" className="hover:text-white transition">
-                Strategic Growth Playbooks
-              </Link>
-            </li>
-            <li>
-              <Link href="/about" className="hover:text-white transition">
-                Platform Architecture
-              </Link>
-            </li>
-            <li>
-              <Link href="/contact" className="hover:text-white transition">
-                Request Diagnostic Session
-              </Link>
-            </li>
-            <li>
-              <a
-                href="http://localhost:5173"
-                target="_blank"
-                rel="noreferrer"
-                className="hover:text-indigo-400 transition flex items-center gap-1 font-bold text-slate-300"
-              >
-                <span>Agency Admin Console</span>
-                <ArrowUpRight className="w-3.5 h-3.5 text-indigo-400" />
-              </a>
-            </li>
-          </ul>
-        </div>
-
-        {/* Column 4: Institutional Governance */}
-        <div className="space-y-3">
-          <h4 className="text-xs font-bold uppercase tracking-wider text-white mb-4">
-            Governance
-          </h4>
-          <div className="space-y-2 text-xs">
-            <div className="p-3 rounded-xl bg-slate-900/80 border border-slate-800">
-              <span className="text-slate-300 font-bold block">
-                Enterprise Compliance
-              </span>
-              <span className="text-[11px] text-slate-400 block mt-0.5">
-                SOC-2 Type II Certified &bull; DPDP & GDPR
-              </span>
-            </div>
-            <div className="text-[11px] text-slate-400 pt-1">
-              Contact:{" "}
+          {/* Contact Details */}
+          <div className="space-y-1 text-slate-400 text-[11px] pt-2">
+            <div>
+              <span className="text-slate-500">Inquiries:</span>{" "}
               <a
                 href={`mailto:${supportEmail}`}
-                className="text-indigo-400 hover:underline"
+                className="text-slate-300 hover:text-white transition"
               >
                 {supportEmail}
               </a>
             </div>
+            <div>
+              <span className="text-slate-500">Phone:</span>{" "}
+              <a
+                href={`tel:${supportPhone}`}
+                className="text-slate-300 hover:text-white transition"
+              >
+                {supportPhone}
+              </a>
+            </div>
+            <div className="text-slate-500 text-[10px]">{address}</div>
+          </div>
+        </div>
+
+        {/* Column 2: Digital Marketing Services */}
+        <div>
+          <h4 className="text-xs font-bold uppercase tracking-wider text-white mb-4">
+            Services
+          </h4>
+          <ul className="space-y-2.5 text-slate-400 font-medium">
+            <li>
+              <Link
+                href="/services/seo"
+                className="hover:text-white transition"
+              >
+                Enterprise SEO
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/services/paid-ads"
+                className="hover:text-white transition"
+              >
+                Paid Ads (Google / Meta)
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/services/web-design-development"
+                className="hover:text-white transition"
+              >
+                High-Speed Web Architecture
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/services/cro"
+                className="hover:text-white transition"
+              >
+                Conversion Rate Optimization
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/services/analytics-reporting"
+                className="hover:text-white transition"
+              >
+                Multi-Touch Attribution
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/services"
+                className="font-semibold text-indigo-400 hover:text-indigo-300 transition flex items-center gap-1 mt-1"
+              >
+                All 12 Services &rarr;
+              </Link>
+            </li>
+          </ul>
+        </div>
+
+        {/* Column 3: Industry Verticals */}
+        <div>
+          <h4 className="text-xs font-bold uppercase tracking-wider text-white mb-4">
+            Industries
+          </h4>
+          <ul className="space-y-2.5 text-slate-400 font-medium">
+            <li>
+              <Link
+                href="/industries/saas"
+                className="hover:text-white transition"
+              >
+                SaaS & Cloud Platforms
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/industries/ecommerce"
+                className="hover:text-white transition"
+              >
+                E-Commerce & DTC
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/industries/healthcare"
+                className="hover:text-white transition"
+              >
+                Healthcare & Life Sciences
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/industries/real-estate"
+                className="hover:text-white transition"
+              >
+                Real Estate Development
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/industries/education"
+                className="hover:text-white transition"
+              >
+                Education & EdTech
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/industries"
+                className="font-semibold text-cyan-400 hover:text-cyan-300 transition flex items-center gap-1 mt-1"
+              >
+                All 8 Verticals &rarr;
+              </Link>
+            </li>
+          </ul>
+        </div>
+
+        {/* Column 4: Platform & Playbooks */}
+        <div>
+          <h4 className="text-xs font-bold uppercase tracking-wider text-white mb-4">
+            Growth & Tools
+          </h4>
+          <ul className="space-y-2.5 text-slate-400 font-medium">
+            <li>
+              <Link
+                href="/case-studies"
+                className="hover:text-white transition"
+              >
+                Client Case Studies
+              </Link>
+            </li>
+            <li>
+              <Link href="/pricing" className="hover:text-white transition">
+                Transparent Pricing
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/tools/roi-calculator"
+                className="hover:text-white transition"
+              >
+                Interactive ROI Calculator
+              </Link>
+            </li>
+            <li>
+              <Link href="/resources" className="hover:text-white transition">
+                Playbooks & Whitepapers
+              </Link>
+            </li>
+            <li>
+              <Link href="/blog" className="hover:text-white transition">
+                Growth Insights Blog
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/book-a-call"
+                className="font-semibold text-indigo-400 hover:text-white transition flex items-center gap-1 mt-1"
+              >
+                Schedule Diagnostic &rarr;
+              </Link>
+            </li>
+          </ul>
+        </div>
+
+        {/* Column 5: Newsletter & Governance */}
+        <div>
+          <h4 className="text-xs font-bold uppercase tracking-wider text-white mb-4">
+            Growth Intelligence
+          </h4>
+          <p className="text-[11px] text-slate-400 leading-relaxed mb-3">
+            Join 12,000+ digital leaders receiving our weekly attribution and
+            conversion tear-downs.
+          </p>
+
+          {subscribed ? (
+            <div className="flex items-center gap-2 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-medium">
+              <CheckCircle2 className="w-4 h-4 shrink-0" />
+              Subscribed to Growth Briefing!
+            </div>
+          ) : (
+            <form onSubmit={handleNewsletterSubmit} className="space-y-2">
+              <div className="relative">
+                <input
+                  type="email"
+                  value={newsletterEmail}
+                  onChange={(e) => setNewsletterEmail(e.target.value)}
+                  placeholder="Enter business email"
+                  required
+                  className="w-full h-10 rounded-xl bg-slate-900 border border-slate-800 px-3.5 pr-10 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-indigo-500 transition"
+                />
+                <button
+                  type="submit"
+                  aria-label="Subscribe to newsletter"
+                  className="absolute right-1.5 top-1/2 -translate-y-1/2 p-1.5 rounded-lg bg-indigo-600 text-white hover:bg-indigo-500 transition"
+                >
+                  <Send className="w-3.5 h-3.5" />
+                </button>
+              </div>
+              <span className="text-[10px] text-slate-500 block">
+                No spam. Unsubscribe anytime.
+              </span>
+            </form>
+          )}
+
+          {/* Cookie Preferences Link */}
+          <div className="pt-4 mt-4 border-t border-slate-900">
+            <button
+              type="button"
+              onClick={openCookiePreferences}
+              className="text-[11px] text-slate-400 hover:text-white transition underline underline-offset-2 flex items-center gap-1"
+            >
+              <Lock className="w-3 h-3 text-indigo-400" /> Cookie Preferences
+            </button>
           </div>
         </div>
       </div>
 
-      <div className="border-t border-slate-900 py-6 px-6 text-center text-[11px] text-slate-500">
-        <div className="max-w-[1720px] 2xl:max-w-[1920px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p>
-            © {new Date().getFullYear()} {legalName}. All rights reserved.
-            Worldwide.
-          </p>
-          <div className="flex items-center gap-4 text-slate-400">
-            <span>Enterprise Privacy</span>
-            <span>&bull;</span>
-            <span>Security Architecture</span>
-            <span>&bull;</span>
-            <span>Status Dashboard</span>
+      {/* Bottom Bar: Legal & Copyright */}
+      <div className="border-t border-slate-900 bg-slate-950/80">
+        <div className="max-w-[1720px] 2xl:max-w-[1920px] mx-auto px-6 sm:px-10 lg:px-12 xl:px-16 py-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-slate-500">
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
+            <span>
+              &copy; {new Date().getFullYear()} {legalName}. All rights
+              reserved.
+            </span>
+            <Link href="/privacy" className="hover:text-slate-300 transition">
+              Privacy Policy
+            </Link>
+            <Link href="/terms" className="hover:text-slate-300 transition">
+              Terms of Service
+            </Link>
+            <Link href="/cookies" className="hover:text-slate-300 transition">
+              Cookie Policy
+            </Link>
+            <Link
+              href="/accessibility"
+              className="hover:text-slate-300 transition"
+            >
+              Accessibility (WCAG AA)
+            </Link>
+            <Link href="/trust" className="hover:text-slate-300 transition">
+              Security & Trust
+            </Link>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <span className="text-[10px] text-slate-500">
+              Multi-Region Single URL Engine
+            </span>
+            <button
+              type="button"
+              onClick={scrollToTop}
+              aria-label="Scroll back to top"
+              className="p-2 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 hover:text-white hover:border-slate-700 transition"
+            >
+              <ArrowUp className="w-3.5 h-3.5" />
+            </button>
           </div>
         </div>
       </div>
