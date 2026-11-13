@@ -2,7 +2,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Loading() {
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 p-8 max-w-6xl mx-auto space-y-12 animate-pulse">
+    <div className="min-h-screen bg-white text-slate-900 p-8 max-w-6xl mx-auto space-y-12 animate-pulse">
       {/* Header Skeleton */}
       <div className="flex items-center justify-between py-4 border-b border-slate-900">
         <Skeleton className="h-10 w-36 rounded-xl" />

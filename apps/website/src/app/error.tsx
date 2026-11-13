@@ -20,7 +20,7 @@ export default function ErrorPage({
   }, [error]);
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col items-center justify-center p-6 text-center">
+    <div className="min-h-screen bg-white text-slate-900 flex flex-col items-center justify-center p-6 text-center">
       <div className="w-16 h-16 rounded-2xl bg-rose-500/10 text-rose-400 border border-rose-500/20 flex items-center justify-center font-bold text-2xl mb-6 shadow-xl shadow-rose-500/10">
         <AlertTriangle className="w-8 h-8" />
       </div>

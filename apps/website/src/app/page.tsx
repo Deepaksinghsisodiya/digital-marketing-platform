@@ -198,12 +198,12 @@ export default async function HomePage() {
           <div>
             {/* 1. Hero Section */}
             {sectionVisibility.showHero !== false && (
-              <section className="relative overflow-hidden pt-20 pb-28 lg:pt-28 lg:pb-36 bg-gradient-to-b from-slate-950 via-slate-900 to-indigo-950 text-white">
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-gradient-to-tr from-indigo-600/20 via-purple-600/20 to-pink-500/10 blur-[130px] pointer-events-none rounded-full" />
-                <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b15_1px,transparent_1px),linear-gradient(to_bottom,#1e293b15_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none" />
+              <section className="relative overflow-hidden pt-20 pb-28 lg:pt-28 lg:pb-36 bg-gradient-to-b from-indigo-50/70 via-white to-slate-50 text-slate-900 border-b border-slate-200">
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-gradient-to-tr from-indigo-200/40 via-purple-100/40 to-pink-100/30 blur-[130px] pointer-events-none rounded-full" />
+                <div className="absolute inset-0 bg-[linear-gradient(to_right,#cbd5e120_1px,transparent_1px),linear-gradient(to_bottom,#cbd5e120_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none" />
 
                 <div className="relative max-w-6xl xl:max-w-7xl 2xl:max-w-[1600px] mx-auto px-6 sm:px-10 lg:px-12 xl:px-16 text-center space-y-8">
-                  <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full text-xs font-semibold bg-indigo-500/15 text-indigo-300 border border-indigo-500/30 backdrop-blur-md shadow-inner shadow-indigo-500/20">
+                  <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200 backdrop-blur-md shadow-xs">
                     <span className="flex h-2 w-2 relative">
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
                       <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
@@ -213,14 +213,14 @@ export default async function HomePage() {
                     <span>Worldwide Enterprise Delivery</span>
                   </div>
 
-                  <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tight leading-[1.1] max-w-5xl mx-auto">
+                  <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tight leading-[1.1] max-w-5xl mx-auto text-slate-900">
                     Data-Driven Marketing at{" "}
-                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-300 to-pink-300">
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600">
                       Enterprise Scale
                     </span>
                   </h1>
 
-                  <p className="text-lg md:text-xl text-slate-300 max-w-3xl mx-auto leading-relaxed font-normal">
+                  <p className="text-lg md:text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed font-normal">
                     Connect your enterprise to target audiences with AI campaign
                     automation, precision audience modeling, and verifiable
                     multi-touch attribution.
@@ -229,13 +229,13 @@ export default async function HomePage() {
                   <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
                     <Link
                       href="/contact"
-                      className="inline-flex items-center gap-2.5 rounded-2xl bg-indigo-600 px-8 py-4 text-sm font-bold text-white shadow-xl shadow-indigo-600/35 hover:bg-indigo-500 hover:scale-105 active:scale-95 transition-all duration-200"
+                      className="inline-flex items-center gap-2.5 rounded-2xl bg-indigo-600 px-8 py-4 text-sm font-bold text-white shadow-xl shadow-indigo-600/25 hover:bg-indigo-700 hover:scale-105 active:scale-95 transition-all duration-200"
                     >
                       <span>Schedule Free Growth Diagnostic</span>
                     </Link>
                     <Link
                       href="/blog"
-                      className="inline-flex items-center gap-2 rounded-2xl border border-slate-700/80 bg-slate-800/80 backdrop-blur-md px-7 py-4 text-sm font-bold text-slate-200 hover:bg-slate-700 hover:text-white transition-all duration-200"
+                      className="inline-flex items-center gap-2 rounded-2xl border border-slate-300 bg-white px-7 py-4 text-sm font-bold text-slate-800 hover:bg-slate-50 hover:text-indigo-600 shadow-sm transition-all duration-200"
                     >
                       <span>Explore Insights & Strategy &rarr;</span>
                     </Link>
@@ -246,37 +246,37 @@ export default async function HomePage() {
 
             {/* 2. Key Metrics Bar */}
             {sectionVisibility.showMetricsBar !== false && (
-              <section className="py-16 bg-slate-900 text-white border-y border-slate-800 px-6 sm:px-10 lg:px-12 xl:px-16">
-                <div className="max-w-[1720px] 2xl:max-w-[1920px] mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 text-center divide-y md:divide-y-0 md:divide-x divide-slate-800">
+              <section className="py-16 bg-slate-50 text-slate-900 border-y border-slate-200 px-6 sm:px-10 lg:px-12 xl:px-16">
+                <div className="max-w-[1720px] 2xl:max-w-[1920px] mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 text-center divide-y md:divide-y-0 md:divide-x divide-slate-200">
                   <div className="space-y-1">
-                    <div className="text-4xl lg:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-300">
+                    <div className="text-4xl lg:text-5xl font-black text-slate-900">
                       340%
                     </div>
-                    <div className="text-xs uppercase tracking-wider text-slate-400 font-semibold">
+                    <div className="text-xs uppercase tracking-wider text-slate-600 font-semibold">
                       Avg Pipeline Velocity
                     </div>
                   </div>
                   <div className="pt-6 md:pt-0 space-y-1">
-                    <div className="text-4xl lg:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-300">
+                    <div className="text-4xl lg:text-5xl font-black text-slate-900">
                       $120M+
                     </div>
-                    <div className="text-xs uppercase tracking-wider text-slate-400 font-semibold">
+                    <div className="text-xs uppercase tracking-wider text-slate-600 font-semibold">
                       Revenue Influenced
                     </div>
                   </div>
                   <div className="pt-6 md:pt-0 space-y-1">
-                    <div className="text-4xl lg:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-300">
+                    <div className="text-4xl lg:text-5xl font-black text-slate-900">
                       99.8%
                     </div>
-                    <div className="text-xs uppercase tracking-wider text-slate-400 font-semibold">
+                    <div className="text-xs uppercase tracking-wider text-slate-600 font-semibold">
                       Attribution Precision
                     </div>
                   </div>
                   <div className="pt-6 md:pt-0 space-y-1">
-                    <div className="text-4xl lg:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-300">
+                    <div className="text-4xl lg:text-5xl font-black text-slate-900">
                       14 Days
                     </div>
-                    <div className="text-xs uppercase tracking-wider text-slate-400 font-semibold">
+                    <div className="text-xs uppercase tracking-wider text-slate-600 font-semibold">
                       Time to Value
                     </div>
                   </div>
@@ -434,12 +434,12 @@ export default async function HomePage() {
             {/* 5. Enterprise CTA Banner */}
             {sectionVisibility.showCtaBanner !== false && (
               <section className="py-24 px-6 sm:px-10 lg:px-12 xl:px-16">
-                <div className="max-w-5xl xl:max-w-6xl 2xl:max-w-7xl mx-auto rounded-3xl bg-gradient-to-r from-slate-950 via-indigo-950 to-slate-900 border border-indigo-500/30 p-12 sm:p-16 text-center text-white shadow-2xl relative overflow-hidden">
+                <div className="max-w-5xl xl:max-w-6xl 2xl:max-w-7xl mx-auto rounded-3xl bg-gradient-to-r from-indigo-50 via-purple-50 to-indigo-50 border border-indigo-200 p-12 sm:p-16 text-center text-slate-900 shadow-xl relative overflow-hidden">
                   <div className="relative z-10 max-w-3xl mx-auto space-y-6">
-                    <h2 className="text-3xl md:text-5xl font-black tracking-tight leading-tight">
+                    <h2 className="text-3xl md:text-5xl font-black tracking-tight leading-tight text-slate-900">
                       Ready to Scale Your Enterprise Pipeline?
                     </h2>
-                    <p className="text-base sm:text-lg text-slate-300 max-w-2xl mx-auto leading-relaxed font-normal">
+                    <p className="text-base sm:text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed font-normal">
                       Book an executive growth diagnostic with our digital
                       marketing strategists. We analyze your customer
                       acquisition funnel and provide an actionable ROI roadmap.
@@ -447,7 +447,7 @@ export default async function HomePage() {
                     <div className="pt-4">
                       <Link
                         href="/contact"
-                        className="inline-block rounded-2xl bg-indigo-600 px-8 py-4 text-sm font-bold text-white shadow-xl shadow-indigo-600/40 hover:bg-indigo-500 transition transform hover:-translate-y-0.5"
+                        className="inline-block rounded-2xl bg-indigo-600 px-8 py-4 text-sm font-bold text-white shadow-xl shadow-indigo-600/30 hover:bg-indigo-700 transition transform hover:-translate-y-0.5"
                       >
                         Schedule Discovery Diagnostic
                       </Link>

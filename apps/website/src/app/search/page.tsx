@@ -64,7 +64,7 @@ export default function SearchPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col justify-between bg-slate-950 text-slate-100">
+    <div className="min-h-screen flex flex-col justify-between bg-white text-slate-900">
       <Header />
 
       <main className="flex-1 py-16 sm:py-24 px-6 sm:px-10 lg:px-12 xl:px-16 max-w-4xl mx-auto w-full space-y-10">

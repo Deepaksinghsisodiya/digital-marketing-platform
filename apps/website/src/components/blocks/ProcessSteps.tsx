@@ -96,17 +96,17 @@ export const ProcessSteps: React.FC<{ block: CmsBlock }> = ({ block }) => {
   ];
 
   return (
-    <section className="py-24 bg-slate-50 dark:bg-slate-900/60 px-6 sm:px-10 lg:px-12 xl:px-16 border-t border-slate-200/80 dark:border-slate-800">
+    <section className="py-24 bg-slate-50 px-6 sm:px-10 lg:px-12 xl:px-16 border-t border-slate-200">
       <div className="max-w-[1440px] mx-auto">
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-20">
-          <span className="text-xs font-bold text-indigo-700 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800 px-3 py-1 rounded-full uppercase tracking-widest inline-block mb-4">
+          <span className="text-xs font-bold text-indigo-700 bg-indigo-50 border border-indigo-200 px-3 py-1 rounded-full uppercase tracking-widest inline-block mb-4">
             Proven Execution Process
           </span>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 dark:text-white tracking-tight">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight">
             {title}
           </h2>
-          <p className="mt-4 text-base sm:text-lg text-slate-600 dark:text-slate-400">
+          <p className="mt-4 text-base sm:text-lg text-slate-600">
             {subtitle}
           </p>
         </div>
@@ -118,41 +118,41 @@ export const ProcessSteps: React.FC<{ block: CmsBlock }> = ({ block }) => {
             return (
               <div
                 key={step.number || idx}
-                className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-3xl p-8 shadow-sm hover:shadow-xl hover:border-indigo-400 dark:hover:border-indigo-500 transition-all duration-300 flex flex-col justify-between group relative overflow-hidden"
+                className="bg-white border border-slate-200 rounded-3xl p-8 shadow-sm hover:shadow-xl hover:border-indigo-400 transition-all duration-300 flex flex-col justify-between group relative overflow-hidden"
               >
                 {/* Step Top Accents */}
                 <div className="flex items-center justify-between mb-6">
-                  <div className="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-950/80 border border-indigo-100 dark:border-indigo-800 flex items-center justify-center text-indigo-600 dark:text-indigo-400 group-hover:bg-indigo-600 group-hover:text-white transition-colors duration-300">
+                  <div className="w-12 h-12 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-colors duration-300">
                     <Icon className="w-6 h-6" />
                   </div>
-                  <span className="text-2xl font-black text-slate-200 dark:text-slate-800 group-hover:text-indigo-200 dark:group-hover:text-indigo-900/60 transition-colors font-mono">
+                  <span className="text-2xl font-black text-slate-200 group-hover:text-indigo-200 transition-colors font-mono">
                     {step.number}
                   </span>
                 </div>
 
                 <div>
-                  <div className="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider mb-1.5">
+                  <div className="text-xs font-bold text-indigo-600 uppercase tracking-wider mb-1.5">
                     {step.timeline}
                   </div>
-                  <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-3 tracking-tight">
+                  <h3 className="text-lg font-bold text-slate-900 mb-3 tracking-tight">
                     {step.title}
                   </h3>
-                  <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed font-normal mb-6">
+                  <p className="text-sm text-slate-600 leading-relaxed font-normal mb-6">
                     {step.description}
                   </p>
                 </div>
 
                 {/* Deliverables Checklist */}
-                <div className="pt-6 border-t border-slate-100 dark:border-slate-800 space-y-2.5">
+                <div className="pt-6 border-t border-slate-100 space-y-2.5">
                   <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
                     Key Deliverables
                   </span>
                   {step.deliverables.map((deliv, dIdx) => (
                     <div
                       key={dIdx}
-                      className="flex items-start gap-2 text-xs text-slate-700 dark:text-slate-300"
+                      className="flex items-start gap-2 text-xs text-slate-700"
                     >
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-0.5" />
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
                       <span>{deliv}</span>
                     </div>
                   ))}

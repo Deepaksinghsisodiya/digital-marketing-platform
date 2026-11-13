@@ -47,24 +47,24 @@ export const TestimonialsBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
   ];
 
   return (
-    <section className="relative py-24 bg-slate-950 text-white overflow-hidden border-t border-slate-900">
+    <section className="relative py-24 bg-slate-50 text-slate-900 overflow-hidden border-t border-slate-200">
       {/* Background radial accent */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-indigo-600/10 blur-[140px] pointer-events-none rounded-full" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-indigo-100/50 blur-[140px] pointer-events-none rounded-full" />
 
       <div className="relative max-w-6xl xl:max-w-7xl 2xl:max-w-[1720px] mx-auto px-6 sm:px-10 lg:px-12">
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto space-y-4 mb-16">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-bold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
-            <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
+            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
             <span>Institutional Social Proof</span>
-            <span className="px-1.5 py-0.5 rounded text-[10px] bg-indigo-950 text-indigo-300 border border-indigo-800">
+            <span className="px-1.5 py-0.5 rounded text-[10px] bg-indigo-100 text-indigo-800 border border-indigo-200">
               Sample Data
             </span>
           </div>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-white leading-tight">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-slate-900 leading-tight">
             {sectionTitle}
           </h2>
-          <p className="text-base sm:text-lg text-slate-400 font-medium leading-relaxed">
+          <p className="text-base sm:text-lg text-slate-600 font-medium leading-relaxed">
             {sectionSubtitle}
           </p>
         </div>
@@ -74,7 +74,7 @@ export const TestimonialsBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
           {rawItems.map((item, idx) => (
             <div
               key={idx}
-              className="group relative rounded-3xl border border-slate-800/90 bg-slate-900/60 backdrop-blur-xl p-8 hover:border-indigo-500/50 hover:bg-slate-900/90 transition-all duration-300 flex flex-col justify-between shadow-xl shadow-slate-950/60"
+              className="group relative rounded-3xl border border-slate-200 bg-white p-8 hover:border-indigo-400 hover:shadow-xl transition-all duration-300 flex flex-col justify-between shadow-sm"
             >
               <div>
                 {/* 5-Star Rating Bar & Quote Icon */}
@@ -89,31 +89,31 @@ export const TestimonialsBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
                       ),
                     )}
                   </div>
-                  <Quote className="w-6 h-6 text-indigo-500/40 group-hover:text-indigo-400 transition-colors" />
+                  <Quote className="w-6 h-6 text-indigo-400 group-hover:text-indigo-600 transition-colors" />
                 </div>
 
                 {/* Quote Text */}
-                <p className="text-sm sm:text-base text-slate-300 leading-relaxed font-normal mb-8 italic">
+                <p className="text-sm sm:text-base text-slate-600 leading-relaxed font-normal mb-8 italic">
                   &ldquo;{item.quote}&rdquo;
                 </p>
               </div>
 
               {/* Author Dossier */}
-              <div className="border-t border-slate-800/80 pt-5 flex items-center justify-between">
+              <div className="border-t border-slate-100 pt-5 flex items-center justify-between">
                 <div>
-                  <div className="font-bold text-white text-sm">
+                  <div className="font-bold text-slate-900 text-sm">
                     {item.author}
                   </div>
-                  <div className="text-xs text-indigo-400 font-medium">
+                  <div className="text-xs text-indigo-600 font-medium">
                     {item.role}
                   </div>
-                  <div className="text-[11px] text-slate-400 font-medium">
+                  <div className="text-[11px] text-slate-500 font-medium">
                     {item.company}
                   </div>
                 </div>
 
-                <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 text-[10px] font-bold border border-emerald-500/20">
-                  <ShieldCheck className="w-3 h-3" />
+                <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-bold border border-emerald-200">
+                  <ShieldCheck className="w-3 h-3 text-emerald-600" />
                   <span>Verified Client</span>
                 </div>
               </div>

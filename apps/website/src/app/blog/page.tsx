@@ -48,7 +48,7 @@ export default async function BlogIndexPage() {
   const posts = await getPublishedPosts();
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100">
+    <div className="min-h-screen flex flex-col bg-white text-slate-900">
       <Header />
       <main className="flex-1 max-w-[1720px] 2xl:max-w-[1920px] mx-auto px-6 sm:px-10 lg:px-12 xl:px-16 py-16 w-full">
         <div className="max-w-3xl mb-12">

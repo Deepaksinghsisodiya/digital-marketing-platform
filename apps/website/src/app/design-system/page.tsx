@@ -30,7 +30,7 @@ export default function DesignSystemPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 py-16 px-6 sm:px-12 max-w-6xl mx-auto space-y-16">
+    <div className="min-h-screen bg-white text-slate-900 py-16 px-6 sm:px-12 max-w-6xl mx-auto space-y-16">
       <div className="border-b border-slate-800 pb-8">
         <Badge variant="sample">Dev Only Environment</Badge>
         <h1 className="text-4xl font-black tracking-tight text-white mt-4">

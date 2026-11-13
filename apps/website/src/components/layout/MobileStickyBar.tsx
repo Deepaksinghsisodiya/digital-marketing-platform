@@ -16,13 +16,13 @@ export const MobileStickyBar: React.FC<MobileStickyBarProps> = ({
   const cleanPhone = supportPhone.replace(/[^0-9+]/g, "");
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-40 lg:hidden bg-slate-950/95 backdrop-blur-xl border-t border-slate-800 p-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] shadow-2xl">
+    <div className="fixed bottom-0 left-0 right-0 z-40 lg:hidden bg-white/95 backdrop-blur-xl border-t border-slate-200 p-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] shadow-xl">
       <div className="grid grid-cols-3 gap-2">
         <a
           href={`tel:${cleanPhone}`}
-          className="flex flex-col items-center justify-center p-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-200 hover:text-white hover:bg-slate-850 active:scale-95 transition"
+          className="flex flex-col items-center justify-center p-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 hover:text-indigo-600 hover:bg-slate-100 active:scale-95 transition shadow-xs"
         >
-          <Phone className="w-4 h-4 text-emerald-400 mb-1" />
+          <Phone className="w-4 h-4 text-emerald-600 mb-1" />
           <span className="text-[10px] font-bold tracking-tight">Call Now</span>
         </a>
 
@@ -30,9 +30,9 @@ export const MobileStickyBar: React.FC<MobileStickyBarProps> = ({
           href={`https://wa.me/${cleanPhone.replace("+", "")}?text=Hi%20Nexora,%20I%20would%20like%20to%20learn%20more%20about%20your%20digital%20marketing%20services.`}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex flex-col items-center justify-center p-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-200 hover:text-white hover:bg-slate-850 active:scale-95 transition"
+          className="flex flex-col items-center justify-center p-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 hover:text-indigo-600 hover:bg-slate-100 active:scale-95 transition shadow-xs"
         >
-          <MessageSquare className="w-4 h-4 text-emerald-400 mb-1" />
+          <MessageSquare className="w-4 h-4 text-emerald-600 mb-1" />
           <span className="text-[10px] font-bold tracking-tight">WhatsApp</span>
         </a>
 

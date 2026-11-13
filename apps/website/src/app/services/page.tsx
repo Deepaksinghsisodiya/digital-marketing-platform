@@ -195,7 +195,7 @@ export default async function ServicesCatalogPage() {
   ]);
 
   return (
-    <div className="min-h-screen flex flex-col justify-between bg-slate-950 text-slate-100">
+    <div className="min-h-screen flex flex-col justify-between bg-white text-slate-900">
       <Header
         settings={siteSettings}
         currentRegionCode={region.code}

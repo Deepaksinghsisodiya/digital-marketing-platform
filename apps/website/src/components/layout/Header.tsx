@@ -234,7 +234,7 @@ export const Header: React.FC<HeaderProps> = ({
   ];
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-slate-800/80 bg-slate-950/85 backdrop-blur-xl transition-all">
+    <header className="sticky top-0 z-50 w-full border-b border-slate-200/90 bg-white/90 backdrop-blur-xl transition-all shadow-xs">
       {/* Announcement Bar (from SiteSettings) */}
       <AnnouncementBar announcementBarJson={settings?.announcementBarJson} />
 
@@ -246,7 +246,7 @@ export const Header: React.FC<HeaderProps> = ({
             <img
               src={logoUrl}
               alt={companyName}
-              className="w-10 h-10 object-contain rounded-xl bg-slate-900 border border-slate-800 p-1 group-hover:scale-105 transition-all duration-200"
+              className="w-10 h-10 object-contain rounded-xl bg-slate-50 border border-slate-200 p-1 group-hover:scale-105 transition-all duration-200 shadow-xs"
             />
           ) : (
             <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-purple-600 flex items-center justify-center text-white font-black text-xl shadow-lg shadow-indigo-600/35 group-hover:scale-105 transition-all">
@@ -255,14 +255,14 @@ export const Header: React.FC<HeaderProps> = ({
           )}
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-black text-lg tracking-tight text-white block leading-tight font-sans">
+              <span className="font-black text-lg tracking-tight text-slate-900 block leading-tight font-sans">
                 {companyName}
               </span>
-              <span className="hidden sm:inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-indigo-500/15 text-indigo-300 text-[10px] font-bold border border-indigo-500/30">
-                <ShieldCheck className="w-2.5 h-2.5 text-emerald-400" /> SOC2
+              <span className="hidden sm:inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-700 text-[10px] font-bold border border-indigo-200">
+                <ShieldCheck className="w-2.5 h-2.5 text-emerald-600" /> SOC2
               </span>
             </div>
-            <span className="text-[10px] uppercase font-bold tracking-widest text-indigo-400 block">
+            <span className="text-[10px] uppercase font-bold tracking-widest text-indigo-600 block">
               Digital Marketing Platform
             </span>
           </div>
@@ -278,7 +278,7 @@ export const Header: React.FC<HeaderProps> = ({
           >
             <button
               type="button"
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-sm font-semibold text-slate-300 hover:text-white hover:bg-slate-900 transition"
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-sm font-semibold text-slate-700 hover:text-indigo-600 hover:bg-slate-100 transition"
             >
               Services
               <ChevronDown className="w-3.5 h-3.5 text-slate-400 transition-transform duration-200" />
@@ -286,10 +286,10 @@ export const Header: React.FC<HeaderProps> = ({
 
             {/* Mega Menu Dropdown */}
             {activeMegaMenu === "services" && (
-              <div className="absolute top-full left-1/2 -translate-x-1/2 w-[850px] p-6 rounded-2xl bg-slate-900/95 backdrop-blur-2xl border border-slate-800 shadow-2xl grid grid-cols-3 gap-6 animate-in fade-in-0 zoom-in-95 duration-150">
+              <div className="absolute top-full left-1/2 -translate-x-1/2 w-[850px] p-6 rounded-2xl bg-white backdrop-blur-2xl border border-slate-200 shadow-2xl grid grid-cols-3 gap-6 animate-in fade-in-0 zoom-in-95 duration-150">
                 {servicesList.map((col, idx) => (
                   <div key={idx} className="space-y-3">
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-indigo-400 block px-2.5">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-indigo-600 block px-2.5">
                       {col.category}
                     </span>
                     <div className="space-y-1">
@@ -299,16 +299,16 @@ export const Header: React.FC<HeaderProps> = ({
                           <Link
                             key={itemIdx}
                             href={item.href}
-                            className="group flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-800/80 transition"
+                            className="group flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition"
                           >
-                            <div className="p-2 rounded-lg bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 group-hover:bg-indigo-600 group-hover:text-white transition shrink-0 mt-0.5">
+                            <div className="p-2 rounded-lg bg-indigo-50 text-indigo-600 border border-indigo-100 group-hover:bg-indigo-600 group-hover:text-white transition shrink-0 mt-0.5">
                               <Icon className="w-4 h-4" />
                             </div>
                             <div>
-                              <span className="text-xs font-bold text-white group-hover:text-indigo-300 transition block">
+                              <span className="text-xs font-bold text-slate-900 group-hover:text-indigo-600 transition block">
                                 {item.title}
                               </span>
-                              <span className="text-[11px] text-slate-400 line-clamp-1 block mt-0.5">
+                              <span className="text-[11px] text-slate-500 line-clamp-1 block mt-0.5">
                                 {item.desc}
                               </span>
                             </div>
@@ -318,11 +318,11 @@ export const Header: React.FC<HeaderProps> = ({
                     </div>
                   </div>
                 ))}
-                <div className="col-span-3 pt-4 border-t border-slate-800 flex items-center justify-between px-2 text-xs text-slate-400">
+                <div className="col-span-3 pt-4 border-t border-slate-100 flex items-center justify-between px-2 text-xs text-slate-500">
                   <span>Looking for full multi-channel managed delivery?</span>
                   <Link
                     href="/services"
-                    className="font-semibold text-indigo-400 hover:text-white transition flex items-center gap-1"
+                    className="font-semibold text-indigo-600 hover:text-indigo-700 transition flex items-center gap-1"
                   >
                     View all 12 services <ArrowRight className="w-3.5 h-3.5" />
                   </Link>
@@ -339,7 +339,7 @@ export const Header: React.FC<HeaderProps> = ({
           >
             <button
               type="button"
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-sm font-semibold text-slate-300 hover:text-white hover:bg-slate-900 transition"
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-sm font-semibold text-slate-700 hover:text-indigo-600 hover:bg-slate-100 transition"
             >
               Industries
               <ChevronDown className="w-3.5 h-3.5 text-slate-400 transition-transform duration-200" />
@@ -347,34 +347,34 @@ export const Header: React.FC<HeaderProps> = ({
 
             {/* Industries Dropdown */}
             {activeMegaMenu === "industries" && (
-              <div className="absolute top-full left-1/2 -translate-x-1/2 w-[720px] p-6 rounded-2xl bg-slate-900/95 backdrop-blur-2xl border border-slate-800 shadow-2xl grid grid-cols-2 gap-3 animate-in fade-in-0 zoom-in-95 duration-150">
+              <div className="absolute top-full left-1/2 -translate-x-1/2 w-[720px] p-6 rounded-2xl bg-white backdrop-blur-2xl border border-slate-200 shadow-2xl grid grid-cols-2 gap-3 animate-in fade-in-0 zoom-in-95 duration-150">
                 {industriesList.map((item, idx) => {
                   const Icon = item.icon;
                   return (
                     <Link
                       key={idx}
                       href={item.href}
-                      className="group flex items-start gap-3 p-3 rounded-xl hover:bg-slate-800/80 transition"
+                      className="group flex items-start gap-3 p-3 rounded-xl hover:bg-slate-50 transition"
                     >
-                      <div className="p-2 rounded-lg bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 group-hover:bg-cyan-500 group-hover:text-slate-950 transition shrink-0 mt-0.5">
+                      <div className="p-2 rounded-lg bg-indigo-50 text-indigo-600 border border-indigo-100 group-hover:bg-indigo-600 group-hover:text-white transition shrink-0 mt-0.5">
                         <Icon className="w-4 h-4" />
                       </div>
                       <div>
-                        <span className="text-xs font-bold text-white group-hover:text-cyan-300 transition block">
+                        <span className="text-xs font-bold text-slate-900 group-hover:text-indigo-600 transition block">
                           {item.title}
                         </span>
-                        <span className="text-[11px] text-slate-400 line-clamp-1 block mt-0.5">
+                        <span className="text-[11px] text-slate-500 line-clamp-1 block mt-0.5">
                           {item.desc}
                         </span>
                       </div>
                     </Link>
                   );
                 })}
-                <div className="col-span-2 pt-3 border-t border-slate-800 flex items-center justify-between px-2 text-xs text-slate-400">
+                <div className="col-span-2 pt-3 border-t border-slate-100 flex items-center justify-between px-2 text-xs text-slate-500">
                   <span>Custom ICP modeling for enterprise markets</span>
                   <Link
                     href="/industries"
-                    className="font-semibold text-cyan-400 hover:text-white transition flex items-center gap-1"
+                    className="font-semibold text-indigo-600 hover:text-indigo-700 transition flex items-center gap-1"
                   >
                     Explore vertical solutions{" "}
                     <ArrowRight className="w-3.5 h-3.5" />
@@ -387,31 +387,31 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Direct Nav Links */}
           <Link
             href="/case-studies"
-            className="px-3.5 py-2 rounded-lg text-sm font-semibold text-slate-300 hover:text-white hover:bg-slate-900 transition"
+            className="px-3.5 py-2 rounded-lg text-sm font-semibold text-slate-700 hover:text-indigo-600 hover:bg-slate-100 transition"
           >
             Case Studies
           </Link>
           <Link
             href="/pricing"
-            className="px-3.5 py-2 rounded-lg text-sm font-semibold text-slate-300 hover:text-white hover:bg-slate-900 transition"
+            className="px-3.5 py-2 rounded-lg text-sm font-semibold text-slate-700 hover:text-indigo-600 hover:bg-slate-100 transition"
           >
             Pricing
           </Link>
           <Link
             href="/about"
-            className="px-3.5 py-2 rounded-lg text-sm font-semibold text-slate-300 hover:text-white hover:bg-slate-900 transition"
+            className="px-3.5 py-2 rounded-lg text-sm font-semibold text-slate-700 hover:text-indigo-600 hover:bg-slate-100 transition"
           >
             About
           </Link>
           <Link
             href="/blog"
-            className="px-3.5 py-2 rounded-lg text-sm font-semibold text-slate-300 hover:text-white hover:bg-slate-900 transition"
+            className="px-3.5 py-2 rounded-lg text-sm font-semibold text-slate-700 hover:text-indigo-600 hover:bg-slate-100 transition"
           >
             Insights
           </Link>
           <Link
             href="/contact"
-            className="px-3.5 py-2 rounded-lg text-sm font-semibold text-slate-300 hover:text-white hover:bg-slate-900 transition"
+            className="px-3.5 py-2 rounded-lg text-sm font-semibold text-slate-700 hover:text-indigo-600 hover:bg-slate-100 transition"
           >
             Contact
           </Link>
@@ -423,12 +423,12 @@ export const Header: React.FC<HeaderProps> = ({
           <button
             type="button"
             onClick={() => setSearchOpen(true)}
-            className="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-400 hover:text-white hover:border-slate-700 transition text-xs"
+            className="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-600 hover:text-slate-900 hover:border-slate-300 transition text-xs shadow-xs"
             aria-label="Search platform"
           >
-            <Search className="w-4 h-4 text-indigo-400" />
+            <Search className="w-4 h-4 text-indigo-600" />
             <span className="hidden xl:inline">Search...</span>
-            <kbd className="hidden xl:inline-block px-1.5 py-0.5 rounded bg-slate-800 text-[10px] text-slate-400 font-mono border border-slate-700">
+            <kbd className="hidden xl:inline-block px-1.5 py-0.5 rounded bg-white text-[10px] text-slate-500 font-mono border border-slate-200 shadow-xs">
               ⌘K
             </kbd>
           </button>
@@ -450,19 +450,19 @@ export const Header: React.FC<HeaderProps> = ({
             type="button"
             onClick={() => setSearchOpen(true)}
             aria-label="Search"
-            className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:text-white"
+            className="p-2.5 rounded-xl bg-slate-100 border border-slate-200 text-slate-700 hover:text-slate-900"
           >
-            <Search className="w-4 h-4 text-indigo-400" />
+            <Search className="w-4 h-4 text-indigo-600" />
           </button>
 
           <button
             type="button"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             aria-label="Toggle Navigation Menu"
-            className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-white min-w-[44px] min-h-[44px] flex items-center justify-center"
+            className="p-2.5 rounded-xl bg-slate-100 border border-slate-200 text-slate-900 min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-slate-200 transition"
           >
             {mobileMenuOpen ? (
-              <X className="w-5 h-5 text-indigo-400" />
+              <X className="w-5 h-5 text-indigo-600" />
             ) : (
               <Menu className="w-5 h-5" />
             )}
@@ -472,59 +472,59 @@ export const Header: React.FC<HeaderProps> = ({
 
       {/* Mobile Drawer (Full-Height Overlay) */}
       {mobileMenuOpen && (
-        <div className="fixed inset-0 top-20 z-50 bg-slate-950/98 backdrop-blur-2xl overflow-y-auto px-6 py-8 flex flex-col justify-between border-t border-slate-800 animate-in fade-in-0 duration-200">
+        <div className="fixed inset-0 top-20 z-50 bg-white/98 backdrop-blur-2xl overflow-y-auto px-6 py-8 flex flex-col justify-between border-t border-slate-200 animate-in fade-in-0 duration-200">
           <div className="space-y-6">
             {/* Quick Links */}
             <div className="grid grid-cols-2 gap-3">
               <Link
                 href="/services"
-                className="p-3.5 rounded-xl bg-slate-900 border border-slate-800 text-center font-bold text-sm text-white hover:bg-slate-800 transition"
+                className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-center font-bold text-sm text-slate-900 hover:bg-slate-100 transition shadow-xs"
               >
                 12 Services
               </Link>
               <Link
                 href="/industries"
-                className="p-3.5 rounded-xl bg-slate-900 border border-slate-800 text-center font-bold text-sm text-white hover:bg-slate-800 transition"
+                className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-center font-bold text-sm text-slate-900 hover:bg-slate-100 transition shadow-xs"
               >
                 Industries
               </Link>
               <Link
                 href="/case-studies"
-                className="p-3.5 rounded-xl bg-slate-900 border border-slate-800 text-center font-bold text-sm text-white hover:bg-slate-800 transition"
+                className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-center font-bold text-sm text-slate-900 hover:bg-slate-100 transition shadow-xs"
               >
                 Case Studies
               </Link>
               <Link
                 href="/pricing"
-                className="p-3.5 rounded-xl bg-slate-900 border border-slate-800 text-center font-bold text-sm text-white hover:bg-slate-800 transition"
+                className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-center font-bold text-sm text-slate-900 hover:bg-slate-100 transition shadow-xs"
               >
                 Pricing Tiers
               </Link>
             </div>
 
             {/* Nav list */}
-            <nav className="space-y-1 border-t border-slate-800 pt-4">
+            <nav className="space-y-1 border-t border-slate-100 pt-4">
               <Link
                 href="/about"
-                className="block py-3 px-2 text-base font-semibold text-slate-200 hover:text-white border-b border-slate-900"
+                className="block py-3 px-2 text-base font-semibold text-slate-800 hover:text-indigo-600 border-b border-slate-100"
               >
                 About Us
               </Link>
               <Link
                 href="/blog"
-                className="block py-3 px-2 text-base font-semibold text-slate-200 hover:text-white border-b border-slate-900"
+                className="block py-3 px-2 text-base font-semibold text-slate-800 hover:text-indigo-600 border-b border-slate-100"
               >
                 Growth Insights & Playbooks
               </Link>
               <Link
                 href="/tools/roi-calculator"
-                className="block py-3 px-2 text-base font-semibold text-slate-200 hover:text-white border-b border-slate-900"
+                className="block py-3 px-2 text-base font-semibold text-slate-800 hover:text-indigo-600 border-b border-slate-100"
               >
                 Interactive ROI Calculator
               </Link>
               <Link
                 href="/contact"
-                className="block py-3 px-2 text-base font-semibold text-slate-200 hover:text-white border-b border-slate-900"
+                className="block py-3 px-2 text-base font-semibold text-slate-800 hover:text-indigo-600 border-b border-slate-100"
               >
                 Contact & Diagnostics
               </Link>
@@ -532,9 +532,9 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
 
           {/* Bottom Drawer Actions */}
-          <div className="pt-8 border-t border-slate-800 space-y-4">
+          <div className="pt-8 border-t border-slate-200 space-y-4">
             <div className="flex items-center justify-between">
-              <span className="text-xs text-slate-400 font-semibold">
+              <span className="text-xs text-slate-600 font-semibold">
                 Select Region:
               </span>
               <RegionSwitcher currentRegionCode={currentRegionCode} />

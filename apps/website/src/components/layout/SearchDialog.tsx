@@ -79,20 +79,20 @@ export const SearchDialog: React.FC<SearchDialogProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-xl p-0 overflow-hidden bg-slate-900 border-slate-800">
-        <DialogHeader className="p-4 border-b border-slate-800">
+      <DialogContent className="sm:max-w-xl p-0 overflow-hidden bg-white border-slate-200 shadow-2xl">
+        <DialogHeader className="p-4 border-b border-slate-100">
           <div className="flex items-center gap-3">
-            <Search className="w-5 h-5 text-indigo-400 shrink-0" />
+            <Search className="w-5 h-5 text-indigo-600 shrink-0" />
             <input
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search services, playbooks, guides, and pages..."
-              className="w-full bg-transparent text-white placeholder:text-slate-500 text-base focus:outline-none"
+              className="w-full bg-transparent text-slate-900 placeholder:text-slate-400 text-base focus:outline-none"
               autoFocus
             />
             {loading && (
-              <Loader2 className="w-4 h-4 text-indigo-400 animate-spin shrink-0" />
+              <Loader2 className="w-4 h-4 text-indigo-600 animate-spin shrink-0" />
             )}
           </div>
           <DialogTitle className="sr-only">Search Platform</DialogTitle>
@@ -105,9 +105,9 @@ export const SearchDialog: React.FC<SearchDialogProps> = ({
               insights.
             </div>
           ) : results.length === 0 && !loading ? (
-            <div className="py-8 text-center text-slate-400 text-sm">
+            <div className="py-8 text-center text-slate-500 text-sm">
               No results found for &ldquo;
-              <span className="text-white font-semibold">{query}</span>&rdquo;.
+              <span className="text-slate-900 font-semibold">{query}</span>&rdquo;.
             </div>
           ) : (
             results.map((res, idx) => (
@@ -115,10 +115,10 @@ export const SearchDialog: React.FC<SearchDialogProps> = ({
                 key={idx}
                 href={res.url}
                 onClick={() => onOpenChange(false)}
-                className="group flex items-start justify-between p-3 rounded-xl hover:bg-slate-800/80 transition-all border border-transparent hover:border-slate-700"
+                className="group flex items-start justify-between p-3 rounded-xl hover:bg-slate-50 transition-all border border-transparent hover:border-slate-200"
               >
                 <div className="flex items-start gap-3">
-                  <div className="p-2 rounded-lg bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 shrink-0 mt-0.5">
+                  <div className="p-2 rounded-lg bg-indigo-50 text-indigo-600 border border-indigo-100 shrink-0 mt-0.5">
                     {res.type === "Blog" ? (
                       <BookOpen className="w-4 h-4" />
                     ) : (
@@ -127,29 +127,29 @@ export const SearchDialog: React.FC<SearchDialogProps> = ({
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="font-semibold text-white text-sm group-hover:text-indigo-300 transition">
+                      <span className="font-semibold text-slate-900 text-sm group-hover:text-indigo-600 transition">
                         {res.title}
                       </span>
-                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700 font-mono">
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200 font-mono">
                         {res.type}
                       </span>
                     </div>
                     {res.description && (
-                      <p className="text-xs text-slate-400 line-clamp-1 mt-1">
+                      <p className="text-xs text-slate-500 line-clamp-1 mt-1">
                         {res.description}
                       </p>
                     )}
                   </div>
                 </div>
-                <ArrowRight className="w-4 h-4 text-slate-600 group-hover:text-indigo-400 transition shrink-0 ml-2 mt-1" />
+                <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-indigo-600 transition shrink-0 ml-2 mt-1" />
               </Link>
             ))
           )}
         </div>
 
-        <div className="px-4 py-2.5 bg-slate-950/60 border-t border-slate-800 flex items-center justify-between text-[11px] text-slate-500">
+        <div className="px-4 py-2.5 bg-slate-50 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
           <span>Navigate with mouse or touch</span>
-          <kbd className="px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 font-mono text-[10px] border border-slate-700">
+          <kbd className="px-1.5 py-0.5 rounded bg-white text-slate-600 font-mono text-[10px] border border-slate-200 shadow-xs">
             ESC to close
           </kbd>
         </div>

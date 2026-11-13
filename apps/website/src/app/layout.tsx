@@ -98,7 +98,7 @@ export default async function RootLayout({
     <html lang={locale} suppressHydrationWarning>
       <head />
       <body
-        className="min-h-screen antialiased bg-slate-950 text-slate-100 font-sans selection:bg-indigo-600 selection:text-white"
+        className="min-h-screen antialiased bg-white text-slate-900 font-sans selection:bg-indigo-600 selection:text-white"
         suppressHydrationWarning
       >
         {themeCss ? (

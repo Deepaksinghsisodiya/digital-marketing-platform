@@ -68,7 +68,7 @@ export default async function BlogPostPage({
     : [];
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100">
+    <div className="min-h-screen flex flex-col bg-white text-slate-900">
       <Header />
       <main className="flex-1 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 w-full">
         {/* Navigation & Breadcrumb */}

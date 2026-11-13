@@ -95,8 +95,8 @@ export const ComparisonTable: React.FC<{ block: CmsBlock }> = ({ block }) => {
       <span
         className={`text-sm font-semibold ${
           isNexora
-            ? "text-indigo-600 dark:text-indigo-400"
-            : "text-slate-600 dark:text-slate-300"
+            ? "text-indigo-600"
+            : "text-slate-700"
         }`}
       >
         {val}
@@ -105,64 +105,64 @@ export const ComparisonTable: React.FC<{ block: CmsBlock }> = ({ block }) => {
   };
 
   return (
-    <section className="py-24 bg-white dark:bg-slate-950 px-6 sm:px-10 lg:px-12 xl:px-16 border-t border-slate-100 dark:border-slate-800">
+    <section className="py-24 bg-white px-6 sm:px-10 lg:px-12 xl:px-16 border-t border-slate-200">
       <div className="max-w-[1440px] mx-auto">
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 text-xs font-bold uppercase tracking-wider mb-4">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-bold uppercase tracking-wider mb-4">
             <Sparkles className="w-3.5 h-3.5 text-indigo-500" />
             <span>Competitive Matrix</span>
-            <span className="px-1.5 py-0.5 rounded text-[10px] bg-indigo-200/60 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200">
+            <span className="px-1.5 py-0.5 rounded text-[10px] bg-indigo-100 text-indigo-800">
               Sample Comparison
             </span>
           </div>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 dark:text-white tracking-tight">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight">
             {title}
           </h2>
-          <p className="mt-4 text-base sm:text-lg text-slate-600 dark:text-slate-400">
+          <p className="mt-4 text-base sm:text-lg text-slate-600">
             {subtitle}
           </p>
         </div>
 
         {/* Table Card */}
-        <div className="overflow-x-auto rounded-3xl border border-slate-200 dark:border-slate-800 shadow-xl bg-white dark:bg-slate-900">
+        <div className="overflow-x-auto rounded-3xl border border-slate-200 shadow-xl bg-white">
           <table className="w-full text-left border-collapse min-w-[700px]">
             <thead>
-              <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/40">
+              <tr className="border-b border-slate-200 bg-slate-50/80">
                 <th className="py-6 px-6 text-sm font-bold text-slate-500 uppercase tracking-wider w-2/5">
                   Capability / Attribute
                 </th>
-                <th className="py-6 px-6 text-base font-extrabold text-indigo-600 dark:text-indigo-400 bg-indigo-50/50 dark:bg-indigo-950/30 border-x border-indigo-100 dark:border-indigo-900 w-1/5 text-center">
+                <th className="py-6 px-6 text-base font-extrabold text-indigo-600 bg-indigo-50/60 border-x border-indigo-100 w-1/5 text-center">
                   <span className="flex items-center justify-center gap-1.5">
                     <Sparkles className="w-4 h-4" />
                     Nexora Platform
                   </span>
                 </th>
-                <th className="py-6 px-6 text-sm font-bold text-slate-600 dark:text-slate-400 w-1/5 text-center">
+                <th className="py-6 px-6 text-sm font-bold text-slate-600 w-1/5 text-center">
                   Traditional Agency
                 </th>
-                <th className="py-6 px-6 text-sm font-bold text-slate-600 dark:text-slate-400 w-1/5 text-center">
+                <th className="py-6 px-6 text-sm font-bold text-slate-600 w-1/5 text-center">
                   In-House / Freelance
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80">
+            <tbody className="divide-y divide-slate-100">
               {rows.map((row, idx) => (
                 <tr
                   key={idx}
-                  className="hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition-colors"
+                  className="hover:bg-slate-50/70 transition-colors"
                 >
                   <td className="py-5 px-6">
-                    <span className="font-bold text-slate-900 dark:text-white text-sm block">
+                    <span className="font-bold text-slate-900 text-sm block">
                       {row.feature}
                     </span>
                     {row.category && (
-                      <span className="text-[11px] font-medium text-slate-400 uppercase tracking-wider">
+                      <span className="text-[11px] font-medium text-slate-500 uppercase tracking-wider">
                         {row.category}
                       </span>
                     )}
                   </td>
-                  <td className="py-5 px-6 text-center bg-indigo-50/30 dark:bg-indigo-950/20 border-x border-indigo-100/60 dark:border-indigo-900/40">
+                  <td className="py-5 px-6 text-center bg-indigo-50/30 border-x border-indigo-100/60">
                     {renderCell(row.nexora, true)}
                   </td>
                   <td className="py-5 px-6 text-center">

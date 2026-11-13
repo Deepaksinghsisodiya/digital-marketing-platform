@@ -61,7 +61,7 @@ export const Footer: React.FC<{ settings?: PublicSiteSettings | null }> = ({
   };
 
   return (
-    <footer className="border-t border-slate-800 bg-slate-950 text-slate-400 text-xs">
+    <footer className="border-t border-slate-200 bg-slate-50 text-slate-600 text-xs">
       <div className="max-w-[1720px] 2xl:max-w-[1920px] mx-auto px-6 sm:px-10 lg:px-12 xl:px-16 py-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-10">
         {/* Brand & Mission Column (Span 2) */}
         <div className="space-y-4 lg:col-span-2">
@@ -70,7 +70,7 @@ export const Footer: React.FC<{ settings?: PublicSiteSettings | null }> = ({
               <img
                 src={logoUrl}
                 alt={companyName}
-                className="w-10 h-10 object-contain rounded-xl bg-slate-900 border border-slate-800 p-1"
+                className="w-10 h-10 object-contain rounded-xl bg-white border border-slate-200 p-1 shadow-xs"
               />
             ) : (
               <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-pink-500 flex items-center justify-center text-white font-black text-lg shadow-md shadow-indigo-600/30">
@@ -78,38 +78,38 @@ export const Footer: React.FC<{ settings?: PublicSiteSettings | null }> = ({
               </div>
             )}
             <div>
-              <span className="font-black text-white text-base tracking-tight block">
+              <span className="font-black text-slate-900 text-base tracking-tight block">
                 {companyName}
               </span>
-              <span className="text-[10px] uppercase font-bold tracking-widest text-indigo-400">
+              <span className="text-[10px] uppercase font-bold tracking-widest text-indigo-600">
                 Digital Marketing Platform
               </span>
             </div>
           </div>
 
-          <p className="text-slate-400 text-xs leading-relaxed max-w-sm">
+          <p className="text-slate-600 text-xs leading-relaxed max-w-sm">
             Institutional digital marketing engine powering deterministic
             multi-touch attribution, commercial SEO, and high-velocity demand
             generation across global enterprise markets.
           </p>
 
           {/* System Status Pill */}
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900 border border-slate-800 text-[11px] text-slate-300">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="font-semibold text-white">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white border border-slate-200 text-[11px] text-slate-700 shadow-xs">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="font-semibold text-slate-900">
               All Systems Operational
             </span>
-            <span className="text-slate-500">&bull;</span>
-            <span className="text-slate-400">99.99% SLA Uptime</span>
+            <span className="text-slate-400">&bull;</span>
+            <span className="text-slate-600">99.99% SLA Uptime</span>
           </div>
 
           {/* Contact Details */}
-          <div className="space-y-1 text-slate-400 text-[11px] pt-2">
+          <div className="space-y-1 text-slate-600 text-[11px] pt-2">
             <div>
               <span className="text-slate-500">Inquiries:</span>{" "}
               <a
                 href={`mailto:${supportEmail}`}
-                className="text-slate-300 hover:text-white transition"
+                className="text-slate-800 hover:text-indigo-600 font-medium transition"
               >
                 {supportEmail}
               </a>
@@ -118,7 +118,7 @@ export const Footer: React.FC<{ settings?: PublicSiteSettings | null }> = ({
               <span className="text-slate-500">Phone:</span>{" "}
               <a
                 href={`tel:${supportPhone}`}
-                className="text-slate-300 hover:text-white transition"
+                className="text-slate-800 hover:text-indigo-600 font-medium transition"
               >
                 {supportPhone}
               </a>
@@ -129,14 +129,14 @@ export const Footer: React.FC<{ settings?: PublicSiteSettings | null }> = ({
 
         {/* Column 2: Digital Marketing Services */}
         <div>
-          <h4 className="text-xs font-bold uppercase tracking-wider text-white mb-4">
+          <h4 className="text-xs font-bold uppercase tracking-wider text-slate-900 mb-4">
             Services
           </h4>
-          <ul className="space-y-2.5 text-slate-400 font-medium">
+          <ul className="space-y-2.5 text-slate-600 font-medium">
             <li>
               <Link
                 href="/services/seo"
-                className="hover:text-white transition"
+                className="hover:text-indigo-600 transition"
               >
                 Enterprise SEO
               </Link>
@@ -144,7 +144,7 @@ export const Footer: React.FC<{ settings?: PublicSiteSettings | null }> = ({
             <li>
               <Link
                 href="/services/paid-ads"
-                className="hover:text-white transition"
+                className="hover:text-indigo-600 transition"
               >
                 Paid Ads (Google / Meta)
               </Link>
@@ -152,7 +152,7 @@ export const Footer: React.FC<{ settings?: PublicSiteSettings | null }> = ({
             <li>
               <Link
                 href="/services/web-design-development"
-                className="hover:text-white transition"
+                className="hover:text-indigo-600 transition"
               >
                 High-Speed Web Architecture
               </Link>
@@ -160,7 +160,7 @@ export const Footer: React.FC<{ settings?: PublicSiteSettings | null }> = ({
             <li>
               <Link
                 href="/services/cro"
-                className="hover:text-white transition"
+                className="hover:text-indigo-600 transition"
               >
                 Conversion Rate Optimization
               </Link>
@@ -168,7 +168,7 @@ export const Footer: React.FC<{ settings?: PublicSiteSettings | null }> = ({
             <li>
               <Link
                 href="/services/analytics-reporting"
-                className="hover:text-white transition"
+                className="hover:text-indigo-600 transition"
               >
                 Multi-Touch Attribution
               </Link>
@@ -176,7 +176,7 @@ export const Footer: React.FC<{ settings?: PublicSiteSettings | null }> = ({
             <li>
               <Link
                 href="/services"
-                className="font-semibold text-indigo-400 hover:text-indigo-300 transition flex items-center gap-1 mt-1"
+                className="font-semibold text-indigo-600 hover:text-indigo-800 transition flex items-center gap-1 mt-1"
               >
                 All 12 Services &rarr;
               </Link>
@@ -186,14 +186,14 @@ export const Footer: React.FC<{ settings?: PublicSiteSettings | null }> = ({
 
         {/* Column 3: Industry Verticals */}
         <div>
-          <h4 className="text-xs font-bold uppercase tracking-wider text-white mb-4">
+          <h4 className="text-xs font-bold uppercase tracking-wider text-slate-900 mb-4">
             Industries
           </h4>
-          <ul className="space-y-2.5 text-slate-400 font-medium">
+          <ul className="space-y-2.5 text-slate-600 font-medium">
             <li>
               <Link
                 href="/industries/saas"
-                className="hover:text-white transition"
+                className="hover:text-indigo-600 transition"
               >
                 SaaS & Cloud Platforms
               </Link>
@@ -201,7 +201,7 @@ export const Footer: React.FC<{ settings?: PublicSiteSettings | null }> = ({
             <li>
               <Link
                 href="/industries/ecommerce"
-                className="hover:text-white transition"
+                className="hover:text-indigo-600 transition"
               >
                 E-Commerce & DTC
               </Link>
@@ -209,7 +209,7 @@ export const Footer: React.FC<{ settings?: PublicSiteSettings | null }> = ({
             <li>
               <Link
                 href="/industries/healthcare"
-                className="hover:text-white transition"
+                className="hover:text-indigo-600 transition"
               >
                 Healthcare & Life Sciences
               </Link>
@@ -217,7 +217,7 @@ export const Footer: React.FC<{ settings?: PublicSiteSettings | null }> = ({
             <li>
               <Link
                 href="/industries/real-estate"
-                className="hover:text-white transition"
+                className="hover:text-indigo-600 transition"
               >
                 Real Estate Development
               </Link>
@@ -225,7 +225,7 @@ export const Footer: React.FC<{ settings?: PublicSiteSettings | null }> = ({
             <li>
               <Link
                 href="/industries/education"
-                className="hover:text-white transition"
+                className="hover:text-indigo-600 transition"
               >
                 Education & EdTech
               </Link>
@@ -233,7 +233,7 @@ export const Footer: React.FC<{ settings?: PublicSiteSettings | null }> = ({
             <li>
               <Link
                 href="/industries"
-                className="font-semibold text-cyan-400 hover:text-cyan-300 transition flex items-center gap-1 mt-1"
+                className="font-semibold text-indigo-600 hover:text-indigo-800 transition flex items-center gap-1 mt-1"
               >
                 All 8 Verticals &rarr;
               </Link>
@@ -243,45 +243,45 @@ export const Footer: React.FC<{ settings?: PublicSiteSettings | null }> = ({
 
         {/* Column 4: Platform & Playbooks */}
         <div>
-          <h4 className="text-xs font-bold uppercase tracking-wider text-white mb-4">
+          <h4 className="text-xs font-bold uppercase tracking-wider text-slate-900 mb-4">
             Growth & Tools
           </h4>
-          <ul className="space-y-2.5 text-slate-400 font-medium">
+          <ul className="space-y-2.5 text-slate-600 font-medium">
             <li>
               <Link
                 href="/case-studies"
-                className="hover:text-white transition"
+                className="hover:text-indigo-600 transition"
               >
                 Client Case Studies
               </Link>
             </li>
             <li>
-              <Link href="/pricing" className="hover:text-white transition">
+              <Link href="/pricing" className="hover:text-indigo-600 transition">
                 Transparent Pricing
               </Link>
             </li>
             <li>
               <Link
                 href="/tools/roi-calculator"
-                className="hover:text-white transition"
+                className="hover:text-indigo-600 transition"
               >
                 Interactive ROI Calculator
               </Link>
             </li>
             <li>
-              <Link href="/resources" className="hover:text-white transition">
+              <Link href="/resources" className="hover:text-indigo-600 transition">
                 Playbooks & Whitepapers
               </Link>
             </li>
             <li>
-              <Link href="/blog" className="hover:text-white transition">
+              <Link href="/blog" className="hover:text-indigo-600 transition">
                 Growth Insights Blog
               </Link>
             </li>
             <li>
               <Link
                 href="/book-a-call"
-                className="font-semibold text-indigo-400 hover:text-white transition flex items-center gap-1 mt-1"
+                className="font-semibold text-indigo-600 hover:text-indigo-800 transition flex items-center gap-1 mt-1"
               >
                 Schedule Diagnostic &rarr;
               </Link>
@@ -291,17 +291,17 @@ export const Footer: React.FC<{ settings?: PublicSiteSettings | null }> = ({
 
         {/* Column 5: Newsletter & Governance */}
         <div>
-          <h4 className="text-xs font-bold uppercase tracking-wider text-white mb-4">
+          <h4 className="text-xs font-bold uppercase tracking-wider text-slate-900 mb-4">
             Growth Intelligence
           </h4>
-          <p className="text-[11px] text-slate-400 leading-relaxed mb-3">
+          <p className="text-[11px] text-slate-600 leading-relaxed mb-3">
             Join 12,000+ digital leaders receiving our weekly attribution and
             conversion tear-downs.
           </p>
 
           {subscribed ? (
-            <div className="flex items-center gap-2 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-medium">
-              <CheckCircle2 className="w-4 h-4 shrink-0" />
+            <div className="flex items-center gap-2 p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-medium">
+              <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600" />
               Subscribed to Growth Briefing!
             </div>
           ) : (
@@ -313,12 +313,12 @@ export const Footer: React.FC<{ settings?: PublicSiteSettings | null }> = ({
                   onChange={(e) => setNewsletterEmail(e.target.value)}
                   placeholder="Enter business email"
                   required
-                  className="w-full h-10 rounded-xl bg-slate-900 border border-slate-800 px-3.5 pr-10 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-indigo-500 transition"
+                  className="w-full h-10 rounded-xl bg-white border border-slate-300 px-3.5 pr-10 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-indigo-500 transition shadow-xs"
                 />
                 <button
                   type="submit"
                   aria-label="Subscribe to newsletter"
-                  className="absolute right-1.5 top-1/2 -translate-y-1/2 p-1.5 rounded-lg bg-indigo-600 text-white hover:bg-indigo-500 transition"
+                  className="absolute right-1.5 top-1/2 -translate-y-1/2 p-1.5 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition"
                 >
                   <Send className="w-3.5 h-3.5" />
                 </button>
@@ -330,42 +330,42 @@ export const Footer: React.FC<{ settings?: PublicSiteSettings | null }> = ({
           )}
 
           {/* Cookie Preferences Link */}
-          <div className="pt-4 mt-4 border-t border-slate-900">
+          <div className="pt-4 mt-4 border-t border-slate-200">
             <button
               type="button"
               onClick={openCookiePreferences}
-              className="text-[11px] text-slate-400 hover:text-white transition underline underline-offset-2 flex items-center gap-1"
+              className="text-[11px] text-slate-600 hover:text-indigo-600 transition underline underline-offset-2 flex items-center gap-1 font-medium"
             >
-              <Lock className="w-3 h-3 text-indigo-400" /> Cookie Preferences
+              <Lock className="w-3 h-3 text-indigo-600" /> Cookie Preferences
             </button>
           </div>
         </div>
       </div>
 
       {/* Bottom Bar: Legal & Copyright */}
-      <div className="border-t border-slate-900 bg-slate-950/80">
+      <div className="border-t border-slate-200 bg-white">
         <div className="max-w-[1720px] 2xl:max-w-[1920px] mx-auto px-6 sm:px-10 lg:px-12 xl:px-16 py-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-slate-500">
           <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
             <span>
               &copy; {new Date().getFullYear()} {legalName}. All rights
               reserved.
             </span>
-            <Link href="/privacy" className="hover:text-slate-300 transition">
+            <Link href="/privacy" className="hover:text-slate-900 transition">
               Privacy Policy
             </Link>
-            <Link href="/terms" className="hover:text-slate-300 transition">
+            <Link href="/terms" className="hover:text-slate-900 transition">
               Terms of Service
             </Link>
-            <Link href="/cookies" className="hover:text-slate-300 transition">
+            <Link href="/cookies" className="hover:text-slate-900 transition">
               Cookie Policy
             </Link>
             <Link
               href="/accessibility"
-              className="hover:text-slate-300 transition"
+              className="hover:text-slate-900 transition"
             >
               Accessibility (WCAG AA)
             </Link>
-            <Link href="/trust" className="hover:text-slate-300 transition">
+            <Link href="/trust" className="hover:text-slate-900 transition">
               Security & Trust
             </Link>
           </div>
@@ -378,7 +378,7 @@ export const Footer: React.FC<{ settings?: PublicSiteSettings | null }> = ({
               type="button"
               onClick={scrollToTop}
               aria-label="Scroll back to top"
-              className="p-2 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 hover:text-white hover:border-slate-700 transition"
+              className="p-2 rounded-lg bg-slate-100 border border-slate-200 text-slate-600 hover:text-slate-900 hover:border-slate-300 transition"
             >
               <ArrowUp className="w-3.5 h-3.5" />
             </button>
