@@ -96,18 +96,17 @@ export default async function RootLayout({
 
   return (
     <html lang={locale} suppressHydrationWarning>
-      <head>
-        {themeCss && (
-          <style
-            id="nexora-theme-tokens"
-            dangerouslySetInnerHTML={{ __html: themeCss }}
-          />
-        )}
-      </head>
+      <head />
       <body
         className="min-h-screen antialiased bg-slate-950 text-slate-100 font-sans selection:bg-indigo-600 selection:text-white"
         suppressHydrationWarning
       >
+        {themeCss ? (
+          <style
+            id="nexora-theme-tokens"
+            dangerouslySetInnerHTML={{ __html: themeCss }}
+          />
+        ) : null}
         <NextIntlClientProvider locale={locale} messages={messages}>
           {children}
           <CookieBanner />
