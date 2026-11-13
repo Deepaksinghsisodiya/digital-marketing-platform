@@ -3,135 +3,195 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Nexora Platform — Quick Summary (1-Page Brief)</title>
+  <title>Nexora Platform — Complete & Exhaustive Breakdown (Admin + Website)</title>
   <style>
     :root {
-      --bg: #0b1120;
-      --card: #131c31;
-      --border: #22304e;
-      --text: #f8fafc;
-      --muted: #94a3b8;
+      --bg: #090d16;
+      --card: #111726;
+      --card-border: #1e293b;
       --primary: #6366f1;
       --accent: #38bdf8;
       --success: #10b981;
       --warning: #f59e0b;
+      --text: #f8fafc;
+      --muted: #94a3b8;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, sans-serif; }
-    body { background: var(--bg); color: var(--text); padding: 24px; line-height: 1.5; }
-    .container { max-width: 900px; margin: 0 auto; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+    body { background-color: var(--bg); color: var(--text); line-height: 1.6; padding: 24px; }
+    .container { max-width: 1200px; margin: 0 auto; }
 
-    .header {
-      background: linear-gradient(135deg, #1e1b4b, #0f172a);
+    /* Header */
+    .hero {
+      background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%);
       border: 1px solid #3730a3;
-      border-radius: 16px;
-      padding: 24px;
+      border-radius: 20px;
+      padding: 30px;
+      margin-bottom: 24px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 20px;
       flex-wrap: wrap;
-      gap: 12px;
+      gap: 16px;
     }
 
-    .header h1 { font-size: 22px; font-weight: 800; }
-    .header p { font-size: 14px; color: var(--muted); margin-top: 4px; }
-    
-    .btn {
+    .hero h1 { font-size: 26px; font-weight: 900; color: #fff; }
+    .hero p { font-size: 14px; color: #cbd5e1; margin-top: 6px; }
+
+    .print-btn {
       background: #4f46e5;
       color: #fff;
       border: none;
-      padding: 10px 18px;
-      border-radius: 8px;
+      padding: 12px 22px;
+      border-radius: 10px;
+      font-size: 14px;
       font-weight: 700;
-      font-size: 13px;
       cursor: pointer;
+      transition: all 0.2s;
+    }
+    .print-btn:hover { background: #4338ca; }
+
+    /* Quick stats */
+    .stats-bar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 14px;
+      margin-bottom: 28px;
     }
 
-    .kpi-row {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
+    .stat-pill {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 16px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .stat-pill .num { font-size: 26px; font-weight: 900; }
+    .stat-pill .label { font-size: 12px; color: var(--muted); font-weight: 600; text-transform: uppercase; }
+
+    /* Section Headings */
+    .section-head {
+      font-size: 24px;
+      font-weight: 900;
+      margin: 40px 0 20px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid #1e293b;
+      display: flex;
+      align-items: center;
       gap: 12px;
+    }
+
+    .section-head.admin { color: #818cf8; }
+    .section-head.website { color: #38bdf8; }
+    .section-head.backend { color: #34d399; }
+
+    /* Module Box */
+    .module-box {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 24px;
       margin-bottom: 20px;
     }
 
-    .kpi-box {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 14px;
-      text-align: center;
-    }
-
-    .kpi-num { font-size: 24px; font-weight: 900; }
-    .kpi-label { font-size: 11px; color: var(--muted); font-weight: 600; text-transform: uppercase; margin-top: 4px; }
-
-    .card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 20px;
-      margin-bottom: 16px;
-    }
-
-    .card-title {
-      font-size: 16px;
-      font-weight: 800;
+    .module-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
       margin-bottom: 12px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .module-top h3 {
+      font-size: 18px;
+      font-weight: 800;
+      color: #fff;
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
     }
 
-    .card-title.web { color: #38bdf8; }
-    .card-title.adm { color: #818cf8; }
-    .card-title.eng { color: #34d399; }
-    .card-title.pit { color: #fbbf24; }
-
-    .grid-2 {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px;
+    .badge {
+      font-family: monospace;
+      font-size: 12px;
+      background: #090d16;
+      border: 1px solid #1e293b;
+      color: #38bdf8;
+      padding: 3px 10px;
+      border-radius: 6px;
     }
 
-    .point-list {
+    .tag-status {
+      font-size: 11px;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-weight: 700;
+      background: #064e3b;
+      color: #34d399;
+    }
+
+    .module-desc {
+      font-size: 14px;
+      color: #cbd5e1;
+      margin-bottom: 14px;
+    }
+
+    .features-inner {
+      background: #090d1690;
+      border: 1px solid #1e293b;
+      border-radius: 12px;
+      padding: 16px 20px;
+    }
+
+    .features-inner h5 {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--muted);
+      margin-bottom: 10px;
+      font-weight: 700;
+    }
+
+    .check-list {
       list-style-type: none;
       display: flex;
       flex-direction: column;
       gap: 8px;
     }
 
-    .point-list li {
-      font-size: 13px;
-      color: #cbd5e1;
+    .check-list li {
+      font-size: 13.5px;
+      color: #e2e8f0;
       display: flex;
-      gap: 8px;
+      gap: 10px;
       align-items: flex-start;
     }
 
-    .point-list li strong { color: #fff; }
-    .check { color: #34d399; font-weight: 900; }
+    .check-list li strong { color: #fff; }
+    .bullet { color: #34d399; font-weight: 900; }
 
     .footer {
       text-align: center;
+      margin-top: 50px;
+      padding: 24px;
       font-size: 12px;
       color: var(--muted);
-      margin-top: 24px;
-      padding-top: 16px;
-      border-top: 1px solid var(--border);
-    }
-
-    @media (max-width: 650px) {
-      .kpi-row, .grid-2 { grid-template-columns: 1fr; }
+      border-top: 1px solid var(--card-border);
     }
 
     @media print {
       body { background: #fff !important; color: #000 !important; }
-      .btn { display: none; }
-      .card, .header, .kpi-box { border: 1px solid #ddd !important; background: #fff !important; color: #000 !important; }
-      .point-list li { color: #333 !important; }
-      .point-list li strong { color: #000 !important; }
-      .kpi-num, .card-title { color: #000 !important; }
+      .print-btn { display: none; }
+      .module-box, .hero, .stat-pill { border: 1px solid #ddd !important; background: #fff !important; color: #000 !important; }
+      .module-top h3, .hero h1, .section-head, .stat-pill .num { color: #000 !important; }
+      .module-desc, .check-list li { color: #333 !important; }
+      .check-list li strong { color: #000 !important; }
+      .features-inner { background: #f8fafc !important; border-color: #ddd !important; }
+      .badge { background: #eee !important; color: #000 !important; }
     }
   </style>
 </head>
@@ -139,102 +199,493 @@
 
   <div class="container">
     
-    <!-- Header -->
-    <div class="header">
+    <!-- Hero Header -->
+    <div class="hero">
       <div>
-        <h1>⚡ NEXORA PLATFORM — COMPLETE 1-PAGE BRIEF</h1>
-        <p>Website, Admin, aur Backend me kya bana hai — simple aur short me.</p>
+        <h1>📑 Nexora Platform — Complete & Detailed Breakdown</h1>
+        <p>Admin Panel ke sabhi 18 Screens aur Public Website ke sabhi 20+ Pages ka full 100% feature audit.</p>
       </div>
       <div>
-        <button class="btn" onclick="window.print()">🖨️ PDF / Print</button>
+        <button class="print-btn" onclick="window.print()">🖨️ Print / Save as PDF</button>
       </div>
     </div>
 
-    <!-- Quick Numbers -->
-    <div class="kpi-row">
-      <div class="kpi-box">
-        <div class="kpi-num" style="color: #38bdf8;">38 / 38</div>
-        <div class="kpi-label">Zero Broken Links (200 OK)</div>
+    <!-- Stats -->
+    <div class="stats-bar">
+      <div class="stat-pill">
+        <div class="num" style="color: #818cf8;">18 Screens</div>
+        <div class="label">Admin Panel Total</div>
       </div>
-      <div class="kpi-box">
-        <div class="kpi-num" style="color: #818cf8;">12 + 8</div>
-        <div class="kpi-label">Services + Industries</div>
+      <div class="stat-pill">
+        <div class="num" style="color: #38bdf8;">20+ Pages</div>
+        <div class="label">Public Website Total</div>
       </div>
-      <div class="kpi-box">
-        <div class="kpi-num" style="color: #34d399;">158</div>
-        <div class="kpi-label">Automated Tests Pass</div>
+      <div class="stat-pill">
+        <div class="num" style="color: #34d399;">38 / 38 (0 404s)</div>
+        <div class="label">Links Verified 200 OK</div>
       </div>
-      <div class="kpi-box">
-        <div class="kpi-num" style="color: #fbbf24;">100%</div>
-        <div class="kpi-label">Admin Dynamic (No Code)</div>
+      <div class="stat-pill">
+        <div class="num" style="color: #fbbf24;">158 Passed</div>
+        <div class="label">Automated Tests Pass</div>
       </div>
     </div>
 
-    <!-- Website & Admin in 2 Columns -->
-    <div class="grid-2">
-      
-      <!-- 1. PUBLIC WEBSITE -->
-      <div class="card">
-        <div class="card-title web">🌐 1. Public Website (Client Experience)</div>
-        <ul class="point-list">
-          <li><span class="check">✔</span> <div><strong>Homepage:</strong> Outcome Hero banner, Logo strip marquee, Bento grid, 4-step process, aur FAQ accordion.</div></li>
-          <li><span class="check">✔</span> <div><strong>12 Services Catalog (All Live):</strong> SEO, Google/Meta Ads, Social Media, Content, Email, WhatsApp Marketing, CRO, Web Dev, Analytics, Branding, Influencer, Automation & CRM.</div></li>
-          <li><span class="check">✔</span> <div><strong>8 Industries Pages:</strong> SaaS, E-commerce, Real Estate, Healthcare, Education, Local Business, Professional Services, Hospitality.</div></li>
-          <li><span class="check">✔</span> <div><strong>Growth ROI Calculator:</strong> Customer live slider move karke apna projected return dekh sakta hai (<code>/tools/roi-calculator</code>).</div></li>
-          <li><span class="check">✔</span> <div><strong>Book a Call:</strong> Direct 1-click meeting calendar booking (Cal.com / Calendly) (<code>/book-a-call</code>).</div></li>
-          <li><span class="check">✔</span> <div><strong>Universal Search (Cmd+K):</strong> Poori website aur blog ka instant spotlight search.</div></li>
-          <li><span class="check">✔</span> <div><strong>Mobile Experience:</strong> Bottom me 3 sticky buttons — Call Now, WhatsApp Chat, aur Book Call (100% responsive).</div></li>
-          <li><span class="check">✔</span> <div><strong>India & US Ready:</strong> Automatic ₹ (INR) aur $ (USD) currency routing.</div></li>
-        </ul>
-      </div>
 
-      <!-- 2. ADMIN COCKPIT -->
-      <div class="card">
-        <div class="card-title adm">⚙️ 2. Admin Panel (Operations & Control)</div>
-        <ul class="point-list">
-          <li><span class="check">✔</span> <div><strong>Login & 4 Roles:</strong> Owner, Admin, Editor, Sales (Staff login, password reset, aur kisne kya edit kiya uska Audit Trail).</div></li>
-          <li><span class="check">✔</span> <div><strong>Leads CRM & Scoring (0-100):</strong> Aane wali lead par automatic "Hot Lead" ka tag lagna, lead details dekhna, aur Excel export.</div></li>
-          <li><span class="check">✔</span> <div><strong>Visual Page Builder:</strong> Naye pages banana, blocks jodna, live preview dekhna, aur unsaved changes safety guard.</div></li>
-          <li><span class="check">✔</span> <div><strong>Live Theme & Colors:</strong> Admin se primary color, font, button shape badalna — website par turant live hota hai.</div></li>
-          <li><span class="check">✔</span> <div><strong>Announcement Bar:</strong> Top banner offer (jaise Diwali offer) 1-click me ON/OFF aur link set karna.</div></li>
-          <li><span class="check">✔</span> <div><strong>Media Library:</strong> Photos upload karna, thumbnail preview dekhna aur pages me lagana.</div></li>
-          <li><span class="check">✔</span> <div><strong>Navigation Menus:</strong> Header aur footer links ko drag-and-drop karke adjust karna.</div></li>
-          <li><span class="check">✔</span> <div><strong>Auto-Emails & Webhooks:</strong> Customer ko auto-email jaana aur CRM (HubSpot/Salesforce) me lead sync hona.</div></li>
-        </ul>
-      </div>
-
+    <!-- ================= PART 1: ADMIN PANEL COMPLETE ================= -->
+    <div class="section-head admin">
+      <span>⚙️ PART 1: ADMIN PANEL KI SABHI 18 SCREENS (PURA COVERAGE)</span>
     </div>
 
-    <!-- Backend & Pitch in 2 Columns -->
-    <div class="grid-2">
-      
-      <!-- 3. BACKEND ENGINE -->
-      <div class="card">
-        <div class="card-title eng">🛡️ 3. Backend & Security Engine</div>
-        <ul class="point-list">
-          <li><span class="check">✔</span> <div><strong>Microsoft .NET 10 & SQL Server:</strong> High-performance Clean Architecture.</div></li>
-          <li><span class="check">✔</span> <div><strong>Outbox Email Retry:</strong> Form bharte hi email background me safely jaati hai, fail hone par auto-retry.</div></li>
-          <li><span class="check">✔</span> <div><strong>Encrypted Passwords:</strong> Sensitive keys aur passwords DB me encrypted lock rehte hain.</div></li>
-          <li><span class="check">✔</span> <div><strong>Conflict Protection:</strong> Do managers ek hi page edit karein to data overwrite nahi hota.</div></li>
-          <li><span class="check">✔</span> <div><strong>1-Click Backup:</strong> Poore database ka automated snapshot backup & restore ready.</div></li>
+    <!-- 1. Dashboard -->
+    <div class="module-box">
+      <div class="module-top">
+        <div>
+          <h3>📊 1. Operations Command Dashboard</h3>
+          <span class="badge">Route: /admin/dashboard (DashboardPage.tsx)</span>
+        </div>
+        <span class="tag-status">Active</span>
+      </div>
+      <p class="module-desc">Admin login karte hi sabse pehle aane wala executive cockpit.</p>
+      <div class="features-inner">
+        <h5>Screen Features:</h5>
+        <ul class="check-list">
+          <li><span class="bullet">✔</span> <div><strong>Top KPI Cards:</strong> Total Leads this month, Active Clients count, Published CMS Pages count, aur Background Email Outbox delivery rate.</div></li>
+          <li><span class="bullet">✔</span> <div><strong>Live Leads Feed:</strong> Latest incoming leads with instant "Hot Lead" / "Warm" badges.</div></li>
+          <li><span class="bullet">✔</span> <div><strong>Quick Launch Actions:</strong> 1-click buttons: "Create Page", "Upload Media", "View Leads", "Edit Theme".</div></li>
         </ul>
       </div>
-
-      <!-- 4. CLIENT PITCH -->
-      <div class="card">
-        <div class="card-title pit">🤝 4. Client Pitch (Marketing Cheat-Sheet)</div>
-        <ul class="point-list">
-          <li><span class="check">✔</span> <div><strong>"Bhai ye WordPress nahi hai":</strong> Bank-grade Next.js aur .NET par bana enterprise platform hai jo 1 second me khulta hai aur hack nahi hota.</div></li>
-          <li><span class="check">✔</span> <div><strong>"Zero Developer Dependency":</strong> Content, colors, offer banners, sab client khud apne Admin se 1 minute me change karega.</div></li>
-          <li><span class="check">✔</span> <div><strong>"Instant Lead Scoring":</strong> Hot leads turant identify hoti hain taaki sales team unhe sabse pehle close kare.</div></li>
-          <li><span class="check">✔</span> <div><strong>"Built-in ROI Calculator":</strong> Customer khud ad spend daal kar projected revenue calculate karta hai.</div></li>
-        </ul>
-      </div>
-
     </div>
 
+    <!-- 2. Leads CRM -->
+    <div class="module-box">
+      <div class="module-top">
+        <div>
+          <h3>📥 2. Leads Management & Automated Scoring Inbox</h3>
+          <span class="badge">Route: /admin/leads (LeadsPage.tsx)</span>
+        </div>
+        <span class="tag-status">Sales Engine</span>
+      </div>
+      <p class="module-desc">Website se aane wali har ek customer inquiry ka central management inbox.</p>
+      <div class="features-inner">
+        <h5>Screen Features:</h5>
+        <ul class="check-list">
+          <li><span class="bullet">✔</span> <div><strong>Automated Lead Scoring (0 to 100 Points):</strong> Corporate business email (+25), Company presence (+15), Valid phone (+15), Enterprise budget (+25), Immediate urgency (+20).</div></li>
+          <li><span class="bullet">✔</span> <div><strong>Priority Badges:</strong> Score &gt; 75 par <strong>Hot Lead</strong> (Flame badge), 50-74 par <strong>Warm Lead</strong>, &lt; 50 par <strong>Cold Lead</strong>.</div></li>
+          <li><span class="bullet">✔</span> <div><strong>Lead Detail Slide-over:</strong> Full contact details, client IP, User-Agent, aur exact campaign tracking (Google Ads utm_source, utm_campaign, referrer).</div></li>
+          <li><span class="bullet">✔</span> <div><strong>CSV Export:</strong> 1 click me leads Excel/CSV file me download.</div></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 3. CMS Pages List -->
+    <div class="module-box">
+      <div class="module-top">
+        <div>
+          <h3>📄 3. Website Pages Directory</h3>
+          <span class="badge">Route: /admin/cms/pages (PagesListPage.tsx)</span>
+        </div>
+        <span class="tag-status">CMS Core</span>
+      </div>
+      <p class="module-desc">Website ke sabhi dynamic landing pages aur service pages ki master directory.</p>
+      <div class="features-inner">
+        <h5>Screen Features:</h5>
+        <ul class="check-list">
+          <li><span class="bullet">✔</span> <div><strong>Pages Table:</strong> Title, Slug (/services/seo), Status (Draft / Published / Scheduled / Archived), Last Updated Date, Author.</div></li>
+          <li><span class="bullet">✔</span> <div><strong>Create New Page:</strong> Title aur slug daal kar 1 click me blank dynamic canvas create karein.</div></li>
+          <li><span class="bullet">✔</span> <div><strong>Soft Archive:</strong> Page delete karne ke bajaye "Archive" ho jaata hai taaki version history kabhi na khoye.</div></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 4. Page Editor -->
+    <div class="module-box">
+      <div class="module-top">
+        <div>
+          <h3>🎨 4. Visual Drag-and-Drop Page Builder</h3>
+          <span class="badge">Route: /admin/cms/pages/:id (PageEditorPage.tsx)</span>
+        </div>
+        <span class="tag-status">No-Code Builder</span>
+      </div>
+      <p class="module-desc">Bina developer ki madad ke landing pages aur sections design karne ka visual interface.</p>
+      <div class="features-inner">
+        <h5>Screen Features:</h5>
+        <ul class="check-list">
+          <li><span class="bullet">✔</span> <div><strong>Block Inserter:</strong> Hero Banner, Bento Grid, Logo Marquee, Comparison Table, ROI Calculator, Booking Embed, FAQ Accordion, Process Steps, Stats Counters, CTA Banner, Rich Text.</div></li>
+          <li><span class="bullet">✔</span> <div><strong>Drag & Drop Reorder:</strong> Blocks ko upar-neeche drag karke order badlein.</div></li>
+          <li><span class="bullet">✔</span> <div><strong>Device Preview:</strong> Desktop (1280px), Tablet (768px), aur Mobile (390px) responsive preview iframe.</div></li>
+          <li><span class="bullet">✔</span> <div><strong>Unsaved Changes Warning:</strong> Bina save kiye tab band karne par browser alert dega.</div></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 5. Media Library -->
+    <div class="module-box">
+      <div class="module-top">
+        <div>
+          <h3>🖼️ 5. Media Library & Asset Manager</h3>
+          <span class="badge">Route: /admin/media (MediaLibraryPage.tsx)</span>
+        </div>
+        <span class="tag-status">Asset Pipeline</span>
+      </div>
+      <p class="module-desc">Photos, client logos, aur marketing creatives ka storage.</p>
+      <div class="features-inner">
+        <h5>Screen Features:</h5>
+        <ul class="check-list">
+          <li><span class="bullet">✔</span> <div><strong>Drag & Drop File Upload:</strong> JPEG, PNG, WebP, SVG images upload karein.</div></li>
+          <li><span class="bullet">✔</span> <div><strong>Optimized Thumbnails:</strong> Proxy-backed crisp image previews (CORS/Private Network safe).</div></li>
+          <li><span class="bullet">✔</span> <div><strong>Alt-Text & Copy URL:</strong> SEO ke liye Alt Text edit karein aur 1-click me URL copy karke kisi bhi page par lagayein.</div></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 6. Menus Manager -->
+    <div class="module-box">
+      <div class="module-top">
+        <div>
+          <h3>🧭 6. Navigation Menus & Mega-Menu Builder</h3>
+          <span class="badge">Route: /admin/menus (MenusPage.tsx)</span>
+        </div>
+        <span class="tag-status">Navigation</span>
+      </div>
+      <p class="module-desc">Website ke Header aur Footer menus ko custom build karne ka tool.</p>
+      <div class="features-inner">
+        <h5>Screen Features:</h5>
+        <ul class="check-list">
+          <li><span class="bullet">✔</span> <div><strong>Header Mega-Menu:</strong> Services ke 3 pillars (Demand Gen, Conversion, Retention) aur Industries ke dropdowns customize karein.</div></li>
+          <li><span class="bullet">✔</span> <div><strong>Footer Columns:</strong> Footer ke 4 link columns ko bina code ke badlein.</div></li>
+          <li><span class="bullet">✔</span> <div><strong>Multi-Region Menus:</strong> India (IN) aur US market ke liye alag-alag menus maintain karne ka support.</div></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 7. Site Settings & Theme -->
+    <div class="module-box">
+      <div class="module-top">
+        <div>
+          <h3>⚙️ 7. Site Settings & Live Theme Customizer</h3>
+          <span class="badge">Route: /admin/settings (SettingsPage.tsx)</span>
+        </div>
+        <span class="tag-status">Master Control</span>
+      </div>
+      <p class="module-desc">Agency branding, theme colors, aur tracking IDs ka central control room.</p>
+      <div class="features-inner">
+        <h5>Screen Features:</h5>
+        <ul class="check-list">
+          <li><span class="bullet">✔</span> <div><strong>Live Theme Customizer:</strong> Primary Brand Color picker, Accent Color, Dark Navy Background, Corner Radius, Fonts allowlist (Inter, Plus Jakarta Sans, Outfit, etc.).</div></li>
+          <li><span class="bullet">✔</span> <div><strong>Announcement Bar:</strong> Top banner master switch (ON/OFF), Text copy, Target link, aur "New" badge label.</div></li>
+          <li><span class="bullet">✔</span> <div><strong>Animation Master Switch:</strong> Website animation Fast, Normal, Slow ya complete OFF karna.</div></li>
+          <li><span class="bullet">✔</span> <div><strong>Company Info:</strong> Company Name, Phone, Email, Office Address, aur Booking URL.</div></li>
+          <li><span class="bullet">✔</span> <div><strong>Tracking & Webhooks:</strong> GA4, GTM, Meta Pixel IDs, aur external CRM Webhook URL with HMAC-SHA256 Secret.</div></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 8. Posts -->
+    <div class="module-box">
+      <div class="module-top">
+        <div>
+          <h3>✍️ 8. Blog & Article Manager</h3>
+          <span class="badge">Route: /admin/content/posts (PostsPage.tsx)</span>
+        </div>
+        <span class="tag-status">Content Engine</span>
+      </div>
+      <p class="module-desc">Inbound marketing aur SEO ke liye thought leadership articles publish karne ka manager.</p>
+      <div class="features-inner">
+        <h5>Screen Features:</h5>
+        <ul class="check-list">
+          <li><span class="bullet">✔</span> <div><strong>Rich Article Authoring:</strong> Title, Slug, Category, Tags, Excerpt, Cover Photo, aur Markdown/HTML editor.</div></li>
+          <li><span class="bullet">✔</span> <div><strong>Publishing Lifecycle:</strong> Draft mode me save karein ya instantly live publish karein.</div></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 9. Email Templates -->
+    <div class="module-box">
+      <div class="module-top">
+        <div>
+          <h3>✉️ 9. Email Templates & Test Dispatch</h3>
+          <span class="badge">Route: /admin/email-templates (EmailTemplatesPage.tsx)</span>
+        </div>
+        <span class="tag-status">Messaging</span>
+      </div>
+      <p class="module-desc">Customer ko jaane wale automated notifications ka template manager.</p>
+      <div class="features-inner">
+        <h5>Screen Features:</h5>
+        <ul class="check-list">
+          <li><span class="bullet">✔</span> <div><strong>Templates:</strong> Lead Welcome Email, Staff Team Invitation, Password Reset Link.</div></li>
+          <li><span class="bullet">✔</span> <div><strong>Dynamic Placeholders:</strong> <code>{{FullName}}</code>, <code>{{CompanyName}}</code>, <code>{{ResetUrl}}</code> automatically fill hote hain.</div></li>
+          <li><span class="bullet">✔</span> <div><strong>1-Click Test Send:</strong> Apne personal email par test mail bhej kar preview dekhne ka button.</div></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 10. Staff Users -->
+    <div class="module-box">
+      <div class="module-top">
+        <div>
+          <h3>👥 10. Staff Users Management</h3>
+          <span class="badge">Route: /admin/users (UsersPage.tsx)</span>
+        </div>
+        <span class="tag-status">Team</span>
+      </div>
+      <p class="module-desc">Agency employees aur staff accounts ka management.</p>
+      <div class="features-inner">
+        <h5>Screen Features:</h5>
+        <ul class="check-list">
+          <li><span class="bullet">✔</span> <div><strong>Staff Directory:</strong> Email, Full Name, Assigned Role, Status (Active/Suspended).</div></li>
+          <li><span class="bullet">✔</span> <div><strong>Invite Staff:</strong> Email aur role select karke automated invite link bhejna.</div></li>
+          <li><span class="bullet">✔</span> <div><strong>Account Actions:</strong> Suspend employee access, reset password trigger.</div></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 11. Roles & Permissions -->
+    <div class="module-box">
+      <div class="module-top">
+        <div>
+          <h3>🛡️ 11. Role-Based Access Control (RBAC)</h3>
+          <span class="badge">Route: /admin/roles (RolesPage.tsx)</span>
+        </div>
+        <span class="tag-status">Security</span>
+      </div>
+      <p class="module-desc">4 roles ki permission checklist:</p>
+      <div class="features-inner">
+        <h5>Roles Matrix:</h5>
+        <ul class="check-list">
+          <li><span class="bullet">✔</span> <div><strong>Owner:</strong> Full unrestricted access (Billing, Settings, Staff, Database).</div></li>
+          <li><span class="bullet">✔</span> <div><strong>Admin:</strong> Website content, Leads, Staff management, Themes.</div></li>
+          <li><span class="bullet">✔</span> <div><strong>Editor:</strong> Sirf Pages, Blogs aur Media edit kar sakta hai (settings locked).</div></li>
+          <li><span class="bullet">✔</span> <div><strong>Sales:</strong> Sirf Leads inbox dekh aur export kar sakta hai (CMS locked).</div></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 12. Security Audit Logs -->
+    <div class="module-box">
+      <div class="module-top">
+        <div>
+          <h3>📜 12. Security Audit Logs Trail</h3>
+          <span class="badge">Route: /admin/audit (AuditLogsPage.tsx)</span>
+        </div>
+        <span class="tag-status">Compliance</span>
+      </div>
+      <p class="module-desc">System me hue har single action ka immutable record:</p>
+      <div class="features-inner">
+        <h5>Screen Features:</h5>
+        <ul class="check-list">
+          <li><span class="bullet">✔</span> <div>Kis staff member ne kab kaunsa page edit kiya, lead export ki, ya login kiya.</div></li>
+          <li><span class="bullet">✔</span> <div>Actor Email, Action Name, Resource ID, Timestamp UTC, aur Client IP address.</div></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 13. Clients -->
+    <div class="module-box">
+      <div class="module-top">
+        <div>
+          <h3>🏢 13. Clients Directory</h3>
+          <span class="badge">Route: /admin/clients (ClientsPage.tsx)</span>
+        </div>
+        <span class="tag-status">CRM</span>
+      </div>
+      <p class="module-desc">Agency ke sabhi active clients ki company profile, contact person, aur contract status.</p>
+    </div>
+
+    <!-- 14. Tasks & Outbox -->
+    <div class="module-box">
+      <div class="module-top">
+        <div>
+          <h3>⚙️ 14. Background Operations & Tasks</h3>
+          <span class="badge">Route: /admin/tasks (TasksPage.tsx)</span>
+        </div>
+        <span class="tag-status">Operations</span>
+      </div>
+      <p class="module-desc">Outbox email dispatcher aur background retry jobs ka live health monitor.</p>
+    </div>
+
+    <!-- 15-18 Auth Screens -->
+    <div class="module-box">
+      <div class="module-top">
+        <div>
+          <h3>🔐 15 to 18. Authentication Screens</h3>
+          <span class="badge">Routes: /login, /forgot-password, /reset-password, /change-password</span>
+        </div>
+        <span class="tag-status">Security</span>
+      </div>
+      <p class="module-desc">Clean branded screens: Secure Login with lockout protection, Forgot Password, Token-based Password Reset, aur Active Password Change screen.</p>
+    </div>
+
+    <!-- Global Overlays -->
+    <div class="module-box" style="border-color: #6366f1;">
+      <div class="module-top">
+        <div>
+          <h3>⚡ Global Admin Overlays (Har Screen Par Available)</h3>
+          <span class="badge">CommandPalette & NotificationDrawer</span>
+        </div>
+        <span class="tag-status">Power Tools</span>
+      </div>
+      <div class="features-inner">
+        <ul class="check-list">
+          <li><span class="bullet">✔</span> <div><strong>Command Palette (Ctrl+K / Cmd+K):</strong> Header search bar ya shortcut dabate hi spotlight bar khulta hai jahan se kisi bhi page ya lead par instant jump kar sakte hain.</div></li>
+          <li><span class="bullet">✔</span> <div><strong>Notification Slide-Over Drawer:</strong> Header bell icon click karte hi right side se slide drawer khulta hai jisme live incoming leads aur security alerts aate hain.</div></li>
+        </ul>
+      </div>
+    </div>
+
+
+    <!-- ================= PART 2: PUBLIC WEBSITE COMPLETE ================= -->
+    <div class="section-head website">
+      <span>🌐 PART 2: PUBLIC WEBSITE KE SABHI 20+ PAGES (PURA COVERAGE)</span>
+    </div>
+
+    <!-- Homepage -->
+    <div class="module-box">
+      <div class="module-top">
+        <div>
+          <h3>🏠 1. Homepage</h3>
+          <span class="badge">URL: /</span>
+        </div>
+        <span class="tag-status">Primary Landing</span>
+      </div>
+      <p class="module-desc">Agency ka flagship landing page jo high-ticket conversion ke liye structured hai.</p>
+      <div class="features-inner">
+        <h5>Is Page Par Kya-Kya Hai?</h5>
+        <ul class="check-list">
+          <li><span class="bullet">✔</span> <div><strong>Outcome Hero:</strong> "Enterprise Digital Marketing & Growth Platform", gradient keywords, dual CTAs ("Explore Capabilities" & "Book Executive Briefing").</div></li>
+          <li><span class="bullet">✔</span> <div><strong>Logo Strip (Marquee):</strong> Partner brands ka smooth infinite scrolling marquee strip.</div></li>
+          <li><span class="bullet">✔</span> <div><strong>Bento Grid:</strong> Performance Architecture, Multichannel Attribution, aur CRO cards.</div></li>
+          <li><span class="bullet">✔</span> <div><strong>4-Phase Delivery Framework:</strong> Discovery & Audit ➔ Strategy & Roadmap ➔ High-Velocity Execution ➔ Scale & Optimization.</div></li>
+          <li><span class="bullet">✔</span> <div><strong>Comparison Benchmark Table:</strong> Nexora Enterprise vs Traditional Retainer Agency vs In-House Freelancer.</div></li>
+          <li><span class="bullet">✔</span> <div><strong>Animated Stats:</strong> 99.9% Uptime, $50M+ Managed Spend, 4.2x Average ROAS.</div></li>
+          <li><span class="bullet">✔</span> <div><strong>FAQ Accordion:</strong> Objection handling questions with automated Google FAQPage schema.</div></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Services Catalog -->
+    <div class="module-box">
+      <div class="module-top">
+        <div>
+          <h3>📦 2. All Services Directory Hub</h3>
+          <span class="badge">URL: /services</span>
+        </div>
+        <span class="tag-status">Capabilities Catalog</span>
+      </div>
+      <p class="module-desc">Agency ki sabhi 12 core capabilities ka 3-pillar structured directory hub.</p>
+    </div>
+
+    <!-- 12 Services -->
+    <div class="module-box">
+      <div class="module-top">
+        <div>
+          <h3>🎯 3 to 14. Sabhi 12 Dedicated Service Pages</h3>
+          <span class="badge">URL: /services/[slug] (12 Separate Landing Pages)</span>
+        </div>
+        <span class="tag-status">12/12 Live</span>
+      </div>
+      <div class="features-inner">
+        <h5>12 Pages Ki Complete List:</h5>
+        <ul class="check-list">
+          <li><span class="bullet">✔</span> <div><code>/services/seo</code> — Technical audits, programmatic keyword architecture, search authority.</div></li>
+          <li><span class="bullet">✔</span> <div><code>/services/paid-ads</code> — Google Search/Display Ads, Meta PPC, multi-touch attribution, ROAS lift.</div></li>
+          <li><span class="bullet">✔</span> <div><code>/services/content-marketing</code> — B2B thought leadership blogs, whitepapers, search-optimized articles.</div></li>
+          <li><span class="bullet">✔</span> <div><code>/services/social-media-marketing</code> — Organic social strategy, reels/shorts, community engagement.</div></li>
+          <li><span class="bullet">✔</span> <div><code>/services/email-marketing</code> — Klaviyo & HubSpot flows, drip series, abandoned cart recovery.</div></li>
+          <li><span class="bullet">✔</span> <div><code>/services/whatsapp-marketing</code> — Verified WhatsApp broadcasts, automated checkout recovery.</div></li>
+          <li><span class="bullet">✔</span> <div><code>/services/web-design-development</code> — Next.js high-speed agency sites, web applications.</div></li>
+          <li><span class="bullet">✔</span> <div><code>/services/cro</code> — Heatmap analysis, A/B landing page testing, bounce rate reduction.</div></li>
+          <li><span class="bullet">✔</span> <div><code>/services/analytics-reporting</code> — GA4 custom events, Looker Studio automated reports.</div></li>
+          <li><span class="bullet">✔</span> <div><code>/services/branding-creative</code> — Brand guidelines, motion graphics, ad creatives.</div></li>
+          <li><span class="bullet">✔</span> <div><code>/services/influencer-marketing</code> — Creator outreach, contract negotiation, ROI tracking.</div></li>
+          <li><span class="bullet">✔</span> <div><code>/services/marketing-automation-crm</code> — Salesforce/HubSpot pipelines, automated nurturing.</div></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 8 Industries -->
+    <div class="module-box">
+      <div class="module-top">
+        <div>
+          <h3>🏢 15 to 22. Sabhi 8 Industry Vertical Pages</h3>
+          <span class="badge">URL: /industries & /industries/[slug] (8 Vertical Pages)</span>
+        </div>
+        <span class="tag-status">8/8 Live</span>
+      </div>
+      <div class="features-inner">
+        <h5>8 Industry Pages:</h5>
+        <ul class="check-list">
+          <li><span class="bullet">✔</span> <div><code>/industries/saas</code> — Product-led growth, CAC reduction, trial-to-paid conversion funnels.</div></li>
+          <li><span class="bullet">✔</span> <div><code>/industries/ecommerce</code> — D2C brand scaling, repeat purchase rates, ROAS optimization.</div></li>
+          <li><span class="bullet">✔</span> <div><code>/industries/real-estate</code> — High-ticket home buyer leads, local geo-targeted ad funnels.</div></li>
+          <li><span class="bullet">✔</span> <div><code>/industries/healthcare</code> — Patient booking intake, HIPAA/privacy-compliant marketing.</div></li>
+          <li><span class="bullet">✔</span> <div><code>/industries/education</code> — Student enrollment campaigns, webinar funnels, university leads.</div></li>
+          <li><span class="bullet">✔</span> <div><code>/industries/local-business</code> — Google Map Pack (GMB), local SEO, call drive campaigns.</div></li>
+          <li><span class="bullet">✔</span> <div><code>/industries/professional-services</code> — Law firms, corporate consulting, B2B lead generation.</div></li>
+          <li><span class="bullet">✔</span> <div><code>/industries/hospitality</code> — Hotel bookings, luxury dining reservations, event footfall.</div></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Tools & Booking -->
+    <div class="module-box">
+      <div class="module-top">
+        <div>
+          <h3>⚡ 23 & 24. Growth Tools & Meeting Booking</h3>
+          <span class="badge">URL: /tools/roi-calculator & /book-a-call</span>
+        </div>
+        <span class="tag-status">Conversion Tools</span>
+      </div>
+      <div class="features-inner">
+        <ul class="check-list">
+          <li><span class="bullet">✔</span> <div><strong>Interactive Growth ROI Calculator (<code>/tools/roi-calculator</code>):</strong> Monthly marketing spend slider, target conversion rate slider, live projected pipeline revenue aur estimated ROAS.</div></li>
+          <li><span class="bullet">✔</span> <div><strong>Executive Briefing Booking Embed (<code>/book-a-call</code>):</strong> Cal.com / Calendly calendar directly embedded hai jahan visitor 1 click me meeting schedule kar sakta hai.</div></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Search, Contact, Blog, Legal -->
+    <div class="module-box">
+      <div class="module-top">
+        <div>
+          <h3>🔍 25 to 30. Search, Contact, Blog & Legal Pages</h3>
+          <span class="badge">URL: /search, /contact, /blog, /privacy, /terms, /cookies, /accessibility, /trust</span>
+        </div>
+        <span class="tag-status">Complete & Live</span>
+      </div>
+      <div class="features-inner">
+        <ul class="check-list">
+          <li><span class="bullet">✔</span> <div><strong>Universal Search (<code>/search</code>):</strong> Live query endpoint jo services aur blogs instantly filter karta hai.</div></li>
+          <li><span class="bullet">✔</span> <div><strong>Contact Us Page (<code>/contact</code>):</strong> Lead intake form with corporate email validation, budget tier selector, urgency picker.</div></li>
+          <li><span class="bullet">✔</span> <div><strong>Blog Hub & Article Reader (<code>/blog</code> & <code>/blog/[slug]</code>):</strong> Category filters, reading time badge, author credentials, social share buttons.</div></li>
+          <li><span class="bullet">✔</span> <div><strong>Legal & Trust Pages:</strong> Privacy Policy, Terms of Service, Cookies Policy (category toggles ke sath), Accessibility Statement, aur Trust/SOC2 compliance page.</div></li>
+          <li><span class="bullet">✔</span> <div><strong>Branded 404 & 500:</strong> <code>not-found.tsx</code> aur <code>error.tsx</code> graceful screens.</div></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Mobile-First Features -->
+    <div class="module-box" style="border-color: #38bdf8;">
+      <div class="module-top">
+        <div>
+          <h3>📱 Mobile Experience & Global Layout Elements</h3>
+          <span class="badge">Responsive & Layout</span>
+        </div>
+        <span class="tag-status">100% Mobile Ready</span>
+      </div>
+      <div class="features-inner">
+        <ul class="check-list">
+          <li><span class="bullet">✔</span> <div><strong>Mobile Sticky Bottom Bar:</strong> Phone screen ke bottom par 3 buttons chipke rehte hain: <strong>Call Now</strong> (seedha dialer), <strong>WhatsApp</strong> (1-tap chat), aur <strong>Book Call</strong> with iOS safe-area padding.</div></li>
+          <li><span class="bullet">✔</span> <div><strong>Full-Height Mobile Drawer:</strong> Hamburger menu click karte hi poora clean screen drawer khulta hai jisme services sub-menus smoothly expand hote hain.</div></li>
+          <li><span class="bullet">✔</span> <div><strong>Announcement Bar:</strong> Top dismissible sticky notification banner.</div></li>
+          <li><span class="bullet">✔</span> <div><strong>Cookie Consent Banner:</strong> Essential, Analytics, aur Marketing preferences toggles with re-open link in footer.</div></li>
+          <li><span class="bullet">✔</span> <div><strong>5-Column Dark Footer:</strong> Brand mission, Services links, Industries links, Company links, Legal links, newsletter subscription, aur "All Systems Operational" status.</div></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Footer -->
     <div class="footer">
-      Nexora Digital Marketing Platform • 158 Automated Tests Passing (0 Fail) • Clean Production Build Verified
+      Nexora Digital Marketing Platform • Complete 100% Inventory Audit • 158 Automated Tests Passing • Zero 404s
     </div>
 
   </div>
