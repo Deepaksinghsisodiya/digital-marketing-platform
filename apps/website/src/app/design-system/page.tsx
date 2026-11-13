@@ -142,19 +142,19 @@ export default function DesignSystemPage() {
             </TabsList>
             <TabsContent
               value="strategy"
-              className="p-4 rounded-xl bg-slate-900 border border-slate-800 text-sm text-slate-300"
+              className="p-4 rounded-xl bg-slate-50 border border-slate-200 text-sm text-slate-700"
             >
               High-intent audience modeling and commercial ICP mapping.
             </TabsContent>
             <TabsContent
               value="execution"
-              className="p-4 rounded-xl bg-slate-900 border border-slate-800 text-sm text-slate-300"
+              className="p-4 rounded-xl bg-slate-50 border border-slate-200 text-sm text-slate-700"
             >
               Multi-channel programmatic deployment and split-testing.
             </TabsContent>
             <TabsContent
               value="attribution"
-              className="p-4 rounded-xl bg-slate-900 border border-slate-800 text-sm text-slate-300"
+              className="p-4 rounded-xl bg-slate-50 border border-slate-200 text-sm text-slate-700"
             >
               Deterministic server-side multi-touch conversion tracking.
             </TabsContent>
@@ -198,7 +198,7 @@ export default function DesignSystemPage() {
       {/* 6. Marquee */}
       <section className="space-y-6">
         <h2 className="text-2xl font-bold text-white">Infinite Marquee</h2>
-        <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-4">
+        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
           <Marquee speed="normal">
             {[
               "Acme Corp",

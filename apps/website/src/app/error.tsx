@@ -35,7 +35,7 @@ export default function ErrorPage({
       </p>
 
       {error.digest && (
-        <code className="mt-4 px-3 py-1 rounded bg-slate-900 border border-slate-800 text-[11px] font-mono text-slate-400">
+        <code className="mt-4 px-3 py-1 rounded bg-slate-100 border border-slate-200 text-[11px] font-mono text-slate-600">
           Digest: {error.digest}
         </code>
       )}

@@ -101,21 +101,21 @@ export default async function ContactPage() {
               </div>
 
               {/* Testimonial Quote */}
-              <div className="p-6 rounded-3xl bg-slate-900 text-white shadow-xl space-y-4">
-                <p className="text-xs sm:text-sm text-slate-300 italic leading-relaxed">
+              <div className="p-6 rounded-3xl bg-slate-50 border border-slate-200 text-slate-900 shadow-sm space-y-4">
+                <p className="text-xs sm:text-sm text-slate-600 italic leading-relaxed">
                   &ldquo;Nexora restructured our commercial demand generation
                   architecture across both US and India markets within 3 weeks.
                   Pipeline predictability increased 340%.&rdquo;
                 </p>
-                <div className="flex items-center gap-3 pt-2 border-t border-slate-800">
-                  <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center font-black text-xs">
+                <div className="flex items-center gap-3 pt-2 border-t border-slate-200">
+                  <div className="w-9 h-9 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 flex items-center justify-center font-black text-xs">
                     AC
                   </div>
                   <div>
-                    <div className="font-bold text-xs text-white">
+                    <div className="font-bold text-xs text-slate-900">
                       Ananya Rao
                     </div>
-                    <div className="text-[11px] text-slate-400">
+                    <div className="text-[11px] text-slate-500">
                       Head of Global Demand &bull; Apex Cloud Solutions
                     </div>
                   </div>

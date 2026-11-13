@@ -130,51 +130,51 @@ export const FeatureGridBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
       </div>
 
       {/* Interactive 3-Stage Pipeline Teaser */}
-      <div className="mt-20 p-8 sm:p-12 rounded-3xl bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white shadow-xl border border-slate-800">
+      <div className="mt-20 p-8 sm:p-12 rounded-3xl bg-gradient-to-r from-indigo-50/80 via-white to-purple-50/80 text-slate-900 shadow-xl border border-indigo-100">
         <div className="max-w-3xl mb-8">
-          <span className="text-xs uppercase font-bold tracking-widest text-indigo-400">
+          <span className="text-xs uppercase font-bold tracking-widest text-indigo-600">
             Automated Execution Pipeline
           </span>
-          <h3 className="text-2xl sm:text-3xl font-extrabold mt-1">
+          <h3 className="text-2xl sm:text-3xl font-extrabold mt-1 text-slate-900">
             How Nexora Transforms Digital Inquiries into Enterprise Revenue
           </h3>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="p-6 rounded-2xl bg-slate-800/60 border border-slate-700/60 backdrop-blur-md">
-            <div className="text-indigo-400 font-mono text-sm font-bold">
+          <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs">
+            <div className="text-indigo-600 font-mono text-sm font-bold">
               01. CAPTURE
             </div>
-            <h4 className="text-base font-bold text-white mt-2">
+            <h4 className="text-base font-bold text-slate-900 mt-2">
               Commercial Intent Discovery
             </h4>
-            <p className="text-xs text-slate-300 mt-2 leading-relaxed">
+            <p className="text-xs text-slate-600 mt-2 leading-relaxed">
               Real-time tracking of high-intent search terms, LinkedIn buying
               committee activity, and account intent.
             </p>
           </div>
 
-          <div className="p-6 rounded-2xl bg-slate-800/60 border border-slate-700/60 backdrop-blur-md">
-            <div className="text-purple-400 font-mono text-sm font-bold">
+          <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs">
+            <div className="text-purple-600 font-mono text-sm font-bold">
               02. ATTRIBUTE
             </div>
-            <h4 className="text-base font-bold text-white mt-2">
+            <h4 className="text-base font-bold text-slate-900 mt-2">
               Multi-Touch Verification
             </h4>
-            <p className="text-xs text-slate-300 mt-2 leading-relaxed">
+            <p className="text-xs text-slate-600 mt-2 leading-relaxed">
               Deterministic first-touch, multi-touch, and last-touch attribution
               with zero cookie deprecation loss.
             </p>
           </div>
 
-          <div className="p-6 rounded-2xl bg-slate-800/60 border border-slate-700/60 backdrop-blur-md">
-            <div className="text-emerald-400 font-mono text-sm font-bold">
+          <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs">
+            <div className="text-emerald-600 font-mono text-sm font-bold">
               03. CONVERT
             </div>
-            <h4 className="text-base font-bold text-white mt-2">
+            <h4 className="text-base font-bold text-slate-900 mt-2">
               Instant Lead Routing & SLA
             </h4>
-            <p className="text-xs text-slate-300 mt-2 leading-relaxed">
+            <p className="text-xs text-slate-600 mt-2 leading-relaxed">
               Under-3-minute transactional notifications, automated CRM account
               creation, and follow-up task dispatch.
             </p>

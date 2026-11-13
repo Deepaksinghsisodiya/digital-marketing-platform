@@ -150,17 +150,17 @@ export default async function IndustriesCatalogPage() {
                 </CardHeader>
 
                 <CardContent className="pt-2">
-                  <div className="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800 text-center">
-                    <span className="text-xs font-black text-cyan-400">
+                  <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-center">
+                    <span className="text-xs font-black text-indigo-600">
                       {ind.stats}
                     </span>
                   </div>
                 </CardContent>
 
-                <CardFooter className="pt-4 border-t border-slate-800/60">
+                <CardFooter className="pt-4 border-t border-slate-100">
                   <Link
                     href={`/industries/${ind.slug}`}
-                    className="text-xs font-bold text-cyan-400 hover:text-white transition flex items-center gap-1.5 group-hover:translate-x-1"
+                    className="text-xs font-bold text-indigo-600 hover:text-indigo-800 transition flex items-center gap-1.5 group-hover:translate-x-1"
                   >
                     Explore vertical architecture{" "}
                     <ArrowRight className="w-3.5 h-3.5" />

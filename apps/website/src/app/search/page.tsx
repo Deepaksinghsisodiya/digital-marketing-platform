@@ -102,8 +102,8 @@ export default function SearchPage() {
             </div>
 
             {results.length === 0 ? (
-              <div className="p-12 text-center rounded-2xl border border-slate-800 bg-slate-900/50">
-                <p className="text-slate-400 text-sm">
+              <div className="p-12 text-center rounded-2xl border border-slate-200 bg-slate-50">
+                <p className="text-slate-600 text-sm">
                   No matching services or insights found. Try broader keywords
                   like &ldquo;SEO&rdquo;, &ldquo;PPC&rdquo;, or
                   &ldquo;Attribution&rdquo;.

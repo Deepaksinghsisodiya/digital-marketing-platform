@@ -38,13 +38,13 @@ export default function NotFound() {
         </div>
 
         {/* Helpful Shortcut Cards */}
-        <div className="w-full pt-8 border-t border-slate-900 grid grid-cols-3 gap-3 text-left">
+        <div className="w-full pt-8 border-t border-slate-200 grid grid-cols-3 gap-3 text-left">
           <Link
             href="/services"
-            className="p-3.5 rounded-xl bg-slate-900/60 border border-slate-800 hover:border-slate-700 transition group"
+            className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 hover:border-indigo-300 transition group shadow-xs"
           >
-            <SearchCode className="w-4 h-4 text-indigo-400 mb-1.5" />
-            <span className="text-xs font-bold text-white block group-hover:text-indigo-300">
+            <SearchCode className="w-4 h-4 text-indigo-600 mb-1.5" />
+            <span className="text-xs font-bold text-slate-900 block group-hover:text-indigo-600">
               Services
             </span>
             <span className="text-[10px] text-slate-500">All capabilities</span>
@@ -52,10 +52,10 @@ export default function NotFound() {
 
           <Link
             href="/blog"
-            className="p-3.5 rounded-xl bg-slate-900/60 border border-slate-800 hover:border-slate-700 transition group"
+            className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 hover:border-indigo-300 transition group shadow-xs"
           >
-            <BookOpen className="w-4 h-4 text-cyan-400 mb-1.5" />
-            <span className="text-xs font-bold text-white block group-hover:text-cyan-300">
+            <BookOpen className="w-4 h-4 text-indigo-600 mb-1.5" />
+            <span className="text-xs font-bold text-slate-900 block group-hover:text-indigo-600">
               Insights
             </span>
             <span className="text-[10px] text-slate-500">Growth playbooks</span>
@@ -63,10 +63,10 @@ export default function NotFound() {
 
           <Link
             href="/contact"
-            className="p-3.5 rounded-xl bg-slate-900/60 border border-slate-800 hover:border-slate-700 transition group"
+            className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 hover:border-indigo-300 transition group shadow-xs"
           >
-            <Mail className="w-4 h-4 text-emerald-400 mb-1.5" />
-            <span className="text-xs font-bold text-white block group-hover:text-emerald-300">
+            <Mail className="w-4 h-4 text-emerald-600 mb-1.5" />
+            <span className="text-xs font-bold text-slate-900 block group-hover:text-indigo-600">
               Support
             </span>
             <span className="text-[10px] text-slate-500">

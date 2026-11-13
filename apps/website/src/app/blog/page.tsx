@@ -58,15 +58,15 @@ export default async function BlogIndexPage() {
           <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight mt-4 text-white">
             Proven Playbooks for Modern Enterprise Growth
           </h1>
-          <p className="mt-4 text-lg text-slate-400">
+          <p className="mt-4 text-lg text-slate-600">
             Actionable strategies, technical breakdowns, and deep dives on
             pipeline velocity, generative media, and multi-region attribution.
           </p>
         </div>
 
         {posts.length === 0 ? (
-          <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-12 text-center">
-            <h3 className="text-lg font-medium text-slate-300">
+          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-12 text-center">
+            <h3 className="text-lg font-medium text-slate-700">
               No articles published yet
             </h3>
             <p className="mt-2 text-sm text-slate-500">
@@ -78,12 +78,12 @@ export default async function BlogIndexPage() {
             {posts.map((post) => (
               <article
                 key={post.id}
-                className="group flex flex-col justify-between rounded-2xl border border-slate-800/80 bg-slate-900/50 p-6 hover:border-emerald-500/50 hover:bg-slate-900/80 transition-all duration-300 shadow-lg shadow-black/20"
+                className="group flex flex-col justify-between rounded-2xl border border-slate-200 bg-white p-6 hover:border-emerald-500/50 hover:shadow-xl transition-all duration-300 shadow-sm"
               >
                 <div>
                   <div className="flex items-center gap-2 mb-3">
                     {post.category && (
-                      <span className="text-xs font-medium text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20">
+                      <span className="text-xs font-medium text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
                         {post.category}
                       </span>
                     )}

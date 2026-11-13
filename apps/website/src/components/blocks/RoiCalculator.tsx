@@ -56,25 +56,25 @@ export const RoiCalculator: React.FC<{ block: CmsBlock }> = ({ block }) => {
     monthlySpend > 0 ? (nexoraRevenue / monthlySpend).toFixed(1) : "0.0";
 
   return (
-    <section className="py-24 bg-slate-900 text-white px-6 sm:px-10 lg:px-12 xl:px-16 relative overflow-hidden">
+    <section className="py-24 bg-white text-slate-900 px-6 sm:px-10 lg:px-12 xl:px-16 relative overflow-hidden border-t border-slate-200">
       {/* Background radial glow */}
-      <div className="absolute top-0 right-1/4 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-0 right-1/4 w-96 h-96 bg-indigo-100/50 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-purple-100/50 rounded-full blur-3xl pointer-events-none" />
 
       <div className="max-w-[1440px] mx-auto relative z-10">
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 text-xs font-bold uppercase tracking-wider mb-4">
-            <Calculator className="w-3.5 h-3.5 text-indigo-400" />
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-bold uppercase tracking-wider mb-4">
+            <Calculator className="w-3.5 h-3.5 text-indigo-600" />
             <span>Interactive Growth Modeling</span>
-            <span className="px-1.5 py-0.5 rounded text-[10px] bg-indigo-900/80 text-indigo-200">
+            <span className="px-1.5 py-0.5 rounded text-[10px] bg-indigo-100 text-indigo-800">
               Sample Calculator
             </span>
           </div>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-white">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-slate-900">
             {content.sectionTitle || "Calculate Your Projected Growth ROI"}
           </h2>
-          <p className="mt-4 text-base sm:text-lg text-slate-300">
+          <p className="mt-4 text-base sm:text-lg text-slate-600">
             {content.sectionSubtitle ||
               "Simulate how Nexora's automated audience modeling and deterministic attribution amplify your monthly revenue."}
           </p>
@@ -83,18 +83,18 @@ export const RoiCalculator: React.FC<{ block: CmsBlock }> = ({ block }) => {
         {/* Interactive Calculator Body */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
           {/* Controls Panel */}
-          <div className="lg:col-span-7 bg-slate-800/80 border border-slate-700/80 rounded-3xl p-8 sm:p-10 shadow-2xl backdrop-blur-md space-y-8">
+          <div className="lg:col-span-7 bg-slate-50 border border-slate-200 rounded-3xl p-8 sm:p-10 shadow-sm space-y-8">
             {/* Slider 1: Monthly Ad Spend */}
             <div>
               <div className="flex justify-between items-center mb-3">
                 <label
                   htmlFor={spendInputId}
-                  className="text-sm font-bold text-slate-300 flex items-center gap-2"
+                  className="text-sm font-bold text-slate-700 flex items-center gap-2"
                 >
-                  <DollarSign className="w-4 h-4 text-indigo-400" />
+                  <DollarSign className="w-4 h-4 text-indigo-600" />
                   Monthly Digital Ad Budget
                 </label>
-                <span className="text-lg font-black text-indigo-400 font-mono">
+                <span className="text-lg font-black text-indigo-600 font-mono">
                   ${monthlySpend.toLocaleString()}
                 </span>
               </div>
@@ -106,7 +106,7 @@ export const RoiCalculator: React.FC<{ block: CmsBlock }> = ({ block }) => {
                 step={500}
                 value={monthlySpend}
                 onChange={(e) => setMonthlySpend(Number(e.target.value))}
-                className="w-full h-2.5 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+                className="w-full h-2.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
               />
               <div className="flex justify-between text-[11px] text-slate-500 mt-2 font-mono">
                 <span>$1,000/mo</span>
@@ -120,12 +120,12 @@ export const RoiCalculator: React.FC<{ block: CmsBlock }> = ({ block }) => {
               <div className="flex justify-between items-center mb-3">
                 <label
                   htmlFor={convInputId}
-                  className="text-sm font-bold text-slate-300 flex items-center gap-2"
+                  className="text-sm font-bold text-slate-700 flex items-center gap-2"
                 >
-                  <TrendingUp className="w-4 h-4 text-emerald-400" />
+                  <TrendingUp className="w-4 h-4 text-emerald-600" />
                   Current Landing Page Conversion Rate
                 </label>
-                <span className="text-lg font-black text-emerald-400 font-mono">
+                <span className="text-lg font-black text-emerald-600 font-mono">
                   {conversionRate.toFixed(1)}%
                 </span>
               </div>
@@ -137,7 +137,7 @@ export const RoiCalculator: React.FC<{ block: CmsBlock }> = ({ block }) => {
                 step={0.1}
                 value={conversionRate}
                 onChange={(e) => setConversionRate(Number(e.target.value))}
-                className="w-full h-2.5 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-emerald-500"
+                className="w-full h-2.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-600"
               />
               <div className="flex justify-between text-[11px] text-slate-500 mt-2 font-mono">
                 <span>0.5% (Low)</span>
@@ -151,12 +151,12 @@ export const RoiCalculator: React.FC<{ block: CmsBlock }> = ({ block }) => {
               <div className="flex justify-between items-center mb-3">
                 <label
                   htmlFor={dealInputId}
-                  className="text-sm font-bold text-slate-300 flex items-center gap-2"
+                  className="text-sm font-bold text-slate-700 flex items-center gap-2"
                 >
-                  <Users className="w-4 h-4 text-purple-400" />
+                  <Users className="w-4 h-4 text-purple-600" />
                   Average Customer / Deal Value
                 </label>
-                <span className="text-lg font-black text-purple-400 font-mono">
+                <span className="text-lg font-black text-purple-600 font-mono">
                   ${dealSize.toLocaleString()}
                 </span>
               </div>
@@ -168,7 +168,7 @@ export const RoiCalculator: React.FC<{ block: CmsBlock }> = ({ block }) => {
                 step={100}
                 value={dealSize}
                 onChange={(e) => setDealSize(Number(e.target.value))}
-                className="w-full h-2.5 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-purple-500"
+                className="w-full h-2.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-purple-600"
               />
               <div className="flex justify-between text-[11px] text-slate-500 mt-2 font-mono">
                 <span>$100</span>
@@ -179,21 +179,21 @@ export const RoiCalculator: React.FC<{ block: CmsBlock }> = ({ block }) => {
           </div>
 
           {/* Results Projection Card */}
-          <div className="lg:col-span-5 bg-gradient-to-br from-indigo-900/90 via-slate-900 to-purple-950/80 border border-indigo-500/40 rounded-3xl p-8 sm:p-10 shadow-2xl relative flex flex-col justify-between h-full">
+          <div className="lg:col-span-5 bg-gradient-to-br from-indigo-50 via-white to-purple-50 border border-indigo-200 rounded-3xl p-8 sm:p-10 shadow-xl relative flex flex-col justify-between h-full">
             <div>
-              <span className="text-xs font-bold text-indigo-300 uppercase tracking-widest bg-indigo-500/20 px-3 py-1 rounded-full border border-indigo-500/30">
+              <span className="text-xs font-bold text-indigo-700 uppercase tracking-widest bg-indigo-100 px-3 py-1 rounded-full border border-indigo-200">
                 Projected Monthly Lift
               </span>
 
               <div className="mt-6 mb-8">
-                <span className="text-xs text-slate-400 uppercase tracking-wider block font-semibold">
+                <span className="text-xs text-slate-500 uppercase tracking-wider block font-semibold">
                   Estimated New Monthly Pipeline
                 </span>
-                <div className="text-4xl sm:text-5xl font-black text-white tracking-tight mt-1 font-mono">
+                <div className="text-4xl sm:text-5xl font-black text-slate-900 tracking-tight mt-1 font-mono">
                   +${netLift.toLocaleString()}
                 </div>
-                <p className="text-xs text-emerald-400 mt-2 flex items-center gap-1.5 font-bold">
-                  <TrendingUp className="w-4 h-4" />
+                <p className="text-xs text-emerald-700 mt-2 flex items-center gap-1.5 font-bold">
+                  <TrendingUp className="w-4 h-4 text-emerald-600" />
                   <span>
                     {roiMultiplier}x Projected Return on Ad Spend (ROAS)
                   </span>
@@ -201,25 +201,25 @@ export const RoiCalculator: React.FC<{ block: CmsBlock }> = ({ block }) => {
               </div>
 
               {/* Metrics Breakdown Grid */}
-              <div className="grid grid-cols-2 gap-4 pt-6 border-t border-slate-800">
-                <div className="bg-slate-800/50 rounded-2xl p-4 border border-slate-700/60">
-                  <span className="text-xs text-slate-400 font-medium block">
+              <div className="grid grid-cols-2 gap-4 pt-6 border-t border-slate-200">
+                <div className="bg-white rounded-2xl p-4 border border-slate-200 shadow-xs">
+                  <span className="text-xs text-slate-500 font-medium block">
                     Qualified Inbound Leads
                   </span>
-                  <span className="text-2xl font-black text-white mt-1 block font-mono">
+                  <span className="text-2xl font-black text-slate-900 mt-1 block font-mono">
                     {nexoraLeads}
-                    <span className="text-xs font-bold text-emerald-400 ml-1.5">
+                    <span className="text-xs font-bold text-emerald-600 ml-1.5">
                       (+48%)
                     </span>
                   </span>
                 </div>
-                <div className="bg-slate-800/50 rounded-2xl p-4 border border-slate-700/60">
-                  <span className="text-xs text-slate-400 font-medium block">
+                <div className="bg-white rounded-2xl p-4 border border-slate-200 shadow-xs">
+                  <span className="text-xs text-slate-500 font-medium block">
                     Acquired Customers
                   </span>
-                  <span className="text-2xl font-black text-white mt-1 block font-mono">
+                  <span className="text-2xl font-black text-slate-900 mt-1 block font-mono">
                     {nexoraCustomers}
-                    <span className="text-xs font-bold text-emerald-400 ml-1.5">
+                    <span className="text-xs font-bold text-emerald-600 ml-1.5">
                       (+58%)
                     </span>
                   </span>
@@ -231,12 +231,12 @@ export const RoiCalculator: React.FC<{ block: CmsBlock }> = ({ block }) => {
             <div className="mt-8 pt-6">
               <Link
                 href={content.ctaLink || "/contact"}
-                className="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-extrabold text-center flex items-center justify-center gap-2 shadow-xl shadow-indigo-600/30 transition duration-300"
+                className="w-full py-4 px-6 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-center flex items-center justify-center gap-2 shadow-xl shadow-indigo-600/25 transition duration-300"
               >
                 <span>{content.ctaText || "Claim Your Growth Forecast"}</span>
                 <ArrowRight className="w-4 h-4" />
               </Link>
-              <p className="text-[11px] text-slate-400 text-center mt-3">
+              <p className="text-[11px] text-slate-500 text-center mt-3">
                 Projections are algorithmic estimates based on industry
                 benchmarks.
               </p>

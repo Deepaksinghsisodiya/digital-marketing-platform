@@ -129,7 +129,7 @@ export default async function BlogPostPage({
             {tagsList.map((tag) => (
               <span
                 key={tag}
-                className="text-xs text-slate-400 bg-slate-900 border border-slate-800 px-2.5 py-1 rounded-md"
+                className="text-xs text-slate-700 bg-slate-100 border border-slate-200 px-2.5 py-1 rounded-md"
               >
                 #{tag}
               </span>
