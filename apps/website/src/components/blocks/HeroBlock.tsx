@@ -93,7 +93,7 @@ export const HeroBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
 
         {/* Interactive Platform Mockup Card */}
         <div className="pt-8 max-w-5xl xl:max-w-6xl 2xl:max-w-7xl mx-auto">
-          <div className="rounded-3xl border border-slate-200 bg-white p-4 sm:p-6 shadow-2xl text-left">
+          <div className="rounded-3xl border border-slate-200/90 bg-white/95 backdrop-blur-xl p-4 sm:p-6 shadow-2xl hover:shadow-indigo-500/10 hover:border-indigo-300 transition-all duration-300 text-left">
             {/* Window Topbar */}
             <div className="flex items-center justify-between pb-4 border-b border-slate-100">
               <div className="flex items-center gap-2">
@@ -105,63 +105,71 @@ export const HeroBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-bold border border-emerald-200">
-                  <Activity className="w-3 h-3 animate-pulse text-emerald-600" /> Live Telemetry
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold border border-emerald-200 shadow-xs">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" /> Live Telemetry Active
                 </span>
               </div>
             </div>
 
             {/* Dashboard Mockup Grid */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4">
-              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 shadow-xs">
-                <div className="flex items-center justify-between text-slate-500 text-xs">
+              <div className="p-5 rounded-2xl bg-gradient-to-br from-slate-50 to-white border border-slate-200/90 shadow-xs hover:border-indigo-300 hover:shadow-md transition-all">
+                <div className="flex items-center justify-between text-slate-500 text-xs font-semibold">
                   <span>Influenced Pipeline</span>
-                  <DollarSign className="w-4 h-4 text-emerald-600" />
+                  <div className="p-1 rounded-lg bg-emerald-50 text-emerald-600">
+                    <DollarSign className="w-4 h-4" />
+                  </div>
                 </div>
-                <div className="text-2xl font-black text-slate-900 mt-1">
+                <div className="text-3xl font-black text-slate-900 mt-2 font-mono">
                   $2,480,000
                 </div>
-                <div className="flex items-center gap-1 text-[11px] text-emerald-600 font-semibold mt-1">
-                  <TrendingUp className="w-3 h-3" /> +34.2% vs baseline
+                <div className="flex items-center gap-1.5 text-xs text-emerald-600 font-bold mt-2">
+                  <TrendingUp className="w-3.5 h-3.5" /> +34.2% vs legacy baseline
                 </div>
               </div>
 
-              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 shadow-xs">
-                <div className="flex items-center justify-between text-slate-500 text-xs">
+              <div className="p-5 rounded-2xl bg-gradient-to-br from-slate-50 to-white border border-slate-200/90 shadow-xs hover:border-indigo-300 hover:shadow-md transition-all">
+                <div className="flex items-center justify-between text-slate-500 text-xs font-semibold">
                   <span>Verified B2B Leads</span>
-                  <Users className="w-4 h-4 text-indigo-600" />
+                  <div className="p-1 rounded-lg bg-indigo-50 text-indigo-600">
+                    <Users className="w-4 h-4" />
+                  </div>
                 </div>
-                <div className="text-2xl font-black text-slate-900 mt-1">
+                <div className="text-3xl font-black text-slate-900 mt-2 font-mono">
                   1,492 Accounts
                 </div>
-                <div className="flex items-center gap-1 text-[11px] text-indigo-600 font-semibold mt-1">
-                  <ShieldCheck className="w-3 h-3" /> 100% Consent Audited
+                <div className="flex items-center gap-1.5 text-xs text-indigo-600 font-bold mt-2">
+                  <ShieldCheck className="w-3.5 h-3.5" /> 100% Consent Audited
                 </div>
               </div>
 
-              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 shadow-xs">
-                <div className="flex items-center justify-between text-slate-500 text-xs">
+              <div className="p-5 rounded-2xl bg-gradient-to-br from-slate-50 to-white border border-slate-200/90 shadow-xs hover:border-indigo-300 hover:shadow-md transition-all">
+                <div className="flex items-center justify-between text-slate-500 text-xs font-semibold">
                   <span>Attribution Accuracy</span>
-                  <Sparkles className="w-4 h-4 text-purple-600" />
+                  <div className="p-1 rounded-lg bg-purple-50 text-purple-600">
+                    <Sparkles className="w-4 h-4" />
+                  </div>
                 </div>
-                <div className="text-2xl font-black text-slate-900 mt-1">99.8%</div>
-                <div className="flex items-center gap-1 text-[11px] text-purple-600 font-semibold mt-1">
-                  Multi-Touch Server-Side
+                <div className="text-3xl font-black text-slate-900 mt-2 font-mono">
+                  99.8%
+                </div>
+                <div className="flex items-center gap-1.5 text-xs text-purple-600 font-bold mt-2">
+                  <span>Multi-Touch Server-Side</span>
                 </div>
               </div>
             </div>
 
             {/* Live conversion ticker item */}
-            <div className="mt-4 p-3 rounded-xl bg-indigo-50/70 border border-indigo-100 flex items-center justify-between text-xs">
+            <div className="mt-4 p-3.5 rounded-2xl bg-gradient-to-r from-indigo-50/80 via-purple-50/50 to-indigo-50/80 border border-indigo-100 flex items-center justify-between text-xs">
               <div className="flex items-center gap-3">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping shrink-0" />
                 <span className="text-slate-700 font-medium">
                   Sample Inbound Simulation:{" "}
-                  <strong className="text-slate-900">Apex Cloud Solutions</strong>{" "}
+                  <strong className="text-slate-900 font-bold">Apex Cloud Solutions</strong>{" "}
                   ($180,000 ARR Opportunity) captured & routed.
                 </span>
               </div>
-              <span className="font-mono text-[10px] text-indigo-700 font-semibold">
+              <span className="font-mono text-[10px] text-indigo-700 font-bold px-2 py-0.5 rounded bg-indigo-100 border border-indigo-200">
                 Sample
               </span>
             </div>
