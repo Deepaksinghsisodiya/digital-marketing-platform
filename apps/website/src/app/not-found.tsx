@@ -17,10 +17,10 @@ export default function NotFound() {
 
         <div className="space-y-2">
           <Badge variant="warning">Resource Unavailable</Badge>
-          <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
+          <h1 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
             Page Not Found
           </h1>
-          <p className="text-slate-400 text-sm leading-relaxed max-w-md mx-auto">
+          <p className="text-slate-600 text-sm leading-relaxed max-w-md mx-auto">
             The requested marketing resource or page has either moved or is not
             yet published in our CMS.
           </p>

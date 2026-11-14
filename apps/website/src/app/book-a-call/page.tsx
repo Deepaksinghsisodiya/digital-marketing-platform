@@ -34,10 +34,10 @@ export default async function BookACallPage() {
       <main className="flex-1 py-16 sm:py-24 px-6 sm:px-10 lg:px-12 xl:px-16 max-w-4xl mx-auto space-y-12">
         <div className="text-center space-y-4 max-w-2xl mx-auto">
           <Badge variant="accent">Executive Discovery Session</Badge>
-          <h1 className="text-4xl sm:text-5xl font-black text-white tracking-tight">
+          <h1 className="text-4xl sm:text-5xl font-black text-slate-900 tracking-tight">
             Schedule a Growth Strategy Briefing
           </h1>
-          <p className="text-slate-400 text-sm sm:text-base leading-relaxed">
+          <p className="text-slate-600 text-sm sm:text-base leading-relaxed font-normal">
             In this 30-minute working session, our marketing strategists analyze
             your commercial search footprint, ad spend efficiency, and
             conversion architecture.

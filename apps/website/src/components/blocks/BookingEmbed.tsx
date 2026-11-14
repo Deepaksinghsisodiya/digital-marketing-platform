@@ -34,27 +34,30 @@ export const BookingEmbed: React.FC<{ block: CmsBlock }> = ({ block }) => {
   const rawBookingUrl = content.bookingUrl || "";
 
   return (
-    <section className="py-24 bg-white px-6 sm:px-10 lg:px-12 xl:px-16 border-t border-slate-200">
-      <div className="max-w-[1440px] mx-auto">
+    <section className="py-24 lg:py-32 bg-white px-6 sm:px-10 lg:px-12 xl:px-16 border-t border-slate-200/80 relative overflow-hidden">
+      {/* Background radial accent */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[450px] bg-indigo-50/60 blur-[130px] pointer-events-none rounded-full" />
+
+      <div className="max-w-[1720px] 2xl:max-w-[1920px] mx-auto relative z-10">
         {/* Header */}
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-bold uppercase tracking-wider mb-4">
-            <Calendar className="w-3.5 h-3.5" />
+        <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-bold uppercase tracking-wider shadow-2xs">
+            <Calendar className="w-3.5 h-3.5 text-indigo-600" />
             <span>Executive Scheduling</span>
-            <span className="px-1.5 py-0.5 rounded text-[10px] bg-indigo-100 text-indigo-800">
+            <span className="px-2 py-0.5 rounded-full text-[10px] bg-indigo-100 text-indigo-800 font-extrabold">
               Direct Access
             </span>
           </div>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight">
             {title}
           </h2>
-          <p className="mt-4 text-base sm:text-lg text-slate-600">
+          <p className="text-base sm:text-lg text-slate-600 leading-relaxed font-normal">
             {subtitle}
           </p>
         </div>
 
         {/* Meeting Type Selection Pills */}
-        <div className="flex flex-wrap justify-center gap-3 mb-12">
+        <div className="flex flex-wrap justify-center gap-3.5 mb-12">
           {[
             {
               minutes: 15,
@@ -75,31 +78,33 @@ export const BookingEmbed: React.FC<{ block: CmsBlock }> = ({ block }) => {
             <button
               key={item.minutes}
               onClick={() => setSelectedMeetingType(item.minutes)}
-              className={`px-5 py-3 rounded-2xl border text-left transition-all duration-200 flex items-center gap-3 ${
+              className={`px-6 py-4 rounded-2xl border text-left transition-all duration-200 flex items-center gap-3.5 cursor-pointer ${
                 selectedMeetingType === item.minutes
-                  ? "bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-600/20"
-                  : "bg-slate-50 border-slate-200 text-slate-700 hover:border-slate-300 shadow-xs"
+                  ? "bg-indigo-600 text-white border-indigo-600 shadow-xl shadow-indigo-600/20 scale-102"
+                  : "bg-slate-50 border-slate-200/90 text-slate-700 hover:border-slate-300 hover:bg-white shadow-2xs"
               }`}
             >
               <div
-                className={`p-2 rounded-xl ${
+                className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
                   selectedMeetingType === item.minutes
                     ? "bg-white/20 text-white"
-                    : "bg-white text-slate-600 shadow-xs"
+                    : "bg-white text-indigo-600 border border-slate-200 shadow-2xs"
                 }`}
               >
-                <Clock className="w-4 h-4" />
+                <Clock className="w-5 h-5" />
               </div>
               <div>
-                <span className="text-xs font-bold block">{item.title}</span>
+                <span className="text-xs sm:text-sm font-extrabold block">
+                  {item.title}
+                </span>
                 <span
-                  className={`text-[11px] block ${
+                  className={`text-[11px] block font-medium ${
                     selectedMeetingType === item.minutes
                       ? "text-indigo-100"
                       : "text-slate-500"
                   }`}
                 >
-                  {item.minutes} Minutes • Google Meet
+                  {item.minutes} Minutes • Google Meet / Teams
                 </span>
               </div>
             </button>
@@ -107,7 +112,7 @@ export const BookingEmbed: React.FC<{ block: CmsBlock }> = ({ block }) => {
         </div>
 
         {/* Embedded Iframe or Sandbox Fallback Card */}
-        <div className="max-w-4xl mx-auto rounded-3xl border border-slate-200 shadow-xl bg-white overflow-hidden">
+        <div className="max-w-4xl mx-auto rounded-3xl border border-slate-200/90 shadow-2xl bg-white overflow-hidden">
           {rawBookingUrl && rawBookingUrl.startsWith("http") ? (
             <div className="w-full h-[680px]">
               <iframe
@@ -118,47 +123,46 @@ export const BookingEmbed: React.FC<{ block: CmsBlock }> = ({ block }) => {
               />
             </div>
           ) : (
-            <div className="p-8 sm:p-12 text-center">
-              <div className="w-16 h-16 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 mx-auto mb-6">
+            <div className="p-8 sm:p-14 text-center">
+              <div className="w-16 h-16 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 mx-auto mb-6 shadow-sm">
                 <Video className="w-8 h-8" />
               </div>
 
-              <h3 className="text-2xl font-black text-slate-900 tracking-tight">
-                {selectedMeetingType}-Minute Growth Consultation
+              <h3 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                {selectedMeetingType}-Minute Growth Architecture Session
               </h3>
-              <p className="mt-2 text-sm text-slate-600 max-w-lg mx-auto leading-relaxed">
-                Book direct time with an executive Growth Architect to review
-                your customer acquisition costs, ad efficiency, and pipeline
-                velocity.
+              <p className="mt-3 text-sm sm:text-base text-slate-600 max-w-lg mx-auto leading-relaxed font-normal">
+                Book direct confidential time with an executive Growth Architect to review
+                your customer acquisition economics, ad efficiency, and pipeline velocity.
               </p>
 
               {/* Consultation Inclusions */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl mx-auto my-8 text-left">
-                <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 shadow-xs">
-                  <CheckCircle className="w-4 h-4 text-emerald-600 mb-2" />
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl mx-auto my-10 text-left">
+                <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 shadow-2xs hover:border-indigo-300 transition-colors">
+                  <CheckCircle className="w-5 h-5 text-emerald-600 mb-2" />
                   <span className="text-xs font-bold text-slate-900 block">
                     Zero-Obligation
                   </span>
-                  <span className="text-[11px] text-slate-500">
+                  <span className="text-[11px] text-slate-500 font-medium">
                     Actionable advice you can execute immediately
                   </span>
                 </div>
-                <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 shadow-xs">
-                  <CheckCircle className="w-4 h-4 text-emerald-600 mb-2" />
+                <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 shadow-2xs hover:border-indigo-300 transition-colors">
+                  <CheckCircle className="w-5 h-5 text-emerald-600 mb-2" />
                   <span className="text-xs font-bold text-slate-900 block">
                     Senior Architect
                   </span>
-                  <span className="text-[11px] text-slate-500">
+                  <span className="text-[11px] text-slate-500 font-medium">
                     Direct meeting with leadership, not sales reps
                   </span>
                 </div>
-                <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 shadow-xs">
-                  <CheckCircle className="w-4 h-4 text-emerald-600 mb-2" />
+                <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 shadow-2xs hover:border-indigo-300 transition-colors">
+                  <CheckCircle className="w-5 h-5 text-emerald-600 mb-2" />
                   <span className="text-xs font-bold text-slate-900 block">
                     Custom Audit Brief
                   </span>
-                  <span className="text-[11px] text-slate-500">
-                    Delivered within 24 hours of call completion
+                  <span className="text-[11px] text-slate-500 font-medium">
+                    Delivered within 24 hours of session completion
                   </span>
                 </div>
               </div>
@@ -167,16 +171,16 @@ export const BookingEmbed: React.FC<{ block: CmsBlock }> = ({ block }) => {
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                 <Link
                   href="/contact"
-                  className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow-lg shadow-indigo-600/25 transition duration-200 flex items-center justify-center gap-2"
+                  className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow-xl shadow-indigo-600/25 hover:shadow-indigo-600/40 hover:scale-105 active:scale-95 transition-all duration-200 flex items-center justify-center gap-2"
                 >
-                  <span>{content.ctaText || "Request Meeting Time"}</span>
+                  <span>{content.ctaText || "Request Consultation Slot"}</span>
                   <ExternalLink className="w-4 h-4" />
                 </Link>
                 <Link
                   href="/contact"
-                  className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold text-sm transition"
+                  className="w-full sm:w-auto px-7 py-4 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-sm transition-all border border-slate-200 hover:border-slate-300"
                 >
-                  Direct Inquiry Form
+                  Submit RFP or Inbound Inquiry
                 </Link>
               </div>
             </div>

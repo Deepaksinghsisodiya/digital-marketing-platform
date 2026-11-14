@@ -23,28 +23,32 @@ export const LogoStripBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
   ];
 
   return (
-    <section className="py-12 bg-white border-y border-slate-200 overflow-hidden select-none">
+    <section className="py-14 bg-gradient-to-b from-white via-slate-50/50 to-white border-y border-slate-200/80 overflow-hidden select-none relative">
+      {/* Edge gradient masks for smooth fade in/out */}
+      <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none" />
+      <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none" />
+
       <div className="max-w-[1720px] 2xl:max-w-[1920px] mx-auto px-6 text-center space-y-6">
         <div className="flex items-center justify-center gap-2">
-          <span className="text-xs uppercase font-bold tracking-widest text-slate-500">
+          <span className="text-xs uppercase font-extrabold tracking-widest text-slate-500">
             {title}
           </span>
-          <Badge variant="sample">Sample Partners</Badge>
+          <Badge variant="sample">Enterprise Ecosystem</Badge>
         </div>
 
         <Marquee speed={speed} pauseOnHover={true}>
           {defaultBrands.map((brand, i) => (
             <div
               key={i}
-              className="flex items-center gap-2.5 px-8 py-3 rounded-2xl bg-slate-50 border border-slate-200 shadow-xs hover:border-indigo-300 transition shrink-0"
+              className="flex items-center gap-3 px-7 py-3 rounded-2xl bg-white border border-slate-200/90 shadow-xs hover:shadow-md hover:border-indigo-400 hover:-translate-y-0.5 transition-all duration-300 shrink-0 group mx-2"
             >
-              <div className="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 border border-indigo-200 flex items-center justify-center">
+              <div className="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 border border-indigo-100 flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-colors duration-300">
                 <ShieldCheck className="w-4 h-4" />
               </div>
-              <span className="font-black text-sm tracking-wider text-slate-800">
+              <span className="font-extrabold text-sm tracking-wide text-slate-800 group-hover:text-indigo-600 transition-colors">
                 {brand.name}
               </span>
-              <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-200/70 text-slate-600 font-mono font-medium">
+              <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 font-mono font-semibold border border-slate-200">
                 {brand.badge}
               </span>
             </div>
