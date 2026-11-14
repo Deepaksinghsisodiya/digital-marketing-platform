@@ -329,17 +329,6 @@ export default async function HomePage() {
                       </div>
                     </div>
                   </div>
-                          </span>
-                          <span className="text-2xl font-black text-slate-900 font-mono">
-                            $128.4M
-                          </span>
-                          <span className="text-[10px] text-emerald-700 font-bold block mt-1">
-                            Across 14 Regions
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
                 </div>
               </section>
             )}
