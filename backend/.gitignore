@@ -1,0 +1,26 @@
+# Build results
+bin/
+obj/
+TestResults/
+
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Visual Studio / Rider
+.vs/
+.idea/
+*.swp
+*.swo
+
+# Environment & local settings
+appsettings.Development.json
+appsettings.Production.json
+appsettings.Local.json
+
+# Database backups
+*.bak
+backups/
