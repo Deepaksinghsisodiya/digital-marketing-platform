@@ -224,22 +224,22 @@ export default async function HomePage() {
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
                       <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
                     </span>
-                    <span className="font-extrabold">Nexora Engine 2.0</span>
+                    <span className="font-extrabold">Nexora Growth Engine</span>
                     <span className="text-indigo-400">&bull;</span>
-                    <span>Deterministic Enterprise Marketing</span>
+                    <span>Trusted by 150+ Brands | Generated ₹120M+ Revenue</span>
                   </div>
 
                   <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tight leading-[1.08] max-w-5xl mx-auto text-slate-900">
-                    Data-Driven Growth at{" "}
+                    Stop Burning Money on Boring Ads.{" "}
                     <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600">
-                      Enterprise Scale
+                      We Scale Your Revenue.
                     </span>
                   </h1>
 
                   <p className="text-lg md:text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed font-normal">
-                    Connect your enterprise to high-intent audiences with AI campaign
-                    automation, precision audience modeling, and verifiable
-                    multi-touch revenue attribution.
+                    High-intent Google Ads, Meta Paid Social, and revenue-driven SEO
+                    engineered to generate qualified sales pipeline, not vanity clicks.
+                    100% transparent live dashboard, zero long-term lock-in.
                   </p>
 
                   <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
@@ -247,7 +247,7 @@ export default async function HomePage() {
                       href="/contact"
                       className="inline-flex items-center gap-2.5 rounded-2xl bg-indigo-600 px-8 py-4 text-sm font-bold text-white shadow-xl shadow-indigo-600/25 hover:bg-indigo-700 hover:shadow-indigo-600/40 hover:scale-105 active:scale-95 transition-all duration-200"
                     >
-                      <span>Schedule Strategic Diagnostic</span>
+                      <span>Claim Free 30-Min Growth Diagnostic</span>
                       <ArrowRight className="w-4 h-4" />
                     </Link>
                     <Link
@@ -255,24 +255,24 @@ export default async function HomePage() {
                       className="inline-flex items-center gap-2 rounded-2xl border border-slate-300 bg-white px-7 py-4 text-sm font-bold text-slate-800 hover:bg-slate-50 hover:text-indigo-600 hover:border-indigo-300 shadow-xs hover:shadow transition-all duration-200"
                     >
                       <Zap className="w-4 h-4 text-indigo-600" />
-                      <span>Calculate Pipeline ROI</span>
+                      <span>Calculate Projected ROAS</span>
                     </Link>
                   </div>
 
                   {/* Trust badges */}
-                  <div className="pt-6 flex flex-wrap items-center justify-center gap-6 text-xs text-slate-500 font-medium">
+                  <div className="pt-6 flex flex-wrap items-center justify-center gap-6 text-xs text-slate-600 font-medium">
                     <span className="flex items-center gap-1.5">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-600" /> Deterministic Attribution ML
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600" /> ₹0 Upfront Audit Fee
                     </span>
                     <span className="flex items-center gap-1.5">
-                      <ShieldCheck className="w-4 h-4 text-indigo-600" /> SOC2 Type II & DPDP Compliant
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600" /> Month-to-Month (No 12-Month Lock-in)
                     </span>
                     <span className="flex items-center gap-1.5">
-                      <Clock className="w-4 h-4 text-purple-600" /> 14-Day Production Go-Live
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600" /> Direct Slack Access to Senior Strategists
                     </span>
                   </div>
 
-                  {/* Lovable / Linear Live Console Preview Card */}
+                  {/* Live Campaign Analytics Console Preview Card */}
                   <div className="pt-8 max-w-5xl mx-auto">
                     <div className="rounded-3xl border border-slate-200/90 bg-white p-4 sm:p-6 shadow-2xl shadow-indigo-500/10 text-left">
                       {/* Console top bar */}
@@ -282,12 +282,12 @@ export default async function HomePage() {
                           <div className="w-3 h-3 rounded-full bg-amber-400" />
                           <div className="w-3 h-3 rounded-full bg-emerald-400" />
                           <span className="ml-3 text-xs font-mono font-bold text-slate-500">
-                            nexora-telemetry-live.prod
+                            nexora-campaign-analytics.live
                           </span>
                         </div>
                         <span className="text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-bold border border-emerald-200 flex items-center gap-1.5">
                           <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                          ONLINE • 99.98% SLA
+                          LIVE CLIENT CAMPAIGNS ACTIVE
                         </span>
                       </div>
 
@@ -295,29 +295,40 @@ export default async function HomePage() {
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80">
                           <span className="text-[10px] uppercase font-bold tracking-wider text-slate-500 block mb-1">
-                            Inbound Lead Velocity
+                            Ad Spend vs Revenue
                           </span>
                           <span className="text-2xl font-black text-slate-900 font-mono">
-                            340.8%
+                            4.81x ROAS
                           </span>
                           <span className="text-[10px] text-emerald-700 font-bold block mt-1">
-                            &uarr; 42.4% vs benchmark
+                            Spend: $14.2k ➔ Revenue: $68.4k
                           </span>
                         </div>
                         <div className="p-4 rounded-2xl bg-indigo-50/50 border border-indigo-200/80">
                           <span className="text-[10px] uppercase font-bold tracking-wider text-indigo-700 block mb-1">
-                            Attribution Accuracy
+                            High-Intent Leads
                           </span>
                           <span className="text-2xl font-black text-indigo-900 font-mono">
-                            99.82%
+                            1,240 Accounts
                           </span>
                           <span className="text-[10px] text-indigo-700 font-bold block mt-1">
-                            SHA-256 Validated
+                            Cost Per Lead Down -38%
                           </span>
                         </div>
                         <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80">
                           <span className="text-[10px] uppercase font-bold tracking-wider text-slate-500 block mb-1">
-                            Influenced Revenue
+                            Organic Search Visibility
+                          </span>
+                          <span className="text-2xl font-black text-slate-900 font-mono">
+                            +340% Lift
+                          </span>
+                          <span className="text-[10px] text-emerald-700 font-bold block mt-1">
+                            #1 Commercial Keywords
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                           </span>
                           <span className="text-2xl font-black text-slate-900 font-mono">
                             $128.4M

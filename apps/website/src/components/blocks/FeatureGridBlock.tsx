@@ -59,19 +59,57 @@ const FEATURE_METADATA = [
 export const FeatureGridBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
   const { content } = block;
   const sectionTitle =
-    (content.sectionTitle as string) || "Engineered for Enterprise Performance";
+    (content.sectionTitle as string) || "Full-Stack Performance Marketing Engines";
   const sectionSubtitle =
     (content.subheadline as string) ||
     (content.sectionSubtitle as string) ||
-    "Comprehensive digital marketing infrastructure engineered for high-velocity enterprise teams worldwide.";
-  const features = (content.features as FeatureItem[]) || [];
+    "Everything your brand needs to generate qualified customer inquiries, maximize ad spend efficiency, and scale predictable revenue.";
+
+  const defaultFeatures: FeatureItem[] = [
+    {
+      title: "High-Intent Commercial SEO",
+      description:
+        "Rank on page #1 of Google for high-value commercial keywords. Bespoke landing architectures, programmatic schema, and authority content that drives paying customers.",
+    },
+    {
+      title: "Paid Search & Google Ads PMax",
+      description:
+        "Capture buyers at the exact second they are searching. Continuous negative matching and smart bidding eliminating 30-40% ad waste while maintaining 4.5x+ ROAS.",
+    },
+    {
+      title: "Paid Social (Meta, Instagram & LinkedIn)",
+      description:
+        "Scroll-stopping video ad creatives, laser-focused audience segmentation, and high-converting retargeting funnels tailored for B2B and DTC buyers.",
+    },
+    {
+      title: "Scientific Landing Page CRO",
+      description:
+        "Double your sales conversion rate without spending more on media. Multivariate split testing, psychological copy hooks, and sub-second mobile page loads.",
+    },
+    {
+      title: "Automated WhatsApp & Email Lead Nurturing",
+      description:
+        "Instant sub-60-second lead qualification via automated WhatsApp routing and behavioral email drip sequences that book meetings straight into your calendar.",
+    },
+    {
+      title: "Closed-Loop Revenue Attribution",
+      description:
+        "Eliminate vanity metrics. Direct server-side tracking that maps ad clicks to actual closed deals in your CRM, giving you true ROI transparency.",
+    },
+  ];
+
+  const features =
+    ((content.features as FeatureItem[]) &&
+      (content.features as FeatureItem[]).length > 0)
+      ? (content.features as FeatureItem[])
+      : defaultFeatures;
 
   return (
     <section className="py-24 px-6 sm:px-10 lg:px-12 xl:px-16 max-w-[1720px] 2xl:max-w-[1920px] mx-auto">
       {/* Section Header */}
       <div className="text-center max-w-3xl mx-auto space-y-4 mb-20">
-        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold text-indigo-700 bg-indigo-50 border border-indigo-200 uppercase tracking-widest">
-          Enterprise Growth Engine
+        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold text-indigo-700 bg-indigo-50 border border-indigo-200 uppercase tracking-widest shadow-2xs">
+          Comprehensive Growth Pillars
         </span>
         <h2 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-slate-900 leading-tight">
           {sectionTitle}

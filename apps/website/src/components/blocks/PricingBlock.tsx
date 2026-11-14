@@ -51,16 +51,16 @@ export const PricingBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
   const isIndia = regionCode === "IN";
 
   const sectionTitle =
-    (content.sectionTitle as string) || "Predictable Growth Infrastructure";
+    (content.sectionTitle as string) || "Transparent Growth Investment Plans";
   const sectionSubtitle =
     (content.sectionSubtitle as string) ||
-    "Transparent engagement models engineered for enterprise marketing velocity, verifiable attribution, and compliance.";
+    "Simple, ROI-driven engagement models designed for startups, scaling brands, and established enterprises. No hidden fees. Zero long-term lock-in.";
 
   const rawPlans: PricingPlan[] = (content.plans as PricingPlan[]) || [
     {
-      name: "Growth Engine",
+      name: "Growth Kickstart",
       description:
-        "For scaling B2B businesses establishing full-funnel digital dominance.",
+        "For brands scaling past $10k/month looking to establish a dominant single acquisition channel.",
       monthlyPrice: "$2,490",
       annualPrice: "$1,990",
       regionalPricing: {
@@ -68,21 +68,21 @@ export const PricingBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
         US: { monthly: "$2,490", annual: "$1,990" },
       },
       features: [
-        "Multi-Touch Attribution Engine",
-        "Deterministic Lead Scoring & Tracking",
-        "Automated Paid Campaign Optimization",
-        "Weekly Growth Architect Advisory",
-        "Standard SLA & SOC2 Compliance",
+        "Google Ads OR Meta Ads Full Management",
+        "2 High-Converting Landing Page Variants",
+        "Weekly Creative & Copy Sprints",
+        "Live 24/7 Revenue & ROAS Dashboard",
+        "Month-to-Month Contract (Cancel Anytime)",
       ],
-      ctaText: "Launch Growth Engine",
+      ctaText: "Launch Growth Kickstart",
       ctaLink: "/contact",
       isPopular: false,
     },
     {
-      name: "Enterprise Scale",
+      name: "Omnichannel Scale",
       badge: "Most Selected",
       description:
-        "For mid-to-large enterprises requiring multi-region campaign governance.",
+        "For fast-growing companies requiring full-funnel dominance across paid search, social, and SEO.",
       monthlyPrice: "$4,990",
       annualPrice: "$3,990",
       regionalPricing: {
@@ -90,21 +90,21 @@ export const PricingBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
         US: { monthly: "$4,990", annual: "$3,990" },
       },
       features: [
-        "Everything in Growth Engine, plus:",
-        "Cross-Border Multi-Region Routing",
-        "Custom Lead Pipeline Automation",
-        "Real-Time Server-Side Event Tracking",
+        "Everything in Growth Kickstart, plus:",
+        "Both Google Ads & Meta/Instagram Ads",
+        "High-Intent Commercial SEO & Content",
+        "Automated WhatsApp & Email Lead Funnels",
         "Dedicated Senior Growth Director",
-        "24/7 Dedicated Support & 99.9% SLA",
+        "Weekly Strategy Review & Direct Slack Access",
       ],
-      ctaText: "Request Enterprise Pilot",
+      ctaText: "Request Scale Diagnostic",
       ctaLink: "/contact",
       isPopular: true,
     },
     {
-      name: "Institutional Sovereign",
+      name: "Enterprise Dominance",
       description:
-        "Tailored private infrastructure for Fortune 1000 and regulated entities.",
+        "Comprehensive bespoke growth infrastructure for multi-region leaders with high media spend.",
       monthlyPrice: "Custom",
       annualPrice: "Custom",
       regionalPricing: {
@@ -112,14 +112,14 @@ export const PricingBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
         US: { monthly: "Custom", annual: "Custom" },
       },
       features: [
-        "Dedicated Isolated Cloud Cluster",
-        "Custom Data Protection & DPDP Audits",
-        "Full CRM & ERP Bidirectional Sync",
-        "Custom Transactional Workflows",
-        "Dedicated 4-Person Growth Guild",
-        "Executive Strategy Reviews (Quarterly)",
+        "Multi-Region & Global Campaign Management",
+        "Dedicated 4-Person Creative & Growth Pod",
+        "Bespoke CRM & RevOps Pipeline Integration",
+        "Continuous Multivariate CRO Lab",
+        "Quarterly Executive Board Strategy Roadmap",
+        "24/7 Priority Emergency Channel Support",
       ],
-      ctaText: "Speak with Architecture Team",
+      ctaText: "Speak with Growth Director",
       ctaLink: "/contact",
       isPopular: false,
     },

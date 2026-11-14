@@ -23,53 +23,53 @@ interface ComparisonContent {
 export const ComparisonTable: React.FC<{ block: CmsBlock }> = ({ block }) => {
   const content = (block.content || {}) as ComparisonContent;
 
-  const title = content.sectionTitle || "Why Modern Brands Choose Nexora";
+  const title = content.sectionTitle || "Why High-Growth Brands Switch to Nexora";
   const subtitle =
     content.sectionSubtitle ||
-    "See how our unified digital marketing platform compares against traditional agencies and fragmented teams.";
+    "See how our dedicated performance growth model compares against traditional agencies and fragmented teams.";
 
   const rows: ComparisonRow[] = content.rows || [
     {
-      feature: "Attribution Engine",
-      category: "Technology",
-      nexora: "Deterministic Multi-Touch ML",
-      agency: "Manual spreadsheets / Last-click",
+      feature: "Performance Reporting",
+      category: "Transparency",
+      nexora: "Live 24/7 Revenue & ROAS Dashboard",
+      agency: "Monthly PDF reports with vanity clicks",
       freelancer: "Basic Google Analytics 4",
     },
     {
-      feature: "Campaign Launch Time",
+      feature: "Account Leadership",
+      category: "Talent",
+      nexora: "Dedicated Senior Growth Director (8+ Yrs)",
+      agency: "Junior account manager / Intern",
+      freelancer: "Self-directed contractor",
+    },
+    {
+      feature: "Campaign Execution Velocity",
       category: "Agility",
-      nexora: "48 - 72 Hours",
-      agency: "3 - 6 Weeks",
+      nexora: "48 - 72 Hours Sprint Turnaround",
+      agency: "3 - 6 Weeks per iteration",
       freelancer: "Unpredictable / Ad-hoc",
     },
     {
-      feature: "Multi-Region Governance",
-      category: "Compliance",
+      feature: "High-Converting Landing Pages & CRO",
+      category: "Conversion",
       nexora: true,
       agency: false,
       freelancer: false,
     },
     {
-      feature: "Dedicated Growth Architect",
-      category: "Talent",
-      nexora: true,
-      agency: "Junior account manager",
-      freelancer: "Self-directed contractor",
-    },
-    {
-      feature: "Real-time Analytics Dashboard",
-      category: "Reporting",
-      nexora: true,
-      agency: "Monthly PDF reports",
+      feature: "Closed-Loop Revenue Attribution",
+      category: "ROI Tracking",
+      nexora: "Direct CRM Sales Mapping",
+      agency: "Vanity impressions & reach",
       freelancer: false,
     },
     {
-      feature: "Long-term Lock-in Contracts",
+      feature: "Contract Commitments",
       category: "Terms",
-      nexora: false,
-      agency: "12-month lock-in",
-      freelancer: false,
+      nexora: "Month-to-Month (Zero Lock-in)",
+      agency: "Strict 12-Month Lock-in",
+      freelancer: "Hourly / Uncertain",
     },
   ];
 

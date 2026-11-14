@@ -30,58 +30,58 @@ export const ProcessSteps: React.FC<{ block: CmsBlock }> = ({ block }) => {
   const content = (block.content || {}) as ProcessStepsContent;
 
   const title =
-    content.sectionTitle || "Our 4-Phase Growth Engineering Framework";
+    content.sectionTitle || "The 4-Phase Growth Framework That Multiplies Your Revenue";
   const subtitle =
     content.sectionSubtitle ||
-    "A systematic, battle-tested methodology designed to transform ambiguous marketing spend into predictable pipeline.";
+    "A systematic, battle-tested execution process designed to turn unpredictable marketing spend into a predictable customer acquisition machine.";
 
   const defaultSteps: StepItem[] = [
     {
       number: "01",
-      title: "Discovery & Attribution Audit",
+      title: "Deep-Funnel Audit & Leakage Teardown",
       timeline: "Days 1 — 7",
       description:
-        "We audit your legacy ad accounts, website conversion funnels, tracking infrastructure, and competitor positioning to identify low-hanging revenue leaks.",
+        "We audit your historical ad accounts, landing page drop-offs, tracking blindspots, and competitor positioning to stop immediate budget waste.",
       deliverables: [
-        "Full-funnel leakage teardown",
-        "Deterministic tracking verification",
-        "Competitor ad intelligence brief",
+        "Full ad spend leakage teardown",
+        "Competitor creative intelligence brief",
+        "High-intent keyword opportunities list",
       ],
     },
     {
       number: "02",
-      title: "Growth Architecture & Creatives",
+      title: "High-Converting Creatives & Landing Pages",
       timeline: "Days 8 — 14",
       description:
-        "Our engineers build dedicated landing page variants, wire up automated lead scoring, and draft high-converting campaign creative concepts.",
+        "Our creative and development teams craft scroll-stopping video/image ad variants, write psychological sales copy, and deploy sub-second landing pages.",
       deliverables: [
-        "Multi-variant landing pages",
-        "Audience segmentation matrix",
-        "High-intent copy & ad assets",
+        "Multi-variant landing page deployment",
+        "Scroll-stopping Meta/Google ad creatives",
+        "Instant WhatsApp & email lead routing",
       ],
     },
     {
       number: "03",
-      title: "High-Velocity Campaign Sprint",
+      title: "Omnichannel Media Launch & Scaling",
       timeline: "Days 15 — 45",
       description:
-        "We deploy targeted paid media across Google, Meta, and LinkedIn with continuous automated micro-budget rebalancing toward winning variants.",
+        "We deploy targeted paid media across Google, Meta, and LinkedIn with continuous algorithmic budget rebalancing toward winning high-ROAS ads.",
       deliverables: [
-        "Omnichannel campaign rollout",
-        "Real-time CRM lead routing",
-        "Weekly conversion sprint review",
+        "Targeted multi-channel ad campaign rollout",
+        "Live transparent revenue reporting dashboard",
+        "Weekly performance sprint reviews",
       ],
     },
     {
       number: "04",
-      title: "Systematic Scale & Retention",
+      title: "Continuous CRO & Market Dominance",
       timeline: "Ongoing",
       description:
-        "Double down on verified high-ROI segments, unlock cross-border multi-region traffic, and institutionalize automated nurturing sequences.",
+        "Double down on verified high-ROI audiences, launch automated retention drips, and institutionalize conversion rate optimizations that compound monthly.",
       deliverables: [
-        "Predictable ROAS optimization",
-        "LTV & retention automation",
-        "Quarterly executive strategy roadmap",
+        "Continuous multivariate A/B testing",
+        "LTV & repeat buyer email automation",
+        "Quarterly executive growth strategy roadmap",
       ],
     },
   ];
