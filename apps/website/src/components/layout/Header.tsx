@@ -4,7 +4,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import type { PublicSiteSettings, PublicMenu } from "../../lib/cms";
+import type { PublicSiteSettings, PublicMenu, PublicMenuItem } from "../../lib/cms";
 import {
   Sparkles,
   Search,
@@ -33,10 +33,20 @@ import {
   Hotel,
   ArrowRight,
   ShieldCheck,
+  Code2,
+  Terminal,
+  Bot,
+  Workflow,
+  Database,
+  Cloud,
+  CheckCircle2,
+  Lightbulb,
+  Rocket,
+  LineChart,
+  Target,
+  Clock,
 } from "lucide-react";
 import { AnnouncementBar } from "./AnnouncementBar";
-import { SearchDialog } from "./SearchDialog";
-import { RegionSwitcher } from "../RegionSwitcher";
 import { Button } from "../ui/button";
 
 interface HeaderProps {
@@ -47,26 +57,26 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({
   settings,
-  currentRegionCode = "IN",
   menu,
 }) => {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
-  const [activeMegaMenu, setActiveMegaMenu] = useState<string | null>(null);
+  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+  const [mobileAccordion, setMobileAccordion] = useState<string | null>(null);
 
-  // Close mobile drawer on route change
+  // Close mobile drawer and dropdown on route change
   useEffect(() => {
     setMobileMenuOpen(false);
-    setActiveMegaMenu(null);
+    setActiveDropdown(null);
+    setMobileAccordion(null);
   }, [pathname]);
 
-  // Global Cmd+K keyboard shortcut
+  // Global Escape keyboard shortcut to close dropdowns & drawers
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
-        e.preventDefault();
-        setSearchOpen((prev) => !prev);
+      if (e.key === "Escape") {
+        setActiveDropdown(null);
+        setMobileMenuOpen(false);
       }
     };
     window.addEventListener("keydown", handleKeyDown);
@@ -90,473 +100,798 @@ export const Header: React.FC<HeaderProps> = ({
       : `${apiBase}${rawLogo.startsWith("/") ? "" : "/"}${rawLogo}`
     : null;
 
-  // 12 Institutional Services
-  const servicesList = [
+  // THREE MAJOR PILLARS: Digital Growth, Technology Solutions, AI & Automation
+  const megaMenuPillars = [
     {
-      category: "Demand Generation",
+      pillar: "Digital Growth",
+      badge: "Pillar 1",
+      badgeColor: "bg-blue-50 text-blue-700 border-blue-200",
+      accent: "text-blue-600",
       items: [
         {
-          title: "Enterprise SEO",
+          title: "SEO Services",
           href: "/services/seo",
-          desc: "Commercial keyword intent & technical scale",
+          desc: "High-intent commercial keyword capture",
           icon: SearchCode,
         },
         {
-          title: "Paid Ads (PPC)",
+          title: "Paid Media (Google & Meta)",
           href: "/services/paid-ads",
-          desc: "Google & Meta high-intent retargeting",
+          desc: "Algorithmic bidding & account-based retargeting",
           icon: TrendingUp,
+        },
+        {
+          title: "Conversion Optimization (CRO)",
+          href: "/services/cro",
+          desc: "Multivariate testing & funnel drop-off remediation",
+          icon: Sparkles,
+        },
+        {
+          title: "Social Media Marketing",
+          href: "/services/social-media-marketing",
+          desc: "Executive brand amplification & engagement",
+          icon: Share2,
         },
         {
           title: "Content Marketing",
           href: "/services/content-marketing",
-          desc: "Authoritative editorial & search funnels",
+          desc: "Thought leadership & search-driven content engines",
           icon: Megaphone,
         },
         {
-          title: "Social Media (SMM)",
-          href: "/services/social-media-marketing",
-          desc: "Executive LinkedIn & audience amplification",
-          icon: Share2,
+          title: "Marketing Analytics",
+          href: "/services/analytics-reporting",
+          desc: "Deterministic server-side multi-touch attribution",
+          icon: BarChart3,
         },
       ],
     },
     {
-      category: "Conversion & Tech",
+      pillar: "Technology Solutions",
+      badge: "Pillar 2",
+      badgeColor: "bg-slate-100 text-slate-800 border-slate-300",
+      accent: "text-slate-800",
       items: [
         {
-          title: "Web Architecture",
+          title: "Corporate Website Development",
           href: "/services/web-design-development",
-          desc: "Sub-second Next.js conversion sites",
+          desc: "Next.js 15 architectures for sub-second Core Web Vitals",
           icon: Layout,
         },
         {
-          title: "CRO & Split Testing",
-          href: "/services/cro",
-          desc: "Scientific multivariate funnel testing",
-          icon: Sparkles,
+          title: "Custom Web Applications",
+          href: "/services/web-application-development",
+          desc: "Resilient full-stack applications & clean modular systems",
+          icon: Code2,
         },
         {
-          title: "Attribution & Reporting",
-          href: "/services/analytics-reporting",
-          desc: "Deterministic server-side ROI dashboards",
-          icon: BarChart3,
+          title: "Custom Software Engineering",
+          href: "/services/custom-software-development",
+          desc: "Bespoke business platforms & enterprise tools",
+          icon: Terminal,
         },
         {
-          title: "Brand & Creative",
-          href: "/services/branding-creative",
-          desc: "Visual systems & conversion assets",
+          title: "E-Commerce Development",
+          href: "/services/ecommerce-development",
+          desc: "Headless storefronts & high-AOV checkout funnels",
+          icon: ShoppingCart,
+        },
+        {
+          title: "UI/UX Design Systems",
+          href: "/services/ui-ux-design",
+          desc: "Atomic design tokens & human-centered prototypes",
           icon: Palette,
+        },
+        {
+          title: "API & Cloud Integration",
+          href: "/services/api-development",
+          desc: "High-throughput RESTful services & cloud systems",
+          icon: Database,
         },
       ],
     },
     {
-      category: "Retention & Lifecycle",
+      pillar: "AI & Automation",
+      badge: "Pillar 3",
+      badgeColor: "bg-purple-50 text-purple-700 border-purple-200",
+      accent: "text-purple-600",
       items: [
         {
-          title: "Lifecycle Email",
-          href: "/services/email-marketing",
-          desc: "Automated B2B drip lead nurturing",
-          icon: Mail,
+          title: "AI Integration & Agents",
+          href: "/services/ai-integration",
+          desc: "LLM tooling, semantic search & custom agents",
+          icon: Bot,
         },
         {
-          title: "WhatsApp Marketing",
-          href: "/services/whatsapp-marketing",
-          desc: "Conversational intake & click-to-chat",
+          title: "AI Conversational Chatbots",
+          href: "/services/ai-chatbots",
+          desc: "Instant customer intake & conversational bots",
           icon: MessageSquare,
         },
         {
-          title: "Influencer Marketing",
-          href: "/services/influencer-marketing",
-          desc: "Creator partnerships & co-marketing",
-          icon: Users,
+          title: "Business Process Automation",
+          href: "/services/workflow-automation",
+          desc: "Event-driven workflow engines & webhook pipelines",
+          icon: Workflow,
         },
         {
-          title: "Marketing CRM & RevOps",
+          title: "Marketing Automation & CRM",
           href: "/services/marketing-automation-crm",
-          desc: "SLA routing, lead scoring & CRM sync",
+          desc: "Automated lead scoring, SLA routing & CRM sync",
           icon: Cpu,
+        },
+        {
+          title: "Lifecycle Email Marketing",
+          href: "/services/email-marketing",
+          desc: "Behavioral nurture sequences & trigger flows",
+          icon: Mail,
         },
       ],
     },
   ];
 
-  // 8 Industry Verticals
+  // 8 Target Industries
   const industriesList = [
     {
-      title: "SaaS & Cloud",
+      title: "SaaS & Technology",
       href: "/industries/saas",
       icon: Cpu,
-      desc: "CAC-to-LTV & pipeline velocity",
+      desc: "CAC-to-LTV expansion and product pipeline velocity",
     },
     {
-      title: "E-Commerce",
+      title: "E-Commerce & Retail",
       href: "/industries/ecommerce",
       icon: ShoppingCart,
-      desc: "ROAS scale & cart recovery",
+      desc: "ROAS maximization, feed optimization & cart recovery",
     },
     {
-      title: "Real Estate",
+      title: "Healthcare & Life Sciences",
+      href: "/industries/healthcare",
+      icon: Stethoscope,
+      desc: "DPDP-compliant patient acquisition & credibility",
+    },
+    {
+      title: "Real Estate & Property",
       href: "/industries/real-estate",
       icon: Home,
-      desc: "High-ticket investor acquisition",
+      desc: "High-ticket investor acquisition & localized search",
+    },
+    {
+      title: "Restaurants & Hospitality",
+      href: "/industries/hospitality",
+      icon: Hotel,
+      desc: "Direct booking maximization & local visibility",
     },
     {
       title: "Education & EdTech",
       href: "/industries/education",
       icon: GraduationCap,
-      desc: "Student enrollment funnels",
+      desc: "Student intake cycles & programmatic landing funnels",
     },
     {
-      title: "Healthcare & Med",
-      href: "/industries/healthcare",
-      icon: Stethoscope,
-      desc: "Compliant patient acquisition",
-    },
-    {
-      title: "Local Businesses",
-      href: "/industries/local-business",
-      icon: Store,
-      desc: "Multi-location Google Maps SEO",
+      title: "Manufacturing & Industrial",
+      href: "/industries/manufacturing",
+      icon: Building2,
+      desc: "B2B catalog architectures & global distributor inquiries",
     },
     {
       title: "Professional Services",
       href: "/industries/professional-services",
       icon: Briefcase,
-      desc: "RFP capture & consulting leads",
-    },
-    {
-      title: "Hospitality & Travel",
-      href: "/industries/hospitality",
-      icon: Hotel,
-      desc: "Direct booking engine",
+      desc: "RFP generation & partner authority establishment",
     },
   ];
 
-  return (
-    <header className="sticky top-0 z-50 w-full border-b border-slate-200/90 bg-white/90 backdrop-blur-xl transition-all shadow-xs">
-      {/* Announcement Bar (from SiteSettings) */}
-      <AnnouncementBar announcementBarJson={settings?.announcementBarJson} />
+  // 6 Solution Pathways
+  const solutionsList = [
+    {
+      title: "Generate More Leads",
+      href: "/solutions/generate-leads",
+      desc: "Multi-channel acquisition funnels with verified CRM scoring",
+      icon: Target,
+    },
+    {
+      title: "Improve Search Visibility",
+      href: "/solutions/improve-search-visibility",
+      desc: "Technical SEO, Core Web Vitals & AI Answer Engine Optimization",
+      icon: SearchCode,
+    },
+    {
+      title: "Build Digital Products",
+      href: "/solutions/build-digital-products",
+      desc: "Production-grade Next.js web applications & design systems",
+      icon: Code2,
+    },
+    {
+      title: "Automate Business Operations",
+      href: "/solutions/automate-operations",
+      desc: "Intelligent AI agents, webhook synchronizations & CRM routing",
+      icon: Workflow,
+    },
+    {
+      title: "Improve Customer Experience",
+      href: "/solutions/improve-customer-experience",
+      desc: "Sub-second load times, intuitive UI/UX & conversational intake",
+      icon: Sparkles,
+    },
+    {
+      title: "Scale Digital Marketing",
+      href: "/solutions/scale-marketing",
+      desc: "Deterministic attribution, ROAS scale & creative testing",
+      icon: Rocket,
+    },
+  ];
 
-      {/* Main Navbar */}
-      <div className="max-w-[1720px] 2xl:max-w-[1920px] mx-auto px-4 sm:px-8 lg:px-12 h-20 flex items-center justify-between">
-        {/* Brand Logo & Monogram */}
-        <Link href="/" className="flex items-center gap-3 group shrink-0">
-          {logoUrl ? (
-            <img
-              src={logoUrl}
-              alt={companyName}
-              className="w-10 h-10 object-contain rounded-xl bg-slate-50 border border-slate-200 p-1 group-hover:scale-105 transition-all duration-200 shadow-xs"
-            />
-          ) : (
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-purple-600 flex items-center justify-center text-white font-black text-xl shadow-lg shadow-indigo-600/35 group-hover:scale-105 transition-all">
-              {companyName ? companyName.charAt(0).toUpperCase() : "N"}
-            </div>
-          )}
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="font-black text-lg tracking-tight text-slate-900 block leading-tight font-sans">
+  // Resolved navigation items dynamically from Admin CMS (/menus) or curated defaults
+  const resolvedMenuItems: PublicMenuItem[] =
+    menu?.items && menu.items.length > 0
+      ? [...menu.items].sort((a, b) => a.displayOrder - b.displayOrder)
+      : [
+          { id: "nav-services", label: "Services", url: "/services", displayOrder: 0, children: [] },
+          { id: "nav-industries", label: "Industries", url: "/industries", displayOrder: 1, children: [] },
+          { id: "nav-solutions", label: "Solutions", url: "/solutions", displayOrder: 2, children: [] },
+          { id: "nav-work", label: "Our Work", url: "/case-studies", displayOrder: 3, children: [] },
+          { id: "nav-insights", label: "Insights", url: "/blog", displayOrder: 4, children: [] },
+          { id: "nav-about", label: "About", url: "/about", displayOrder: 5, children: [] },
+          { id: "nav-contact", label: "Contact", url: "/contact", displayOrder: 6, children: [] },
+        ];
+
+  // Helper to determine if an item has a dropdown menu
+  const hasDropdown = (item: PublicMenuItem) => {
+    const key = item.label.toLowerCase();
+    return (
+      key.includes("service") ||
+      key.includes("industr") ||
+      key.includes("solution") ||
+      Boolean(item.children && item.children.length > 0)
+    );
+  };
+
+  const getItemDropdownKey = (item: PublicMenuItem) => {
+    const key = item.label.toLowerCase();
+    if (key.includes("service")) return "services";
+    if (key.includes("industr")) return "industries";
+    if (key.includes("solution")) return "solutions";
+    return item.id || item.label;
+  };
+
+  return (
+    <header className="sticky top-0 z-50 w-full transition-all duration-300">
+      {/* 1. Dynamic Announcement Bar */}
+      <AnnouncementBar
+        announcementBarJson={settings?.announcementBarJson}
+        defaultMessage="Helping ambitious businesses grow through technology, creativity and digital strategy."
+      />
+
+      {/* 2. Main Sticky Header Navigation */}
+      <div className="w-full bg-white/95 backdrop-blur-md border-b border-slate-200/90 shadow-2xs">
+        <div className="w-full px-4 sm:px-8 lg:px-12 h-20 flex items-center justify-between gap-4">
+          {/* Brand Logo & Wordmark */}
+          <Link
+            href="/"
+            className="flex items-center gap-3 shrink-0 whitespace-nowrap group focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-primary rounded-xl"
+            aria-label={`${companyName} Homepage`}
+          >
+            {logoUrl ? (
+              <img
+                src={logoUrl}
+                alt={companyName}
+                className="w-10 h-10 object-contain rounded-xl bg-slate-50 border border-slate-200 p-1 shadow-2xs"
+              />
+            ) : (
+              <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-primary-foreground font-black text-xl shadow-md shadow-primary/25 group-hover:scale-105 transition-transform duration-200 shrink-0">
+                <span className="font-heading">N</span>
+              </div>
+            )}
+            <div className="flex flex-col">
+              <span className="font-black text-slate-900 text-base lg:text-lg tracking-tight leading-none group-hover:text-primary transition-colors whitespace-nowrap">
                 {companyName}
               </span>
-              <span className="hidden sm:inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-700 text-[10px] font-bold border border-indigo-200">
-                <ShieldCheck className="w-2.5 h-2.5 text-emerald-600" /> SOC2
+              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1 whitespace-nowrap">
+                Growth &bull; Technology &bull; AI
               </span>
             </div>
-            <span className="text-[10px] uppercase font-bold tracking-widest text-indigo-600 block">
-              Digital Marketing Platform
-            </span>
-          </div>
-        </Link>
+          </Link>
 
-        {/* Desktop Navigation (>= 1024px) */}
-        <nav className="hidden lg:flex items-center gap-1 xl:gap-2">
-          {/* Services Mega Menu Trigger */}
-          <div
-            className="relative"
-            onMouseEnter={() => setActiveMegaMenu("services")}
-            onMouseLeave={() => setActiveMegaMenu(null)}
+          {/* Desktop Navigation Links & Mega Menus (Dynamically Driven by Admin CMS with Curated Defaults) */}
+          <nav
+            className="hidden xl:flex items-center gap-0.5 2xl:gap-1.5 text-[13px] 2xl:text-sm font-semibold text-slate-700 whitespace-nowrap shrink-0"
+            aria-label="Main Navigation"
           >
-            <button
-              type="button"
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-sm font-semibold text-slate-700 hover:text-indigo-600 hover:bg-slate-100 transition"
-            >
-              Services
-              <ChevronDown className="w-3.5 h-3.5 text-slate-400 transition-transform duration-200" />
-            </button>
+            {resolvedMenuItems.map((item) => {
+              const isDropdown = hasDropdown(item);
+              const dropdownKey = getItemDropdownKey(item);
+              const isItemActive = Boolean(
+                pathname &&
+                  (pathname === item.url ||
+                    (item.url !== "/" && pathname.startsWith(item.url))),
+              );
 
-            {/* Mega Menu Dropdown */}
-            {activeMegaMenu === "services" && (
-              <div className="absolute top-full left-1/2 -translate-x-1/2 w-[850px] p-6 rounded-2xl bg-white backdrop-blur-2xl border border-slate-200 shadow-2xl grid grid-cols-3 gap-6 animate-in fade-in-0 zoom-in-95 duration-150">
-                {servicesList.map((col, idx) => (
-                  <div key={idx} className="space-y-3">
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-indigo-600 block px-2.5">
-                      {col.category}
-                    </span>
-                    <div className="space-y-1">
-                      {col.items.map((item, itemIdx) => {
-                        const Icon = item.icon;
-                        return (
-                          <Link
-                            key={itemIdx}
-                            href={item.href}
-                            className="group flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition"
-                          >
-                            <div className="p-2 rounded-lg bg-indigo-50 text-indigo-600 border border-indigo-100 group-hover:bg-indigo-600 group-hover:text-white transition shrink-0 mt-0.5">
-                              <Icon className="w-4 h-4" />
-                            </div>
-                            <div>
-                              <span className="text-xs font-bold text-slate-900 group-hover:text-indigo-600 transition block">
-                                {item.title}
-                              </span>
-                              <span className="text-[11px] text-slate-500 line-clamp-1 block mt-0.5">
-                                {item.desc}
-                              </span>
-                            </div>
-                          </Link>
-                        );
-                      })}
-                    </div>
-                  </div>
-                ))}
-                <div className="col-span-3 pt-4 border-t border-slate-100 flex items-center justify-between px-2 text-xs text-slate-500">
-                  <span>Looking for full multi-channel managed delivery?</span>
-                  <Link
-                    href="/services"
-                    className="font-semibold text-indigo-600 hover:text-indigo-700 transition flex items-center gap-1"
+              if (isDropdown) {
+                return (
+                  <div
+                    key={item.id || item.label}
+                    className="relative shrink-0"
+                    onMouseEnter={() => setActiveDropdown(dropdownKey)}
+                    onMouseLeave={() => setActiveDropdown(null)}
                   >
-                    View all 12 services <ArrowRight className="w-3.5 h-3.5" />
-                  </Link>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Industries Mega Menu Trigger */}
-          <div
-            className="relative"
-            onMouseEnter={() => setActiveMegaMenu("industries")}
-            onMouseLeave={() => setActiveMegaMenu(null)}
-          >
-            <button
-              type="button"
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-sm font-semibold text-slate-700 hover:text-indigo-600 hover:bg-slate-100 transition"
-            >
-              Industries
-              <ChevronDown className="w-3.5 h-3.5 text-slate-400 transition-transform duration-200" />
-            </button>
-
-            {/* Industries Dropdown */}
-            {activeMegaMenu === "industries" && (
-              <div className="absolute top-full left-1/2 -translate-x-1/2 w-[720px] p-6 rounded-2xl bg-white backdrop-blur-2xl border border-slate-200 shadow-2xl grid grid-cols-2 gap-3 animate-in fade-in-0 zoom-in-95 duration-150">
-                {industriesList.map((item, idx) => {
-                  const Icon = item.icon;
-                  return (
-                    <Link
-                      key={idx}
-                      href={item.href}
-                      className="group flex items-start gap-3 p-3 rounded-xl hover:bg-slate-50 transition"
+                    <button
+                      type="button"
+                      className={`px-3 py-2 rounded-xl flex items-center gap-1 transition-colors whitespace-nowrap shrink-0 cursor-pointer focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-primary ${
+                        activeDropdown === dropdownKey
+                          ? "text-primary bg-primary/10 font-bold"
+                          : isItemActive
+                            ? "text-primary font-bold"
+                            : "hover:text-primary hover:bg-slate-50"
+                      }`}
+                      aria-expanded={activeDropdown === dropdownKey}
+                      aria-haspopup="true"
+                      onClick={() =>
+                        setActiveDropdown(
+                          activeDropdown === dropdownKey ? null : dropdownKey,
+                        )
+                      }
                     >
-                      <div className="p-2 rounded-lg bg-indigo-50 text-indigo-600 border border-indigo-100 group-hover:bg-indigo-600 group-hover:text-white transition shrink-0 mt-0.5">
-                        <Icon className="w-4 h-4" />
+                      <span>{item.label}</span>
+                      <ChevronDown
+                        className={`w-3.5 h-3.5 transition-transform duration-200 ${
+                          activeDropdown === dropdownKey
+                            ? "rotate-180 text-primary"
+                            : "text-slate-400"
+                        }`}
+                      />
+                    </button>
+
+                    {/* 1. SERVICES MEGA MENU CANVAS (100% Solid Opaque Background - Zero Transparency) */}
+                    {activeDropdown === dropdownKey && dropdownKey === "services" && (
+                      <div
+                        style={{ backgroundColor: "#ffffff" }}
+                        className="absolute top-full left-0 w-[840px] xl:w-[920px] max-w-[calc(100vw-3rem)] bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl p-5 sm:p-6 animate-in fade-in-50 zoom-in-95 duration-150 z-50 select-none"
+                      >
+                        <div className="flex items-center justify-between pb-3.5 mb-5 border-b border-slate-100 dark:border-slate-800">
+                          <div className="flex items-center gap-2.5">
+                            <span className="text-[10px] font-extrabold uppercase tracking-widest text-primary bg-primary/10 px-2.5 py-0.5 rounded-full border border-primary/20">
+                              CAPABILITIES
+                            </span>
+                            <h4 className="text-sm font-extrabold text-slate-900 dark:text-white tracking-tight">
+                              Integrated Digital Growth, Software Engineering &amp; Intelligent AI
+                            </h4>
+                          </div>
+                          <Link
+                            href={item.url || "/services"}
+                            className="text-xs font-bold text-primary hover:text-primary-hover flex items-center gap-1 group transition-colors"
+                          >
+                            <span>Explore all services</span>
+                            <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+                          </Link>
+                        </div>
+
+                        <div className="grid grid-cols-3 gap-5">
+                          {megaMenuPillars.map((pillar) => (
+                            <div key={pillar.pillar} className="space-y-2.5">
+                              <div className="flex items-center gap-2 pb-1.5 border-b border-slate-100 dark:border-slate-800">
+                                <span
+                                  className={`text-[9px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-md border ${pillar.badgeColor}`}
+                                >
+                                  {pillar.badge}
+                                </span>
+                                <span className="font-extrabold text-slate-900 dark:text-white text-xs">
+                                  {pillar.pillar}
+                                </span>
+                              </div>
+                              <ul className="space-y-0.5">
+                                {pillar.items.map((it) => {
+                                  const IconComponent = it.icon;
+                                  return (
+                                    <li key={it.href}>
+                                      <Link
+                                        href={it.href}
+                                        className="group flex items-start gap-2.5 p-1.5 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors"
+                                      >
+                                        <div className="mt-0.5 w-6 h-6 rounded-lg bg-slate-100 dark:bg-slate-800 group-hover:bg-primary/10 group-hover:text-primary flex items-center justify-center shrink-0 transition-colors">
+                                          <IconComponent className="w-3.5 h-3.5 text-slate-600 dark:text-slate-300 group-hover:text-primary" />
+                                        </div>
+                                        <div className="min-w-0">
+                                          <span className="text-xs font-bold text-slate-900 dark:text-white group-hover:text-primary transition-colors block truncate">
+                                            {it.title}
+                                          </span>
+                                          <span className="text-[10px] text-slate-500 dark:text-slate-400 font-normal line-clamp-1 block">
+                                            {it.desc}
+                                          </span>
+                                        </div>
+                                      </Link>
+                                    </li>
+                                  );
+                                })}
+                              </ul>
+                            </div>
+                          ))}
+                        </div>
+
+                        {/* Mega Menu Footer Banner */}
+                        <div className="mt-5 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs bg-slate-50 dark:bg-slate-800/50 rounded-xl px-4 py-2.5">
+                          <span className="text-slate-600 dark:text-slate-300 font-medium text-[11px]">
+                            Need a customized scope or dual marketing + engineering retainer?
+                          </span>
+                          <Link
+                            href="/contact"
+                            className="font-bold text-primary hover:text-primary-hover flex items-center gap-1 text-[11px] group"
+                          >
+                            <span>Request Custom Proposal</span>
+                            <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
+                          </Link>
+                        </div>
                       </div>
-                      <div>
-                        <span className="text-xs font-bold text-slate-900 group-hover:text-indigo-600 transition block">
-                          {item.title}
-                        </span>
-                        <span className="text-[11px] text-slate-500 line-clamp-1 block mt-0.5">
-                          {item.desc}
-                        </span>
+                    )}
+
+                    {/* 2. INDUSTRIES DROPDOWN CANVAS (100% Solid Opaque Background) */}
+                    {activeDropdown === dropdownKey && dropdownKey === "industries" && (
+                      <div
+                        style={{ backgroundColor: "#ffffff" }}
+                        className="absolute top-full left-0 w-[540px] max-w-[calc(100vw-3rem)] bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl p-5 animate-in fade-in-50 zoom-in-95 duration-150 z-50 select-none"
+                      >
+                        <div className="flex items-center justify-between pb-2.5 mb-3 border-b border-slate-100 dark:border-slate-800">
+                          <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                            Tailored Industry Solutions
+                          </span>
+                          <Link
+                            href={item.url || "/industries"}
+                            className="text-xs font-bold text-primary hover:underline flex items-center gap-1"
+                          >
+                            <span>View All</span>
+                            <ArrowRight className="w-3 h-3" />
+                          </Link>
+                        </div>
+                        <div className="grid grid-cols-2 gap-1.5">
+                          {industriesList.map((ind) => {
+                            const IconComponent = ind.icon;
+                            return (
+                              <Link
+                                key={ind.href}
+                                href={ind.href}
+                                className="group flex items-start gap-2.5 p-2 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/60 transition"
+                              >
+                                <div className="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 group-hover:bg-primary/10 group-hover:text-primary flex items-center justify-center shrink-0">
+                                  <IconComponent className="w-3.5 h-3.5 text-slate-600 dark:text-slate-300 group-hover:text-primary" />
+                                </div>
+                                <div className="min-w-0">
+                                  <span className="text-xs font-bold text-slate-900 dark:text-white group-hover:text-primary transition block truncate">
+                                    {ind.title}
+                                  </span>
+                                  <span className="text-[10px] text-slate-500 dark:text-slate-400 line-clamp-1 block">
+                                    {ind.desc}
+                                  </span>
+                                </div>
+                              </Link>
+                            );
+                          })}
+                        </div>
                       </div>
-                    </Link>
-                  );
-                })}
-                <div className="col-span-2 pt-3 border-t border-slate-100 flex items-center justify-between px-2 text-xs text-slate-500">
-                  <span>Custom ICP modeling for enterprise markets</span>
-                  <Link
-                    href="/industries"
-                    className="font-semibold text-indigo-600 hover:text-indigo-700 transition flex items-center gap-1"
-                  >
-                    Explore vertical solutions{" "}
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </Link>
-                </div>
-              </div>
-            )}
-          </div>
+                    )}
 
-          {/* Direct Nav Links */}
-          <Link
-            href="/case-studies"
-            className="px-3.5 py-2 rounded-lg text-sm font-semibold text-slate-700 hover:text-indigo-600 hover:bg-slate-100 transition"
-          >
-            Case Studies
-          </Link>
-          <Link
-            href="/pricing"
-            className="px-3.5 py-2 rounded-lg text-sm font-semibold text-slate-700 hover:text-indigo-600 hover:bg-slate-100 transition"
-          >
-            Pricing
-          </Link>
-          <Link
-            href="/about"
-            className="px-3.5 py-2 rounded-lg text-sm font-semibold text-slate-700 hover:text-indigo-600 hover:bg-slate-100 transition"
-          >
-            About
-          </Link>
-          <Link
-            href="/blog"
-            className="px-3.5 py-2 rounded-lg text-sm font-semibold text-slate-700 hover:text-indigo-600 hover:bg-slate-100 transition"
-          >
-            Insights
-          </Link>
-          <Link
-            href="/contact"
-            className="px-3.5 py-2 rounded-lg text-sm font-semibold text-slate-700 hover:text-indigo-600 hover:bg-slate-100 transition"
-          >
-            Contact
-          </Link>
-        </nav>
+                    {/* 3. SOLUTIONS DROPDOWN CANVAS (2-Column Solid Opaque Card Grid - ZERO Transparency) */}
+                    {activeDropdown === dropdownKey && dropdownKey === "solutions" && (
+                      <div
+                        style={{ backgroundColor: "#ffffff" }}
+                        className="absolute top-full left-0 w-[620px] max-w-[calc(100vw-2rem)] bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl p-5 sm:p-6 animate-in fade-in-50 zoom-in-95 duration-150 z-50 select-none"
+                      >
+                        {/* Header Row */}
+                        <div className="pb-3 mb-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <span className="text-[10px] font-extrabold uppercase tracking-widest text-primary bg-primary/10 px-2 py-0.5 rounded-full border border-primary/20">
+                              ENTERPRISE SOLUTIONS
+                            </span>
+                            <span className="text-xs font-bold text-slate-400">
+                              Outcome Pathways
+                            </span>
+                          </div>
+                          <Link
+                            href={item.url || "/solutions"}
+                            className="text-xs font-bold text-primary hover:text-primary-hover flex items-center gap-1 group"
+                          >
+                            <span>Explore all pathways</span>
+                            <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+                          </Link>
+                        </div>
 
-        {/* Right Section: Search Trigger, Region Switcher, Primary CTA */}
-        <div className="hidden lg:flex items-center gap-3">
-          {/* Quick Search Button */}
-          <button
-            type="button"
-            onClick={() => setSearchOpen(true)}
-            className="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-600 hover:text-slate-900 hover:border-slate-300 transition text-xs shadow-xs"
-            aria-label="Search platform"
-          >
-            <Search className="w-4 h-4 text-indigo-600" />
-            <span className="hidden xl:inline">Search...</span>
-            <kbd className="hidden xl:inline-block px-1.5 py-0.5 rounded bg-white text-[10px] text-slate-500 font-mono border border-slate-200 shadow-xs">
-              ⌘K
-            </kbd>
-          </button>
+                        {/* 2-Column Cards Grid */}
+                        <div className="grid grid-cols-2 gap-2.5">
+                          {(item.children && item.children.length > 0
+                            ? item.children.map((c) => ({
+                                title: c.label,
+                                href: c.url,
+                                desc: "Configured via Admin Navigation Menus",
+                                icon: Sparkles,
+                              }))
+                            : solutionsList
+                          ).map((sol) => {
+                            const IconComponent = sol.icon;
+                            return (
+                              <Link
+                                key={sol.href}
+                                href={sol.href}
+                                className="group flex items-start gap-3 p-3 rounded-xl bg-slate-50/70 hover:bg-primary/5 hover:border-primary/30 border border-slate-100/90 dark:border-slate-800 dark:bg-slate-800/40 transition-all shadow-2xs hover:shadow-sm"
+                              >
+                                <div className="w-8 h-8 rounded-lg bg-primary/10 group-hover:bg-primary text-primary group-hover:text-primary-foreground flex items-center justify-center shrink-0 transition-colors">
+                                  <IconComponent className="w-4 h-4 transition-colors" />
+                                </div>
+                                <div className="min-w-0">
+                                  <span className="text-xs font-extrabold text-slate-900 dark:text-white group-hover:text-primary transition-colors block truncate">
+                                    {sol.title}
+                                  </span>
+                                  <span className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-1 block mt-0.5">
+                                    {sol.desc}
+                                  </span>
+                                </div>
+                              </Link>
+                            );
+                          })}
+                        </div>
 
-          {/* Region Switcher */}
-          <RegionSwitcher currentRegionCode={currentRegionCode} />
+                        {/* Bottom Banner */}
+                        <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs bg-slate-50 dark:bg-slate-800/40 rounded-xl px-4 py-2.5">
+                          <span className="text-slate-600 dark:text-slate-300 font-medium text-[11px]">
+                            Need custom enterprise architecture or technical advisory?
+                          </span>
+                          <Link
+                            href="/book-a-call"
+                            className="font-bold text-primary hover:text-primary-hover flex items-center gap-1 text-[11px] group shrink-0"
+                          >
+                            <span>Schedule Call</span>
+                            <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
+                          </Link>
+                        </div>
+                      </div>
+                    )}
 
-          {/* CTA */}
-          <Button asChild variant="gradient" size="default" shape="pill">
-            <Link href="/book-a-call">
-              Book a Call <ArrowRight className="w-4 h-4 ml-1.5" />
+                    {/* 4. GENERIC ADMIN CUSTOM DROPDOWN (100% Solid Opaque Background) */}
+                    {activeDropdown === dropdownKey &&
+                      dropdownKey !== "services" &&
+                      dropdownKey !== "industries" &&
+                      dropdownKey !== "solutions" &&
+                      item.children &&
+                      item.children.length > 0 && (
+                        <div
+                          style={{ backgroundColor: "#ffffff" }}
+                          className="absolute top-full left-0 min-w-[220px] bg-white dark:bg-[#0f172a] rounded-xl border border-slate-200 dark:border-slate-800 shadow-xl p-2 animate-in fade-in-50 zoom-in-95 duration-150 z-50 space-y-0.5 select-none"
+                        >
+                          {item.children.map((child) => (
+                            <Link
+                              key={child.id || child.url}
+                              href={child.url}
+                              className="flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold text-slate-700 dark:text-slate-200 hover:text-primary hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors group"
+                            >
+                              <span>{child.label}</span>
+                              <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 text-primary transition-all" />
+                            </Link>
+                          ))}
+                        </div>
+                      )}
+                  </div>
+                );
+              }
+
+              // Standard Direct Link
+              return (
+                <Link
+                  key={item.id || item.label}
+                  href={item.url}
+                  className={`px-3 py-2 rounded-xl transition-colors whitespace-nowrap shrink-0 ${
+                    isItemActive
+                      ? "text-primary font-bold bg-primary/10"
+                      : "hover:text-primary hover:bg-slate-50"
+                  }`}
+                >
+                  {item.label}
+                </Link>
+              );
+            })}
+          </nav>
+
+          {/* Right Action Tools: Book a Call & Primary CTA */}
+          <div className="flex items-center gap-2 2xl:gap-3 shrink-0 whitespace-nowrap">
+            {/* Book a Call Link */}
+            <Link
+              href="/book-a-call"
+              className="hidden md:inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-slate-700 hover:text-primary hover:bg-primary/10 transition border border-slate-200 whitespace-nowrap shrink-0"
+            >
+              <Clock className="w-3.5 h-3.5 text-primary" />
+              <span>Book a Call</span>
             </Link>
-          </Button>
-        </div>
 
-        {/* Mobile Navbar Controls (< 1024px) */}
-        <div className="flex lg:hidden items-center gap-2">
-          <button
-            type="button"
-            onClick={() => setSearchOpen(true)}
-            aria-label="Search"
-            className="p-2.5 rounded-xl bg-slate-100 border border-slate-200 text-slate-700 hover:text-slate-900"
-          >
-            <Search className="w-4 h-4 text-indigo-600" />
-          </button>
+            {/* Primary CTA Button: "Let's Talk" */}
+            <Link
+              href="/contact"
+              className="inline-flex items-center gap-1.5 rounded-xl bg-primary hover:bg-primary-hover px-4 py-2 text-xs font-bold text-primary-foreground shadow-md shadow-primary/25 hover:shadow-primary/40 hover:scale-[1.02] active:scale-[0.98] transition-all whitespace-nowrap shrink-0"
+            >
+              <span>Let&apos;s Talk</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
 
-          <button
-            type="button"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-label="Toggle Navigation Menu"
-            className="p-2.5 rounded-xl bg-slate-100 border border-slate-200 text-slate-900 min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-slate-200 transition"
-          >
-            {mobileMenuOpen ? (
-              <X className="w-5 h-5 text-indigo-600" />
-            ) : (
-              <Menu className="w-5 h-5" />
-            )}
-          </button>
+            {/* Mobile Hamburger Drawer Trigger */}
+            <button
+              type="button"
+              onClick={() => setMobileMenuOpen(true)}
+              className="xl:hidden p-2 rounded-xl text-slate-700 hover:text-primary hover:bg-slate-100 transition focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-primary"
+              aria-label="Open Mobile Menu"
+              aria-expanded={mobileMenuOpen}
+            >
+              <Menu className="w-6 h-6" />
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Mobile Drawer (Full-Height Overlay) */}
+      {/* ACCESSIBLE MOBILE NAVIGATION DRAWER */}
       {mobileMenuOpen && (
-        <div className="fixed inset-0 top-20 z-50 bg-white/98 backdrop-blur-2xl overflow-y-auto px-6 py-8 flex flex-col justify-between border-t border-slate-200 animate-in fade-in-0 duration-200">
-          <div className="space-y-6">
-            {/* Quick Links */}
-            <div className="grid grid-cols-2 gap-3">
-              <Link
-                href="/services"
-                className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-center font-bold text-sm text-slate-900 hover:bg-slate-100 transition shadow-xs"
-              >
-                12 Services
-              </Link>
-              <Link
-                href="/industries"
-                className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-center font-bold text-sm text-slate-900 hover:bg-slate-100 transition shadow-xs"
-              >
-                Industries
-              </Link>
-              <Link
-                href="/case-studies"
-                className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-center font-bold text-sm text-slate-900 hover:bg-slate-100 transition shadow-xs"
-              >
-                Case Studies
-              </Link>
-              <Link
-                href="/pricing"
-                className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-center font-bold text-sm text-slate-900 hover:bg-slate-100 transition shadow-xs"
-              >
-                Pricing Tiers
-              </Link>
+        <div
+          className="fixed inset-0 z-50 lg:hidden animate-in fade-in duration-200"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Mobile Navigation"
+        >
+          {/* Backdrop Scrim */}
+          <div
+            className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity"
+            onClick={() => setMobileMenuOpen(false)}
+          />
+
+          {/* Slide-over Content Sheet */}
+          <div className="fixed inset-y-0 right-0 w-full max-w-sm bg-white shadow-2xl p-6 flex flex-col justify-between overflow-y-auto border-l border-slate-200 animate-in slide-in-from-right duration-250">
+            <div className="space-y-6">
+              {/* Drawer Top Header */}
+              <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-black text-sm">
+                    N
+                  </div>
+                  <span className="font-black text-slate-900 text-sm tracking-tight">
+                    {companyName}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="p-1.5 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition"
+                  aria-label="Close menu"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Mobile Navigation List with Dynamic Accordions & Direct Links */}
+              <div className="space-y-1 text-sm font-bold text-slate-800">
+                {resolvedMenuItems.map((item) => {
+                  const isDropdown = hasDropdown(item);
+                  const dropdownKey = getItemDropdownKey(item);
+
+                  if (isDropdown) {
+                    return (
+                      <div key={item.id || item.label}>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setMobileAccordion(
+                              mobileAccordion === dropdownKey ? null : dropdownKey,
+                            )
+                          }
+                          className="w-full flex items-center justify-between py-2.5 px-3 rounded-xl hover:bg-slate-50 transition"
+                        >
+                          <span>{item.label}</span>
+                          <ChevronDown
+                            className={`w-4 h-4 transition-transform ${
+                              mobileAccordion === dropdownKey
+                                ? "rotate-180 text-primary"
+                                : "text-slate-400"
+                            }`}
+                          />
+                        </button>
+
+                        {/* Services Sub-tree */}
+                        {mobileAccordion === dropdownKey && dropdownKey === "services" && (
+                          <div className="pl-4 pr-2 py-2 space-y-4 border-l-2 border-primary/30 ml-3 text-xs">
+                            {megaMenuPillars.map((p) => (
+                              <div key={p.pillar} className="space-y-1.5">
+                                <span className="font-extrabold text-slate-900 uppercase tracking-wider text-[10px] block">
+                                  {p.pillar}
+                                </span>
+                                {p.items.map((it) => (
+                                  <Link
+                                    key={it.href}
+                                    href={it.href}
+                                    className="block py-1 text-slate-600 hover:text-primary transition-colors"
+                                  >
+                                    {it.title}
+                                  </Link>
+                                ))}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Industries Sub-tree */}
+                        {mobileAccordion === dropdownKey && dropdownKey === "industries" && (
+                          <div className="pl-4 pr-2 py-2 space-y-2 border-l-2 border-primary/30 ml-3 text-xs">
+                            {industriesList.map((ind) => (
+                              <Link
+                                key={ind.href}
+                                href={ind.href}
+                                className="block py-1 text-slate-600 hover:text-primary transition-colors"
+                              >
+                                {ind.title}
+                              </Link>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Solutions Sub-tree */}
+                        {mobileAccordion === dropdownKey && dropdownKey === "solutions" && (
+                          <div className="pl-4 pr-2 py-2 space-y-2 border-l-2 border-primary/30 ml-3 text-xs">
+                            {solutionsList.map((sol) => (
+                              <Link
+                                key={sol.href}
+                                href={sol.href}
+                                className="block py-1 text-slate-600 hover:text-primary transition-colors"
+                              >
+                                {sol.title}
+                              </Link>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Generic Admin Sub-items */}
+                        {mobileAccordion === dropdownKey &&
+                          dropdownKey !== "services" &&
+                          dropdownKey !== "industries" &&
+                          dropdownKey !== "solutions" &&
+                          item.children &&
+                          item.children.length > 0 && (
+                            <div className="pl-4 pr-2 py-2 space-y-2 border-l-2 border-primary/30 ml-3 text-xs">
+                              {item.children.map((child) => (
+                                <Link
+                                  key={child.id || child.url}
+                                  href={child.url}
+                                  className="block py-1 text-slate-600 hover:text-primary transition-colors"
+                                >
+                                  {child.label}
+                                </Link>
+                              ))}
+                            </div>
+                          )}
+                      </div>
+                    );
+                  }
+
+                  // Direct Navigation Link
+                  return (
+                    <Link
+                      key={item.id || item.label}
+                      href={item.url}
+                      className="block py-2.5 px-3 rounded-xl hover:bg-slate-50 transition"
+                    >
+                      {item.label}
+                    </Link>
+                  );
+                })}
+              </div>
             </div>
 
-            {/* Nav list */}
-            <nav className="space-y-1 border-t border-slate-100 pt-4">
-              <Link
-                href="/about"
-                className="block py-3 px-2 text-base font-semibold text-slate-800 hover:text-indigo-600 border-b border-slate-100"
-              >
-                About Us
-              </Link>
-              <Link
-                href="/blog"
-                className="block py-3 px-2 text-base font-semibold text-slate-800 hover:text-indigo-600 border-b border-slate-100"
-              >
-                Growth Insights & Playbooks
-              </Link>
-              <Link
-                href="/tools/roi-calculator"
-                className="block py-3 px-2 text-base font-semibold text-slate-800 hover:text-indigo-600 border-b border-slate-100"
-              >
-                Interactive ROI Calculator
-              </Link>
+            {/* Drawer Bottom CTA */}
+            <div className="pt-6 border-t border-slate-100 space-y-3">
               <Link
                 href="/contact"
-                className="block py-3 px-2 text-base font-semibold text-slate-800 hover:text-indigo-600 border-b border-slate-100"
+                className="w-full flex items-center justify-center gap-2 rounded-xl bg-primary hover:bg-primary-hover py-3 text-xs font-bold text-primary-foreground shadow-md shadow-primary/25 transition"
               >
-                Contact & Diagnostics
+                <span>Let&apos;s Talk</span>
+                <ArrowRight className="w-4 h-4" />
               </Link>
-            </nav>
-          </div>
-
-          {/* Bottom Drawer Actions */}
-          <div className="pt-8 border-t border-slate-200 space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="text-xs text-slate-600 font-semibold">
-                Select Region:
-              </span>
-              <RegionSwitcher currentRegionCode={currentRegionCode} />
+              <div className="text-center text-[11px] text-slate-500">
+                Registered: Nexora Technologies Pvt. Ltd.
+              </div>
             </div>
-
-            <Button
-              asChild
-              variant="gradient"
-              size="lg"
-              shape="pill"
-              className="w-full h-12"
-            >
-              <Link href="/book-a-call">
-                Book a Strategy Call <ArrowRight className="w-4 h-4 ml-1.5" />
-              </Link>
-            </Button>
           </div>
         </div>
       )}
-
-      {/* Global Cmd+K Search Dialog */}
-      <SearchDialog open={searchOpen} onOpenChange={setSearchOpen} />
     </header>
   );
 };

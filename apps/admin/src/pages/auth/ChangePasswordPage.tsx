@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
+  adminApi,
   useChangePasswordMutation,
   useLogoutMutation,
 } from "../../store/api/adminApi";
 import { useAppDispatch } from "../../store/hooks";
-import { logout } from "../../store/slices/authSlice";
+import { logout, setUser } from "../../store/slices/authSlice";
 import {
   KeyRound,
   CheckCircle,
@@ -81,12 +82,23 @@ export const ChangePasswordPage: React.FC = () => {
         newPassword,
       }).unwrap();
 
+      try {
+        const profile = await dispatch(
+          adminApi.endpoints.getCurrentUser.initiate(undefined, {
+            forceRefetch: true,
+          }),
+        ).unwrap();
+        dispatch(setUser(profile));
+      } catch {
+        // profile refetch fallback
+      }
+
       setSuccessMsg(
         "Password changed successfully! Redirecting to dashboard...",
       );
       setTimeout(() => {
         navigate("/dashboard");
-      }, 1500);
+      }, 1000);
     } catch (err: unknown) {
       const apiErr = err as { data?: { error?: string; detail?: string } };
       const detail =

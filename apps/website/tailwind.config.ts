@@ -1,7 +1,8 @@
 import type { Config } from "tailwindcss";
-import { tokens } from "@nexora/design-tokens";
+import { tokens, nexoraTailwindPreset } from "@nexora/design-tokens";
 
 const config: Config = {
+  presets: [nexoraTailwindPreset as any],
   content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -9,6 +10,10 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      maxWidth: {
+        "7xl": "85%",
+        "6xl": "85%",
+      },
       colors: {
         navy: tokens.colors.navy,
         ink: tokens.colors.ink,

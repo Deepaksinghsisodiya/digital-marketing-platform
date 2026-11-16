@@ -28,7 +28,7 @@ export const LogoStripBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
       <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none" />
       <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none" />
 
-      <div className="max-w-[1720px] 2xl:max-w-[1920px] mx-auto px-6 text-center space-y-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6">
         <div className="flex items-center justify-center gap-2">
           <span className="text-xs uppercase font-extrabold tracking-widest text-slate-500">
             {title}

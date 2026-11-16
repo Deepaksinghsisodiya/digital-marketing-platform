@@ -42,7 +42,9 @@ public record ResetPasswordRequestDto(
 public record InviteUserRequestDto(
     string Email,
     string FullName,
-    string Role);
+    string Role,
+    string? Password = null,
+    bool MustChangePassword = true);
 
 public record UpdateUserRequestDto(
     string? Role,

@@ -13,14 +13,14 @@ export const CtaBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
   const buttonLink = (content.buttonLink as string) || "/contact";
 
   return (
-    <section className="py-24 px-6 sm:px-10 lg:px-12 xl:px-16 max-w-[1720px] 2xl:max-w-[1920px] mx-auto relative overflow-hidden">
-      <div className="max-w-5xl xl:max-w-6xl 2xl:max-w-7xl mx-auto rounded-3xl bg-gradient-to-r from-indigo-50/90 via-purple-50/70 to-indigo-50/90 border border-indigo-200/90 p-10 sm:p-16 2xl:p-20 text-center text-slate-900 shadow-xl relative overflow-hidden">
+    <section className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto relative overflow-hidden">
+      <div className="max-w-5xl mx-auto rounded-3xl bg-gradient-to-r from-primary/5 via-slate-50 to-primary/5 border border-primary/20 p-10 sm:p-14 text-center text-slate-900 shadow-xl relative overflow-hidden">
         {/* Glow orb */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-indigo-200/30 rounded-full blur-[100px] pointer-events-none" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-primary/10 rounded-full blur-[100px] pointer-events-none" />
 
-        <div className="relative z-10 max-w-3xl 2xl:max-w-4xl mx-auto space-y-6">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-indigo-100 text-indigo-700 border border-indigo-200">
-            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+        <div className="relative z-10 max-w-3xl mx-auto space-y-6">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-primary/10 text-primary border border-primary/20">
+            <Sparkles className="w-3.5 h-3.5 text-primary" />
             <span>Zero-Obligation Growth Assessment</span>
           </div>
 

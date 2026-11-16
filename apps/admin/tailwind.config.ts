@@ -1,7 +1,8 @@
 import type { Config } from "tailwindcss";
-import { tokens } from "@nexora/design-tokens";
+import { tokens, nexoraTailwindPreset } from "@nexora/design-tokens";
 
 export default {
+  presets: [nexoraTailwindPreset as any],
   darkMode: "class",
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {

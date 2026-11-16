@@ -8,6 +8,7 @@ using Nexora.Domain.Constants;
 using Nexora.Domain.Entities;
 using Nexora.Domain.Enums;
 using Nexora.Infrastructure.Identity;
+using Nexora.Infrastructure.Themes;
 
 namespace Nexora.Infrastructure.Persistence;
 
@@ -65,7 +66,9 @@ public static class StartupSeeder
                     Permissions.ClientsView,
                     Permissions.ClientsManage,
                     Permissions.TasksView,
-                    Permissions.TasksManage
+                    Permissions.TasksManage,
+                    Permissions.ThemesView,
+                    Permissions.ThemesManage
                 }),
             [Roles.Editor] = ("Content editor creating and maintaining marketing and CMS pages.",
                 new[] { Permissions.PagesView, Permissions.PagesEdit }),
@@ -78,7 +81,9 @@ public static class StartupSeeder
                     Permissions.ClientsView,
                     Permissions.ClientsManage,
                     Permissions.TasksView,
-                    Permissions.TasksManage
+                    Permissions.TasksManage,
+                    Permissions.ThemesView,
+                    Permissions.ThemesManage
                 })
         };
 
@@ -190,7 +195,38 @@ public static class StartupSeeder
             }
         }
 
-        // 2b. Seed Default 'contact' FormDefinition
+        // 2b. Seed System Theme Presets (idempotent; protected system themes)
+        foreach (var preset in ThemePresetSeed.GetPresets())
+        {
+            if (!await context.Themes.AnyAsync(t => t.Slug == preset.Slug))
+            {
+                var theme = new Theme
+                {
+                    Name = preset.Name,
+                    Slug = preset.Slug,
+                    Description = preset.Description,
+                    ConfigJson = preset.ConfigJson,
+                    DraftConfigJson = null,
+                    IsSystem = true,
+                    IsDefault = string.Equals(preset.Slug, "cyber-emerald", StringComparison.OrdinalIgnoreCase),
+                    IsDeleted = false,
+                    CurrentVersion = 1
+                };
+
+                context.Themes.Add(theme);
+                context.ThemeVersions.Add(new ThemeVersion
+                {
+                    ThemeId = theme.Id,
+                    VersionNumber = 1,
+                    ConfigJson = preset.ConfigJson,
+                    ChangeDescription = "Seeded system preset"
+                });
+
+                await context.SaveChangesAsync();
+            }
+        }
+
+        // 2c. Seed Default 'contact' FormDefinition
         var contactFormExists = await context.FormDefinitions.AnyAsync(f => f.FormKey == "contact");
         if (!contactFormExists)
         {
@@ -442,12 +478,10 @@ public static class StartupSeeder
                 "enabled": true,
                 "settings": { "theme": "dark" },
                 "content": {
-                  "headline": "Data-Driven Marketing at Enterprise Scale",
-                  "subheadline": "Connect your enterprise to target audiences with AI campaign automation, precision audience modeling, and verifiable attribution.",
-                  "primaryCtaText": "Get Free Growth Diagnostic",
-                  "primaryCtaLink": "/contact",
-                  "secondaryCtaText": "Explore Insights & Strategy",
-                  "secondaryCtaLink": "/blog"
+                  "isSlider": true,
+                  "autoplay": true,
+                  "interval": 5000,
+                  "slides": []
                 }
               },
               {
@@ -706,7 +740,11 @@ public static class StartupSeeder
         }
 
         // 9. Seed Default Navigation Menus (Header & Footer)
-        if (!await context.NavigationMenus.AnyAsync())
+        var existingHeader = await context.NavigationMenus
+            .Include(m => m.Items)
+            .FirstOrDefaultAsync(m => m.Key == "header");
+
+        if (existingHeader == null)
         {
             var headerMenu = new NavigationMenu
             {
@@ -715,14 +753,59 @@ public static class StartupSeeder
                 RegionCode = null,
                 Items = new List<NavigationMenuItem>
                 {
-                    new() { Label = "Solutions", Url = "/solutions", DisplayOrder = 0 },
-                    new() { Label = "Case Studies", Url = "/case-studies", DisplayOrder = 1 },
-                    new() { Label = "About Us", Url = "/about", DisplayOrder = 2 },
-                    new() { Label = "Blog", Url = "/blog", DisplayOrder = 3 },
-                    new() { Label = "Contact", Url = "/contact", DisplayOrder = 4 }
+                    new() { Label = "Services", Url = "/services", DisplayOrder = 0 },
+                    new() { Label = "Industries", Url = "/industries", DisplayOrder = 1 },
+                    new() { Label = "Solutions", Url = "/solutions", DisplayOrder = 2 },
+                    new() { Label = "Our Work", Url = "/case-studies", DisplayOrder = 3 },
+                    new() { Label = "Insights", Url = "/blog", DisplayOrder = 4 },
+                    new() { Label = "About", Url = "/about", DisplayOrder = 5 },
+                    new() { Label = "Contact", Url = "/contact", DisplayOrder = 6 }
                 }
             };
+            context.NavigationMenus.Add(headerMenu);
+            try
+            {
+                await context.SaveChangesAsync();
+                logger.LogInformation("Seeded default header navigation menu.");
+            }
+            catch (DbUpdateException ex)
+            {
+                logger.LogDebug(ex, "Header menu already seeded.");
+            }
+        }
+        else if (!existingHeader.Items.Any(i => i.Label == "Services"))
+        {
+            existingHeader.Items.Clear();
+            var newHeaderItems = new[]
+            {
+                new NavigationMenuItem { Label = "Services", Url = "/services", DisplayOrder = 0 },
+                new NavigationMenuItem { Label = "Industries", Url = "/industries", DisplayOrder = 1 },
+                new NavigationMenuItem { Label = "Solutions", Url = "/solutions", DisplayOrder = 2 },
+                new NavigationMenuItem { Label = "Our Work", Url = "/case-studies", DisplayOrder = 3 },
+                new NavigationMenuItem { Label = "Insights", Url = "/blog", DisplayOrder = 4 },
+                new NavigationMenuItem { Label = "About", Url = "/about", DisplayOrder = 5 },
+                new NavigationMenuItem { Label = "Contact", Url = "/contact", DisplayOrder = 6 }
+            };
+            foreach (var item in newHeaderItems)
+            {
+                existingHeader.Items.Add(item);
+            }
+            try
+            {
+                await context.SaveChangesAsync();
+                logger.LogInformation("Updated default header navigation menu with full services and industries routes.");
+            }
+            catch (Exception ex)
+            {
+                logger.LogDebug(ex, "Failed to update header menu.");
+            }
+        }
 
+        var existingFooter = await context.NavigationMenus
+            .FirstOrDefaultAsync(m => m.Key == "footer");
+
+        if (existingFooter == null)
+        {
             var footerMenu = new NavigationMenu
             {
                 Key = "footer",
@@ -738,16 +821,218 @@ public static class StartupSeeder
                     new() { Label = "Contact Support", Url = "/contact", DisplayOrder = 5 }
                 }
             };
-
-            context.NavigationMenus.AddRange(headerMenu, footerMenu);
+            context.NavigationMenus.Add(footerMenu);
             try
             {
                 await context.SaveChangesAsync();
-                logger.LogInformation("Seeded default header and footer navigation menus.");
+                logger.LogInformation("Seeded default footer navigation menu.");
             }
             catch (DbUpdateException ex)
             {
-                logger.LogDebug(ex, "NavigationMenus already seeded by another instance.");
+                logger.LogDebug(ex, "Footer menu already seeded.");
+            }
+        }
+
+        // 10. Seed System Theme Presets (Idempotent)
+        if (!await context.Themes.AnyAsync())
+        {
+            var systemPresets = new List<(string Name, string Slug, string Desc, string Primary, string Accent, string Navy)>
+            {
+                ("Cyber Emerald & Deep Onyx", "cyber-emerald", "High-frequency engineering, Supabase & Cursor tech style", "#10b981", "#06b6d4", "#080c14"),
+                ("Silicon Valley Electric", "silicon-valley", "Modern high-performance, Linear & Stripe corporate style", "#4f46e5", "#2563eb", "#060b18"),
+                ("Midnight Violet & Sunset Coral", "midnight-violet", "Creative AI powerhouse, OpenAI & Raycast modern aurora", "#8b5cf6", "#f97316", "#0b0816"),
+                ("Monochrome Stealth & Laser Cobalt", "monochrome-stealth", "Sub-second minimal speed, Apple Pro & Vercel precision", "#0055ff", "#38bdf8", "#000000"),
+                ("Sapphire Ocean & Cyber Cyan", "sapphire-ocean", "Global cloud infrastructure, Cloudflare & Docker enterprise", "#1d4ed8", "#00d8ff", "#040d21"),
+                ("Champagne Gold & Executive Obsidian", "champagne-gold", "High-ticket bespoke advisory, Palantir & Luxury Private Equity", "#f59e0b", "#d97706", "#0b0c10")
+            };
+
+            foreach (var preset in systemPresets)
+            {
+                var isDefault = preset.Slug == "cyber-emerald";
+                var themeJson = $$"""
+                {
+                  "schemaVersion": 1,
+                  "id": "{{preset.Slug}}",
+                  "slug": "{{preset.Slug}}",
+                  "name": "{{preset.Name}}",
+                  "tagline": "{{preset.Desc}}",
+                  "isSystem": true,
+                  "colors": {
+                    "light": {
+                      "primary": "{{preset.Primary}}",
+                      "primaryForeground": "#ffffff",
+                      "primaryHover": "{{preset.Primary}}",
+                      "primaryActive": "{{preset.Primary}}",
+                      "secondary": "#0f172a",
+                      "secondaryForeground": "#ffffff",
+                      "accent": "{{preset.Accent}}",
+                      "accentForeground": "#ffffff",
+                      "background": "#ffffff",
+                      "foreground": "#0f172a",
+                      "surface": "#f8fafc",
+                      "surfaceElevated": "#ffffff",
+                      "card": "#ffffff",
+                      "cardForeground": "#0f172a",
+                      "navbar": "rgba(255, 255, 255, 0.85)",
+                      "footer": "{{preset.Navy}}",
+                      "sidebar": "#ffffff",
+                      "modal": "#ffffff",
+                      "overlay": "rgba(15, 23, 42, 0.5)",
+                      "textPrimary": "#0f172a",
+                      "textSecondary": "#475569",
+                      "textMuted": "#64748b",
+                      "textInverted": "#ffffff",
+                      "link": "{{preset.Primary}}",
+                      "linkHover": "{{preset.Primary}}",
+                      "border": "#e2e8f0",
+                      "borderStrong": "#cbd5e1",
+                      "divider": "#f1f5f9",
+                      "input": "#ffffff",
+                      "ring": "{{preset.Primary}}",
+                      "selection": "{{preset.Primary}}",
+                      "disabled": "#94a3b8",
+                      "placeholder": "#94a3b8",
+                      "success": "#10b981",
+                      "warning": "#f59e0b",
+                      "danger": "#ef4444",
+                      "info": "{{preset.Accent}}",
+                      "navy": "{{preset.Navy}}",
+                      "ink": "#0d1422"
+                    },
+                    "dark": {
+                      "primary": "{{preset.Primary}}",
+                      "primaryForeground": "#ffffff",
+                      "primaryHover": "{{preset.Primary}}",
+                      "primaryActive": "{{preset.Primary}}",
+                      "secondary": "#1e293b",
+                      "secondaryForeground": "#ffffff",
+                      "accent": "{{preset.Accent}}",
+                      "accentForeground": "#ffffff",
+                      "background": "{{preset.Navy}}",
+                      "foreground": "#f8fafc",
+                      "surface": "#0d1422",
+                      "surfaceElevated": "#131b2e",
+                      "card": "#0d1422",
+                      "cardForeground": "#f8fafc",
+                      "navbar": "rgba(8, 12, 20, 0.85)",
+                      "footer": "#04060a",
+                      "sidebar": "#0d1422",
+                      "modal": "#0d1422",
+                      "overlay": "rgba(0, 0, 0, 0.75)",
+                      "textPrimary": "#f8fafc",
+                      "textSecondary": "#94a3b8",
+                      "textMuted": "#64748b",
+                      "textInverted": "#0f172a",
+                      "link": "{{preset.Primary}}",
+                      "linkHover": "{{preset.Primary}}",
+                      "border": "rgba(255, 255, 255, 0.08)",
+                      "borderStrong": "rgba(255, 255, 255, 0.16)",
+                      "divider": "rgba(255, 255, 255, 0.05)",
+                      "input": "#131b2e",
+                      "ring": "{{preset.Primary}}",
+                      "selection": "{{preset.Primary}}",
+                      "disabled": "#475569",
+                      "placeholder": "#64748b",
+                      "success": "#10b981",
+                      "warning": "#f59e0b",
+                      "danger": "#ef4444",
+                      "info": "{{preset.Accent}}",
+                      "navy": "{{preset.Navy}}",
+                      "ink": "#0d1422"
+                    }
+                  },
+                  "typography": {
+                    "fontSans": "Inter, ui-sans-serif, system-ui, sans-serif",
+                    "fontHeading": "Plus Jakarta Sans, Inter, sans-serif",
+                    "fontButton": "Inter, sans-serif",
+                    "fontNav": "Inter, sans-serif",
+                    "fontMono": "ui-monospace, monospace",
+                    "baseFontSize": "16px",
+                    "headingWeight": "700",
+                    "letterSpacingHeading": "-0.025em"
+                  },
+                  "shape": {
+                    "radiusSm": "0.375rem",
+                    "radiusMd": "0.5rem",
+                    "radiusLg": "0.75rem",
+                    "radiusXl": "1rem",
+                    "radiusFull": "9999px",
+                    "buttonRadius": "0.5rem",
+                    "cardRadius": "0.75rem",
+                    "inputRadius": "0.5rem"
+                  },
+                  "shadows": {
+                    "shadowSm": "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
+                    "shadowMd": "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+                    "shadowLg": "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
+                    "glow": "rgba(16, 185, 129, 0.28)",
+                    "glassBlur": "16px"
+                  },
+                  "gradients": {
+                    "gradientBrand": "linear-gradient(135deg, {{preset.Primary}} 0%, {{preset.Accent}} 100%)",
+                    "gradientHero": "radial-gradient(ellipse 80% 60% at 50% -10%, rgba(16, 185, 129, 0.18), transparent 70%)",
+                    "gradientAccent": "linear-gradient(135deg, {{preset.Accent}} 0%, {{preset.Primary}} 100%)"
+                  },
+                  "layout": {
+                    "containerWidth": "1280px",
+                    "sectionSpacing": "5rem",
+                    "navbarHeight": "4.5rem",
+                    "sidebarWidth": "16rem"
+                  },
+                  "motion": {
+                    "enabled": true,
+                    "speed": "normal",
+                    "durationFast": "0.15s",
+                    "durationNormal": "0.3s",
+                    "durationSlow": "0.6s"
+                  },
+                  "components": {
+                    "buttonStyle": "rounded",
+                    "cardStyle": "glass",
+                    "tableDensity": "normal"
+                  },
+                  "admin": {
+                    "sidebarBg": "#0d1422",
+                    "sidebarBorder": "rgba(255, 255, 255, 0.08)",
+                    "sidebarActiveItem": "rgba(16, 185, 129, 0.15)",
+                    "navbarBg": "rgba(13, 20, 34, 0.8)",
+                    "navbarBorder": "rgba(255, 255, 255, 0.08)",
+                    "widgetCardBg": "#0d1422"
+                  }
+                }
+                """;
+
+                var newTheme = new Theme
+                {
+                    Name = preset.Name,
+                    Slug = preset.Slug,
+                    Description = preset.Desc,
+                    ConfigJson = themeJson,
+                    DraftConfigJson = null,
+                    IsSystem = true,
+                    IsDefault = isDefault,
+                    IsDeleted = false,
+                    CurrentVersion = 1
+                };
+
+                newTheme.Versions.Add(new ThemeVersion
+                {
+                    VersionNumber = 1,
+                    ConfigJson = themeJson,
+                    ChangeDescription = "Initial system preset release"
+                });
+
+                context.Themes.Add(newTheme);
+            }
+
+            try
+            {
+                await context.SaveChangesAsync();
+                logger.LogInformation("Seeded 6 system theme presets successfully.");
+            }
+            catch (DbUpdateException ex)
+            {
+                logger.LogDebug(ex, "Themes already seeded by another instance.");
             }
         }
         else
@@ -758,7 +1043,6 @@ public static class StartupSeeder
             }
             catch (DbUpdateException ex)
             {
-                // In concurrent test executions or multi-process restarts, an idempotent seed collision is safely handled
                 logger.LogDebug(ex, "Concurrent seed attempt detected; changes already committed by another instance.");
             }
         }

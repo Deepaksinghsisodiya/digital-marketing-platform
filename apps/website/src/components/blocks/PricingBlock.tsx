@@ -147,12 +147,12 @@ export const PricingBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
 
   return (
     <section className="relative py-24 bg-white text-slate-900 overflow-hidden border-t border-slate-200">
-      <div className="relative max-w-6xl xl:max-w-7xl 2xl:max-w-[1720px] mx-auto px-6 sm:px-10 lg:px-12">
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto space-y-4 mb-12">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-bold bg-primary/10 text-primary border border-primary/20">
             <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-            <span>Investment & Pricing Models</span>
+            <span>Investment &amp; Pricing Models</span>
           </div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-slate-900 leading-tight">
             {sectionTitle}
@@ -177,7 +177,7 @@ export const PricingBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
               }
               className={`w-12 h-6 rounded-full transition-colors flex items-center px-1 ${
                 billingPeriod === "annual"
-                  ? "bg-indigo-600 justify-end"
+                  ? "bg-primary justify-end"
                   : "bg-slate-300 justify-start"
               }`}
             >
@@ -201,12 +201,12 @@ export const PricingBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
               key={idx}
               className={`relative rounded-3xl p-8 sm:p-10 flex flex-col justify-between transition-all duration-300 ${
                 plan.isPopular
-                  ? "bg-gradient-to-b from-indigo-50/70 via-white to-indigo-50/40 border-2 border-indigo-600 shadow-2xl shadow-indigo-600/15 md:-translate-y-2 z-10"
-                  : "bg-white border border-slate-200/90 shadow-sm hover:border-indigo-300 hover:shadow-xl hover:-translate-y-1"
+                  ? "bg-gradient-to-b from-primary/5 via-white to-primary/5 border-2 border-primary shadow-2xl shadow-primary/15 md:-translate-y-2 z-10"
+                  : "bg-white border border-slate-200/90 shadow-sm hover:border-primary/40 hover:shadow-xl hover:-translate-y-1"
               }`}
             >
               {plan.badge && (
-                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 text-white text-[11px] font-black uppercase tracking-wider shadow-lg shadow-indigo-600/30">
+                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-primary text-primary-foreground text-[11px] font-black uppercase tracking-wider shadow-lg shadow-primary/30">
                   {plan.badge}
                 </div>
               )}
@@ -258,8 +258,8 @@ export const PricingBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
                 href={plan.ctaLink}
                 className={`w-full inline-flex items-center justify-center gap-2 py-4 rounded-2xl text-xs font-bold transition-all duration-200 shadow-md ${
                   plan.isPopular
-                    ? "bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-600/30 hover:shadow-indigo-600/50 hover:scale-105 active:scale-95"
-                    : "bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200 hover:scale-102 active:scale-98"
+                    ? "bg-primary hover:bg-primary-hover text-primary-foreground shadow-primary/25 hover:scale-[1.02] active:scale-[0.98]"
+                    : "bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200 hover:scale-[1.02] active:scale-[0.98]"
                 }`}
               >
                 <span>{plan.ctaText}</span>
@@ -272,7 +272,7 @@ export const PricingBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
         {/* Enterprise Compliance Guarantee Footer */}
         <div className="mt-14 p-6 rounded-3xl bg-slate-50 border border-slate-200 flex flex-wrap items-center justify-between gap-4 text-xs text-slate-600">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 shrink-0">
+            <div className="w-8 h-8 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shrink-0">
               <ShieldCheck className="w-4 h-4" />
             </div>
             <span className="font-semibold text-slate-700">
@@ -281,7 +281,7 @@ export const PricingBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
           </div>
           <Link
             href="/contact"
-            className="font-bold text-indigo-600 hover:text-indigo-800 transition flex items-center gap-1 shrink-0"
+            className="font-bold text-primary hover:underline transition flex items-center gap-1 shrink-0"
           >
             <span>Request Enterprise Procurement Pack</span>
             <ArrowRight className="w-3.5 h-3.5" />

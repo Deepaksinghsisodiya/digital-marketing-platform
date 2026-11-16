@@ -34,20 +34,20 @@ export const DashboardPage: React.FC = () => {
   const totalClients = clientsData?.totalCount ?? 0;
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-4">
       {/* Executive Welcome Hero Banner */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white p-7 sm:p-9 shadow-xl border border-slate-800">
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white p-4 sm:p-5 shadow-xl border border-slate-800">
         <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-bl from-indigo-500/20 via-purple-500/10 to-transparent blur-3xl pointer-events-none rounded-full" />
-        <div className="relative flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-          <div className="space-y-2 max-w-2xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
-              <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+        <div className="relative flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div className="space-y-1.5 max-w-2xl">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+              <Sparkles className="w-3 h-3 text-amber-300" />
               <span>Nexora Enterprise Platform &bull; v2.4 Live</span>
             </div>
-            <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-white">
+            <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
               Executive Command Center
             </h1>
-            <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-normal">
+            <p className="text-xs text-slate-300 leading-relaxed font-normal">
               Logged in as{" "}
               <span className="text-white font-bold">{user?.fullName}</span> (
               {user?.roles?.[0] || "Owner"}). All multi-region gateways,
@@ -56,8 +56,8 @@ export const DashboardPage: React.FC = () => {
             </p>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
-            <div className="inline-flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-slate-800/80 backdrop-blur-md border border-slate-700/80 text-xs">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2.5">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-800/80 backdrop-blur-md border border-slate-700/80 text-xs">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
               <span className="text-slate-300 font-medium">Core API :5201</span>
               <span className="text-emerald-400 font-bold">Online</span>
@@ -67,7 +67,7 @@ export const DashboardPage: React.FC = () => {
               href="http://localhost:3000"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-lg shadow-indigo-600/30 transition-all"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-lg shadow-indigo-600/30 transition-all"
             >
               <Globe className="w-3.5 h-3.5" />
               <span>Preview Portal</span>
@@ -78,21 +78,21 @@ export const DashboardPage: React.FC = () => {
       </div>
 
       {/* 4 Executive KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
         {/* KPI 1: Enterprise Accounts */}
-        <div className="p-5 rounded-2xl bg-white dark:bg-[#0c1222] border border-slate-200/80 dark:border-slate-800/80 shadow-sm">
-          <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-3">
+        <div className="p-3.5 sm:p-4 rounded-xl bg-white dark:bg-[#0c1222] border border-slate-200/80 dark:border-slate-800/80 shadow-sm">
+          <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
             <span className="text-[11px] font-bold uppercase tracking-wider">
               Enterprise Accounts
             </span>
-            <div className="p-2 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400">
-              <Briefcase className="w-4 h-4" />
+            <div className="p-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400">
+              <Briefcase className="w-3.5 h-3.5" />
             </div>
           </div>
-          <div className="text-3xl font-black text-slate-900 dark:text-white">
+          <div className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">
             {totalClients}
           </div>
-          <div className="mt-2 flex items-center justify-between text-[11px]">
+          <div className="mt-1.5 flex items-center justify-between text-[11px]">
             <span className="text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1">
               <TrendingUp className="w-3 h-3" /> +18.4% MoM
             </span>
@@ -101,19 +101,19 @@ export const DashboardPage: React.FC = () => {
         </div>
 
         {/* KPI 2: Staff & Access */}
-        <div className="p-5 rounded-2xl bg-white dark:bg-[#0c1222] border border-slate-200/80 dark:border-slate-800/80 shadow-sm">
-          <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-3">
+        <div className="p-3.5 sm:p-4 rounded-xl bg-white dark:bg-[#0c1222] border border-slate-200/80 dark:border-slate-800/80 shadow-sm">
+          <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
             <span className="text-[11px] font-bold uppercase tracking-wider">
               Agency Staff
             </span>
-            <div className="p-2 rounded-xl bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400">
-              <Users className="w-4 h-4" />
+            <div className="p-1.5 rounded-lg bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400">
+              <Users className="w-3.5 h-3.5" />
             </div>
           </div>
-          <div className="text-3xl font-black text-slate-900 dark:text-white">
+          <div className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">
             {totalUsers}
           </div>
-          <div className="mt-2 flex items-center justify-between text-[11px]">
+          <div className="mt-1.5 flex items-center justify-between text-[11px]">
             <span className="text-indigo-600 dark:text-indigo-400 font-bold">
               RBAC Governed
             </span>
@@ -122,19 +122,19 @@ export const DashboardPage: React.FC = () => {
         </div>
 
         {/* KPI 3: Inbound Lead Volume */}
-        <div className="p-5 rounded-2xl bg-white dark:bg-[#0c1222] border border-slate-200/80 dark:border-slate-800/80 shadow-sm">
-          <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-3">
+        <div className="p-3.5 sm:p-4 rounded-xl bg-white dark:bg-[#0c1222] border border-slate-200/80 dark:border-slate-800/80 shadow-sm">
+          <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
             <span className="text-[11px] font-bold uppercase tracking-wider">
               Inbound Inquiries
             </span>
-            <div className="p-2 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400">
-              <Inbox className="w-4 h-4" />
+            <div className="p-1.5 rounded-lg bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400">
+              <Inbox className="w-3.5 h-3.5" />
             </div>
           </div>
-          <div className="text-3xl font-black text-slate-900 dark:text-white">
+          <div className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">
             {leadStats?.totalLeads ?? 0}
           </div>
-          <div className="mt-2 flex items-center justify-between text-[11px]">
+          <div className="mt-1.5 flex items-center justify-between text-[11px]">
             <span className="text-emerald-600 dark:text-emerald-400 font-bold">
               {leadStats?.qualifiedLeads ?? 0} Qualified
             </span>

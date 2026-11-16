@@ -1,31 +1,71 @@
 /**
- * Nexora Platform - Central Semantic Design Tokens
- * Driven by CSS Variables for dynamic runtime theming via Agency Admin,
- * with standard design fallback values.
+ * Nexora Platform - Central Semantic Design Tokens Engine
+ * Single Source of Truth for Dynamic Multi-Theming
  */
 
+export * from "./types.js";
+export * from "./schema.js";
+export * from "./presets.js";
+export * from "./compiler.js";
+export * from "./validator.js";
+export * from "./contrast.js";
+export * from "./resolver.js";
+export * from "./tailwind-preset.js";
+
+import { SYSTEM_THEME_PRESETS } from "./presets.js";
+import type { ThemeConfig } from "./types.js";
+
+// Backwards compatibility for existing ThemePreset interface
+export interface LegacyThemePreset {
+  id: string;
+  name: string;
+  tagline: string;
+  badge: string;
+  primaryColor: string;
+  accentColor: string;
+  navyColor: string;
+  gradient: string;
+  glowColor: string;
+}
+
+export type { LegacyThemePreset as ThemePreset };
+
+export const THEME_PRESETS: LegacyThemePreset[] = SYSTEM_THEME_PRESETS.map((p: ThemeConfig) => ({
+  id: p.id,
+  name: p.name,
+  tagline: p.tagline,
+  badge: p.badge || "Nexora",
+  primaryColor: p.colors.light.primary,
+  accentColor: p.colors.light.accent,
+  navyColor: p.colors.light.navy,
+  gradient: p.gradients.gradientBrand,
+  glowColor: p.shadows.glow,
+}));
+
 export const defaultCssVariables = {
-  "--nexora-navy": "#10162f",
-  "--nexora-ink": "#17213d",
-  "--nexora-muted": "#65708b",
-  "--nexora-paper": "#f5f7ff",
+  "--nexora-navy": "#080c14",
+  "--nexora-ink": "#0d1422",
+  "--nexora-muted": "#64748b",
+  "--nexora-paper": "#ffffff",
   "--nexora-white": "#ffffff",
-  "--nexora-purple": "#7657ff",
-  "--nexora-purple-light": "#f0ecff",
-  "--nexora-purple-dark": "#4b39a3",
-  "--nexora-blue": "#3685ff",
-  "--nexora-blue-light": "#eaf2ff",
-  "--nexora-blue-dark": "#1e40af",
-  "--nexora-cyan": "#25c7d9",
-  "--nexora-cyan-light": "#e6fbfc",
-  "--nexora-pink": "#f05aa6",
-  "--nexora-pink-light": "#fdf2f8",
-  "--nexora-orange": "#ff9d4d",
-  "--nexora-orange-light": "#fff7ed",
-  "--nexora-green": "#20b889",
-  "--nexora-green-light": "#e7fbf4",
-  "--nexora-green-dark": "#087e5d",
-  "--nexora-border": "#e6eafb",
+  "--nexora-primary": "#10b981",
+  "--nexora-accent": "#06b6d4",
+  "--nexora-purple": "#10b981",
+  "--nexora-purple-light": "#ecfdf5",
+  "--nexora-purple-dark": "#047857",
+  "--nexora-blue": "#059669",
+  "--nexora-blue-light": "#ecfdf5",
+  "--nexora-blue-dark": "#064e3b",
+  "--nexora-cyan": "#06b6d4",
+  "--nexora-cyan-light": "#ecfeff",
+  "--nexora-pink": "#14b8a6",
+  "--nexora-pink-light": "#f0fdfa",
+  "--nexora-orange": "#f59e0b",
+  "--nexora-orange-light": "#fffbeb",
+  "--nexora-green": "#10b981",
+  "--nexora-green-light": "#ecfdf5",
+  "--nexora-green-dark": "#047857",
+  "--nexora-border": "#e2e8f0",
   "--nexora-font-sans":
     'Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
   "--nexora-font-mono":
@@ -38,39 +78,41 @@ export const defaultCssVariables = {
 
 export const tokens = {
   colors: {
-    navy: "var(--nexora-navy, #10162f)",
-    ink: "var(--nexora-ink, #17213d)",
-    muted: "var(--nexora-muted, #65708b)",
-    paper: "var(--nexora-paper, #f5f7ff)",
+    navy: "var(--nexora-navy, #080c14)",
+    ink: "var(--nexora-ink, #0d1422)",
+    muted: "var(--nexora-muted, #64748b)",
+    paper: "var(--nexora-paper, #ffffff)",
     white: "var(--nexora-white, #ffffff)",
+    primary: "var(--nexora-primary, #10b981)",
+    accent: "var(--nexora-accent, #06b6d4)",
     purple: {
-      light: "var(--nexora-purple-light, #f0ecff)",
-      DEFAULT: "var(--nexora-purple, #7657ff)",
-      dark: "var(--nexora-purple-dark, #4b39a3)",
+      light: "var(--nexora-purple-light, #ecfdf5)",
+      DEFAULT: "var(--nexora-purple, #10b981)",
+      dark: "var(--nexora-purple-dark, #047857)",
     },
     blue: {
-      light: "var(--nexora-blue-light, #eaf2ff)",
-      DEFAULT: "var(--nexora-blue, #3685ff)",
-      dark: "var(--nexora-blue-dark, #1e40af)",
+      light: "var(--nexora-blue-light, #ecfdf5)",
+      DEFAULT: "var(--nexora-blue, #059669)",
+      dark: "var(--nexora-blue-dark, #064e3b)",
     },
     cyan: {
-      light: "var(--nexora-cyan-light, #e6fbfc)",
-      DEFAULT: "var(--nexora-cyan, #25c7d9)",
+      light: "var(--nexora-cyan-light, #ecfeff)",
+      DEFAULT: "var(--nexora-cyan, #06b6d4)",
     },
     pink: {
-      light: "var(--nexora-pink-light, #fdf2f8)",
-      DEFAULT: "var(--nexora-pink, #f05aa6)",
+      light: "var(--nexora-pink-light, #f0fdfa)",
+      DEFAULT: "var(--nexora-pink, #14b8a6)",
     },
     orange: {
-      light: "var(--nexora-orange-light, #fff7ed)",
-      DEFAULT: "var(--nexora-orange, #ff9d4d)",
+      light: "var(--nexora-orange-light, #fffbeb)",
+      DEFAULT: "var(--nexora-orange, #f59e0b)",
     },
     green: {
-      light: "var(--nexora-green-light, #e7fbf4)",
-      DEFAULT: "var(--nexora-green, #20b889)",
-      dark: "var(--nexora-green-dark, #087e5d)",
+      light: "var(--nexora-green-light, #ecfdf5)",
+      DEFAULT: "var(--nexora-green, #10b981)",
+      dark: "var(--nexora-green-dark, #047857)",
     },
-    border: "var(--nexora-border, #e6eafb)",
+    border: "var(--nexora-border, #e2e8f0)",
   },
   fonts: {
     sans: "var(--nexora-font-sans, Inter, ui-sans-serif, system-ui, sans-serif)",

@@ -8,6 +8,7 @@ using Nexora.Application.Common.Interfaces;
 using Nexora.Application.Common.Models;
 using Nexora.Application.Identity.Models;
 using Nexora.Domain.Constants;
+using Nexora.Domain.Entities;
 using Nexora.Domain.Enums;
 using Nexora.Infrastructure.Identity;
 using Nexora.Infrastructure.Persistence;
@@ -260,6 +261,8 @@ public class IdentityService : IIdentityService
         string email,
         string fullName,
         string role,
+        string? password = null,
+        bool mustChangePassword = true,
         CancellationToken ct = default)
     {
         var existing = await _userManager.FindByEmailAsync(email);
@@ -273,20 +276,24 @@ public class IdentityService : IIdentityService
             return (false, $"Invalid role: {role}.", null, null);
         }
 
+        bool hasPassword = !string.IsNullOrWhiteSpace(password);
+
         var user = new ApplicationUser
         {
             Id = Guid.NewGuid(),
             UserName = email,
             Email = email,
             FullName = fullName,
-            Status = UserStatus.Invited,
-            MustChangePassword = false,
+            Status = hasPassword ? UserStatus.Active : UserStatus.Invited,
+            MustChangePassword = hasPassword ? mustChangePassword : false,
             CreatedAtUtc = _dateTimeProvider.UtcNow,
             EmailConfirmed = true
         };
 
-        // Create passwordless user
-        var createResult = await _userManager.CreateAsync(user);
+        IdentityResult createResult = hasPassword
+            ? await _userManager.CreateAsync(user, password!)
+            : await _userManager.CreateAsync(user);
+
         if (!createResult.Succeeded)
         {
             return (false, string.Join("; ", createResult.Errors.Select(e => e.Description)), null, null);
@@ -294,43 +301,96 @@ public class IdentityService : IIdentityService
 
         await _userManager.AddToRoleAsync(user, role);
 
-        // Generate password setup token (using password reset provider)
-        var token = await _userManager.GeneratePasswordResetTokenAsync(user);
-        var clientBaseUrl = _configuration["NEXT_PUBLIC_API_URL"] ?? "http://localhost:5201";
+        var adminBaseUrl = _configuration["ADMIN_APP_URL"] ?? "http://localhost:5174";
+        var loginUrl = $"{adminBaseUrl}/login";
 
-        // URL fragment keeps token private
-        var encodedToken = Uri.EscapeDataString(token);
-        var encodedEmail = Uri.EscapeDataString(email);
-        var inviteLink = $"{clientBaseUrl}/auth/setup-password#token={encodedToken}&email={encodedEmail}";
+        string subject;
+        string bodyHtml;
+        string bodyPlain;
+        string? token = null;
 
-        string subject = "Invitation to Nexora Digital Marketing Platform";
-        string bodyHtml = $"<h3>Welcome to Nexora</h3><p>Hello {fullName},</p><p>You have been invited as a <strong>{role}</strong>.</p><p><a href=\"{inviteLink}\">Set your password</a> to activate your account.</p>";
-        string bodyPlain = $"Hello {fullName},\n\nYou have been invited to Nexora as {role}.\nSet your password at:\n{inviteLink}";
-
-        if (_emailTemplateService != null)
+        if (hasPassword)
         {
-            try
+            subject = "Your Nexora Platform Staff Account & Login Credentials";
+            bodyHtml = $@"<div style=""font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 580px; margin: 0 auto; padding: 28px; border: 1px solid #e2e8f0; border-radius: 16px; background-color: #ffffff;"">
+    <div style=""margin-bottom: 20px; border-bottom: 2px solid #6366f1; padding-bottom: 12px;"">
+        <h2 style=""color: #1e1b4b; margin: 0; font-size: 22px; font-weight: 800;"">Nexora Digital Platform</h2>
+        <span style=""font-size: 12px; color: #6366f1; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;"">Staff Account Created</span>
+    </div>
+    <p style=""font-size: 15px; color: #334155; line-height: 1.6;"">Hello <strong>{fullName}</strong>,</p>
+    <p style=""font-size: 14px; color: #475569; line-height: 1.6;"">Your staff account has been set up with the role of <strong>{role}</strong>. You can now log in to the administrative console using the credentials below:</p>
+    
+    <div style=""background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px; margin: 20px 0;"">
+        <table style=""width: 100%; border-collapse: collapse; font-size: 14px;"">
+            <tr>
+                <td style=""padding: 6px 0; color: #64748b; width: 140px; font-weight: 600;"">Portal URL:</td>
+                <td style=""padding: 6px 0;""><a href=""{loginUrl}"" style=""color: #4f46e5; text-decoration: none; font-weight: 600;"">{loginUrl}</a></td>
+            </tr>
+            <tr>
+                <td style=""padding: 6px 0; color: #64748b; font-weight: 600;"">Login Email:</td>
+                <td style=""padding: 6px 0; font-weight: 700; color: #0f172a;"">{email}</td>
+            </tr>
+            <tr>
+                <td style=""padding: 6px 0; color: #64748b; font-weight: 600;"">Initial Password:</td>
+                <td style=""padding: 6px 0;""><code style=""background: #e0e7ff; color: #3730a3; padding: 3px 8px; border-radius: 6px; font-family: monospace; font-size: 15px; font-weight: 700;"">{password}</code></td>
+            </tr>
+            <tr>
+                <td style=""padding: 6px 0; color: #64748b; font-weight: 600;"">Assigned Role:</td>
+                <td style=""padding: 6px 0; color: #0f172a; font-weight: 600;"">{role}</td>
+            </tr>
+        </table>
+    </div>
+
+    <div style=""text-align: center; margin: 28px 0;"">
+        <a href=""{loginUrl}"" style=""display: inline-block; background-color: #4f46e5; color: #ffffff; padding: 12px 28px; border-radius: 10px; font-size: 14px; font-weight: 700; text-decoration: none; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.35);"">Access Admin Console</a>
+    </div>
+
+    <p style=""font-size: 12px; color: #94a3b8; border-top: 1px solid #f1f5f9; padding-top: 14px; margin-top: 24px; line-height: 1.5;"">
+        Security Note: Please do not share these credentials with unauthorized persons. {(mustChangePassword ? "You will be prompted to change this password on first login for enhanced security." : "")}
+    </p>
+</div>";
+            bodyPlain = $"Welcome to Nexora Platform\n\nHello {fullName},\nYour account has been created as {role}.\n\nPortal: {loginUrl}\nEmail: {email}\nInitial Password: {password}\n\nLog in at: {loginUrl}";
+        }
+        else
+        {
+            // Generate password setup token (using password reset provider)
+            token = await _userManager.GeneratePasswordResetTokenAsync(user);
+            var clientBaseUrl = _configuration["NEXT_PUBLIC_API_URL"] ?? "http://localhost:5201";
+
+            // URL fragment keeps token private
+            var encodedToken = Uri.EscapeDataString(token);
+            var encodedEmail = Uri.EscapeDataString(email);
+            var inviteLink = $"{clientBaseUrl}/auth/setup-password#token={encodedToken}&email={encodedEmail}";
+
+            subject = "Invitation to Nexora Digital Marketing Platform";
+            bodyHtml = $"<h3>Welcome to Nexora</h3><p>Hello {fullName},</p><p>You have been invited as a <strong>{role}</strong>.</p><p><a href=\"{inviteLink}\">Set your password</a> to activate your account.</p>";
+            bodyPlain = $"Hello {fullName},\n\nYou have been invited to Nexora as {role}.\nSet your password at:\n{inviteLink}";
+
+            if (_emailTemplateService != null)
             {
-                var vars = new Dictionary<string, string>
+                try
                 {
-                    ["user.name"] = fullName,
-                    ["user.role"] = role,
-                    ["invite.link"] = inviteLink,
-                    ["expires_hours"] = "48",
-                    ["platform.companyName"] = "Nexora Platform",
-                    ["support.email"] = "support@nexora.local"
-                };
-                var rendered = await _emailTemplateService.RenderTemplateAsync("user-invitation", vars, ct);
-                if (!string.IsNullOrWhiteSpace(rendered.Subject))
-                {
-                    subject = rendered.Subject;
-                    bodyHtml = rendered.BodyHtml;
-                    bodyPlain = rendered.BodyPlainText;
+                    var vars = new Dictionary<string, string>
+                    {
+                        ["user.name"] = fullName,
+                        ["user.role"] = role,
+                        ["invite.link"] = inviteLink,
+                        ["expires_hours"] = "48",
+                        ["platform.companyName"] = "Nexora Platform",
+                        ["support.email"] = "support@nexora.local"
+                    };
+                    var rendered = await _emailTemplateService.RenderTemplateAsync("user-invitation", vars, ct);
+                    if (!string.IsNullOrWhiteSpace(rendered.Subject))
+                    {
+                        subject = rendered.Subject;
+                        bodyHtml = rendered.BodyHtml;
+                        bodyPlain = rendered.BodyPlainText;
+                    }
                 }
-            }
-            catch
-            {
-                // Fallback to default format if template not loaded
+                catch
+                {
+                    // Fallback to default format if template not loaded
+                }
             }
         }
 
@@ -346,8 +406,19 @@ public class IdentityService : IIdentityService
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "Failed to deliver user invitation email to {Email}", email);
+            _logger.LogWarning(ex, "Failed to deliver user credentials email synchronously to {Email}. Enqueuing to Outbox queue for background dispatch.", email);
+            var outboxPayload = System.Text.Json.JsonSerializer.Serialize(new
+            {
+                userName = fullName,
+                userEmail = email,
+                userRole = role,
+                loginUrl = loginUrl,
+                hasPassword = hasPassword
+            });
+            _context.OutboxMessages.Add(new OutboxMessage("UserCredentialsDispatched", outboxPayload));
+            await _context.SaveChangesAsync(ct);
         }
+
         return (true, null, user.Id, token);
     }
 
@@ -418,8 +489,17 @@ public class IdentityService : IIdentityService
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "Failed to deliver reminder invitation email to {Email}", user.Email);
-            return (false, "Failed to send email. Please verify SMTP settings.");
+            _logger.LogWarning(ex, "Failed to deliver reminder invitation email synchronously to {Email}. Enqueuing to Outbox queue for background dispatch.", user.Email);
+            var outboxPayload = System.Text.Json.JsonSerializer.Serialize(new
+            {
+                userName = user.FullName ?? user.Email!,
+                userEmail = user.Email!,
+                userRole = roles.FirstOrDefault() ?? "Staff",
+                inviteLink = inviteLink,
+                expiresHours = "48"
+            });
+            _context.OutboxMessages.Add(new OutboxMessage("UserInvited", outboxPayload));
+            await _context.SaveChangesAsync(ct);
         }
 
         return (true, null);
@@ -461,7 +541,12 @@ public class IdentityService : IIdentityService
                     ["platform.companyName"] = "Nexora Platform",
                     ["support.email"] = "support@nexora.local"
                 };
-                var rendered = await _emailTemplateService.RenderTemplateAsync("password-reset", vars, ct);
+                var rendered = await _emailTemplateService.RenderTemplateAsync("user-password-reset", vars, ct);
+                if (string.IsNullOrWhiteSpace(rendered.Subject))
+                {
+                    rendered = await _emailTemplateService.RenderTemplateAsync("password-reset", vars, ct);
+                }
+
                 if (!string.IsNullOrWhiteSpace(rendered.Subject))
                 {
                     subject = rendered.Subject;
@@ -488,8 +573,15 @@ public class IdentityService : IIdentityService
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "Failed to deliver admin-initiated password reset email to {Email}", user.Email);
-            return (false, "Failed to send email. Please verify SMTP settings.");
+            _logger.LogWarning(ex, "Failed to deliver admin-initiated password reset email synchronously to {Email}. Enqueuing to Outbox queue for background dispatch.", user.Email);
+            var outboxPayload = System.Text.Json.JsonSerializer.Serialize(new
+            {
+                userName = user.FullName ?? user.Email,
+                userEmail = user.Email,
+                resetLink = resetLink
+            });
+            _context.OutboxMessages.Add(new OutboxMessage("UserPasswordReset", outboxPayload));
+            await _context.SaveChangesAsync(ct);
         }
 
         return (true, null);
@@ -559,6 +651,20 @@ public class IdentityService : IIdentityService
 
             // Evict cache immediately so next request gets new permissions without re-login!
             _memoryCache.Remove($"UserPerms_{targetUserId}");
+
+            // Automatically notify user of role changes via Outbox
+            if (!string.IsNullOrWhiteSpace(user.Email))
+            {
+                var rolePayload = System.Text.Json.JsonSerializer.Serialize(new
+                {
+                    userName = user.FullName ?? user.Email,
+                    userEmail = user.Email,
+                    userRole = newRole,
+                    actionUrl = "http://localhost:5173/admin"
+                });
+                _context.OutboxMessages.Add(new OutboxMessage("UserRoleUpdated", rolePayload));
+                await _context.SaveChangesAsync(ct);
+            }
         }
 
         // 4. Apply Suspension

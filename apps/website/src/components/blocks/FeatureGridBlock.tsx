@@ -98,17 +98,21 @@ export const FeatureGridBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
     },
   ];
 
-  const features =
+  const rawFeatures =
     ((content.features as FeatureItem[]) &&
       (content.features as FeatureItem[]).length > 0)
       ? (content.features as FeatureItem[])
       : defaultFeatures;
 
+  const features = rawFeatures.filter(
+    (f) => (f as { enabled?: boolean }).enabled !== false,
+  );
+
   return (
-    <section className="py-24 px-6 sm:px-10 lg:px-12 xl:px-16 max-w-[1720px] 2xl:max-w-[1920px] mx-auto">
+    <section className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
       {/* Section Header */}
       <div className="text-center max-w-3xl mx-auto space-y-4 mb-20">
-        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold text-indigo-700 bg-indigo-50 border border-indigo-200 uppercase tracking-widest shadow-2xs">
+        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold text-primary bg-primary/10 border border-primary/20 uppercase tracking-widest shadow-2xs">
           Comprehensive Growth Pillars
         </span>
         <h2 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-slate-900 leading-tight">

@@ -96,15 +96,15 @@ export const ProcessSteps: React.FC<{ block: CmsBlock }> = ({ block }) => {
   ];
 
   return (
-    <section className="py-24 lg:py-32 bg-slate-50/70 px-6 sm:px-10 lg:px-12 xl:px-16 border-t border-slate-200/80 relative overflow-hidden">
+    <section className="py-20 lg:py-28 bg-slate-50/70 px-4 sm:px-6 lg:px-8 border-t border-slate-200/80 relative overflow-hidden">
       {/* Ambient background glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[500px] bg-indigo-100/40 blur-[140px] pointer-events-none rounded-full" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[500px] bg-primary/5 blur-[140px] pointer-events-none rounded-full" />
 
-      <div className="max-w-[1720px] 2xl:max-w-[1920px] mx-auto relative z-10">
+      <div className="max-w-7xl mx-auto relative z-10">
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-20 space-y-4">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-100 text-indigo-700 border border-indigo-200 text-xs font-bold uppercase tracking-widest shadow-2xs">
-            <Rocket className="w-3.5 h-3.5 text-indigo-600" />
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-primary/10 text-primary border border-primary/20 text-xs font-bold uppercase tracking-widest shadow-2xs">
+            <Rocket className="w-3.5 h-3.5 text-primary" />
             <span>Proven Execution Process</span>
           </div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight">

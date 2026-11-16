@@ -19,5 +19,7 @@ public interface IAppDbContext
     IQueryable<BlogPost> BlogPosts { get; }
     IQueryable<PipelineStage> PipelineStages { get; }
     IQueryable<CountryRegion> CountryRegions { get; }
+    IQueryable<Theme> Themes { get; }
+    IQueryable<ThemeVersion> ThemeVersions { get; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

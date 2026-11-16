@@ -68,6 +68,7 @@ builder.Services.AddInfrastructure(builder.Configuration);
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
+builder.Services.AddHostedService<OutboxBackgroundDispatcher>();
 
 // 3. ProblemDetails
 builder.Services.AddProblemDetails();
@@ -354,6 +355,7 @@ app.MapAuthEndpoints();
 app.MapAdminUserEndpoints();
 app.MapAdminAuditEndpoints();
 app.MapSettingsEndpoints();
+app.MapThemeEndpoints();
 app.MapCmsEndpoints();
 app.MapMediaEndpoints();
 app.MapMenuEndpoints();

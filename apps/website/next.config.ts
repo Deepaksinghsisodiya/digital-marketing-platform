@@ -9,6 +9,14 @@ const cspFrameAncestors = process.env.CSP_FRAME_ANCESTORS
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  transpilePackages: ["@nexora/design-tokens"],
+  webpack: (config) => {
+    config.resolve.extensionAlias = {
+      ".js": [".js", ".ts", ".tsx"],
+      ".jsx": [".jsx", ".tsx"],
+    };
+    return config;
+  },
   async rewrites() {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5201";
     return [

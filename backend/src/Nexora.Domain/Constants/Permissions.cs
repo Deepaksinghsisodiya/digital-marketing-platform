@@ -6,6 +6,10 @@ public static class Permissions
     public const string SettingsView = "settings.view";
     public const string SettingsManage = "settings.manage";
 
+    // Dynamic Themes
+    public const string ThemesView = "themes.view";
+    public const string ThemesManage = "themes.manage";
+
     // Audit
     public const string AuditView = "audit.view";
 
@@ -47,7 +51,9 @@ public static class Permissions
         ClientsView,
         ClientsManage,
         TasksView,
-        TasksManage
+        TasksManage,
+        ThemesView,
+        ThemesManage
     ];
 }
 

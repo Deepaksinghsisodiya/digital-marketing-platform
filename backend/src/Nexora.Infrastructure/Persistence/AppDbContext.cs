@@ -42,6 +42,8 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
     public DbSet<BlogPost> BlogPosts => Set<BlogPost>();
     public DbSet<PipelineStage> PipelineStages => Set<PipelineStage>();
     public DbSet<CountryRegion> CountryRegions => Set<CountryRegion>();
+    public DbSet<Theme> Themes => Set<Theme>();
+    public DbSet<ThemeVersion> ThemeVersions => Set<ThemeVersion>();
 
     IQueryable<AuditLog> IAppDbContext.AuditLogs => AuditLogs;
     IQueryable<SiteSettings> IAppDbContext.SiteSettings => SiteSettings;
@@ -58,6 +60,8 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
     IQueryable<BlogPost> IAppDbContext.BlogPosts => BlogPosts;
     IQueryable<PipelineStage> IAppDbContext.PipelineStages => PipelineStages;
     IQueryable<CountryRegion> IAppDbContext.CountryRegions => CountryRegions;
+    IQueryable<Theme> IAppDbContext.Themes => Themes;
+    IQueryable<ThemeVersion> IAppDbContext.ThemeVersions => ThemeVersions;
 
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
     {
@@ -235,6 +239,12 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
             b.Property(s => s.SectionVisibilityJson).HasColumnType("nvarchar(max)").HasDefaultValue("{}");
             b.Property(s => s.FaviconMediaId);
             b.Property(s => s.ThemeTokensJson).HasColumnType("nvarchar(max)").HasDefaultValue("{}");
+            b.Property(s => s.GlobalThemeEngineEnabled).HasDefaultValue(true);
+            b.Property(s => s.WebsiteThemeEnabled).HasDefaultValue(true);
+            b.Property(s => s.WebsiteThemeId).HasMaxLength(100).HasDefaultValue("cyber-emerald");
+            b.Property(s => s.AdminThemeEnabled).HasDefaultValue(true);
+            b.Property(s => s.AdminThemeId).HasMaxLength(100).HasDefaultValue("cyber-emerald");
+            b.Property(s => s.FallbackThemeId).HasMaxLength(100).HasDefaultValue("cyber-emerald");
             b.Property(s => s.SocialLinksJson).HasColumnType("nvarchar(max)").HasDefaultValue("{}");
             b.Property(s => s.TrackingCodesJson).HasColumnType("nvarchar(max)").HasDefaultValue("{}");
             b.Property(s => s.BookingUrl).HasMaxLength(500);
@@ -669,6 +679,41 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
             b.Property(r => r.PhonePrefix).HasMaxLength(20).IsRequired();
             b.Property(r => r.TaxLabel).HasMaxLength(50).IsRequired();
             b.HasIndex(r => r.OrderIndex);
+        });
+
+        // 22. Dynamic Themes
+        builder.Entity<Theme>(b =>
+        {
+            b.ToTable("Themes", tb =>
+            {
+                tb.HasCheckConstraint("CK_Themes_ConfigJson_Json", "ISJSON([ConfigJson]) = 1");
+                tb.HasCheckConstraint("CK_Themes_DraftConfigJson_Json", "ISJSON([DraftConfigJson]) = 1 OR [DraftConfigJson] IS NULL");
+            });
+            b.HasKey(t => t.Id);
+            b.Property(t => t.Name).HasMaxLength(100).IsRequired();
+            b.Property(t => t.Slug).HasMaxLength(100).IsRequired();
+            b.HasIndex(t => t.Slug).IsUnique();
+            b.Property(t => t.Description).HasMaxLength(500);
+            b.Property(t => t.ConfigJson).HasColumnType("nvarchar(max)").IsRequired();
+            b.Property(t => t.DraftConfigJson).HasColumnType("nvarchar(max)");
+            b.Property(t => t.Version).IsRowVersion();
+            b.HasIndex(t => t.IsDeleted);
+            b.HasIndex(t => t.IsSystem);
+            b.HasIndex(t => t.IsDefault);
+            b.HasMany(t => t.Versions).WithOne(v => v.Theme).HasForeignKey(v => v.ThemeId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // 23. Theme Versions
+        builder.Entity<ThemeVersion>(b =>
+        {
+            b.ToTable("ThemeVersions", tb =>
+            {
+                tb.HasCheckConstraint("CK_ThemeVersions_ConfigJson_Json", "ISJSON([ConfigJson]) = 1");
+            });
+            b.HasKey(v => v.Id);
+            b.Property(v => v.ConfigJson).HasColumnType("nvarchar(max)").IsRequired();
+            b.Property(v => v.ChangeDescription).HasMaxLength(500);
+            b.HasIndex(v => new { v.ThemeId, v.VersionNumber }).IsUnique();
         });
     }
 }

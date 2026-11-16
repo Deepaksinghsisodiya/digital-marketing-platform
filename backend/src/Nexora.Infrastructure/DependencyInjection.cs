@@ -101,6 +101,7 @@ public static class DependencyInjection
         services.AddScoped<IMenuService, MenuService>();
         services.AddScoped<IAuditLogService, AuditLogService>();
         services.AddScoped<ISiteSettingsService, SiteSettingsService>();
+        services.AddScoped<IThemeService, ThemeService>();
         services.AddScoped<IIdentityService, IdentityService>();
         services.AddScoped<ICmsService, CmsService>();
         services.AddScoped<ILeadService, LeadService>();

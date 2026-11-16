@@ -43,12 +43,19 @@ export const baseQueryWithReauth: typeof rawBaseQuery = async (
   }
 
   // If CSRF token invalid or missing (400 Bad Request with anti-forgery), attempt CSRF refresh
-  if (
-    result.error &&
-    result.error.status === 400 &&
-    typeof result.error.data === "string" &&
-    result.error.data.includes("antiforgery")
-  ) {
+  const errData = result.error?.data as
+    | { error?: string; message?: string }
+    | string
+    | undefined;
+  const isAntiforgeryError =
+    result.error?.status === 400 &&
+    ((typeof errData === "string" &&
+      errData.toLowerCase().includes("antiforgery")) ||
+      (typeof errData === "object" &&
+        (errData?.error === "CSRF_TOKEN_INVALID" ||
+          errData?.message?.toLowerCase().includes("antiforgery"))));
+
+  if (isAntiforgeryError) {
     const csrfResult = await rawBaseQuery(
       "/api/v1/auth/csrf",
       api,
@@ -84,6 +91,8 @@ export const apiSlice = createApi({
     "CountryRegion",
     "Media",
     "Menu",
+    "Theme",
+    "ThemeSettings",
   ],
   endpoints: () => ({}),
 });

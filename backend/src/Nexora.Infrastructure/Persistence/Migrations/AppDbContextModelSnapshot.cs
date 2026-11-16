@@ -1301,6 +1301,18 @@ namespace Nexora.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("AdminThemeEnabled")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("AdminThemeId")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasDefaultValue("cyber-emerald");
+
                     b.Property<string>("AnnouncementBarJson")
                         .IsRequired()
                         .ValueGeneratedOnAdd()
@@ -1324,8 +1336,20 @@ namespace Nexora.Infrastructure.Persistence.Migrations
                         .HasMaxLength(10)
                         .HasColumnType("nvarchar(10)");
 
+                    b.Property<string>("FallbackThemeId")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasDefaultValue("cyber-emerald");
+
                     b.Property<Guid?>("FaviconMediaId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("GlobalThemeEngineEnabled")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
 
                     b.Property<string>("LegalName")
                         .IsRequired()
@@ -1435,6 +1459,18 @@ namespace Nexora.Infrastructure.Persistence.Migrations
                         .HasMaxLength(512)
                         .HasColumnType("nvarchar(512)");
 
+                    b.Property<bool>("WebsiteThemeEnabled")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("WebsiteThemeId")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasDefaultValue("cyber-emerald");
+
                     b.HasKey("Id");
 
                     b.HasIndex("SingletonId")
@@ -1517,6 +1553,124 @@ namespace Nexora.Infrastructure.Persistence.Migrations
                     b.HasIndex("Status", "DueDateUtc");
 
                     b.ToTable("TaskItems", (string)null);
+                });
+
+            modelBuilder.Entity("Nexora.Domain.Entities.Theme", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ConfigJson")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("CurrentVersion")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("DraftConfigJson")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDefault")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsSystem")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime?>("UpdatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<byte[]>("Version")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IsDefault");
+
+                    b.HasIndex("IsDeleted");
+
+                    b.HasIndex("IsSystem");
+
+                    b.HasIndex("Slug")
+                        .IsUnique();
+
+                    b.ToTable("Themes", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_Themes_ConfigJson_Json", "ISJSON([ConfigJson]) = 1");
+
+                            t.HasCheckConstraint("CK_Themes_DraftConfigJson_Json", "ISJSON([DraftConfigJson]) = 1 OR [DraftConfigJson] IS NULL");
+                        });
+                });
+
+            modelBuilder.Entity("Nexora.Domain.Entities.ThemeVersion", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ChangeDescription")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<Guid?>("ChangedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ConfigJson")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("ThemeId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("UpdatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("VersionNumber")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ThemeId", "VersionNumber")
+                        .IsUnique();
+
+                    b.ToTable("ThemeVersions", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_ThemeVersions_ConfigJson_Json", "ISJSON([ConfigJson]) = 1");
+                        });
                 });
 
             modelBuilder.Entity("Nexora.Infrastructure.Identity.ApplicationRole", b =>
@@ -1838,6 +1992,17 @@ namespace Nexora.Infrastructure.Persistence.Migrations
                     b.Navigation("Lead");
                 });
 
+            modelBuilder.Entity("Nexora.Domain.Entities.ThemeVersion", b =>
+                {
+                    b.HasOne("Nexora.Domain.Entities.Theme", "Theme")
+                        .WithMany("Versions")
+                        .HasForeignKey("ThemeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Theme");
+                });
+
             modelBuilder.Entity("Nexora.Infrastructure.Identity.RolePermission", b =>
                 {
                     b.HasOne("Nexora.Infrastructure.Identity.ApplicationRole", "Role")
@@ -1881,6 +2046,11 @@ namespace Nexora.Infrastructure.Persistence.Migrations
                 });
 
             modelBuilder.Entity("Nexora.Domain.Entities.Page", b =>
+                {
+                    b.Navigation("Versions");
+                });
+
+            modelBuilder.Entity("Nexora.Domain.Entities.Theme", b =>
                 {
                     b.Navigation("Versions");
                 });

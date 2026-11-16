@@ -25,7 +25,9 @@ public class IdentityPolicyUnitTests
         Permissions.All.ShouldContain(Permissions.ClientsManage);
         Permissions.All.ShouldContain(Permissions.TasksView);
         Permissions.All.ShouldContain(Permissions.TasksManage);
-        Permissions.All.Count.ShouldBe(16);
+        Permissions.All.ShouldContain(Permissions.ThemesView);
+        Permissions.All.ShouldContain(Permissions.ThemesManage);
+        Permissions.All.Count.ShouldBe(18);
     }
 
     [Fact]

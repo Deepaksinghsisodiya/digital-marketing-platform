@@ -13,6 +13,7 @@ import {
   ArrowLeft,
   Sparkles,
   Eye,
+  EyeOff,
   RefreshCw,
   ExternalLink,
   Laptop,
@@ -23,7 +24,33 @@ import {
   ChevronDown,
   Layers,
   Check,
+  Plus,
+  SlidersHorizontal,
+  Upload,
+  Image as ImageIcon,
+  ArrowLeftRight,
 } from "lucide-react";
+
+type EditableHeroSlide = {
+  id?: string;
+  tag?: string;
+  eyebrow?: string;
+  headline?: string;
+  subheadline?: string;
+  primaryCtaText?: string;
+  primaryCtaLink?: string;
+  secondaryCtaText?: string;
+  secondaryCtaLink?: string;
+  imageUrl?: string;
+  imageAlt?: string;
+  imagePosition?: string;
+  imageLayout?: string;
+  imageBadge?: string;
+  accentColor?: string;
+  overlayOpacity?: number;
+  backgroundColor?: string;
+  [key: string]: unknown;
+};
 
 const BLOCK_TEMPLATES: Record<
   string,
@@ -306,6 +333,7 @@ export const PageEditorPage: React.FC = () => {
     "desktop" | "tablet" | "mobile"
   >("desktop");
   const [iframeKey, setIframeKey] = useState(0);
+  const [activeSlideIndex, setActiveSlideIndex] = useState<number>(0);
 
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
@@ -746,8 +774,36 @@ export const PageEditorPage: React.FC = () => {
                             </span>
                           </div>
 
-                          {/* Reordering and Delete */}
+                          {/* Reordering, Visibility Toggle and Delete */}
                           <div className="flex items-center gap-1">
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                const updated = [...blocks];
+                                const current = updated[idx];
+                                if (current) {
+                                  updated[idx] = {
+                                    ...current,
+                                    enabled: current.enabled === false ? true : false,
+                                  };
+                                  setBlocks(updated);
+                                  setIsDirty(true);
+                                }
+                              }}
+                              className={`p-1 rounded-lg transition ${
+                                b.enabled !== false
+                                  ? "text-emerald-500 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/40"
+                                  : "text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800"
+                              }`}
+                              title={b.enabled !== false ? "Hide section from website" : "Show section on website"}
+                            >
+                              {b.enabled !== false ? (
+                                <Eye className="w-3.5 h-3.5" />
+                              ) : (
+                                <EyeOff className="w-3.5 h-3.5" />
+                              )}
+                            </button>
                             <button
                               type="button"
                               onClick={(e) => {
@@ -789,85 +845,1019 @@ export const PageEditorPage: React.FC = () => {
                         {/* Inline Content Editor when Selected */}
                         {isSelected && (
                           <div className="p-4 border-t border-indigo-100 dark:border-indigo-950/60 bg-white/70 dark:bg-slate-950/70 space-y-3 text-xs">
-                            {/* Hero Editor Fields */}
-                            {b.type === "Hero" && (
-                              <>
-                                <div>
-                                  <label className="block text-[11px] font-bold text-slate-500 mb-1">
-                                    Headline
-                                  </label>
-                                  <input
-                                    type="text"
-                                    value={(b.content.headline as string) || ""}
-                                    onChange={(e) =>
+                            {/* Hero Editor Fields with Multi-Slide Carousel & Image Customization */}
+                            {b.type === "Hero" && (() => {
+                              const isSliderMode = true;
+
+                              const rawSlides: EditableHeroSlide[] =
+                                Array.isArray(b.content.slides) &&
+                                (b.content.slides as EditableHeroSlide[]).length > 1
+                                  ? (b.content.slides as EditableHeroSlide[])
+                                  : [
+                                      {
+                                        id: "slide-1",
+                                        tag:
+                                          (b.content.tag as string) ||
+                                          (b.content.eyebrow as string) ||
+                                          "Performance Marketing & Growth",
+                                        headline:
+                                          (b.content.headline as string) ||
+                                          "Data-Driven Marketing at Enterprise Scale.",
+                                        subheadline:
+                                          (b.content.subheadline as string) ||
+                                          "Connect your enterprise to target audiences with AI campaign automation, precision audience modeling, and verifiable attribution.",
+                                        primaryCtaText:
+                                          (b.content.primaryCtaText as string) ||
+                                          "Get Free Growth Diagnostic",
+                                        primaryCtaLink:
+                                          (b.content.primaryCtaLink as string) ||
+                                          "/contact",
+                                        secondaryCtaText:
+                                          (b.content.secondaryCtaText as string) ||
+                                          "Explore Capabilities",
+                                        secondaryCtaLink:
+                                          (b.content.secondaryCtaLink as string) ||
+                                          "/services",
+                                        imageUrl:
+                                          (b.content.imageUrl as string) ||
+                                          "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=2600&q=85",
+                                        imageAlt:
+                                          (b.content.imageAlt as string) ||
+                                          "Digital Growth & Analytics Infrastructure",
+                                      },
+                                      {
+                                        id: "slide-2",
+                                        tag: "Enterprise Web Engineering",
+                                        headline:
+                                          "Engineered Digital Experiences Built for Scale.",
+                                        subheadline:
+                                          "Next.js 15 enterprise web applications, modular headless CMS, bespoke APIs, and sub-second Core Web Vitals.",
+                                        primaryCtaText: "Explore Web Engineering",
+                                        primaryCtaLink: "/services",
+                                        secondaryCtaText: "Schedule Technical Call",
+                                        secondaryCtaLink: "/book-a-call",
+                                        imageUrl:
+                                          "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=2600&q=85",
+                                        imageAlt: "Next.js 15 Enterprise Engineering Architecture",
+                                      },
+                                      {
+                                        id: "slide-3",
+                                        tag: "Intelligent AI Automation",
+                                        headline:
+                                          "Automate Business Operations with Enterprise AI.",
+                                        subheadline:
+                                          "Conversational AI chatbots, event-driven CRM synchronizations, automated lead qualification, and deterministic workflow routing that eliminate friction.",
+                                        primaryCtaText: "Deploy Intelligent AI",
+                                        primaryCtaLink: "/contact",
+                                        secondaryCtaText: "AI Solutions Catalog",
+                                        secondaryCtaLink: "/services",
+                                        imageUrl:
+                                          "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?auto=format&fit=crop&w=2600&q=85",
+                                        imageAlt: "Intelligent Neural AI Automation Systems",
+                                      },
+                                    ];
+
+                              const curIdx = Math.min(
+                                Math.max(0, activeSlideIndex),
+                                rawSlides.length - 1,
+                              );
+                              const curSlide = (rawSlides[curIdx] || rawSlides[0])!;
+
+                              const updateSlide = (
+                                sIdx: number,
+                                field: string,
+                                value: unknown,
+                              ) => {
+                                const newSlides = [...rawSlides];
+                                if (!newSlides[sIdx]) return;
+                                newSlides[sIdx] = {
+                                  ...newSlides[sIdx],
+                                  [field]: value,
+                                };
+                                const updatedBlocks = [...blocks];
+                                const curBlock = updatedBlocks[idx];
+                                if (curBlock) {
+                                  updatedBlocks[idx] = {
+                                    ...curBlock,
+                                    content: {
+                                      ...curBlock.content,
+                                      slides: newSlides,
+                                      ...(sIdx === 0
+                                        ? { [field]: value }
+                                        : {}),
+                                    },
+                                  };
+                                  setBlocks(updatedBlocks);
+                                  setIsDirty(true);
+                                }
+                              };
+
+                              const handleAddSlide = () => {
+                                const newSlide: EditableHeroSlide = {
+                                  id: `slide-${Date.now()}`,
+                                  tag: "Enterprise Growth & AI",
+                                  headline: "Modern Marketing Engineered for Results",
+                                  subheadline:
+                                    "Custom digital architecture, data-driven paid acquisition, and conversion rate optimization tailored to your growth goals.",
+                                  primaryCtaText: "Start Your Project",
+                                  primaryCtaLink: "/contact",
+                                  secondaryCtaText: "Our Solutions",
+                                  secondaryCtaLink: "/services",
+                                  imageUrl:
+                                    "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=2000&q=85",
+                                  imageAlt: "Enterprise Growth Strategy",
+                                };
+                                const newSlides = [...rawSlides, newSlide];
+                                const updatedBlocks = [...blocks];
+                                const curBlock = updatedBlocks[idx];
+                                if (curBlock) {
+                                  updatedBlocks[idx] = {
+                                    ...curBlock,
+                                    content: {
+                                      ...curBlock.content,
+                                      isSlider: true,
+                                      slides: newSlides,
+                                    },
+                                  };
+                                  setBlocks(updatedBlocks);
+                                  setIsDirty(true);
+                                  setActiveSlideIndex(newSlides.length - 1);
+                                }
+                              };
+
+                              const handleDeleteSlide = (sIdx: number) => {
+                                if (rawSlides.length <= 1) return;
+                                const newSlides = rawSlides.filter(
+                                  (_, i) => i !== sIdx,
+                                );
+                                const updatedBlocks = [...blocks];
+                                const curBlock = updatedBlocks[idx];
+                                if (curBlock) {
+                                  updatedBlocks[idx] = {
+                                    ...curBlock,
+                                    content: {
+                                      ...curBlock.content,
+                                      slides: newSlides,
+                                      isSlider: newSlides.length > 1,
+                                    },
+                                  };
+                                  setBlocks(updatedBlocks);
+                                  setIsDirty(true);
+                                  setActiveSlideIndex(Math.max(0, sIdx - 1));
+                                }
+                              };
+
+                              const handleMoveSlide = (
+                                sIdx: number,
+                                direction: "left" | "right",
+                              ) => {
+                                const targetIdx =
+                                  direction === "left" ? sIdx - 1 : sIdx + 1;
+                                if (targetIdx < 0 || targetIdx >= rawSlides.length)
+                                  return;
+                                const newSlides = [...rawSlides];
+                                const temp = newSlides[sIdx]!;
+                                newSlides[sIdx] = newSlides[targetIdx]!;
+                                newSlides[targetIdx] = temp;
+                                const updatedBlocks = [...blocks];
+                                const curBlock = updatedBlocks[idx];
+                                if (curBlock) {
+                                  updatedBlocks[idx] = {
+                                    ...curBlock,
+                                    content: {
+                                      ...curBlock.content,
+                                      slides: newSlides,
+                                    },
+                                  };
+                                  setBlocks(updatedBlocks);
+                                  setIsDirty(true);
+                                  setActiveSlideIndex(targetIdx);
+                                }
+                              };
+
+                              const handleFileUpload = async (
+                                e: React.ChangeEvent<HTMLInputElement>,
+                              ) => {
+                                const file = e.target.files?.[0];
+                                if (!file) return;
+                                try {
+                                  const formData = new FormData();
+                                  formData.append("file", file);
+                                  formData.append("altText", curSlide.headline || "Hero Banner");
+                                  const token =
+                                    localStorage.getItem("token") ||
+                                    sessionStorage.getItem("token");
+                                  const res = await fetch(
+                                    "/api/v1/admin/media/upload",
+                                    {
+                                      method: "POST",
+                                      headers: token
+                                        ? { Authorization: `Bearer ${token}` }
+                                        : {},
+                                      body: formData,
+                                    },
+                                  );
+                                  if (res.ok) {
+                                    const data = await res.json();
+                                    const downloadUrl = `/api/v1/public/media/${data.id}/download`;
+                                    if (isSliderMode) {
+                                      updateSlide(curIdx, "imageUrl", downloadUrl);
+                                    } else {
                                       updateSelectedBlockContent(
-                                        "headline",
-                                        e.target.value,
-                                      )
+                                        "imageUrl",
+                                        downloadUrl,
+                                      );
                                     }
-                                    className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2 text-xs font-semibold text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-                                  />
-                                </div>
-                                <div>
-                                  <label className="block text-[11px] font-bold text-slate-500 mb-1">
-                                    Subheadline
-                                  </label>
-                                  <textarea
-                                    rows={2}
-                                    value={
-                                      (b.content.subheadline as string) || ""
-                                    }
-                                    onChange={(e) =>
+                                  } else {
+                                    const previewUrl = URL.createObjectURL(file);
+                                    if (isSliderMode) {
+                                      updateSlide(curIdx, "imageUrl", previewUrl);
+                                    } else {
                                       updateSelectedBlockContent(
-                                        "subheadline",
-                                        e.target.value,
-                                      )
+                                        "imageUrl",
+                                        previewUrl,
+                                      );
                                     }
-                                    className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2 text-xs text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-                                  />
-                                </div>
-                                <div className="grid grid-cols-2 gap-2">
-                                  <div>
-                                    <label className="block text-[11px] font-bold text-slate-500 mb-1">
-                                      Primary CTA Text
-                                    </label>
-                                    <input
-                                      type="text"
-                                      value={
-                                        (b.content.primaryCtaText as string) ||
-                                        ""
-                                      }
-                                      onChange={(e) =>
-                                        updateSelectedBlockContent(
-                                          "primaryCtaText",
-                                          e.target.value,
-                                        )
-                                      }
-                                      className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2 text-xs text-slate-900 dark:text-white"
-                                    />
+                                  }
+                                } catch {
+                                  const previewUrl = URL.createObjectURL(file);
+                                  if (isSliderMode) {
+                                    updateSlide(curIdx, "imageUrl", previewUrl);
+                                  } else {
+                                    updateSelectedBlockContent(
+                                      "imageUrl",
+                                      previewUrl,
+                                    );
+                                  }
+                                }
+                              };
+
+                              return (
+                                <div className="space-y-4">
+                                  {/* 1. Hero Section Visibility (Show / Hide Toggle) */}
+                                  <div className="flex items-center justify-between p-3 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+                                    <div className="flex items-center gap-2.5">
+                                      {b.enabled !== false ? (
+                                        <div className="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+                                          <Eye className="w-4 h-4" />
+                                        </div>
+                                      ) : (
+                                        <div className="w-8 h-8 rounded-lg bg-slate-200 dark:bg-slate-800 text-slate-500 flex items-center justify-center">
+                                          <EyeOff className="w-4 h-4" />
+                                        </div>
+                                      )}
+                                      <div>
+                                        <span className="text-xs font-bold text-slate-900 dark:text-white block">
+                                          Hero Banner Display
+                                        </span>
+                                        <span className="text-[11px] text-slate-500 block">
+                                          {b.enabled !== false
+                                            ? "Active (Visible on live website)"
+                                            : "Hidden (Hero will not appear on website)"}
+                                        </span>
+                                      </div>
+                                    </div>
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        const updated = [...blocks];
+                                        const current = updated[idx];
+                                        if (current) {
+                                          updated[idx] = {
+                                            ...current,
+                                            enabled: b.enabled === false ? true : false,
+                                          };
+                                          setBlocks(updated);
+                                          setIsDirty(true);
+                                        }
+                                      }}
+                                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 ${
+                                        b.enabled !== false
+                                          ? "bg-emerald-600 hover:bg-emerald-500 text-white shadow-xs"
+                                          : "bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 text-slate-700 dark:text-slate-300"
+                                      }`}
+                                    >
+                                      {b.enabled !== false ? (
+                                        <>
+                                          <Eye className="w-3.5 h-3.5" />
+                                          <span>Visible</span>
+                                        </>
+                                      ) : (
+                                        <>
+                                          <EyeOff className="w-3.5 h-3.5" />
+                                          <span>Hidden</span>
+                                        </>
+                                      )}
+                                    </button>
                                   </div>
-                                  <div>
-                                    <label className="block text-[11px] font-bold text-slate-500 mb-1">
-                                      CTA Target Link
-                                    </label>
-                                    <input
-                                      type="text"
-                                      value={
-                                        (b.content.primaryCtaLink as string) ||
-                                        ""
-                                      }
-                                      onChange={(e) =>
-                                        updateSelectedBlockContent(
-                                          "primaryCtaLink",
-                                          e.target.value,
-                                        )
-                                      }
-                                      className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2 text-xs text-slate-900 dark:text-white"
-                                    />
+
+                                  {/* 2. Mode Switcher: Single Hero vs Hero Slider / Carousel */}
+                                  <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+                                    <div className="flex items-center gap-1.5">
+                                      <SlidersHorizontal className="w-4 h-4 text-indigo-500" />
+                                      <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
+                                        Hero Presentation Mode
+                                      </span>
+                                    </div>
+                                    <div className="flex items-center gap-1">
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          updateSelectedBlockContent(
+                                            "isSlider",
+                                            false,
+                                          );
+                                        }}
+                                        className={`px-3 py-1 rounded-lg text-xs font-bold transition ${
+                                          !isSliderMode
+                                            ? "bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 shadow-sm"
+                                            : "text-slate-500 hover:text-slate-800 dark:hover:text-white"
+                                        }`}
+                                      >
+                                        Single Banner
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          updateSelectedBlockContent(
+                                            "isSlider",
+                                            true,
+                                          );
+                                          if (rawSlides.length === 1) {
+                                            updateSelectedBlockContent(
+                                              "slides",
+                                              rawSlides,
+                                            );
+                                          }
+                                        }}
+                                        className={`px-3 py-1 rounded-lg text-xs font-bold transition ${
+                                          isSliderMode
+                                            ? "bg-indigo-600 text-white shadow-sm"
+                                            : "text-slate-500 hover:text-slate-800 dark:hover:text-white"
+                                        }`}
+                                      >
+                                        Slider / Carousel ({rawSlides.length})
+                                      </button>
+                                    </div>
+                                  </div>
+
+                                  {/* 3. Multi-Slide Carousel Manager Bar */}
+                                  {isSliderMode && (
+                                    <div className="p-3.5 rounded-xl bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-200/80 dark:border-indigo-800/60 space-y-3">
+                                      <div className="flex items-center justify-between flex-wrap gap-2">
+                                        <span className="text-[11px] font-extrabold uppercase tracking-wider text-indigo-700 dark:text-indigo-300">
+                                          Hero Banner Slides ({rawSlides.length})
+                                        </span>
+                                        <button
+                                          type="button"
+                                          onClick={handleAddSlide}
+                                          className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-[11px] font-bold shadow-xs transition"
+                                        >
+                                          <Plus className="w-3.5 h-3.5" />
+                                          <span>Add Slide</span>
+                                        </button>
+                                      </div>
+
+                                      {/* Slide Tabs with Reorder & Delete */}
+                                      <div className="flex flex-wrap items-center gap-2">
+                                        {rawSlides.map((s, sIdx) => (
+                                          <div
+                                            key={s.id || sIdx}
+                                            className={`inline-flex items-center rounded-lg border text-xs font-semibold overflow-hidden transition ${
+                                              sIdx === curIdx
+                                                ? "bg-white dark:bg-slate-900 border-indigo-500 text-indigo-700 dark:text-indigo-300 shadow-xs ring-2 ring-indigo-500/20"
+                                                : "bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-slate-300"
+                                            }`}
+                                          >
+                                            <button
+                                              type="button"
+                                              onClick={() =>
+                                                setActiveSlideIndex(sIdx)
+                                              }
+                                              className="px-3 py-1.5 text-left font-bold"
+                                            >
+                                              Slide {sIdx + 1}
+                                            </button>
+
+                                            {/* Reorder Buttons */}
+                                            {rawSlides.length > 1 && (
+                                              <div className="flex items-center border-l border-slate-200 dark:border-slate-700 px-0.5">
+                                                <button
+                                                  type="button"
+                                                  disabled={sIdx === 0}
+                                                  onClick={() =>
+                                                    handleMoveSlide(sIdx, "left")
+                                                  }
+                                                  className="p-1 hover:text-indigo-600 disabled:opacity-20"
+                                                  title="Move slide left"
+                                                >
+                                                  &larr;
+                                                </button>
+                                                <button
+                                                  type="button"
+                                                  disabled={
+                                                    sIdx === rawSlides.length - 1
+                                                  }
+                                                  onClick={() =>
+                                                    handleMoveSlide(sIdx, "right")
+                                                  }
+                                                  className="p-1 hover:text-indigo-600 disabled:opacity-20"
+                                                  title="Move slide right"
+                                                >
+                                                  &rarr;
+                                                </button>
+                                              </div>
+                                            )}
+
+                                            {/* Delete Button */}
+                                            {rawSlides.length > 1 && (
+                                              <button
+                                                type="button"
+                                                onClick={() =>
+                                                  handleDeleteSlide(sIdx)
+                                                }
+                                                className="px-2 py-1.5 hover:bg-rose-100 dark:hover:bg-rose-950/60 hover:text-rose-600 transition border-l border-slate-200 dark:border-slate-700"
+                                                title="Delete slide"
+                                              >
+                                                &times;
+                                              </button>
+                                            )}
+                                          </div>
+                                        ))}
+                                      </div>
+
+                                      {/* Autoplay & Rotation Timing */}
+                                      <div className="flex items-center justify-between text-[11px] pt-2 border-t border-indigo-100 dark:border-indigo-900/60">
+                                        <label className="flex items-center gap-1.5 cursor-pointer text-slate-600 dark:text-slate-400 font-medium">
+                                          <input
+                                            type="checkbox"
+                                            checked={b.content.autoplay !== false}
+                                            onChange={(e) =>
+                                              updateSelectedBlockContent(
+                                                "autoplay",
+                                                e.target.checked,
+                                              )
+                                            }
+                                            className="rounded text-indigo-600 focus:ring-indigo-500"
+                                          />
+                                          <span>Auto-Play Rotation</span>
+                                        </label>
+                                        <div className="flex items-center gap-1.5 text-slate-500">
+                                          <span>Rotate every:</span>
+                                          <select
+                                            value={
+                                              (b.content.interval as number) ||
+                                              5000
+                                            }
+                                            onChange={(e) =>
+                                              updateSelectedBlockContent(
+                                                "interval",
+                                                Number(e.target.value),
+                                              )
+                                            }
+                                            className="rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-2 py-0.5 text-[11px] font-mono text-slate-700 dark:text-slate-300"
+                                          >
+                                            <option value={3000}>3 seconds</option>
+                                            <option value={5000}>5 seconds</option>
+                                            <option value={7000}>7 seconds</option>
+                                            <option value={10000}>10 seconds</option>
+                                          </select>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  )}
+
+                                  {/* 4. Active Slide Content Fields */}
+                                  <div className="space-y-3 pt-1">
+                                    <div className="flex items-center justify-between pb-1 border-b border-slate-100 dark:border-slate-800">
+                                      <span className="text-[11px] font-bold text-slate-700 dark:text-slate-300">
+                                        {isSliderMode
+                                          ? `Slide ${curIdx + 1} Content & Media`
+                                          : "Hero Banner Content & Media"}
+                                      </span>
+                                      {isSliderMode && (
+                                        <span className="text-[10px] text-indigo-600 dark:text-indigo-400 font-mono font-semibold">
+                                          Slide {curIdx + 1} of {rawSlides.length}
+                                        </span>
+                                      )}
+                                    </div>
+
+                                    {/* Tag / Category Badge */}
+                                    <div>
+                                      <label className="block text-[11px] font-bold text-slate-500 mb-1">
+                                        Badge / Tag
+                                      </label>
+                                      <input
+                                        type="text"
+                                        value={
+                                          (isSliderMode
+                                            ? curSlide.tag || curSlide.eyebrow
+                                            : ((b.content.tag || b.content.eyebrow) as string)) || ""
+                                        }
+                                        placeholder="e.g. Full-Funnel Digital Marketing"
+                                        onChange={(e) => {
+                                          if (isSliderMode) {
+                                            updateSlide(curIdx, "tag", e.target.value);
+                                            updateSlide(curIdx, "eyebrow", e.target.value);
+                                          } else {
+                                            updateSelectedBlockContent("tag", e.target.value);
+                                            updateSelectedBlockContent("eyebrow", e.target.value);
+                                          }
+                                        }}
+                                        className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2 text-xs font-semibold text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                                      />
+                                    </div>
+
+                                    {/* Main Headline */}
+                                    <div>
+                                      <label className="block text-[11px] font-bold text-slate-500 mb-1">
+                                        Headline (Main Title)
+                                      </label>
+                                      <input
+                                        type="text"
+                                        value={
+                                          (isSliderMode
+                                            ? curSlide.headline
+                                            : (b.content.headline as string)) || ""
+                                        }
+                                        placeholder="e.g. Accelerate Revenue with Modern Digital Marketing"
+                                        onChange={(e) => {
+                                          if (isSliderMode) {
+                                            updateSlide(
+                                              curIdx,
+                                              "headline",
+                                              e.target.value,
+                                            );
+                                          } else {
+                                            updateSelectedBlockContent(
+                                              "headline",
+                                              e.target.value,
+                                            );
+                                          }
+                                        }}
+                                        className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2 text-xs font-semibold text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                                      />
+                                    </div>
+
+                                    {/* Subheadline Description */}
+                                    <div>
+                                      <label className="block text-[11px] font-bold text-slate-500 mb-1">
+                                        Subheadline / Description
+                                      </label>
+                                      <textarea
+                                        rows={2}
+                                        value={
+                                          (isSliderMode
+                                            ? curSlide.subheadline
+                                            : (b.content.subheadline as string)) || ""
+                                        }
+                                        placeholder="Short, high-converting commercial description..."
+                                        onChange={(e) => {
+                                          if (isSliderMode) {
+                                            updateSlide(
+                                              curIdx,
+                                              "subheadline",
+                                              e.target.value,
+                                            );
+                                          } else {
+                                            updateSelectedBlockContent(
+                                              "subheadline",
+                                              e.target.value,
+                                            );
+                                          }
+                                        }}
+                                        className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2 text-xs text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                                      />
+                                    </div>
+
+                                    {/* Dual Action CTAs */}
+                                    <div className="grid grid-cols-2 gap-2">
+                                      <div>
+                                        <label className="block text-[11px] font-bold text-slate-500 mb-1">
+                                          Primary CTA Text
+                                        </label>
+                                        <input
+                                          type="text"
+                                          value={
+                                            (isSliderMode
+                                              ? curSlide.primaryCtaText
+                                              : (b.content.primaryCtaText as string)) || ""
+                                          }
+                                          placeholder="e.g. Get Free Proposal"
+                                          onChange={(e) => {
+                                            if (isSliderMode) {
+                                              updateSlide(
+                                                curIdx,
+                                                "primaryCtaText",
+                                                e.target.value,
+                                              );
+                                            } else {
+                                              updateSelectedBlockContent(
+                                                "primaryCtaText",
+                                                e.target.value,
+                                              );
+                                            }
+                                          }}
+                                          className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2 text-xs text-slate-900 dark:text-white"
+                                        />
+                                      </div>
+                                      <div>
+                                        <label className="block text-[11px] font-bold text-slate-500 mb-1">
+                                          Primary CTA Link
+                                        </label>
+                                        <input
+                                          type="text"
+                                          value={
+                                            (isSliderMode
+                                              ? curSlide.primaryCtaLink
+                                              : (b.content.primaryCtaLink as string)) || ""
+                                          }
+                                          placeholder="e.g. /contact"
+                                          onChange={(e) => {
+                                            if (isSliderMode) {
+                                              updateSlide(
+                                                curIdx,
+                                                "primaryCtaLink",
+                                                e.target.value,
+                                              );
+                                            } else {
+                                              updateSelectedBlockContent(
+                                                "primaryCtaLink",
+                                                e.target.value,
+                                              );
+                                            }
+                                          }}
+                                          className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2 text-xs text-slate-900 dark:text-white"
+                                        />
+                                      </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-2">
+                                      <div>
+                                        <label className="block text-[11px] font-bold text-slate-500 mb-1">
+                                          Secondary CTA Text
+                                        </label>
+                                        <input
+                                          type="text"
+                                          value={
+                                            (isSliderMode
+                                              ? curSlide.secondaryCtaText
+                                              : (b.content.secondaryCtaText as string)) || ""
+                                          }
+                                          placeholder="e.g. View Case Studies"
+                                          onChange={(e) => {
+                                            if (isSliderMode) {
+                                              updateSlide(
+                                                curIdx,
+                                                "secondaryCtaText",
+                                                e.target.value,
+                                              );
+                                            } else {
+                                              updateSelectedBlockContent(
+                                                "secondaryCtaText",
+                                                e.target.value,
+                                              );
+                                            }
+                                          }}
+                                          className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2 text-xs text-slate-900 dark:text-white"
+                                        />
+                                      </div>
+                                      <div>
+                                        <label className="block text-[11px] font-bold text-slate-500 mb-1">
+                                          Secondary CTA Link
+                                        </label>
+                                        <input
+                                          type="text"
+                                          value={
+                                            (isSliderMode
+                                              ? curSlide.secondaryCtaLink
+                                              : (b.content.secondaryCtaLink as string)) || ""
+                                          }
+                                          placeholder="e.g. /case-studies"
+                                          onChange={(e) => {
+                                            if (isSliderMode) {
+                                              updateSlide(
+                                                curIdx,
+                                                "secondaryCtaLink",
+                                                e.target.value,
+                                              );
+                                            } else {
+                                              updateSelectedBlockContent(
+                                                "secondaryCtaLink",
+                                                e.target.value,
+                                              );
+                                            }
+                                          }}
+                                          className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2 text-xs text-slate-900 dark:text-white"
+                                        />
+                                      </div>
+                                    </div>
+
+                                    {/* 5. Banner Image Upload & Preview Card */}
+                                    <div className="mt-3 p-3.5 rounded-xl bg-slate-50 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 space-y-3">
+                                      <div className="flex items-center justify-between">
+                                        <span className="text-[11px] font-extrabold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
+                                          {isSliderMode
+                                            ? `Slide ${curIdx + 1} Banner Image`
+                                            : "Hero Banner Image"}
+                                        </span>
+                                      </div>
+
+                                      {/* Image File Upload Button */}
+                                      <div className="flex items-center gap-2">
+                                        <label className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-xs transition">
+                                          <Upload className="w-3.5 h-3.5" />
+                                          <span>Upload Image File</span>
+                                          <input
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={handleFileUpload}
+                                            className="hidden"
+                                          />
+                                        </label>
+                                        <span className="text-[10px] text-slate-500">
+                                          PNG, JPG, WebP supported
+                                        </span>
+                                      </div>
+
+                                      {/* Image URL Input */}
+                                      <div>
+                                        <label className="block text-[11px] font-bold text-slate-500 mb-1">
+                                          Or Enter Image URL:
+                                        </label>
+                                        <input
+                                          type="text"
+                                          value={
+                                            (isSliderMode
+                                              ? curSlide.imageUrl
+                                              : (b.content.imageUrl as string)) || ""
+                                          }
+                                          placeholder="https://... or /api/v1/public/media/..."
+                                          onChange={(e) => {
+                                            if (isSliderMode) {
+                                              updateSlide(
+                                                curIdx,
+                                                "imageUrl",
+                                                e.target.value,
+                                              );
+                                            } else {
+                                              updateSelectedBlockContent(
+                                                "imageUrl",
+                                                e.target.value,
+                                              );
+                                            }
+                                          }}
+                                          className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2 text-xs font-mono text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                                        />
+                                      </div>
+
+                                      {/* Quick High-Res Presets */}
+                                      <div>
+                                        <span className="block text-[10px] font-bold text-slate-400 mb-1">
+                                          Quick High-Res Presets:
+                                        </span>
+                                        <div className="flex flex-wrap gap-1.5">
+                                          {[
+                                            {
+                                              name: "Cyber Analytics & Growth",
+                                              url: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=2600&q=85",
+                                            },
+                                            {
+                                              name: "Enterprise Architecture",
+                                              url: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=2600&q=85",
+                                            },
+                                            {
+                                              name: "Neural AI Network",
+                                              url: "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?auto=format&fit=crop&w=2600&q=85",
+                                            },
+                                            {
+                                              name: "Global Pipeline Streams",
+                                              url: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=2600&q=85",
+                                            },
+                                            {
+                                              name: "Luxury Dark Fluid",
+                                              url: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=2600&q=85",
+                                            },
+                                            {
+                                              name: "Command Center Data",
+                                              url: "https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?auto=format&fit=crop&w=2600&q=85",
+                                            },
+                                          ].map((preset) => (
+                                            <button
+                                              key={preset.name}
+                                              type="button"
+                                              onClick={() => {
+                                                if (isSliderMode) {
+                                                  updateSlide(
+                                                    curIdx,
+                                                    "imageUrl",
+                                                    preset.url,
+                                                  );
+                                                } else {
+                                                  updateSelectedBlockContent(
+                                                    "imageUrl",
+                                                    preset.url,
+                                                  );
+                                                }
+                                              }}
+                                              className="text-[10px] px-2 py-1 rounded-md bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-indigo-400 hover:text-indigo-600 dark:hover:text-indigo-400 text-slate-600 dark:text-slate-300 font-semibold transition"
+                                            >
+                                              + {preset.name}
+                                            </button>
+                                          ))}
+                                        </div>
+                                      </div>
+
+                                      {/* Live Image Thumbnail Preview */}
+                                      {Boolean(
+                                        isSliderMode
+                                          ? curSlide.imageUrl
+                                          : b.content.imageUrl,
+                                      ) && (
+                                        <div className="rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden bg-slate-950 p-2">
+                                          <div className="flex items-center justify-between text-[10px] text-slate-400 mb-1.5 px-1 font-mono">
+                                            <span>
+                                              {isSliderMode
+                                                ? `Slide ${curIdx + 1} Preview`
+                                                : "Banner Preview"}
+                                            </span>
+                                            <span className="text-emerald-400">
+                                              Live Preview
+                                            </span>
+                                          </div>
+                                          <div className="relative rounded-lg overflow-hidden h-32 bg-slate-900">
+                                            <img
+                                              src={
+                                                (isSliderMode
+                                                  ? curSlide.imageUrl
+                                                  : (b.content.imageUrl as string)) as string
+                                              }
+                                              alt={
+                                                ((isSliderMode
+                                                  ? curSlide.imageAlt
+                                                  : (b.content.imageAlt as string)) as string) ||
+                                                "Hero banner preview"
+                                              }
+                                              className="w-full h-full object-cover"
+                                              onError={(e) => {
+                                                (e.target as HTMLImageElement).style.display =
+                                                  "none";
+                                              }}
+                                            />
+                                          </div>
+                                        </div>
+                                      )}
+                                    </div>
+
+                                    {/* 6. Theme & Dynamic Colors / Lighting Controls */}
+                                    <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 space-y-3">
+                                      <div className="flex items-center justify-between">
+                                        <span className="text-[11px] font-extrabold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
+                                          Colors &amp; Lighting (Dynamic)
+                                        </span>
+                                        <span className="text-[10px] text-slate-400">
+                                          Controls buttons, badges &amp; ambient glow
+                                        </span>
+                                      </div>
+
+                                      {/* Accent Color Preset Swatches */}
+                                      <div>
+                                        <label className="block text-[11px] font-bold text-slate-500 mb-1.5">
+                                          {isSliderMode
+                                            ? `Slide ${curIdx + 1} Accent & Button Color`
+                                            : "Hero Accent & Button Color"}
+                                        </label>
+                                        <div className="flex flex-wrap items-center gap-2">
+                                          {[
+                                            { name: "Emerald Cyber", hex: "#10b981" },
+                                            { name: "Electric Indigo", hex: "#6366f1" },
+                                            { name: "Deep Royal Blue", hex: "#2563eb" },
+                                            { name: "Neon Violet", hex: "#8b5cf6" },
+                                            { name: "Sunset Crimson", hex: "#f43f5e" },
+                                            { name: "Amber Gold", hex: "#f59e0b" },
+                                            { name: "Cyan Teal", hex: "#06b6d4" },
+                                          ].map((color) => {
+                                            const activeColor =
+                                              (curSlide.accentColor ||
+                                                b.content.accentColor ||
+                                                (b.settings?.accentColor as string) ||
+                                                "#10b981") as string;
+                                            const isSelected =
+                                              activeColor.toLowerCase() ===
+                                              color.hex.toLowerCase();
+                                            return (
+                                              <button
+                                                key={color.hex}
+                                                type="button"
+                                                onClick={() => {
+                                                  if (isSliderMode) {
+                                                    updateSlide(curIdx, "accentColor", color.hex);
+                                                  } else {
+                                                    updateSelectedBlockContent("accentColor", color.hex);
+                                                  }
+                                                  const updatedBlocks = [...blocks];
+                                                  const curTarget = updatedBlocks[idx];
+                                                  if (curTarget) {
+                                                    updatedBlocks[idx] = {
+                                                      ...curTarget,
+                                                      settings: {
+                                                        ...curTarget.settings,
+                                                        accentColor: color.hex,
+                                                      },
+                                                    };
+                                                    setBlocks(updatedBlocks);
+                                                    setIsDirty(true);
+                                                  }
+                                                }}
+                                                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-bold border transition ${
+                                                  isSelected
+                                                    ? "border-slate-900 dark:border-white shadow-xs scale-105"
+                                                    : "border-slate-200 dark:border-slate-700 hover:border-slate-400"
+                                                }`}
+                                              >
+                                                <span
+                                                  className="w-3 h-3 rounded-full shrink-0 shadow-xs"
+                                                  style={{ backgroundColor: color.hex }}
+                                                />
+                                                <span className="text-slate-700 dark:text-slate-300">
+                                                  {color.name}
+                                                </span>
+                                              </button>
+                                            );
+                                          })}
+
+                                          {/* Native Color Picker */}
+                                          <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
+                                            <input
+                                              type="color"
+                                              value={
+                                                (curSlide.accentColor ||
+                                                  b.content.accentColor ||
+                                                  (b.settings?.accentColor as string) ||
+                                                  "#10b981") as string
+                                              }
+                                              onChange={(e) => {
+                                                if (isSliderMode) {
+                                                  updateSlide(curIdx, "accentColor", e.target.value);
+                                                } else {
+                                                  updateSelectedBlockContent("accentColor", e.target.value);
+                                                }
+                                              }}
+                                              className="w-5 h-5 rounded cursor-pointer border-0 p-0 bg-transparent"
+                                              title="Pick custom color"
+                                            />
+                                            <span className="text-[10px] font-mono text-slate-500">
+                                              Custom
+                                            </span>
+                                          </div>
+                                        </div>
+                                      </div>
+
+                                      {/* Overlay Opacity Slider */}
+                                      <div>
+                                        <div className="flex items-center justify-between text-[11px] font-bold text-slate-500 mb-1">
+                                          <span>Dark Background Gradient Opacity</span>
+                                          <span className="font-mono text-slate-700 dark:text-slate-300">
+                                            {Math.round(
+                                              Number(
+                                                curSlide.overlayOpacity ||
+                                                  b.content.overlayOpacity ||
+                                                  b.settings?.overlayOpacity ||
+                                                  0.65,
+                                              ) * 100,
+                                            )}
+                                            %
+                                          </span>
+                                        </div>
+                                        <input
+                                          type="range"
+                                          min="30"
+                                          max="95"
+                                          step="5"
+                                          value={Math.round(
+                                            Number(
+                                              curSlide.overlayOpacity ||
+                                                b.content.overlayOpacity ||
+                                                b.settings?.overlayOpacity ||
+                                                0.65,
+                                            ) * 100,
+                                          )}
+                                          onChange={(e) => {
+                                            const val = Number(e.target.value) / 100;
+                                            if (isSliderMode) {
+                                              updateSlide(curIdx, "overlayOpacity", val);
+                                            } else {
+                                              updateSelectedBlockContent("overlayOpacity", val);
+                                            }
+                                          }}
+                                          className="w-full accent-indigo-600 cursor-pointer"
+                                        />
+                                      </div>
+                                    </div>
                                   </div>
                                 </div>
-                              </>
-                            )}
+                              );
+                            })()}
 
                             {/* FeatureGrid Editor Fields */}
                             {b.type === "FeatureGrid" && (

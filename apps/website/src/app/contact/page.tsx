@@ -38,8 +38,8 @@ export default async function ContactPage() {
             {/* Left Column: Enterprise Value Proposition & Trust */}
             <div className="lg:col-span-5 space-y-8">
               <div>
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200/60 mb-4">
-                  <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-primary/10 text-primary border border-primary/20 mb-4">
+                  <Sparkles className="w-3.5 h-3.5 text-primary" />
                   <span>Confidential Advisory</span>
                 </div>
                 <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-[1.1]">

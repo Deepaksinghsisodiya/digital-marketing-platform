@@ -183,6 +183,17 @@ public class ClientService : IClientService
         _context.Contacts.Add(primaryContact);
         _context.ClientActivities.Add(activity);
 
+        // Enqueue automated welcome onboarding email to Outbox
+        var outboxPayload = System.Text.Json.JsonSerializer.Serialize(new
+        {
+            clientId = client.Id,
+            clientName = client.Name,
+            contactEmail = client.PrimaryContactEmail,
+            industry = client.Industry,
+            region = client.Region
+        });
+        _context.OutboxMessages.Add(new OutboxMessage("ClientCreated", outboxPayload));
+
         await _context.SaveChangesAsync(ct);
 
         await _auditLogService.LogAsync(
@@ -323,6 +334,17 @@ public class ClientService : IClientService
             description: $"Lead converted to client: {client.Name} (Client ID: {client.Id}).",
             actorUserId: actorUserId));
 
+        // Enqueue automated welcome onboarding email to Outbox
+        var outboxPayload = System.Text.Json.JsonSerializer.Serialize(new
+        {
+            clientId = client.Id,
+            clientName = client.Name,
+            contactEmail = client.PrimaryContactEmail,
+            industry = client.Industry,
+            region = client.Region
+        });
+        _context.OutboxMessages.Add(new OutboxMessage("ClientCreated", outboxPayload));
+
         // Create initial onboarding task if requested
         if (!string.IsNullOrWhiteSpace(request.InitialTaskTitle))
         {
@@ -336,6 +358,27 @@ public class ClientService : IClientService
                 assignedToUserId: actorUserId);
 
             _context.TaskItems.Add(initialTask);
+
+            if (actorUserId.HasValue)
+            {
+                var actorUser = await _context.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == actorUserId.Value, ct);
+                if (actorUser != null && !string.IsNullOrWhiteSpace(actorUser.Email))
+                {
+                    var taskPayload = System.Text.Json.JsonSerializer.Serialize(new
+                    {
+                        taskId = initialTask.Id,
+                        taskTitle = initialTask.Title,
+                        priority = initialTask.Priority.ToString(),
+                        dueDate = initialTask.DueDateUtc?.ToString("yyyy-MM-dd") ?? "None",
+                        clientName = client.Name,
+                        assigneeName = actorUser.FullName ?? actorUser.Email,
+                        assigneeEmail = actorUser.Email,
+                        assignedBy = "System (Lead Conversion)",
+                        actionUrl = "http://localhost:5173/admin/tasks"
+                    });
+                    _context.OutboxMessages.Add(new OutboxMessage("TaskAssigned", taskPayload));
+                }
+            }
         }
 
         await _context.SaveChangesAsync(ct);
@@ -496,6 +539,43 @@ public class ClientService : IClientService
                 actorUserId: actorUserId));
         }
 
+        // Enqueue automated TaskAssigned notification to Outbox
+        var targetUserId = task.AssignedToUserId;
+        if (targetUserId.HasValue)
+        {
+            var assignedUser = await _context.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == targetUserId.Value, ct);
+            if (assignedUser != null && !string.IsNullOrWhiteSpace(assignedUser.Email))
+            {
+                string clientName = "General Task";
+                if (task.ClientId.HasValue)
+                {
+                    var client = await _context.Clients.AsNoTracking().FirstOrDefaultAsync(c => c.Id == task.ClientId.Value, ct);
+                    if (client != null) clientName = client.Name;
+                }
+
+                string assignerName = "Administrator";
+                if (actorUserId.HasValue)
+                {
+                    var actor = await _context.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == actorUserId.Value, ct);
+                    if (actor != null) assignerName = actor.FullName ?? actor.Email ?? "Administrator";
+                }
+
+                var taskPayload = System.Text.Json.JsonSerializer.Serialize(new
+                {
+                    taskId = task.Id,
+                    taskTitle = task.Title,
+                    priority = task.Priority.ToString(),
+                    dueDate = task.DueDateUtc?.ToString("yyyy-MM-dd") ?? "None",
+                    clientName = clientName,
+                    assigneeName = assignedUser.FullName ?? assignedUser.Email,
+                    assigneeEmail = assignedUser.Email,
+                    assignedBy = assignerName,
+                    actionUrl = "http://localhost:5173/admin/tasks"
+                });
+                _context.OutboxMessages.Add(new OutboxMessage("TaskAssigned", taskPayload));
+            }
+        }
+
         await _context.SaveChangesAsync(ct);
 
         return (true, task.Id, null);
@@ -510,6 +590,8 @@ public class ClientService : IClientService
         var task = await _context.TaskItems.FirstOrDefaultAsync(t => t.Id == id, ct);
         if (task == null) return (false, "Task not found.");
 
+        var previousAssigneeId = task.AssignedToUserId;
+
         task.UpdateDetails(
             request.Title.Trim(),
             request.Description?.Trim(),
@@ -518,6 +600,42 @@ public class ClientService : IClientService
 
         task.UpdateStatus(request.Status);
         task.AssignTo(request.AssignedToUserId);
+
+        // If newly assigned or reassigned to a different user, enqueue TaskAssigned outbox event
+        if (request.AssignedToUserId.HasValue && request.AssignedToUserId != previousAssigneeId)
+        {
+            var assignedUser = await _context.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.AssignedToUserId.Value, ct);
+            if (assignedUser != null && !string.IsNullOrWhiteSpace(assignedUser.Email))
+            {
+                string clientName = "General Task";
+                if (task.ClientId.HasValue)
+                {
+                    var client = await _context.Clients.AsNoTracking().FirstOrDefaultAsync(c => c.Id == task.ClientId.Value, ct);
+                    if (client != null) clientName = client.Name;
+                }
+
+                string assignerName = "Administrator";
+                if (actorUserId.HasValue)
+                {
+                    var actor = await _context.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == actorUserId.Value, ct);
+                    if (actor != null) assignerName = actor.FullName ?? actor.Email ?? "Administrator";
+                }
+
+                var taskPayload = System.Text.Json.JsonSerializer.Serialize(new
+                {
+                    taskId = task.Id,
+                    taskTitle = task.Title,
+                    priority = task.Priority.ToString(),
+                    dueDate = task.DueDateUtc?.ToString("yyyy-MM-dd") ?? "None",
+                    clientName = clientName,
+                    assigneeName = assignedUser.FullName ?? assignedUser.Email,
+                    assigneeEmail = assignedUser.Email,
+                    assignedBy = assignerName,
+                    actionUrl = "http://localhost:5173/admin/tasks"
+                });
+                _context.OutboxMessages.Add(new OutboxMessage("TaskAssigned", taskPayload));
+            }
+        }
 
         await _context.SaveChangesAsync(ct);
 

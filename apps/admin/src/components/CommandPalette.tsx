@@ -20,6 +20,12 @@ import {
   Sun,
   Moon,
   X,
+  Wrench,
+  Award,
+  MessageSquareQuote,
+  HelpCircle,
+  Layers,
+  Megaphone,
 } from "lucide-react";
 import { useGetPagesQuery } from "../store/api/adminApi";
 import { useTheme } from "../context/ThemeContext";
@@ -85,6 +91,72 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
         badge: "CMS",
       },
       {
+        id: "nav-hero",
+        title: "Hero Banners & Visual Sliders",
+        category: "Navigation",
+        icon: Layers,
+        action: () => {
+          navigate("/cms/hero-banners");
+          onClose();
+        },
+        badge: "Hero",
+      },
+      {
+        id: "nav-announcements",
+        title: "Announcement Bar & Top Notification Ticker",
+        category: "Navigation",
+        icon: Megaphone,
+        action: () => {
+          navigate("/cms/announcements");
+          onClose();
+        },
+        badge: "Live",
+      },
+      {
+        id: "nav-services",
+        title: "Services & Capabilities Catalog",
+        category: "Navigation",
+        icon: Wrench,
+        action: () => {
+          navigate("/cms/services");
+          onClose();
+        },
+        badge: "Services",
+      },
+      {
+        id: "nav-casestudies",
+        title: "Case Studies & Portfolio Proof",
+        category: "Navigation",
+        icon: Award,
+        action: () => {
+          navigate("/cms/case-studies");
+          onClose();
+        },
+        badge: "Work",
+      },
+      {
+        id: "nav-testimonials",
+        title: "Testimonials & Client Reviews",
+        category: "Navigation",
+        icon: MessageSquareQuote,
+        action: () => {
+          navigate("/cms/testimonials");
+          onClose();
+        },
+        badge: "Reviews",
+      },
+      {
+        id: "nav-faqs",
+        title: "FAQ Knowledge Base",
+        category: "Navigation",
+        icon: HelpCircle,
+        action: () => {
+          navigate("/cms/faqs");
+          onClose();
+        },
+        badge: "Q&A",
+      },
+      {
         id: "nav-leads",
         title: "Leads Inbox & Submissions",
         category: "Navigation",
@@ -102,16 +174,6 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
         icon: Briefcase,
         action: () => {
           navigate("/clients");
-          onClose();
-        },
-      },
-      {
-        id: "nav-tasks",
-        title: "Tasks & Operational Actions",
-        category: "Navigation",
-        icon: CheckSquare,
-        action: () => {
-          navigate("/tasks");
           onClose();
         },
       },
@@ -286,7 +348,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
       onClick={onClose}
     >
       <div
-        className="w-full max-w-2xl bg-white dark:bg-[#0c1222] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[80vh] animate-in fade-in zoom-in-95 duration-150"
+        className="w-full max-w-2xl bg-white dark:bg-ink border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[80vh] animate-in fade-in zoom-in-95 duration-150"
         onClick={(e) => e.stopPropagation()}
         onKeyDown={handleKeyDown}
       >

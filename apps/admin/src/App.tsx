@@ -20,8 +20,15 @@ import { UsersPage } from "./pages/users/UsersPage";
 import { RolesPage } from "./pages/roles/RolesPage";
 import { AuditLogsPage } from "./pages/audit/AuditLogsPage";
 import { SettingsPage } from "./pages/settings/SettingsPage";
+import { ThemeStudioPage } from "./pages/theme-studio/ThemeStudioPage";
 import { PagesListPage } from "./pages/cms/PagesListPage";
 import { PageEditorPage } from "./pages/cms/PageEditorPage";
+import { HeroBannersPage } from "./pages/cms/HeroBannersPage";
+import { AnnouncementBarPage } from "./pages/cms/AnnouncementBarPage";
+import { TestimonialsPage } from "./pages/cms/TestimonialsPage";
+import { CaseStudiesPage } from "./pages/cms/CaseStudiesPage";
+import { ServicesCatalogPage } from "./pages/cms/ServicesCatalogPage";
+import { FaqsPage } from "./pages/cms/FaqsPage";
 import { LeadsPage } from "./pages/leads/LeadsPage";
 import { EmailTemplatesPage } from "./pages/EmailTemplatesPage";
 import { ClientsPage } from "./pages/clients/ClientsPage";
@@ -31,6 +38,7 @@ import { MediaLibraryPage } from "./pages/media/MediaLibraryPage";
 import { MenusPage } from "./pages/menus/MenusPage";
 
 import { ThemeProvider } from "./context/ThemeContext";
+import { Toaster } from "sonner";
 
 export function App() {
   const dispatch = useAppDispatch();
@@ -110,6 +118,16 @@ export function App() {
                 <Route path="/settings" element={<SettingsPage />} />
               </Route>
 
+              {/* Theme Studio - Guarded by themes.view */}
+              <Route
+                element={<ProtectedRoute requiredPermission="themes.view" />}
+              >
+                <Route
+                  path="/settings/theme-studio"
+                  element={<ThemeStudioPage />}
+                />
+              </Route>
+
               {/* CMS Pages, Media & Menus - Guarded by pages.view */}
               <Route
                 element={<ProtectedRoute requiredPermission="pages.view" />}
@@ -119,6 +137,18 @@ export function App() {
                   path="/cms/pages/:id/edit"
                   element={<PageEditorPage />}
                 />
+                <Route path="/cms/hero-banners" element={<HeroBannersPage />} />
+                <Route
+                  path="/cms/announcements"
+                  element={<AnnouncementBarPage />}
+                />
+                <Route path="/cms/services" element={<ServicesCatalogPage />} />
+                <Route path="/cms/case-studies" element={<CaseStudiesPage />} />
+                <Route
+                  path="/cms/testimonials"
+                  element={<TestimonialsPage />}
+                />
+                <Route path="/cms/faqs" element={<FaqsPage />} />
                 <Route path="/posts" element={<PostsPage />} />
                 <Route path="/media" element={<MediaLibraryPage />} />
                 <Route path="/menus" element={<MenusPage />} />
@@ -138,12 +168,11 @@ export function App() {
                 <Route path="/clients" element={<ClientsPage />} />
               </Route>
 
-              {/* Tasks & Actions - Guarded by tasks.view */}
+              {/* Redirect /tasks to /clients */}
               <Route
-                element={<ProtectedRoute requiredPermission="tasks.view" />}
-              >
-                <Route path="/tasks" element={<TasksPage />} />
-              </Route>
+                path="/tasks"
+                element={<Navigate to="/clients" replace />}
+              />
 
               {/* Email Templates & Outbox - Guarded by settings.view */}
               <Route
@@ -157,6 +186,7 @@ export function App() {
           {/* Fallback */}
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
+        <Toaster position="top-right" richColors closeButton />
       </BrowserRouter>
     </ThemeProvider>
   );

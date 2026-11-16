@@ -151,3 +151,30 @@ export async function getPublicMenu(
     return null;
   }
 }
+
+export interface PublicThemePayload {
+  app: string;
+  themeId: string;
+  name: string;
+  slug: string;
+  schemaVersion: number;
+  config: unknown;
+  source: string;
+  isDefault: boolean;
+}
+
+export async function getPublicTheme(
+  app: "website" | "admin" = "website",
+): Promise<PublicThemePayload | null> {
+  const url = `${API_BASE}/api/v1/public/theme?app=${app}`;
+
+  try {
+    const res = await fetch(url, { cache: "no-store" });
+    if (!res.ok) return null;
+    return (await res.json()) as PublicThemePayload;
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.warn("Public theme fetch error:", err);
+    return null;
+  }
+}

@@ -1,4 +1,5 @@
 import { apiSlice } from "./baseApi";
+import { setUser } from "../slices/authSlice";
 import type {
   UserProfile,
   CsrfResponse,
@@ -41,11 +42,25 @@ import type {
   UpdateBlogPostRequest,
   PipelineStage,
   CountryRegion,
+  TimezoneDto,
+  CurrencyDto,
   MediaAssetDto,
   NavigationMenuDto,
   SaveMenuRequest,
   PageVersionSummaryDto,
   RollbackPageRequest,
+  ThemeSummaryDto,
+  ThemeDetailDto,
+  ThemeVersionDto,
+  ThemeSettingsDto,
+  CreateThemeRequest,
+  SaveThemeDraftRequest,
+  PublishThemeRequest,
+  ActivateThemeRequest,
+  RollbackThemeRequest,
+  ImportThemeRequest,
+  DuplicateThemeRequest,
+  UpdateThemeSettingsRequest,
 } from "../../types";
 
 export const adminApi = apiSlice.injectEndpoints({
@@ -67,6 +82,22 @@ export const adminApi = apiSlice.injectEndpoints({
         method: "POST",
         body,
       }),
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          const userResult = await dispatch(
+            adminApi.endpoints.getCurrentUser.initiate(undefined, {
+              subscribe: false,
+              forceRefetch: true,
+            }),
+          ).unwrap();
+          if (userResult) {
+            dispatch(setUser(userResult));
+          }
+        } catch {
+          // Handled downstream
+        }
+      },
       invalidatesTags: ["CurrentProfile"],
     }),
     logout: builder.mutation<{ success: boolean }, void>({
@@ -137,7 +168,13 @@ export const adminApi = apiSlice.injectEndpoints({
     }),
     inviteUser: builder.mutation<
       { success: boolean; userId: string; message: string },
-      { email: string; fullName: string; role: string }
+      {
+        email: string;
+        fullName: string;
+        role: string;
+        password?: string;
+        mustChangePassword?: boolean;
+      }
     >({
       query: (body) => ({
         url: "/api/v1/admin/users/invite",
@@ -737,6 +774,12 @@ export const adminApi = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["CountryRegion", "Settings"],
     }),
+    getSystemTimezones: builder.query<TimezoneDto[], void>({
+      query: () => "/api/v1/lookups/timezones",
+    }),
+    getCurrencies: builder.query<CurrencyDto[], void>({
+      query: () => "/api/v1/lookups/currencies",
+    }),
 
     // Media Library
     getMediaAssets: builder.query<
@@ -827,6 +870,116 @@ export const adminApi = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["CmsPage"],
     }),
+
+    // Dynamic Theme Engine
+    getThemes: builder.query<ThemeSummaryDto[], { includeDeleted?: boolean } | void>({
+      query: (args) => ({
+        url: "/api/v1/admin/themes",
+        params: args?.includeDeleted ? { includeDeleted: true } : undefined,
+      }),
+      providesTags: ["Theme"],
+    }),
+    getThemeById: builder.query<ThemeDetailDto, string>({
+      query: (id) => `/api/v1/admin/themes/${id}`,
+      providesTags: (_result, _error, id) => [{ type: "Theme", id }],
+    }),
+    getThemeSettings: builder.query<ThemeSettingsDto, void>({
+      query: () => "/api/v1/admin/themes/settings",
+      providesTags: ["ThemeSettings"],
+    }),
+    updateThemeSettings: builder.mutation<
+      ThemeSettingsDto,
+      UpdateThemeSettingsRequest
+    >({
+      query: (body) => ({
+        url: "/api/v1/admin/themes/settings",
+        method: "PUT",
+        body,
+      }),
+      invalidatesTags: ["ThemeSettings", "Theme"],
+    }),
+    createTheme: builder.mutation<ThemeDetailDto, CreateThemeRequest>({
+      query: (body) => ({
+        url: "/api/v1/admin/themes",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["Theme"],
+    }),
+    saveThemeDraft: builder.mutation<
+      ThemeDetailDto,
+      { id: string; request: SaveThemeDraftRequest }
+    >({
+      query: ({ id, request }) => ({
+        url: `/api/v1/admin/themes/${id}/draft`,
+        method: "PUT",
+        body: request,
+      }),
+      invalidatesTags: (_result, _error, { id }) => [{ type: "Theme", id }, "Theme"],
+    }),
+    deleteTheme: builder.mutation<{ success: boolean }, string>({
+      query: (id) => ({
+        url: `/api/v1/admin/themes/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Theme", "ThemeSettings"],
+    }),
+    duplicateTheme: builder.mutation<
+      ThemeDetailDto,
+      { id: string; request: DuplicateThemeRequest }
+    >({
+      query: ({ id, request }) => ({
+        url: `/api/v1/admin/themes/${id}/duplicate`,
+        method: "POST",
+        body: request,
+      }),
+      invalidatesTags: ["Theme"],
+    }),
+    publishTheme: builder.mutation<
+      ThemeVersionDto,
+      { id: string; request: PublishThemeRequest }
+    >({
+      query: ({ id, request }) => ({
+        url: `/api/v1/admin/themes/${id}/publish`,
+        method: "POST",
+        body: request,
+      }),
+      invalidatesTags: (_result, _error, { id }) => [{ type: "Theme", id }, "Theme"],
+    }),
+    activateTheme: builder.mutation<
+      ThemeSettingsDto,
+      { id: string; request: ActivateThemeRequest }
+    >({
+      query: ({ id, request }) => ({
+        url: `/api/v1/admin/themes/${id}/activate`,
+        method: "POST",
+        body: request,
+      }),
+      invalidatesTags: ["ThemeSettings", "Theme"],
+    }),
+    getThemeVersions: builder.query<ThemeVersionDto[], string>({
+      query: (id) => `/api/v1/admin/themes/${id}/versions`,
+      providesTags: (_result, _error, id) => [{ type: "Theme", id }],
+    }),
+    rollbackTheme: builder.mutation<
+      ThemeDetailDto,
+      { id: string; request: RollbackThemeRequest }
+    >({
+      query: ({ id, request }) => ({
+        url: `/api/v1/admin/themes/${id}/rollback`,
+        method: "POST",
+        body: request,
+      }),
+      invalidatesTags: (_result, _error, { id }) => [{ type: "Theme", id }, "Theme"],
+    }),
+    importTheme: builder.mutation<ThemeDetailDto, ImportThemeRequest>({
+      query: (body) => ({
+        url: "/api/v1/admin/themes/import",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["Theme"],
+    }),
   }),
 });
 
@@ -896,6 +1049,8 @@ export const {
   useGetAdminCountryRegionsQuery,
   useCreateCountryRegionMutation,
   useUpdateCountryRegionMutation,
+  useGetSystemTimezonesQuery,
+  useGetCurrenciesQuery,
   useGetMediaAssetsQuery,
   useGetMediaAssetByIdQuery,
   useUploadMediaMutation,
@@ -906,4 +1061,17 @@ export const {
   useDeleteAdminMenuMutation,
   useGetPageVersionsQuery,
   useRollbackPageMutation,
+  useGetThemesQuery,
+  useGetThemeByIdQuery,
+  useGetThemeSettingsQuery,
+  useUpdateThemeSettingsMutation,
+  useCreateThemeMutation,
+  useSaveThemeDraftMutation,
+  useDeleteThemeMutation,
+  useDuplicateThemeMutation,
+  usePublishThemeMutation,
+  useActivateThemeMutation,
+  useGetThemeVersionsQuery,
+  useRollbackThemeMutation,
+  useImportThemeMutation,
 } = adminApi;

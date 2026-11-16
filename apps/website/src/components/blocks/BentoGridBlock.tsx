@@ -22,8 +22,90 @@ export const BentoGridBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
     (content.sectionSubtitle as string) ||
     "No vanity metrics. No fluff. An integrated performance growth framework engineered to lower customer acquisition costs and scale your qualified sales pipeline.";
 
+  const rawCaseStudies = content.caseStudies as Array<{
+    id: string;
+    title: string;
+    client: string;
+    category: string;
+    metric: string;
+    metricLabel?: string;
+    summary: string;
+    imageUrl?: string;
+    caseStudyUrl?: string;
+    featured?: boolean;
+    enabled?: boolean;
+  }> | undefined;
+
+  const caseStudies = rawCaseStudies?.filter((cs) => cs.enabled !== false);
+
+  if (caseStudies && caseStudies.length > 0) {
+    return (
+      <section className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-16">
+        <div className="text-center max-w-3xl mx-auto space-y-4">
+          <Badge variant="accent">Proven Commercial Proof</Badge>
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight">
+            {sectionTitle}
+          </h2>
+          <p className="text-base sm:text-lg text-slate-600 leading-relaxed font-normal">
+            {sectionSubtitle}
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {caseStudies.map((item) => (
+            <div
+              key={item.id}
+              className="group rounded-3xl border border-slate-200/90 bg-white p-7 shadow-xs hover:shadow-2xl hover:border-indigo-400 hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between overflow-hidden"
+            >
+              <div>
+                {item.imageUrl && (
+                  <div className="w-full h-48 rounded-2xl overflow-hidden mb-6 bg-slate-100">
+                    <img
+                      src={item.imageUrl}
+                      alt={item.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                  </div>
+                )}
+                <div className="flex items-center justify-between gap-2 mb-3">
+                  <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider bg-slate-100 px-2.5 py-1 rounded-md">
+                    {item.category}
+                  </span>
+                  <span className="text-xs font-mono font-black text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200">
+                    {item.metric}
+                  </span>
+                </div>
+                <h3 className="text-xl font-bold text-slate-900 group-hover:text-indigo-600 transition-colors line-clamp-2 mt-2">
+                  {item.title}
+                </h3>
+                <p className="text-xs text-slate-500 font-semibold mt-1">
+                  Client: {item.client}
+                </p>
+                <p className="text-sm text-slate-600 mt-3 line-clamp-3 leading-relaxed font-normal">
+                  {item.summary}
+                </p>
+              </div>
+
+              {item.caseStudyUrl && (
+                <div className="pt-6 border-t border-slate-100 mt-6">
+                  <Link
+                    href={item.caseStudyUrl}
+                    className="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 hover:text-indigo-800 transition group-hover:translate-x-1"
+                  >
+                    <span>Read Full Case Study</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </Link>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </section>
+    );
+  }
+
   return (
-    <section className="py-24 px-6 sm:px-10 lg:px-12 xl:px-16 max-w-[1720px] 2xl:max-w-[1920px] mx-auto space-y-16">
+    <section className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-16">
       <div className="text-center max-w-3xl mx-auto space-y-4">
         <Badge variant="accent">High-ROI Growth System</Badge>
         <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight">

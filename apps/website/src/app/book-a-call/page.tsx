@@ -31,8 +31,8 @@ export default async function BookACallPage() {
         menu={headerMenu}
       />
 
-      <main className="flex-1 py-16 sm:py-24 px-6 sm:px-10 lg:px-12 xl:px-16 max-w-4xl mx-auto space-y-12">
-        <div className="text-center space-y-4 max-w-2xl mx-auto">
+      <main className="flex-1 py-12 sm:py-16">
+        <div className="text-center space-y-4 max-w-2xl mx-auto px-4 mb-8">
           <Badge variant="accent">Executive Discovery Session</Badge>
           <h1 className="text-4xl sm:text-5xl font-black text-slate-900 tracking-tight">
             Schedule a Growth Strategy Briefing

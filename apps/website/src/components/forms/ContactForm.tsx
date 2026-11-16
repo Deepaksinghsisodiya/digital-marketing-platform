@@ -1,21 +1,38 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
+import * as yup from "yup";
+import { captureUtmParameters, getStoredUtmParameters } from "../../lib/utm";
+
+// Yup Validation Schema for Website Contact / Lead Form
+export const contactFormSchema = yup.object().shape({
+  fullName: yup
+    .string()
+    .trim()
+    .required("Full name is required.")
+    .min(2, "Full name must be at least 2 characters."),
+  email: yup
+    .string()
+    .trim()
+    .email("Please provide a valid work email address.")
+    .required("Email address is required."),
+  phone: yup.string().trim().optional(),
+  consentGiven: yup
+    .boolean()
+    .oneOf([true], "Please accept the privacy consent to submit your inquiry."),
+});
 
 interface ContactFormProps {
   initialRegion?: string;
 }
 
-export const ContactForm: React.FC<ContactFormProps> = ({
-  initialRegion = "in",
-}) => {
+export const ContactForm: React.FC<ContactFormProps> = () => {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [company, setCompany] = useState("");
-  const [region, setRegion] = useState(initialRegion);
-  const [stateName, setStateName] = useState("");
-  const [postalCode, setPostalCode] = useState("");
+  const [service, setService] = useState("Search Engine Optimization (SEO)");
+  const [budget, setBudget] = useState("");
   const [message, setMessage] = useState("");
   const [consentGiven, setConsentGiven] = useState(false);
   const [honeypot, setHoneypot] = useState("");
@@ -38,6 +55,9 @@ export const ContactForm: React.FC<ContactFormProps> = ({
     "http://localhost:5201";
 
   useEffect(() => {
+    // Capture UTM on mount if URL parameters exist
+    captureUtmParameters();
+
     if (!apiUrl) return;
 
     let isMounted = true;
@@ -57,19 +77,23 @@ export const ContactForm: React.FC<ContactFormProps> = ({
     };
   }, [apiUrl]);
 
-  const isIndia = region === "in";
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
     setSubmitSuccess(null);
     setReferenceNumber(null);
 
-    if (!consentGiven) {
-      setErrorMessage(
-        "Please accept the privacy consent to submit your inquiry.",
+    // Yup validation
+    try {
+      await contactFormSchema.validate(
+        { fullName, email, phone, consentGiven },
+        { abortEarly: false },
       );
-      return;
+    } catch (err: unknown) {
+      if (err instanceof yup.ValidationError) {
+        setErrorMessage(err.errors[0] || "Please check your form inputs.");
+        return;
+      }
     }
 
     if (!apiUrl) {
@@ -82,15 +106,26 @@ export const ContactForm: React.FC<ContactFormProps> = ({
     setIsSubmitting(true);
 
     try {
+      const utm = getStoredUtmParameters();
+
       const payload = {
         fullName: fullName.trim(),
         email: email.trim(),
         phone: phone.trim() || undefined,
         company: company.trim() || undefined,
-        region,
-        state: stateName.trim() || undefined,
-        postalCode: postalCode.trim() || undefined,
-        customFields: message.trim() ? { notes: message.trim() } : undefined,
+        region: "global",
+        customFields: {
+          service: service || "General Growth Inquiry",
+          budget: budget || "Not Specified",
+          ...(message.trim() ? { notes: message.trim() } : {}),
+          ...(utm.landingPageUrl ? { landingPageUrl: utm.landingPageUrl } : {}),
+        },
+        utmSource: utm.utmSource || undefined,
+        utmMedium: utm.utmMedium || undefined,
+        utmCampaign: utm.utmCampaign || undefined,
+        utmTerm: utm.utmTerm || undefined,
+        utmContent: utm.utmContent || undefined,
+        referrerUrl: utm.referrerUrl || undefined,
         consentGiven,
         consentWordingVersion: "v1.2-web",
         honeypot: honeypot || undefined,
@@ -131,9 +166,8 @@ export const ContactForm: React.FC<ContactFormProps> = ({
       setEmail("");
       setPhone("");
       setCompany("");
-      setStateName("");
-      setPostalCode("");
       setMessage("");
+      setBudget("");
       setConsentGiven(false);
     } catch (err: unknown) {
       const e = err as Error;
@@ -210,8 +244,8 @@ export const ContactForm: React.FC<ContactFormProps> = ({
                 required
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
-                placeholder="e.g. John Doe"
-                className="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:border-indigo-600 focus:outline-none transition"
+                placeholder="e.g. Sarah Jenkins"
+                className="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none transition"
               />
             </div>
             <div>
@@ -223,8 +257,8 @@ export const ContactForm: React.FC<ContactFormProps> = ({
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="john@company.com"
-                className="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:border-indigo-600 focus:outline-none transition"
+                placeholder="sarah@company.com"
+                className="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none transition"
               />
             </div>
           </div>
@@ -232,14 +266,14 @@ export const ContactForm: React.FC<ContactFormProps> = ({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1">
-                Phone Number
+                Phone Number (with Country Code)
               </label>
               <input
                 type="tel"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                placeholder={isIndia ? "+91 98765 43210" : "+1 (555) 019-2834"}
-                className="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:border-indigo-600 focus:outline-none transition"
+                placeholder="+1 (555) 019-2834"
+                className="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none transition"
               />
             </div>
             <div>
@@ -250,51 +284,47 @@ export const ContactForm: React.FC<ContactFormProps> = ({
                 type="text"
                 value={company}
                 onChange={(e) => setCompany(e.target.value)}
-                placeholder="Acme Global Inc."
-                className="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:border-indigo-600 focus:outline-none transition"
+                placeholder="Global Enterprise Inc."
+                className="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none transition"
               />
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {/* Marketing Agency Specific Qualification Fields */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1">
-                Region *
+                Service Required *
               </label>
               <select
-                value={region}
-                onChange={(e) => setRegion(e.target.value)}
-                className="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm focus:border-indigo-600 focus:outline-none transition"
+                value={service}
+                onChange={(e) => setService(e.target.value)}
+                className="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none transition bg-white"
               >
-                <option value="in">India (IN)</option>
-                <option value="us">United States (US)</option>
-                <option value="ae">United Arab Emirates (AE)</option>
-                <option value="gb">United Kingdom (GB)</option>
+                <option value="Search Engine Optimization (SEO)">Search Engine Optimization (SEO)</option>
+                <option value="Paid Media (Google & Meta PPC)">Paid Media (Google &amp; Meta PPC)</option>
+                <option value="Corporate Web & App Development">Corporate Web &amp; App Development</option>
+                <option value="AI Automation & Chatbots">AI Automation &amp; Chatbots</option>
+                <option value="Conversion Optimization (CRO)">Conversion Optimization (CRO)</option>
+                <option value="Social Media & Brand Marketing">Social Media &amp; Brand Marketing</option>
+                <option value="Full Retainer / Omnichannel Growth">Full Retainer / Omnichannel Growth</option>
               </select>
             </div>
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1">
-                State / Province
+                Estimated Monthly Budget
               </label>
-              <input
-                type="text"
-                value={stateName}
-                onChange={(e) => setStateName(e.target.value)}
-                placeholder={isIndia ? "Karnataka" : "California"}
-                className="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:border-indigo-600 focus:outline-none transition"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
-                {isIndia ? "PIN Code" : "ZIP / Postal Code"}
-              </label>
-              <input
-                type="text"
-                value={postalCode}
-                onChange={(e) => setPostalCode(e.target.value)}
-                placeholder={isIndia ? "560001" : "94103"}
-                className="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:border-indigo-600 focus:outline-none transition"
-              />
+              <select
+                value={budget}
+                onChange={(e) => setBudget(e.target.value)}
+                className="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none transition bg-white"
+              >
+                <option value="">Select Monthly Budget</option>
+                <option value="< $2,500">&lt; $2,500 / month</option>
+                <option value="$2,500 - $5,000">$2,500 – $5,000 / month</option>
+                <option value="$5,000 - $15,000">$5,000 – $15,000 / month</option>
+                <option value="$15,000+ (Enterprise)">$15,000+ / month (Enterprise Retainer)</option>
+              </select>
             </div>
           </div>
 
@@ -306,8 +336,8 @@ export const ContactForm: React.FC<ContactFormProps> = ({
               rows={3}
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              placeholder="Tell us about your target audience, current monthly ad spend, and expected milestones..."
-              className="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:border-indigo-600 focus:outline-none transition"
+              placeholder="Tell us about your target audience, current ad spend, key KPIs, or tech stack requirements..."
+              className="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none transition"
             />
           </div>
 
@@ -318,14 +348,14 @@ export const ContactForm: React.FC<ContactFormProps> = ({
               required
               checked={consentGiven}
               onChange={(e) => setConsentGiven(e.target.checked)}
-              className="mt-1 h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+              className="mt-1 h-4 w-4 rounded border-slate-300 text-primary focus:ring-primary"
             />
             <label
               htmlFor="consent"
               className="text-xs text-slate-600 leading-relaxed"
             >
               I consent to Nexora processing my contact details to evaluate our
-              business inquiry and contact me regarding enterprise solutions.
+              business inquiry and contact me regarding enterprise growth solutions.
             </label>
           </div>
 
@@ -333,7 +363,7 @@ export const ContactForm: React.FC<ContactFormProps> = ({
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full rounded-xl bg-indigo-600 py-3.5 text-sm font-bold text-white shadow-lg shadow-indigo-600/30 hover:bg-indigo-500 transition disabled:opacity-50"
+              className="w-full rounded-xl bg-primary py-3.5 text-sm font-bold text-primary-foreground shadow-lg shadow-primary/25 hover:bg-primary-hover active:scale-[0.99] transition disabled:opacity-50 cursor-pointer"
             >
               {isSubmitting ? "Submitting Inquiry..." : "Submit Inquiry"}
             </button>

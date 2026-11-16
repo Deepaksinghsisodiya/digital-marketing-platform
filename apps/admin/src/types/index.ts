@@ -163,6 +163,20 @@ export interface CountryRegion {
   orderIndex: number;
 }
 
+export interface TimezoneDto {
+  id: string;
+  displayName: string;
+  baseUtcOffset: string;
+  offsetHours: number;
+}
+
+export interface CurrencyDto {
+  code: string;
+  name: string;
+  symbol: string;
+  countryName: string;
+}
+
 // CMS Types
 export interface CmsBlock {
   id: string;
@@ -621,4 +635,101 @@ export interface PageVersionSummaryDto {
 
 export interface RollbackPageRequest {
   versionNumber: number;
+}
+
+export interface ThemeSummaryDto {
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
+  isSystem: boolean;
+  isDefault: boolean;
+  isDeleted: boolean;
+  hasDraft: boolean;
+  currentVersion: number;
+  createdAtUtc: string;
+  updatedAtUtc?: string | null;
+}
+
+export interface ThemeDetailDto {
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
+  configJson: string;
+  draftConfigJson?: string | null;
+  isSystem: boolean;
+  isDefault: boolean;
+  isDeleted: boolean;
+  currentVersion: number;
+  versionToken: string;
+  createdAtUtc: string;
+  updatedAtUtc?: string | null;
+}
+
+export interface ThemeVersionDto {
+  id: string;
+  versionNumber: number;
+  configJson: string;
+  changedBy?: string | null;
+  changedAtUtc: string;
+  changeDescription: string;
+}
+
+export interface ThemeSettingsDto {
+  globalEngineEnabled: boolean;
+  websiteThemeEnabled: boolean;
+  websiteThemeId: string;
+  adminThemeEnabled: boolean;
+  adminThemeId: string;
+  fallbackThemeId: string;
+  versionToken: string;
+  updatedAtUtc?: string | null;
+}
+
+export interface CreateThemeRequest {
+  name: string;
+  slug?: string | null;
+  description?: string | null;
+  configJson?: string | null;
+}
+
+export interface SaveThemeDraftRequest {
+  configJson: string;
+  baseVersionToken?: string | null;
+}
+
+export interface PublishThemeRequest {
+  changeDescription?: string | null;
+}
+
+export type ThemeActivationTarget = "website" | "admin" | "both";
+
+export interface ActivateThemeRequest {
+  target: ThemeActivationTarget;
+}
+
+export interface RollbackThemeRequest {
+  versionNumber: number;
+}
+
+export interface ImportThemeRequest {
+  name: string;
+  slug?: string | null;
+  description?: string | null;
+  configJson: string;
+}
+
+export interface DuplicateThemeRequest {
+  newName?: string | null;
+}
+
+export interface UpdateThemeSettingsRequest {
+  globalEngineEnabled?: boolean | null;
+  websiteThemeEnabled?: boolean | null;
+  websiteThemeId?: string | null;
+  adminThemeEnabled?: boolean | null;
+  adminThemeId?: string | null;
+  fallbackThemeId?: string | null;
+  versionToken?: string;
 }

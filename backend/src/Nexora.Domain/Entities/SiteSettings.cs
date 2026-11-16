@@ -39,6 +39,12 @@ public class SiteSettings : BaseEntity
     // Website Section Visibility & Theme Tokens
     public string SectionVisibilityJson { get; set; } = "{}";
     public string ThemeTokensJson { get; set; } = "{}";
+    public bool GlobalThemeEngineEnabled { get; set; } = true;
+    public bool WebsiteThemeEnabled { get; set; } = true;
+    public string WebsiteThemeId { get; set; } = "cyber-emerald";
+    public bool AdminThemeEnabled { get; set; } = true;
+    public string AdminThemeId { get; set; } = "cyber-emerald";
+    public string FallbackThemeId { get; set; } = "cyber-emerald";
     public string SocialLinksJson { get; set; } = "{}";
     public string TrackingCodesJson { get; set; } = "{}";
     public string? BookingUrl { get; set; }

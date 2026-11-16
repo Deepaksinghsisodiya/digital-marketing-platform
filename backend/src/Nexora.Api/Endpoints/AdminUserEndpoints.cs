@@ -45,6 +45,8 @@ public static class AdminUserEndpoints
                 request.Email,
                 request.FullName,
                 request.Role,
+                request.Password,
+                request.MustChangePassword,
                 ct);
 
             if (!success)
@@ -62,14 +64,16 @@ public static class AdminUserEndpoints
                 ipAddress: currentUser.IpAddress,
                 userAgent: currentUser.UserAgent,
                 correlationId: currentUser.CorrelationId,
-                metadata: new() { ["invitedEmail"] = request.Email, ["assignedRole"] = request.Role },
+                metadata: new() { ["invitedEmail"] = request.Email, ["assignedRole"] = request.Role, ["hasCustomPassword"] = (!string.IsNullOrWhiteSpace(request.Password)).ToString() },
                 cancellationToken: ct);
 
             return Results.Ok(new
             {
                 success = true,
                 userId,
-                message = "Invitation link sent successfully to recipient."
+                message = !string.IsNullOrWhiteSpace(request.Password)
+                    ? "User account created and login credentials dispatched to recipient email."
+                    : "Invitation link sent successfully to recipient."
             });
         })
         .RequireAuthorization(Permissions.UsersManage)

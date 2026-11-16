@@ -56,6 +56,18 @@ public record CreateCountryRegionDto(
     bool IsDefault,
     int OrderIndex);
 
+public record TimezoneDto(
+    string Id,
+    string DisplayName,
+    string BaseUtcOffset,
+    double OffsetHours);
+
+public record CurrencyDto(
+    string Code,
+    string Name,
+    string Symbol,
+    string CountryName);
+
 public record UpdateCountryRegionDto(
     string Name,
     string CurrencyCode,
@@ -135,6 +147,57 @@ public static class LookupEndpoints
         })
         .WithName("GetCountryRegions")
         .WithSummary("Retrieve enabled global country regions, currencies, and formats.");
+
+        // GET dynamic global timezones from system
+        lookupGroup.MapGet("/timezones", () =>
+        {
+            var timezones = TimeZoneInfo.GetSystemTimeZones()
+                .OrderBy(tz => tz.BaseUtcOffset)
+                .Select(tz => new TimezoneDto(
+                    tz.Id,
+                    tz.DisplayName,
+                    (tz.BaseUtcOffset >= TimeSpan.Zero ? "+" : "-") + tz.BaseUtcOffset.ToString(@"hh\:mm"),
+                    tz.BaseUtcOffset.TotalHours
+                ))
+                .ToList();
+
+            return Results.Ok(timezones);
+        })
+        .WithName("GetSystemTimezones")
+        .WithSummary("Retrieve all global standard timezones from system.");
+
+        // GET dynamic global currencies from standard RegionInfo / CultureInfo
+        lookupGroup.MapGet("/currencies", () =>
+        {
+            var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            var currencies = new List<CurrencyDto>();
+
+            foreach (var culture in System.Globalization.CultureInfo.GetCultures(System.Globalization.CultureTypes.SpecificCultures))
+            {
+                try
+                {
+                    var region = new System.Globalization.RegionInfo(culture.Name);
+                    if (seen.Add(region.ISOCurrencySymbol))
+                    {
+                        currencies.Add(new CurrencyDto(
+                            region.ISOCurrencySymbol,
+                            region.CurrencyEnglishName,
+                            region.CurrencySymbol,
+                            region.EnglishName
+                        ));
+                    }
+                }
+                catch
+                {
+                    // Skip cultures without standard regions
+                }
+            }
+
+            var ordered = currencies.OrderBy(c => c.Code).ToList();
+            return Results.Ok(ordered);
+        })
+        .WithName("GetCurrencies")
+        .WithSummary("Retrieve dynamic global currencies from standard international cultures.");
 
         // 2. Admin Management Endpoints
         var adminGroup = app.MapGroup("/api/v1/admin/lookups")

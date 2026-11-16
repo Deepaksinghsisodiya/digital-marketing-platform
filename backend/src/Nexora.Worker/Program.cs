@@ -1,5 +1,34 @@
+using Nexora.Application;
+using Nexora.Infrastructure;
 using Nexora.Worker;
 using Serilog;
+
+// Load .env file into environment if present by walking up directory tree
+var searchDir = new DirectoryInfo(Directory.GetCurrentDirectory());
+while (searchDir != null)
+{
+    var envPath = Path.Combine(searchDir.FullName, ".env");
+    if (File.Exists(envPath))
+    {
+        foreach (var line in File.ReadAllLines(envPath))
+        {
+            var trimmed = line.Trim();
+            if (string.IsNullOrWhiteSpace(trimmed) || trimmed.StartsWith('#')) continue;
+            var idx = trimmed.IndexOf('=');
+            if (idx > 0)
+            {
+                var key = trimmed.Substring(0, idx).Trim();
+                var val = trimmed.Substring(idx + 1).Trim();
+                if (string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable(key)))
+                {
+                    Environment.SetEnvironmentVariable(key, val);
+                }
+            }
+        }
+        break;
+    }
+    searchDir = searchDir.Parent;
+}
 
 var builder = Host.CreateApplicationBuilder(args);
 
@@ -10,6 +39,10 @@ Log.Logger = new LoggerConfiguration()
     .CreateLogger();
 
 builder.Services.AddSerilog();
+
+builder.Services.AddApplication(builder.Configuration);
+builder.Services.AddInfrastructure(builder.Configuration);
+
 builder.Services.AddHostedService<Worker>();
 
 var host = builder.Build();

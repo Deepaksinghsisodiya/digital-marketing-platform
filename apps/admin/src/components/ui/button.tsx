@@ -23,13 +23,13 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 
     const variantStyles = {
       default:
-        "bg-[color:var(--nexora-purple,#7657ff)] text-white hover:opacity-90",
+        "bg-primary text-primary-foreground hover:opacity-90",
       outline:
-        "border border-[color:var(--nexora-border,#e6eafb)] bg-transparent hover:bg-[color:var(--nexora-paper,#f5f7ff)] text-[color:var(--nexora-ink,#17213d)]",
+        "border border-border bg-transparent hover:bg-surface text-foreground",
       secondary:
-        "bg-[color:var(--nexora-paper,#f5f7ff)] text-[color:var(--nexora-ink,#17213d)] hover:opacity-80",
+        "bg-surface text-foreground hover:opacity-80",
       ghost:
-        "hover:bg-[color:var(--nexora-paper,#f5f7ff)] text-[color:var(--nexora-ink,#17213d)]",
+        "hover:bg-surface text-foreground",
     }[variant];
 
     const sizeStyles = {

@@ -47,19 +47,16 @@ export const TestimonialsBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
   ];
 
   return (
-    <section className="relative py-24 bg-slate-50 text-slate-900 overflow-hidden border-t border-slate-200">
+    <section className="relative py-20 bg-slate-50 text-slate-900 overflow-hidden border-t border-slate-200">
       {/* Background radial accent */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-indigo-100/50 blur-[140px] pointer-events-none rounded-full" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-primary/5 blur-[140px] pointer-events-none rounded-full" />
 
-      <div className="relative max-w-6xl xl:max-w-7xl 2xl:max-w-[1720px] mx-auto px-6 sm:px-10 lg:px-12">
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto space-y-4 mb-16">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
-            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-bold bg-primary/10 text-primary border border-primary/20">
+            <Sparkles className="w-3.5 h-3.5 text-primary" />
             <span>Institutional Social Proof</span>
-            <span className="px-1.5 py-0.5 rounded text-[10px] bg-indigo-100 text-indigo-800 border border-indigo-200">
-              Sample Data
-            </span>
           </div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-slate-900 leading-tight">
             {sectionTitle}
@@ -71,7 +68,9 @@ export const TestimonialsBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
 
         {/* Testimonials Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
-          {rawItems.map((item, idx) => {
+          {rawItems
+            .filter((item) => (item as { enabled?: boolean }).enabled !== false)
+            .map((item, idx) => {
             const initials = item.author
               .split(" ")
               .map((n) => n[0])

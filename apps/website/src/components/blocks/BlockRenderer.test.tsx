@@ -190,4 +190,111 @@ describe("BlockRenderer", () => {
     expect(html).toContain("Trusted Partners Across Industry Sectors");
     expect(html).toContain("Bento Performance Grid Architecture");
   });
+
+  it("renders customizable Hero banner image across split, bottom banner, and background layouts", () => {
+    // 1. Right Split Hero with custom banner image
+    const splitBlock: CmsBlock = {
+      id: "hero-split",
+      type: "Hero",
+      schemaVersion: 1,
+      settings: {},
+      content: {
+        headline: "Split Hero Headline",
+        imageUrl: "https://images.unsplash.com/custom-split-banner.jpg",
+        imageAlt: "Custom Split Banner Alt",
+        imagePosition: "right",
+        imageBadge: "Live System 2.4",
+      },
+      enabled: true,
+    };
+    const htmlSplit = renderToString(
+      <BlockRenderer blocks={[splitBlock]} />,
+    );
+    expect(htmlSplit).toContain("Split Hero Headline");
+    expect(htmlSplit).toContain("https://images.unsplash.com/custom-split-banner.jpg");
+    expect(htmlSplit).toContain("Custom Split Banner Alt");
+    expect(htmlSplit).toContain("Live System 2.4");
+
+    // 2. Wide Bottom Banner Hero with custom banner image
+    const bottomBlock: CmsBlock = {
+      id: "hero-bottom",
+      type: "Hero",
+      schemaVersion: 1,
+      settings: {},
+      content: {
+        headline: "Wide Banner Headline",
+        imageUrl: "https://images.unsplash.com/custom-bottom-banner.jpg",
+        imageAlt: "Wide Showcase Mockup",
+        imagePosition: "bottom",
+      },
+      enabled: true,
+    };
+    const htmlBottom = renderToString(
+      <BlockRenderer blocks={[bottomBlock]} />,
+    );
+    expect(htmlBottom).toContain("Wide Banner Headline");
+    expect(htmlBottom).toContain("https://images.unsplash.com/custom-bottom-banner.jpg");
+    expect(htmlBottom).toContain("Wide Showcase Mockup");
+
+    // 3. Background Overlay Hero with custom banner image
+    const bgBlock: CmsBlock = {
+      id: "hero-bg",
+      type: "Hero",
+      schemaVersion: 1,
+      settings: {},
+      content: {
+        headline: "Background Hero Headline",
+        imageUrl: "https://images.unsplash.com/custom-bg-banner.jpg",
+        imageAlt: "Background Ambient Banner",
+        imagePosition: "background",
+      },
+      enabled: true,
+    };
+    const htmlBg = renderToString(
+      <BlockRenderer blocks={[bgBlock]} />,
+    );
+    expect(htmlBg).toContain("Background Hero Headline");
+    expect(htmlBg).toContain("https://images.unsplash.com/custom-bg-banner.jpg");
+  });
+
+  it("renders Hero multi-slide slider/carousel mode with controls and slides", () => {
+    const sliderBlock: CmsBlock = {
+      id: "hero-carousel",
+      type: "Hero",
+      schemaVersion: 1,
+      settings: {},
+      content: {
+        isSlider: true,
+        slides: [
+          {
+            id: "s1",
+            eyebrow: "Pillar 1 • Growth",
+            headline: "First Slide Growth Headline",
+            subheadline: "First Slide Subheadline",
+            imageUrl: "https://images.unsplash.com/slide-1.jpg",
+            imageAlt: "Slide 1 Alt",
+            imagePosition: "right",
+          },
+          {
+            id: "s2",
+            eyebrow: "Pillar 2 • Tech",
+            headline: "Second Slide Tech Headline",
+            subheadline: "Second Slide Subheadline",
+            imageUrl: "https://images.unsplash.com/slide-2.jpg",
+            imageAlt: "Slide 2 Alt",
+            imagePosition: "right",
+          },
+        ],
+      },
+      enabled: true,
+    };
+
+    const htmlSlider = renderToString(
+      <BlockRenderer blocks={[sliderBlock]} />,
+    );
+    expect(htmlSlider).toContain("First Slide Growth Headline");
+    expect(htmlSlider).toContain("https://images.unsplash.com/slide-1.jpg");
+    // Verify slide counter rendering
+    expect(htmlSlider).toContain("01 / 02");
+  });
 });

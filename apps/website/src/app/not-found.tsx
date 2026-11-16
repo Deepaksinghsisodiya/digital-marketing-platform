@@ -1,22 +1,36 @@
+import React from "react";
 import Link from "next/link";
-import { Header } from "@/components/layout/Header";
-import { Footer } from "@/components/layout/Footer";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { ArrowRight, SearchCode, BookOpen, Mail } from "lucide-react";
 
 export default function NotFound() {
   return (
     <div className="min-h-screen flex flex-col justify-between bg-white text-slate-900">
-      <Header />
+      {/* Minimal Header */}
+      <header className="border-b border-slate-200 bg-white/90 backdrop-blur-md px-6 py-4">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2 font-black text-xl text-slate-900 tracking-tight">
+            <span className="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-sm">N</span>
+            <span>NEXORA</span>
+          </Link>
+          <Link
+            href="/"
+            className="text-xs font-bold text-blue-600 hover:text-blue-700"
+          >
+            &larr; Back to Platform
+          </Link>
+        </div>
+      </header>
 
+      {/* 404 Main Area */}
       <main className="flex-1 flex flex-col items-center justify-center py-20 px-6 text-center max-w-xl mx-auto space-y-6">
-        <div className="w-20 h-20 rounded-3xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 flex items-center justify-center font-black text-3xl shadow-xl shadow-indigo-500/10">
+        <div className="w-20 h-20 rounded-3xl bg-blue-50 text-blue-600 border border-blue-200 flex items-center justify-center font-black text-3xl shadow-xl shadow-blue-500/10">
           404
         </div>
 
         <div className="space-y-2">
-          <Badge variant="warning">Resource Unavailable</Badge>
+          <span className="inline-block px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">
+            Resource Unavailable
+          </span>
           <h1 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
             Page Not Found
           </h1>
@@ -27,24 +41,29 @@ export default function NotFound() {
         </div>
 
         <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
-          <Button asChild variant="gradient" size="default" shape="pill">
-            <Link href="/">
-              Return to Homepage <ArrowRight className="w-4 h-4 ml-1.5" />
-            </Link>
-          </Button>
-          <Button asChild variant="outline" size="default" shape="pill">
-            <Link href="/services">Browse 12 Services</Link>
-          </Button>
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-blue-600 text-white text-xs font-bold hover:bg-blue-700 transition shadow-md shadow-blue-600/20"
+          >
+            <span>Return to Homepage</span>
+            <ArrowRight className="w-4 h-4" />
+          </Link>
+          <Link
+            href="/services"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-slate-100 text-slate-800 text-xs font-bold hover:bg-slate-200 transition border border-slate-200"
+          >
+            Browse All Services
+          </Link>
         </div>
 
         {/* Helpful Shortcut Cards */}
         <div className="w-full pt-8 border-t border-slate-200 grid grid-cols-3 gap-3 text-left">
           <Link
             href="/services"
-            className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 hover:border-indigo-300 transition group shadow-xs"
+            className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 hover:border-blue-300 transition group shadow-xs"
           >
-            <SearchCode className="w-4 h-4 text-indigo-600 mb-1.5" />
-            <span className="text-xs font-bold text-slate-900 block group-hover:text-indigo-600">
+            <SearchCode className="w-4 h-4 text-blue-600 mb-1.5" />
+            <span className="text-xs font-bold text-slate-900 block group-hover:text-blue-600">
               Services
             </span>
             <span className="text-[10px] text-slate-500">All capabilities</span>
@@ -52,10 +71,10 @@ export default function NotFound() {
 
           <Link
             href="/blog"
-            className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 hover:border-indigo-300 transition group shadow-xs"
+            className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 hover:border-blue-300 transition group shadow-xs"
           >
-            <BookOpen className="w-4 h-4 text-indigo-600 mb-1.5" />
-            <span className="text-xs font-bold text-slate-900 block group-hover:text-indigo-600">
+            <BookOpen className="w-4 h-4 text-blue-600 mb-1.5" />
+            <span className="text-xs font-bold text-slate-900 block group-hover:text-blue-600">
               Insights
             </span>
             <span className="text-[10px] text-slate-500">Growth playbooks</span>
@@ -63,20 +82,21 @@ export default function NotFound() {
 
           <Link
             href="/contact"
-            className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 hover:border-indigo-300 transition group shadow-xs"
+            className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 hover:border-blue-300 transition group shadow-xs"
           >
-            <Mail className="w-4 h-4 text-emerald-600 mb-1.5" />
-            <span className="text-xs font-bold text-slate-900 block group-hover:text-indigo-600">
+            <Mail className="w-4 h-4 text-blue-600 mb-1.5" />
+            <span className="text-xs font-bold text-slate-900 block group-hover:text-blue-600">
               Support
             </span>
-            <span className="text-[10px] text-slate-500">
-              Direct assistance
-            </span>
+            <span className="text-[10px] text-slate-500">Direct assistance</span>
           </Link>
         </div>
       </main>
 
-      <Footer />
+      {/* Minimal Footer */}
+      <footer className="border-t border-slate-200 py-6 px-6 text-center text-xs text-slate-500 bg-slate-50">
+        &copy; {new Date().getFullYear()} Nexora Technoligics Pvt. Ltd. All rights reserved.
+      </footer>
     </div>
   );
 }

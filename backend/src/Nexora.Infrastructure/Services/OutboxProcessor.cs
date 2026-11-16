@@ -63,13 +63,35 @@ public class OutboxProcessor : IOutboxProcessor
             {
                 try
                 {
-                    if (message.EventType == "LeadReceived")
+                    switch (message.EventType)
                     {
-                        await ProcessLeadReceivedEventAsync(message.PayloadJson, ct);
-                    }
-                    else if (message.EventType == "LeadWebhook")
-                    {
-                        await ProcessLeadWebhookEventAsync(message.PayloadJson, ct);
+                        case "LeadReceived":
+                            await ProcessLeadReceivedEventAsync(message.PayloadJson, ct);
+                            break;
+                        case "LeadWebhook":
+                            await ProcessLeadWebhookEventAsync(message.PayloadJson, ct);
+                            break;
+                        case "ClientCreated":
+                            await ProcessClientCreatedEventAsync(message.PayloadJson, ct);
+                            break;
+                        case "TaskAssigned":
+                            await ProcessTaskAssignedEventAsync(message.PayloadJson, ct);
+                            break;
+                        case "TaskOverdueAlert":
+                            await ProcessTaskOverdueAlertEventAsync(message.PayloadJson, ct);
+                            break;
+                        case "UserInvited":
+                            await ProcessUserInvitedEventAsync(message.PayloadJson, ct);
+                            break;
+                        case "UserRoleUpdated":
+                            await ProcessUserRoleUpdatedEventAsync(message.PayloadJson, ct);
+                            break;
+                        case "UserPasswordReset":
+                            await ProcessUserPasswordResetEventAsync(message.PayloadJson, ct);
+                            break;
+                        default:
+                            _logger.LogWarning("Unrecognized outbox event type {Type}. Marking skipped.", message.EventType);
+                            break;
                     }
 
                     message.MarkProcessed();
@@ -161,6 +183,298 @@ public class OutboxProcessor : IOutboxProcessor
         }
     }
 
+    private async Task ProcessClientCreatedEventAsync(string payloadJson, CancellationToken ct)
+    {
+        using var doc = JsonDocument.Parse(payloadJson);
+        var root = doc.RootElement;
+
+        var clientName = root.TryGetProperty("clientName", out var cn) ? cn.GetString() ?? "Valued Client" : "Valued Client";
+        var contactEmail = root.TryGetProperty("contactEmail", out var ce) ? ce.GetString() : null;
+        var industry = root.TryGetProperty("industry", out var ind) ? ind.GetString() ?? "General" : "General";
+        var region = root.TryGetProperty("region", out var reg) ? reg.GetString() ?? "IN" : "IN";
+
+        var settings = await _settingsService.GetSettingsAsync(ct);
+        var companyName = settings?.CompanyName ?? "Nexora Technologies";
+        var supportEmail = settings?.SupportEmail ?? "support@nexora.digital";
+
+        var vars = new Dictionary<string, string>
+        {
+            ["client.name"] = clientName,
+            ["client.company"] = clientName,
+            ["manager.name"] = "Nexora Client Success Team",
+            ["manager.email"] = supportEmail,
+            ["platform.companyName"] = companyName,
+            ["support.email"] = supportEmail
+        };
+
+        // 1. Welcome onboarding email to client
+        if (!string.IsNullOrWhiteSpace(contactEmail))
+        {
+            try
+            {
+                var (subject, bodyHtml, bodyPlain) = await _templateService.RenderTemplateAsync("client-welcome-onboarding", vars, ct);
+                var emailMsg = new EmailMessage(
+                    To: [new EmailRecipient(contactEmail, clientName)],
+                    Subject: subject,
+                    BodyHtml: bodyHtml,
+                    BodyPlainText: bodyPlain);
+
+                await _emailSender.SendEmailAsync(emailMsg, ct);
+                _context.EmailLogs.Add(new EmailLog(contactEmail, subject, "client-welcome-onboarding", EmailDeliveryStatus.Sent));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Failed to send onboarding welcome email to client {Email}", contactEmail);
+                _context.EmailLogs.Add(new EmailLog(contactEmail, "Client Onboarding Welcome", "client-welcome-onboarding", EmailDeliveryStatus.Failed, ex.Message));
+            }
+        }
+
+        // 2. Alert to internal team
+        try
+        {
+            var internalSubject = $"[New Client Onboarded] {clientName} ({industry} - {region.ToUpperInvariant()})";
+            var internalHtml = $"<h2>New Client Account Created</h2><p><strong>Client:</strong> {clientName}</p><p><strong>Contact Email:</strong> {contactEmail}</p><p><strong>Industry:</strong> {industry}</p><p><strong>Region:</strong> {region.ToUpperInvariant()}</p>";
+            var internalPlain = $"New Client Account Created:\nClient: {clientName}\nContact: {contactEmail}\nIndustry: {industry}\nRegion: {region}";
+
+            var notifMsg = new EmailMessage(
+                To: [new EmailRecipient(supportEmail, "Nexora Client Success Desk")],
+                Subject: internalSubject,
+                BodyHtml: internalHtml,
+                BodyPlainText: internalPlain);
+
+            await _emailSender.SendEmailAsync(notifMsg, ct);
+            _context.EmailLogs.Add(new EmailLog(supportEmail, internalSubject, "client-internal-notification", EmailDeliveryStatus.Sent));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to send internal client onboard alert to {Email}", supportEmail);
+        }
+    }
+
+    private async Task ProcessTaskAssignedEventAsync(string payloadJson, CancellationToken ct)
+    {
+        using var doc = JsonDocument.Parse(payloadJson);
+        var root = doc.RootElement;
+
+        var assigneeEmail = root.TryGetProperty("assigneeEmail", out var ae) ? ae.GetString() : null;
+        if (string.IsNullOrWhiteSpace(assigneeEmail)) return;
+
+        var assigneeName = root.TryGetProperty("assigneeName", out var an) ? an.GetString() ?? assigneeEmail : assigneeEmail;
+        var taskTitle = root.TryGetProperty("taskTitle", out var tt) ? tt.GetString() ?? "Task" : "Task";
+        var priority = root.TryGetProperty("priority", out var pr) ? pr.GetString() ?? "Normal" : "Normal";
+        var dueDate = root.TryGetProperty("dueDate", out var dd) ? dd.GetString() ?? "None" : "None";
+        var clientName = root.TryGetProperty("clientName", out var cn) ? cn.GetString() ?? "General Task" : "General Task";
+        var assignedBy = root.TryGetProperty("assignedBy", out var ab) ? ab.GetString() ?? "Administrator" : "Administrator";
+        var actionUrl = root.TryGetProperty("actionUrl", out var au) ? au.GetString() ?? "http://localhost:5173/admin/tasks" : "http://localhost:5173/admin/tasks";
+
+        var settings = await _settingsService.GetSettingsAsync(ct);
+        var companyName = settings?.CompanyName ?? "Nexora Technologies";
+
+        var vars = new Dictionary<string, string>
+        {
+            ["user.name"] = assigneeName,
+            ["task.title"] = taskTitle,
+            ["task.priority"] = priority,
+            ["task.due_date"] = dueDate,
+            ["client.name"] = clientName,
+            ["assigned_by"] = assignedBy,
+            ["action.url"] = actionUrl,
+            ["platform.companyName"] = companyName
+        };
+
+        try
+        {
+            var (subject, bodyHtml, bodyPlain) = await _templateService.RenderTemplateAsync("task-assigned", vars, ct);
+            var emailMsg = new EmailMessage(
+                To: [new EmailRecipient(assigneeEmail, assigneeName)],
+                Subject: subject,
+                BodyHtml: bodyHtml,
+                BodyPlainText: bodyPlain);
+
+            await _emailSender.SendEmailAsync(emailMsg, ct);
+            _context.EmailLogs.Add(new EmailLog(assigneeEmail, subject, "task-assigned", EmailDeliveryStatus.Sent));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to send task assignment notification to {Email}", assigneeEmail);
+            _context.EmailLogs.Add(new EmailLog(assigneeEmail, $"[Task Assigned] {taskTitle}", "task-assigned", EmailDeliveryStatus.Failed, ex.Message));
+        }
+    }
+
+    private async Task ProcessTaskOverdueAlertEventAsync(string payloadJson, CancellationToken ct)
+    {
+        using var doc = JsonDocument.Parse(payloadJson);
+        var root = doc.RootElement;
+
+        var assigneeEmail = root.TryGetProperty("assigneeEmail", out var ae) ? ae.GetString() : null;
+        if (string.IsNullOrWhiteSpace(assigneeEmail)) return;
+
+        var assigneeName = root.TryGetProperty("assigneeName", out var an) ? an.GetString() ?? assigneeEmail : assigneeEmail;
+        var taskTitle = root.TryGetProperty("taskTitle", out var tt) ? tt.GetString() ?? "Task" : "Task";
+        var dueDate = root.TryGetProperty("dueDate", out var dd) ? dd.GetString() ?? "Past Due" : "Past Due";
+        var clientName = root.TryGetProperty("clientName", out var cn) ? cn.GetString() ?? "General Task" : "General Task";
+        var actionUrl = root.TryGetProperty("actionUrl", out var au) ? au.GetString() ?? "http://localhost:5173/admin/tasks" : "http://localhost:5173/admin/tasks";
+
+        var settings = await _settingsService.GetSettingsAsync(ct);
+        var companyName = settings?.CompanyName ?? "Nexora Technologies";
+
+        var vars = new Dictionary<string, string>
+        {
+            ["user.name"] = assigneeName,
+            ["task.title"] = taskTitle,
+            ["client.name"] = clientName,
+            ["task.due_date"] = dueDate,
+            ["action.url"] = actionUrl,
+            ["platform.companyName"] = companyName
+        };
+
+        try
+        {
+            var (subject, bodyHtml, bodyPlain) = await _templateService.RenderTemplateAsync("task-overdue-alert", vars, ct);
+            var emailMsg = new EmailMessage(
+                To: [new EmailRecipient(assigneeEmail, assigneeName)],
+                Subject: subject,
+                BodyHtml: bodyHtml,
+                BodyPlainText: bodyPlain);
+
+            await _emailSender.SendEmailAsync(emailMsg, ct);
+            _context.EmailLogs.Add(new EmailLog(assigneeEmail, subject, "task-overdue-alert", EmailDeliveryStatus.Sent));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to send task overdue alert to {Email}", assigneeEmail);
+            _context.EmailLogs.Add(new EmailLog(assigneeEmail, $"⚠️ Overdue Task: {taskTitle}", "task-overdue-alert", EmailDeliveryStatus.Failed, ex.Message));
+        }
+    }
+
+    private async Task ProcessUserInvitedEventAsync(string payloadJson, CancellationToken ct)
+    {
+        using var doc = JsonDocument.Parse(payloadJson);
+        var root = doc.RootElement;
+
+        var userEmail = root.TryGetProperty("userEmail", out var ue) ? ue.GetString() : null;
+        if (string.IsNullOrWhiteSpace(userEmail)) return;
+
+        var userName = root.TryGetProperty("userName", out var un) ? un.GetString() ?? userEmail : userEmail;
+        var userRole = root.TryGetProperty("userRole", out var ur) ? ur.GetString() ?? "Staff" : "Staff";
+        var inviteLink = root.TryGetProperty("inviteLink", out var il) ? il.GetString() ?? "" : "";
+        var expiresHours = root.TryGetProperty("expiresHours", out var eh) ? eh.GetString() ?? "48" : "48";
+
+        var settings = await _settingsService.GetSettingsAsync(ct);
+        var companyName = settings?.CompanyName ?? "Nexora Technologies";
+
+        var vars = new Dictionary<string, string>
+        {
+            ["user.name"] = userName,
+            ["user.role"] = userRole,
+            ["invite.link"] = inviteLink,
+            ["expires_hours"] = expiresHours,
+            ["platform.companyName"] = companyName,
+            ["support.email"] = settings?.SupportEmail ?? "support@nexora.digital"
+        };
+
+        try
+        {
+            var (subject, bodyHtml, bodyPlain) = await _templateService.RenderTemplateAsync("user-invitation", vars, ct);
+            var emailMsg = new EmailMessage(
+                To: [new EmailRecipient(userEmail, userName)],
+                Subject: subject,
+                BodyHtml: bodyHtml,
+                BodyPlainText: bodyPlain);
+
+            await _emailSender.SendEmailAsync(emailMsg, ct);
+            _context.EmailLogs.Add(new EmailLog(userEmail, subject, "user-invitation", EmailDeliveryStatus.Sent));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to send invitation email to {Email}", userEmail);
+            _context.EmailLogs.Add(new EmailLog(userEmail, "Invitation to Nexora Platform", "user-invitation", EmailDeliveryStatus.Failed, ex.Message));
+        }
+    }
+
+    private async Task ProcessUserRoleUpdatedEventAsync(string payloadJson, CancellationToken ct)
+    {
+        using var doc = JsonDocument.Parse(payloadJson);
+        var root = doc.RootElement;
+
+        var userEmail = root.TryGetProperty("userEmail", out var ue) ? ue.GetString() : null;
+        if (string.IsNullOrWhiteSpace(userEmail)) return;
+
+        var userName = root.TryGetProperty("userName", out var un) ? un.GetString() ?? userEmail : userEmail;
+        var userRole = root.TryGetProperty("userRole", out var ur) ? ur.GetString() ?? "Staff" : "Staff";
+        var actionUrl = root.TryGetProperty("actionUrl", out var au) ? au.GetString() ?? "http://localhost:5173/admin" : "http://localhost:5173/admin";
+
+        var settings = await _settingsService.GetSettingsAsync(ct);
+        var companyName = settings?.CompanyName ?? "Nexora Technologies";
+
+        var vars = new Dictionary<string, string>
+        {
+            ["user.name"] = userName,
+            ["user.role"] = userRole,
+            ["action.url"] = actionUrl,
+            ["platform.companyName"] = companyName
+        };
+
+        try
+        {
+            var (subject, bodyHtml, bodyPlain) = await _templateService.RenderTemplateAsync("user-role-updated", vars, ct);
+            var emailMsg = new EmailMessage(
+                To: [new EmailRecipient(userEmail, userName)],
+                Subject: subject,
+                BodyHtml: bodyHtml,
+                BodyPlainText: bodyPlain);
+
+            await _emailSender.SendEmailAsync(emailMsg, ct);
+            _context.EmailLogs.Add(new EmailLog(userEmail, subject, "user-role-updated", EmailDeliveryStatus.Sent));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to send role update notification to {Email}", userEmail);
+            _context.EmailLogs.Add(new EmailLog(userEmail, "Role Privileges Updated", "user-role-updated", EmailDeliveryStatus.Failed, ex.Message));
+        }
+    }
+
+    private async Task ProcessUserPasswordResetEventAsync(string payloadJson, CancellationToken ct)
+    {
+        using var doc = JsonDocument.Parse(payloadJson);
+        var root = doc.RootElement;
+
+        var userEmail = root.TryGetProperty("userEmail", out var ue) ? ue.GetString() : null;
+        if (string.IsNullOrWhiteSpace(userEmail)) return;
+
+        var userName = root.TryGetProperty("userName", out var un) ? un.GetString() ?? userEmail : userEmail;
+        var resetLink = root.TryGetProperty("resetLink", out var rl) ? rl.GetString() ?? "" : "";
+
+        var settings = await _settingsService.GetSettingsAsync(ct);
+        var companyName = settings?.CompanyName ?? "Nexora Technologies";
+
+        var vars = new Dictionary<string, string>
+        {
+            ["user.name"] = userName,
+            ["reset.link"] = resetLink,
+            ["platform.companyName"] = companyName,
+            ["support.email"] = settings?.SupportEmail ?? "support@nexora.digital"
+        };
+
+        try
+        {
+            var (subject, bodyHtml, bodyPlain) = await _templateService.RenderTemplateAsync("user-password-reset", vars, ct);
+            var emailMsg = new EmailMessage(
+                To: [new EmailRecipient(userEmail, userName)],
+                Subject: subject,
+                BodyHtml: bodyHtml,
+                BodyPlainText: bodyPlain);
+
+            await _emailSender.SendEmailAsync(emailMsg, ct);
+            _context.EmailLogs.Add(new EmailLog(userEmail, subject, "user-password-reset", EmailDeliveryStatus.Sent));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to send password reset email to {Email}", userEmail);
+            _context.EmailLogs.Add(new EmailLog(userEmail, "Password Reset Request", "user-password-reset", EmailDeliveryStatus.Failed, ex.Message));
+        }
+    }
+
     private async Task ProcessLeadWebhookEventAsync(string payloadJson, CancellationToken ct)
     {
         using var doc = JsonDocument.Parse(payloadJson);
@@ -182,4 +496,3 @@ public class OutboxProcessor : IOutboxProcessor
         }
     }
 }
-

@@ -300,8 +300,7 @@ Or start individual services manually in separate terminals:
 & "infra\tools\mailpit.exe" -s [::]:1025 -l [::]:8025
 
 # 2. Start Backend API (Port 5201)
-dotnet run --project backend\src\Nexora.Api --urls "http://localhost:5201"
-
+dotnet run --project src/Nexora.Api/Nexora.Api.csproj --urls "http://localhost:5201"
 # 3. Start Public Website (Port 3000)
 pnpm --prefix apps/website run dev
 

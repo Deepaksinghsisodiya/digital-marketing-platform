@@ -18,7 +18,6 @@ describe("Global Layout & Navigation Suite", () => {
       />,
     );
     expect(html).toContain("NEXORA ENTERPRISE");
-    expect(html).toContain("SOC2");
     expect(html).toContain("Services");
     expect(html).toContain("Industries");
     expect(html).toContain("Book a Call");

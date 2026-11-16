@@ -1,84 +1,247 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { Sparkles, X } from "lucide-react";
+import useEmblaCarousel from "embla-carousel-react";
+import Autoplay from "embla-carousel-autoplay";
+import { Sparkles, X, ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 
-interface AnnouncementConfig {
+export interface AnnouncementItem {
+  id: string;
+  badge?: string;
+  text: string;
+  linkText?: string;
+  linkUrl?: string;
   enabled?: boolean;
+}
+
+export interface AnnouncementConfig {
+  enabled?: boolean;
+  autoplay?: boolean;
+  interval?: number;
+  items?: AnnouncementItem[];
+  // Legacy single item fields
   text?: string;
   link?: string;
   badge?: string;
-  startDate?: string;
-  endDate?: string;
 }
 
 interface AnnouncementBarProps {
   announcementBarJson?: string | null;
+  defaultMessage?: string | null;
 }
 
 export const AnnouncementBar: React.FC<AnnouncementBarProps> = ({
   announcementBarJson,
+  defaultMessage,
 }) => {
+  const [mounted, setMounted] = useState(false);
   const [dismissed, setDismissed] = useState(true);
-  const [config, setConfig] = useState<AnnouncementConfig | null>(null);
+  const [items, setItems] = useState<AnnouncementItem[]>([]);
+  const [intervalMs, setIntervalMs] = useState(4000);
+  const [autoplayEnabled, setAutoplayEnabled] = useState(true);
+  const [selectedIndex, setSelectedIndex] = useState(0);
 
   useEffect(() => {
-    if (!announcementBarJson) return;
-    try {
-      const parsed: AnnouncementConfig = JSON.parse(announcementBarJson);
-      if (parsed.enabled !== false && parsed.text) {
-        // Check schedule if dates provided
-        const now = new Date().getTime();
-        if (parsed.startDate && new Date(parsed.startDate).getTime() > now)
+    setMounted(true);
+    // Check dismissal session status
+    const isDismissed =
+      typeof window !== "undefined" &&
+      sessionStorage.getItem("nexora_announcement_dismissed") === "true";
+    if (isDismissed) return;
+
+    if (announcementBarJson) {
+      try {
+        const parsed: AnnouncementConfig = JSON.parse(announcementBarJson);
+
+        // Global master toggle: if explicitly disabled, hide announcement bar completely
+        if (parsed.enabled === false) {
+          setItems([]);
+          setDismissed(true);
           return;
-        if (parsed.endDate && new Date(parsed.endDate).getTime() < now) return;
-
-        // Check dismissal cookie/storage
-        const isDismissed =
-          sessionStorage.getItem("nexora_announcement_dismissed") === "true";
-        if (!isDismissed) {
-          setConfig(parsed);
-          setDismissed(false);
         }
-      }
-    } catch {
-      // Safe fallback
-    }
-  }, [announcementBarJson]);
 
-  if (dismissed || !config || !config.text) return null;
+        // 1. Multi-item array format
+        if (Array.isArray(parsed.items) && parsed.items.length > 0) {
+          const activeItems = parsed.items.filter(
+            (it) => it.enabled !== false && it.text && it.text.trim().length > 0,
+          );
+          if (activeItems.length > 0) {
+            setItems(activeItems);
+            setIntervalMs(
+              typeof parsed.interval === "number" ? parsed.interval : 4000,
+            );
+            setAutoplayEnabled(parsed.autoplay !== false && activeItems.length > 1);
+            setDismissed(false);
+            return;
+          }
+        }
+
+        // 2. Legacy single-item format fallback
+        if (parsed.text && parsed.text.trim().length > 0) {
+          setItems([
+            {
+              id: "ann-legacy-1",
+              badge: parsed.badge || "ANNOUNCEMENT",
+              text: parsed.text,
+              linkText: "Explore →",
+              linkUrl: parsed.link || "/services",
+              enabled: true,
+            },
+          ]);
+          setDismissed(false);
+          return;
+        }
+      } catch {
+        // Safe fallback
+      }
+    }
+
+    // 3. Fallback default message if nothing configured
+    if (defaultMessage) {
+      setItems([
+        {
+          id: "ann-default-1",
+          badge: "GROWTH ENGINE",
+          text: defaultMessage,
+          linkText: "Explore →",
+          linkUrl: "/services",
+          enabled: true,
+        },
+      ]);
+      setDismissed(false);
+    }
+  }, [announcementBarJson, defaultMessage]);
+
+  const isMultiSlide = items.length > 1;
+
+  // Embla Carousel Integration (Identical to Hero Banner slider)
+  const [emblaRef, emblaApi] = useEmblaCarousel(
+    {
+      loop: isMultiSlide,
+      duration: 35,
+    },
+    autoplayEnabled && isMultiSlide
+      ? [
+          Autoplay({
+            delay: intervalMs,
+            stopOnInteraction: false,
+            stopOnMouseEnter: true,
+          }),
+        ]
+      : []
+  );
+
+  const onSelect = useCallback(() => {
+    if (!emblaApi) return;
+    setSelectedIndex(emblaApi.selectedScrollSnap());
+  }, [emblaApi]);
+
+  useEffect(() => {
+    if (!emblaApi) return;
+    emblaApi.on("select", onSelect);
+    onSelect();
+    return () => {
+      emblaApi.off("select", onSelect);
+    };
+  }, [emblaApi, onSelect]);
+
+  const scrollPrev = useCallback(() => {
+    if (emblaApi) emblaApi.scrollPrev();
+  }, [emblaApi]);
+
+  const scrollNext = useCallback(() => {
+    if (emblaApi) emblaApi.scrollNext();
+  }, [emblaApi]);
+
+  if (!mounted || dismissed || items.length === 0) return null;
 
   const handleDismiss = () => {
     setDismissed(true);
-    sessionStorage.setItem("nexora_announcement_dismissed", "true");
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("nexora_announcement_dismissed", "true");
+    }
   };
 
   return (
-    <div className="relative bg-gradient-to-r from-indigo-50 via-purple-50 to-indigo-50 text-slate-800 text-[11px] py-2 px-4 border-b border-indigo-100 select-none">
-      <div className="max-w-[1720px] 2xl:max-w-[1920px] mx-auto flex items-center justify-center gap-2 font-medium pr-8">
-        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-indigo-100 text-indigo-700 font-bold border border-indigo-200 text-[10px]">
-          <Sparkles className="w-3 h-3 text-amber-500" />{" "}
-          {config.badge || "Announcement"}
-        </span>
-        <span className="text-slate-700 truncate">{config.text}</span>
-        {config.link && (
-          <Link
-            href={config.link}
-            className="hidden sm:inline-flex items-center gap-1 font-bold text-indigo-600 hover:text-indigo-800 transition ml-2 underline underline-offset-2 shrink-0"
-          >
-            Learn more &rarr;
-          </Link>
-        )}
+    <div className="relative z-50 w-full bg-[#060913] text-slate-200 text-xs py-2 border-b border-white/10 shadow-sm transition-all select-none overflow-hidden">
+      <div className="w-full px-3 sm:px-6 lg:px-8 flex items-center justify-between gap-2 sm:gap-4">
+        {/* Left Carousel Arrow Controls on multi items */}
+        <div className="hidden md:flex items-center gap-0.5 w-14 shrink-0">
+          {isMultiSlide && (
+            <>
+              <button
+                type="button"
+                onClick={scrollPrev}
+                aria-label="Previous announcement"
+                className="p-1 rounded-md text-slate-400 hover:text-white hover:bg-white/10 transition cursor-pointer"
+                title="Previous announcement"
+              >
+                <ChevronLeft className="w-3.5 h-3.5" />
+              </button>
+              <button
+                type="button"
+                onClick={scrollNext}
+                aria-label="Next announcement"
+                className="p-1 rounded-md text-slate-400 hover:text-white hover:bg-white/10 transition cursor-pointer"
+                title="Next announcement"
+              >
+                <ChevronRight className="w-3.5 h-3.5" />
+              </button>
+            </>
+          )}
+        </div>
+
+        {/* Embla Carousel Viewport for Smooth Physical Sliding Animation */}
+        <div className="overflow-hidden flex-1 min-w-0" ref={emblaRef}>
+          <div className="flex w-full">
+            {items.map((item, idx) => (
+              <div
+                key={item.id || idx}
+                className="flex-[0_0_100%] min-w-0 flex flex-wrap items-center justify-center gap-2 sm:gap-3 text-center px-2"
+              >
+                {item.badge && (
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-primary/20 text-primary font-extrabold border border-primary/30 text-[10px] uppercase tracking-wider shadow-xs shrink-0">
+                    <Sparkles className="w-3 h-3 text-primary animate-pulse" />
+                    <span>{item.badge}</span>
+                  </span>
+                )}
+
+                <span className="text-slate-200 font-medium text-xs truncate max-w-xl sm:max-w-2xl">
+                  {item.text}
+                </span>
+
+                {item.linkUrl && (
+                  <Link
+                    href={item.linkUrl}
+                    className="inline-flex items-center gap-1 font-bold text-primary hover:text-primary-hover transition underline underline-offset-4 shrink-0 text-xs group"
+                  >
+                    <span>{item.linkText || "Explore"}</span>
+                    <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
+                  </Link>
+                )}
+
+                {isMultiSlide && (
+                  <span className="hidden sm:inline-block text-[10px] font-mono text-slate-400 ml-1">
+                    ({selectedIndex + 1}/{items.length})
+                  </span>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Close Button */}
+        <button
+          type="button"
+          onClick={handleDismiss}
+          aria-label="Dismiss announcement"
+          className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition shrink-0 cursor-pointer"
+          title="Dismiss banner"
+        >
+          <X className="w-3.5 h-3.5" />
+        </button>
       </div>
-      <button
-        type="button"
-        onClick={handleDismiss}
-        aria-label="Dismiss announcement"
-        className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-800 rounded-md transition hover:bg-slate-200"
-      >
-        <X className="w-3.5 h-3.5" />
-      </button>
     </div>
   );
 };

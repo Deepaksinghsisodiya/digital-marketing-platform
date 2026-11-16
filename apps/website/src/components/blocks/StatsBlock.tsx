@@ -20,18 +20,18 @@ export const StatsBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
   ];
 
   return (
-    <section className="py-20 lg:py-24 bg-gradient-to-b from-white via-slate-50 to-white border-y border-slate-200/80 text-slate-900 px-6 sm:px-10 lg:px-12 xl:px-16 relative overflow-hidden">
+    <section className="py-16 lg:py-20 bg-gradient-to-b from-white via-slate-50 to-white border-y border-slate-200/80 text-slate-900 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
       {/* Subtle background ambient glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[300px] bg-indigo-100/30 blur-[120px] pointer-events-none rounded-full" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[300px] bg-primary/5 blur-[120px] pointer-events-none rounded-full" />
 
-      <div className="max-w-[1720px] 2xl:max-w-[1920px] mx-auto relative z-10">
+      <div className="max-w-7xl mx-auto relative z-10">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
           {metrics.map((m, idx) => {
             const Icon = STAT_ICONS[idx % STAT_ICONS.length] ?? STAT_ICONS[0]!;
             return (
               <div
                 key={idx}
-                className="p-8 rounded-3xl bg-white border border-slate-200/90 shadow-sm hover:shadow-2xl hover:border-indigo-400 hover:-translate-y-1.5 transition-all duration-300 space-y-4 group relative overflow-hidden flex flex-col justify-between"
+                className="p-8 rounded-3xl bg-white border border-slate-200/90 shadow-sm hover:shadow-2xl hover:border-primary/40 hover:-translate-y-1.5 transition-all duration-300 space-y-4 group relative overflow-hidden flex flex-col justify-between"
               >
                 {/* Ambient hover glow */}
                 <div className="absolute top-0 right-0 w-28 h-28 bg-indigo-50/80 rounded-full blur-xl pointer-events-none group-hover:bg-indigo-100/80 transition-colors" />

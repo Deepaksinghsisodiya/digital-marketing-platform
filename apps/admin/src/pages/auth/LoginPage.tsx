@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { useLoginMutation } from "../../store/api/adminApi";
+import { useLoginMutation, adminApi } from "../../store/api/adminApi";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import { setUser } from "../../store/slices/authSlice";
 import {
   ShieldCheck,
   Lock,
@@ -19,7 +21,18 @@ export const LoginPage: React.FC = () => {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const { isAuthenticated, isInitialized } = useAppSelector(
+    (state) => state.auth,
+  );
   const [login, { isLoading }] = useLoginMutation();
+
+  // If already authenticated, redirect to dashboard immediately
+  useEffect(() => {
+    if (isInitialized && isAuthenticated) {
+      navigate("/dashboard", { replace: true });
+    }
+  }, [isInitialized, isAuthenticated, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,10 +40,26 @@ export const LoginPage: React.FC = () => {
 
     try {
       const res = await login({ email, password, rememberMe }).unwrap();
+
+      // Ensure user profile is populated in Redux before navigating so ProtectedRoute doesn't bounce back
+      try {
+        const profile = await dispatch(
+          adminApi.endpoints.getCurrentUser.initiate(undefined, {
+            subscribe: false,
+            forceRefetch: true,
+          }),
+        ).unwrap();
+        if (profile) {
+          dispatch(setUser(profile));
+        }
+      } catch {
+        // Fallback: Continue navigation
+      }
+
       if (res.mustChangePassword) {
-        navigate("/auth/change-password");
+        navigate("/auth/change-password", { replace: true });
       } else {
-        navigate("/dashboard");
+        navigate("/dashboard", { replace: true });
       }
     } catch (err: unknown) {
       const apiErr = err as { data?: { error?: string; detail?: string } };

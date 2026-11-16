@@ -105,17 +105,17 @@ export const ComparisonTable: React.FC<{ block: CmsBlock }> = ({ block }) => {
   };
 
   return (
-    <section className="py-24 lg:py-32 bg-white px-6 sm:px-10 lg:px-12 xl:px-16 border-t border-slate-200/80 relative overflow-hidden">
+    <section className="py-20 lg:py-28 bg-white px-4 sm:px-6 lg:px-8 border-t border-slate-200/80 relative overflow-hidden">
       {/* Ambient background glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[500px] bg-indigo-50/50 blur-[130px] pointer-events-none rounded-full" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[500px] bg-primary/5 blur-[130px] pointer-events-none rounded-full" />
 
-      <div className="max-w-[1720px] 2xl:max-w-[1920px] mx-auto relative z-10">
+      <div className="max-w-7xl mx-auto relative z-10">
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-bold uppercase tracking-wider shadow-2xs">
-            <Sparkles className="w-3.5 h-3.5 text-indigo-500" />
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-bold uppercase tracking-wider shadow-2xs">
+            <Sparkles className="w-3.5 h-3.5 text-primary" />
             <span>Competitive Matrix</span>
-            <span className="px-2 py-0.5 rounded-full text-[10px] bg-indigo-100 text-indigo-800 font-extrabold">
+            <span className="px-2 py-0.5 rounded-full text-[10px] bg-primary/20 text-primary font-extrabold">
               Benchmark
             </span>
           </div>

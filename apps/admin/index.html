@@ -12,6 +12,31 @@
   </head>
   <body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 antialiased font-sans transition-colors duration-200">
     <div id="root"></div>
+    <script>
+      (function () {
+        try {
+          var css = localStorage.getItem("nexora_admin_theme_css");
+          var slug = localStorage.getItem("nexora_admin_theme_slug");
+          var primary = localStorage.getItem("nexora_admin_theme_primary");
+          var primaryRgb = localStorage.getItem("nexora_admin_theme_primary_rgb");
+          var accent = localStorage.getItem("nexora_admin_theme_accent");
+          var accentRgb = localStorage.getItem("nexora_admin_theme_accent_rgb");
+          if (slug) document.documentElement.setAttribute("data-theme", slug);
+          if (primary) document.documentElement.style.setProperty("--nexora-primary", primary);
+          if (primaryRgb) document.documentElement.style.setProperty("--nexora-primary-rgb", primaryRgb);
+          if (accent) document.documentElement.style.setProperty("--nexora-accent", accent);
+          if (accentRgb) document.documentElement.style.setProperty("--nexora-accent-rgb", accentRgb);
+          if (css) {
+            var style = document.createElement("style");
+            style.id = "nexora-admin-theme-tokens";
+            style.textContent = css;
+            document.head.appendChild(style);
+          }
+        } catch (e) {
+          /* ignore unavailable storage */
+        }
+      })();
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import {
   useGetSettingsQuery,
   useUpdateSettingsMutation,
@@ -9,8 +10,11 @@ import {
   useGetAdminCountryRegionsQuery,
   useCreateCountryRegionMutation,
   useUpdateCountryRegionMutation,
+  useGetSystemTimezonesQuery,
+  useGetCurrenciesQuery,
 } from "../../store/api/adminApi";
 import type { PipelineStage, CountryRegion } from "../../types";
+import * as yup from "yup";
 import { MediaPickerModal, resolveMediaUrl } from "../media/MediaLibraryPage";
 import {
   CheckCircle2,
@@ -35,11 +39,72 @@ import {
   HelpCircle,
   Megaphone,
   Palette,
+  Sparkles,
+  Phone,
+  Check,
+  AlertTriangle,
 } from "lucide-react";
+
+export interface GlobalCountryMeta {
+  code: string;
+  name: string;
+  dialCode: string;
+  flag: string;
+  currencyCode: string;
+  currencySymbol: string;
+}
+
+export const DEFAULT_GLOBAL_COUNTRIES: GlobalCountryMeta[] = [
+  { code: "IN", name: "India", dialCode: "+91", flag: "🇮🇳", currencyCode: "INR", currencySymbol: "₹" },
+  { code: "US", name: "United States", dialCode: "+1", flag: "🇺🇸", currencyCode: "USD", currencySymbol: "$" },
+  { code: "GB", name: "United Kingdom", dialCode: "+44", flag: "🇬🇧", currencyCode: "GBP", currencySymbol: "£" },
+  { code: "AE", name: "United Arab Emirates", dialCode: "+971", flag: "🇦🇪", currencyCode: "AED", currencySymbol: "AED" },
+  { code: "SG", name: "Singapore", dialCode: "+65", flag: "🇸🇬", currencyCode: "SGD", currencySymbol: "S$" },
+  { code: "CA", name: "Canada", dialCode: "+1", flag: "🇨🇦", currencyCode: "CAD", currencySymbol: "$" },
+  { code: "AU", name: "Australia", dialCode: "+61", flag: "🇦🇺", currencyCode: "AUD", currencySymbol: "$" },
+  { code: "DE", name: "Germany", dialCode: "+49", flag: "🇩🇪", currencyCode: "EUR", currencySymbol: "€" },
+  { code: "FR", name: "France", dialCode: "+33", flag: "🇫🇷", currencyCode: "EUR", currencySymbol: "€" },
+  { code: "SA", name: "Saudi Arabia", dialCode: "+966", flag: "🇸🇦", currencyCode: "SAR", currencySymbol: "﷼" },
+  { code: "JP", name: "Japan", dialCode: "+81", flag: "🇯🇵", currencyCode: "JPY", currencySymbol: "¥" },
+  { code: "MY", name: "Malaysia", dialCode: "+60", flag: "🇲🇾", currencyCode: "MYR", currencySymbol: "RM" },
+  { code: "ID", name: "Indonesia", dialCode: "+62", flag: "🇮🇩", currencyCode: "IDR", currencySymbol: "Rp" },
+  { code: "ZA", name: "South Africa", dialCode: "+27", flag: "🇿🇦", currencyCode: "ZAR", currencySymbol: "R" },
+  { code: "NL", name: "Netherlands", dialCode: "+31", flag: "🇳🇱", currencyCode: "EUR", currencySymbol: "€" },
+  { code: "CH", name: "Switzerland", dialCode: "+41", flag: "🇨🇭", currencyCode: "CHF", currencySymbol: "CHF" },
+  { code: "BD", name: "Bangladesh", dialCode: "+880", flag: "🇧🇩", currencyCode: "BDT", currencySymbol: "৳" },
+  { code: "PK", name: "Pakistan", dialCode: "+92", flag: "🇵🇰", currencyCode: "PKR", currencySymbol: "Rs" },
+  { code: "NP", name: "Nepal", dialCode: "+977", flag: "🇳🇵", currencyCode: "NPR", currencySymbol: "रू" },
+  { code: "LK", name: "Sri Lanka", dialCode: "+94", flag: "🇱🇰", currencyCode: "LKR", currencySymbol: "Rs" },
+  { code: "BR", name: "Brazil", dialCode: "+55", flag: "🇧🇷", currencyCode: "BRL", currencySymbol: "R$" },
+  { code: "MX", name: "Mexico", dialCode: "+52", flag: "🇲🇽", currencyCode: "MXN", currencySymbol: "$" },
+  { code: "IT", name: "Italy", dialCode: "+39", flag: "🇮🇹", currencyCode: "EUR", currencySymbol: "€" },
+  { code: "ES", name: "Spain", dialCode: "+34", flag: "🇪🇸", currencyCode: "EUR", currencySymbol: "€" },
+  { code: "NZ", name: "New Zealand", dialCode: "+64", flag: "🇳🇿", currencyCode: "NZD", currencySymbol: "$" },
+  { code: "IE", name: "Ireland", dialCode: "+353", flag: "🇮🇪", currencyCode: "EUR", currencySymbol: "€" },
+];
+
+export const phoneValidationSchema = yup.object().shape({
+  phoneCountryCode: yup
+    .string()
+    .required("Country dial code is required")
+    .matches(/^\+\d{1,4}$/, "Dial code must start with + and have 1-4 digits"),
+  phoneNationalNumber: yup
+    .string()
+    .required("Phone number is required")
+    .test(
+      "is-valid-digits",
+      "Enter a valid national phone number (7 to 15 digits, numbers only)",
+      (val) => {
+        if (!val) return false;
+        const digits = val.replace(/\D/g, "");
+        return digits.length >= 7 && digits.length <= 15;
+      },
+    ),
+});
 
 export const SettingsPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<
-    "identity" | "theme" | "pipelines" | "regions" | "smtp" | "sections"
+    "identity" | "pipelines" | "regions" | "smtp" | "sections"
   >("identity");
 
   // Site Settings Query & Mutation
@@ -63,14 +128,30 @@ export const SettingsPage: React.FC = () => {
   const [updateRegion, { isLoading: updatingRegion }] =
     useUpdateCountryRegionMutation();
 
+  // Dynamic Lookups (Backend .NET Timezones & Currencies)
+  const { data: systemTimezones, isLoading: loadingTimezones } =
+    useGetSystemTimezonesQuery();
+  const { data: globalCurrencies, isLoading: loadingCurrencies } =
+    useGetCurrenciesQuery();
+
   // Tab 1: Identity Form State
   const [companyName, setCompanyName] = useState("");
   const [legalName, setLegalName] = useState("");
   const [supportEmail, setSupportEmail] = useState("");
   const [supportPhone, setSupportPhone] = useState("");
+  const [phoneCountryCode, setPhoneCountryCode] = useState("+91");
+  const [phoneNationalNumber, setPhoneNationalNumber] = useState("");
+  const [phoneValidationError, setPhoneValidationError] = useState<string | null>(null);
   const [address, setAddress] = useState("");
   const [defaultRegion, setDefaultRegion] = useState("IN");
   const [timeZoneId, setTimeZoneId] = useState("Asia/Kolkata");
+  const [activeRegionCodes, setActiveRegionCodes] = useState<string[]>([
+    "IN",
+    "US",
+    "AE",
+    "GB",
+    "SG",
+  ]);
   const [supportedRegions, setSupportedRegions] =
     useState("IN, US, AE, GB, SG");
   const [versionToken, setVersionToken] = useState("");
@@ -83,10 +164,9 @@ export const SettingsPage: React.FC = () => {
     message: string;
   } | null>(null);
 
-  // Tab: Theme Tokens State
-  const [primaryColor, setPrimaryColor] = useState("#7657ff");
-  const [accentColor, setAccentColor] = useState("#3685ff");
-  const [navyColor, setNavyColor] = useState("#10162f");
+  const [primaryColor, setPrimaryColor] = useState("#10b981");
+  const [accentColor, setAccentColor] = useState("#06b6d4");
+  const [navyColor, setNavyColor] = useState("#080c14");
   const [fontSans, setFontSans] = useState("Inter");
   const [fontHeading, setFontHeading] = useState("Plus Jakarta Sans");
   const [borderRadius, setBorderRadius] = useState("0.5rem");
@@ -157,11 +237,34 @@ export const SettingsPage: React.FC = () => {
       setCompanyName(settings.companyName || "");
       setLegalName(settings.legalName || "");
       setSupportEmail(settings.supportEmail || "");
-      setSupportPhone(settings.supportPhone || "");
+      if (settings.supportPhone) {
+        const raw = settings.supportPhone.trim();
+        const match = raw.match(/^(\+\d{1,4})\s*(.*)$/);
+        if (match && match[1] && match[2] !== undefined) {
+          setPhoneCountryCode(match[1]);
+          setPhoneNationalNumber(match[2].trim());
+          setSupportPhone(raw);
+        } else {
+          setPhoneCountryCode("+91");
+          setPhoneNationalNumber(raw);
+          setSupportPhone(`+91 ${raw}`);
+        }
+      } else {
+        setPhoneCountryCode("+91");
+        setPhoneNationalNumber("");
+        setSupportPhone("");
+      }
+      setPhoneValidationError(null);
+
       setAddress(settings.address || "");
       setDefaultRegion(settings.defaultRegion || "IN");
       setTimeZoneId(settings.timeZoneId || "Asia/Kolkata");
-      setSupportedRegions((settings.supportedRegions || []).join(", "));
+      const loadedRegions =
+        settings.supportedRegions && settings.supportedRegions.length > 0
+          ? settings.supportedRegions
+          : ["IN", "US", "AE", "GB", "SG"];
+      setActiveRegionCodes(loadedRegions);
+      setSupportedRegions(loadedRegions.join(", "));
       setVersionToken(settings.versionToken || "");
       setLogoMediaId(settings.logoMediaId || null);
       if (settings.logoUrl) {
@@ -227,24 +330,118 @@ export const SettingsPage: React.FC = () => {
     }
   }, [settings]);
 
+  const handlePhoneChange = async (newCode: string, newNumber: string) => {
+    setPhoneCountryCode(newCode);
+    setPhoneNationalNumber(newNumber);
+    const combined = newNumber.trim() ? `${newCode} ${newNumber.trim()}` : "";
+    setSupportPhone(combined);
+
+    if (newNumber.trim().length > 0) {
+      try {
+        await phoneValidationSchema.validate({
+          phoneCountryCode: newCode,
+          phoneNationalNumber: newNumber,
+        });
+        setPhoneValidationError(null);
+      } catch (err: unknown) {
+        if (err instanceof yup.ValidationError) {
+          setPhoneValidationError(err.message);
+        }
+      }
+    } else {
+      setPhoneValidationError(null);
+    }
+  };
+
+  const handleAddRegion = (codeToAdd: string) => {
+    const upper = codeToAdd.trim().toUpperCase();
+    if (!upper || activeRegionCodes.includes(upper)) return;
+    const updated = [...activeRegionCodes, upper];
+    setActiveRegionCodes(updated);
+    setSupportedRegions(updated.join(", "));
+  };
+
+  const handleRemoveRegion = (codeToRemove: string) => {
+    if (codeToRemove.toUpperCase() === defaultRegion.toUpperCase()) {
+      alert(
+        `Cannot remove ${codeToRemove} because it is the current Default Platform Home Region. Switch the default region first.`,
+      );
+      return;
+    }
+    const updated = activeRegionCodes.filter(
+      (c) => c.toUpperCase() !== codeToRemove.toUpperCase(),
+    );
+    setActiveRegionCodes(updated);
+    setSupportedRegions(updated.join(", "));
+  };
+
+  const getRegionMeta = (
+    code: string,
+  ): { flag: string; name: string; currency: string } => {
+    const fromApi = (countryRegions || []).find(
+      (r) => r.code.toUpperCase() === code.toUpperCase(),
+    );
+    if (fromApi) {
+      return {
+        flag: fromApi.flagEmoji || "🌐",
+        name: fromApi.name,
+        currency: `${fromApi.currencyCode} (${fromApi.currencySymbol})`,
+      };
+    }
+    const fromGlobal = DEFAULT_GLOBAL_COUNTRIES.find(
+      (c) => c.code.toUpperCase() === code.toUpperCase(),
+    );
+    if (fromGlobal) {
+      return {
+        flag: fromGlobal.flag,
+        name: fromGlobal.name,
+        currency: `${fromGlobal.currencyCode} (${fromGlobal.currencySymbol})`,
+      };
+    }
+    return {
+      flag: "🌐",
+      name: code,
+      currency: "Standard",
+    };
+  };
+
   const handleIdentitySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setFeedback(null);
 
-    const regionsList = supportedRegions
-      .split(",")
-      .map((s) => s.trim().toUpperCase())
-      .filter(Boolean);
+    // Validate international phone with Yup
+    if (phoneNationalNumber.trim()) {
+      try {
+        await phoneValidationSchema.validate({
+          phoneCountryCode,
+          phoneNationalNumber,
+        });
+        setPhoneValidationError(null);
+      } catch (err: unknown) {
+        if (err instanceof yup.ValidationError) {
+          setPhoneValidationError(err.message);
+          setFeedback({
+            type: "error",
+            message: `Validation Error (Phone): ${err.message}`,
+          });
+          return;
+        }
+      }
+    }
+
+    const fullPhone = phoneNationalNumber.trim()
+      ? `${phoneCountryCode} ${phoneNationalNumber.trim()}`
+      : "";
 
     try {
       const res = await updateSettings({
         companyName,
         legalName: legalName || null,
         supportEmail,
-        supportPhone,
+        supportPhone: fullPhone,
         address: address || null,
         defaultRegion,
-        supportedRegions: regionsList,
+        supportedRegions: activeRegionCodes,
         timeZoneId,
         logoMediaId,
         versionToken,
@@ -361,58 +558,6 @@ export const SettingsPage: React.FC = () => {
       setFeedback({
         type: "error",
         message: apiErr?.data?.error || "Failed to save SMTP settings.",
-      });
-    }
-  };
-
-  const handleSaveThemeTokens = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setFeedback(null);
-    try {
-      const tokensPayload = JSON.stringify({
-        primaryColor,
-        accentColor,
-        navyColor,
-        fontSans,
-        fontHeading,
-        radius: borderRadius,
-        buttonStyle,
-        animation: {
-          enabled: animationEnabled,
-          speed: animationSpeed,
-        },
-      });
-
-      const regionsList = supportedRegions
-        .split(",")
-        .map((s) => s.trim().toUpperCase())
-        .filter(Boolean);
-
-      const res = await updateSettings({
-        companyName,
-        legalName: legalName || null,
-        supportEmail,
-        supportPhone,
-        address: address || null,
-        defaultRegion,
-        supportedRegions: regionsList,
-        timeZoneId,
-        logoMediaId,
-        versionToken,
-        themeTokensJson: tokensPayload,
-      }).unwrap();
-
-      if (res.versionToken) setVersionToken(res.versionToken);
-      setFeedback({
-        type: "success",
-        message:
-          "Dynamic theme design tokens saved and applied to the platform!",
-      });
-    } catch (err: unknown) {
-      const apiErr = err as { data?: { error?: string } };
-      setFeedback({
-        type: "error",
-        message: apiErr?.data?.error || "Failed to update theme tokens.",
       });
     }
   };
@@ -711,7 +856,7 @@ export const SettingsPage: React.FC = () => {
           onClick={() => setActiveTab("identity")}
           className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
             activeTab === "identity"
-              ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
+              ? "bg-primary text-primary-foreground shadow-md shadow-primary/30"
               : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60"
           }`}
         >
@@ -721,23 +866,10 @@ export const SettingsPage: React.FC = () => {
 
         <button
           type="button"
-          onClick={() => setActiveTab("theme")}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
-            activeTab === "theme"
-              ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
-              : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60"
-          }`}
-        >
-          <Palette className="w-4 h-4" />
-          <span>Theme & Design Tokens</span>
-        </button>
-
-        <button
-          type="button"
           onClick={() => setActiveTab("pipelines")}
           className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
             activeTab === "pipelines"
-              ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
+              ? "bg-primary text-primary-foreground shadow-md shadow-primary/30"
               : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60"
           }`}
         >
@@ -750,7 +882,7 @@ export const SettingsPage: React.FC = () => {
           onClick={() => setActiveTab("regions")}
           className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
             activeTab === "regions"
-              ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
+              ? "bg-primary text-primary-foreground shadow-md shadow-primary/30"
               : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60"
           }`}
         >
@@ -763,7 +895,7 @@ export const SettingsPage: React.FC = () => {
           onClick={() => setActiveTab("smtp")}
           className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
             activeTab === "smtp"
-              ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
+              ? "bg-primary text-primary-foreground shadow-md shadow-primary/30"
               : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60"
           }`}
         >
@@ -776,7 +908,7 @@ export const SettingsPage: React.FC = () => {
           onClick={() => setActiveTab("sections")}
           className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
             activeTab === "sections"
-              ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
+              ? "bg-primary text-primary-foreground shadow-md shadow-primary/30"
               : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60"
           }`}
         >
@@ -868,16 +1000,68 @@ export const SettingsPage: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                  Support Phone / Hotline
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1 flex items-center justify-between">
+                  <span>Support Phone / Hotline</span>
+                  <span className="text-[10px] text-slate-400 font-normal">
+                    International Multi-Country Format
+                  </span>
                 </label>
-                <input
-                  type="tel"
-                  required
-                  value={supportPhone}
-                  onChange={(e) => setSupportPhone(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                />
+                <div className="flex gap-2">
+                  {/* Country Dial Code Selector */}
+                  <select
+                    value={phoneCountryCode}
+                    onChange={(e) =>
+                      handlePhoneChange(e.target.value, phoneNationalNumber)
+                    }
+                    className="w-32 px-2.5 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 shrink-0"
+                  >
+                    {DEFAULT_GLOBAL_COUNTRIES.map((c) => (
+                      <option
+                        key={`${c.code}-${c.dialCode}`}
+                        value={c.dialCode}
+                      >
+                        {c.flag} {c.code} ({c.dialCode})
+                      </option>
+                    ))}
+                  </select>
+
+                  {/* National Phone Number Input */}
+                  <div className="relative flex-1">
+                    <input
+                      type="tel"
+                      required
+                      value={phoneNationalNumber}
+                      onChange={(e) =>
+                        handlePhoneChange(phoneCountryCode, e.target.value)
+                      }
+                      placeholder="e.g. 8889647593 or 555-0199"
+                      className={`w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border rounded-xl text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 transition ${
+                        phoneValidationError
+                          ? "border-rose-400 dark:border-rose-600 focus:ring-rose-500"
+                          : "border-slate-200 dark:border-slate-800 focus:ring-indigo-500"
+                      }`}
+                    />
+                  </div>
+                </div>
+
+                {/* Live Yup Validation Indicator */}
+                {phoneValidationError ? (
+                  <p className="mt-1 text-[11px] text-rose-500 font-medium flex items-center gap-1">
+                    <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                    <span>{phoneValidationError}</span>
+                  </p>
+                ) : phoneNationalNumber.trim().length >= 7 ? (
+                  <p className="mt-1 text-[11px] text-emerald-600 dark:text-emerald-400 font-medium flex items-center gap-1">
+                    <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+                    <span>
+                      Valid number: {phoneCountryCode} {phoneNationalNumber}
+                    </span>
+                  </p>
+                ) : (
+                  <p className="mt-1 text-[11px] text-slate-400">
+                    Select country code and enter 7-15 digit telephone or mobile number.
+                  </p>
+                )}
               </div>
 
               <div className="sm:col-span-2">
@@ -950,25 +1134,39 @@ export const SettingsPage: React.FC = () => {
             </div>
           </div>
 
-          <div className="p-6 rounded-2xl bg-white dark:bg-[#0c1222] border border-slate-200/80 dark:border-slate-800/80 space-y-4 shadow-sm">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
-              Regional Defaults & Timezone
-            </h3>
+          <div className="p-6 rounded-2xl bg-white dark:bg-[#0c1222] border border-slate-200/80 dark:border-slate-800/80 space-y-6 shadow-sm">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/80 pb-3">
+              <div>
+                <h3 className="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
+                  Regional Defaults, Platform Timezone & Multi-Country Markets
+                </h3>
+                <p className="text-[11px] text-slate-400 mt-0.5">
+                  Configure global multi-country support, dynamic server timezones, and active country target markets.
+                </p>
+              </div>
+            </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                   Default Platform Home Region
                 </label>
                 <select
                   value={defaultRegion}
-                  onChange={(e) => setDefaultRegion(e.target.value)}
+                  onChange={(e) => {
+                    const newDef = e.target.value;
+                    setDefaultRegion(newDef);
+                    if (!activeRegionCodes.includes(newDef)) {
+                      const updated = [...activeRegionCodes, newDef];
+                      setActiveRegionCodes(updated);
+                      setSupportedRegions(updated.join(", "));
+                    }
+                  }}
                   className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 font-semibold"
                 >
                   {(countryRegions || []).map((r) => (
                     <option key={r.code} value={r.code}>
-                      {r.flagEmoji} {r.name} ({r.currencyCode} -{" "}
-                      {r.currencySymbol})
+                      {r.flagEmoji} {r.name} ({r.currencyCode} - {r.currencySymbol})
                     </option>
                   ))}
                   {(countryRegions || []).length === 0 && (
@@ -978,34 +1176,133 @@ export const SettingsPage: React.FC = () => {
                     </>
                   )}
                 </select>
+                <p className="mt-1 text-[11px] text-slate-400">
+                  Primary home market used for default pricing display and lead assignment.
+                </p>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                  Platform Time Zone
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1 flex items-center justify-between">
+                  <span>Platform Time Zone</span>
+                  {loadingTimezones ? (
+                    <span className="text-[10px] text-slate-400 animate-pulse">Loading .NET timezones...</span>
+                  ) : (
+                    <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold">
+                      ✓ {systemTimezones?.length || 0} Dynamic Timezones
+                    </span>
+                  )}
                 </label>
-                <input
-                  type="text"
-                  required
+                <select
                   value={timeZoneId}
                   onChange={(e) => setTimeZoneId(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  placeholder="Asia/Kolkata or UTC"
-                />
+                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium"
+                >
+                  <optgroup label="Popular Global Time Zones">
+                    <option value="Asia/Kolkata">India Standard Time - Asia/Kolkata (UTC+05:30)</option>
+                    <option value="UTC">Coordinated Universal Time - UTC (UTC+00:00)</option>
+                    <option value="America/New_York">Eastern Time (US) - America/New_York (UTC-05:00)</option>
+                    <option value="America/Los_Angeles">Pacific Time (US) - America/Los_Angeles (UTC-08:00)</option>
+                    <option value="Europe/London">London / GMT - Europe/London (UTC+00:00)</option>
+                    <option value="Asia/Dubai">Gulf Standard Time - Asia/Dubai (UTC+04:00)</option>
+                    <option value="Asia/Singapore">Singapore Time - Asia/Singapore (UTC+08:00)</option>
+                    <option value="Europe/Berlin">Central European Time - Europe/Berlin (UTC+01:00)</option>
+                    <option value="Asia/Tokyo">Japan Standard Time - Asia/Tokyo (UTC+09:00)</option>
+                    <option value="Australia/Sydney">Australian Eastern Time - Australia/Sydney (UTC+10:00)</option>
+                  </optgroup>
+                  {systemTimezones && systemTimezones.length > 0 && (
+                    <optgroup label="All Server System Timezones (.NET TimeZoneInfo)">
+                      {systemTimezones.map((tz) => (
+                        <option key={tz.id} value={tz.id}>
+                          {tz.displayName} ({tz.id})
+                        </option>
+                      ))}
+                    </optgroup>
+                  )}
+                </select>
+                <p className="mt-1 text-[11px] text-slate-400">
+                  System clock for background cron jobs, task schedules, audit logs, and lead timestamps.
+                </p>
+              </div>
+            </div>
+
+            {/* Active Multi-Region Badges Selector */}
+            <div className="pt-3 border-t border-slate-100 dark:border-slate-800/80 space-y-3">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
+                    Active Multi-Region Codes & Target Markets
+                  </label>
+                  <p className="text-[11px] text-slate-400">
+                    Interactive region pills. Add or remove supported country markets for multi-country routing and currencies.
+                  </p>
+                </div>
+
+                {/* Add Region Dropdown */}
+                <div className="flex items-center gap-2">
+                  <select
+                    defaultValue=""
+                    onChange={(e) => {
+                      if (e.target.value) {
+                        handleAddRegion(e.target.value);
+                        e.target.value = "";
+                      }
+                    }}
+                    className="px-3 py-1.5 bg-slate-50 dark:bg-slate-900 border border-indigo-200 dark:border-indigo-800/60 rounded-xl text-xs font-semibold text-indigo-600 dark:text-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  >
+                    <option value="" disabled>
+                      + Add Target Market...
+                    </option>
+                    {DEFAULT_GLOBAL_COUNTRIES.filter(
+                      (c) => !activeRegionCodes.includes(c.code.toUpperCase()),
+                    ).map((c) => (
+                      <option key={c.code} value={c.code}>
+                        {c.flag} {c.name} ({c.code} - {c.currencyCode})
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
 
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                  Active Multi-Region Codes
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={supportedRegions}
-                  onChange={(e) => setSupportedRegions(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 uppercase font-mono"
-                  placeholder="IN, US, AE, GB"
-                />
+              {/* Active Region Pills Container */}
+              <div className="flex flex-wrap gap-2.5 p-3.5 bg-slate-50/70 dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-800/80 min-h-[58px] items-center">
+                {activeRegionCodes.map((code) => {
+                  const meta = getRegionMeta(code);
+                  const isHome =
+                    code.toUpperCase() === defaultRegion.toUpperCase();
+                  return (
+                    <div
+                      key={code}
+                      className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold border shadow-sm transition ${
+                        isHome
+                          ? "bg-indigo-50 dark:bg-indigo-950/40 border-indigo-300 dark:border-indigo-700/60 text-indigo-900 dark:text-indigo-200"
+                          : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200"
+                      }`}
+                    >
+                      <span className="text-base leading-none">{meta.flag}</span>
+                      <span className="font-mono font-bold">{code}</span>
+                      <span className="text-slate-500 dark:text-slate-400 font-normal">
+                        {meta.name}
+                      </span>
+                      <span className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-semibold">
+                        {meta.currency}
+                      </span>
+                      {isHome ? (
+                        <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-indigo-600 text-white font-bold tracking-wider uppercase">
+                          HOME
+                        </span>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveRegion(code)}
+                          title={`Remove ${code} from active regions`}
+                          className="ml-1 p-0.5 hover:bg-rose-100 dark:hover:bg-rose-950/60 text-slate-400 hover:text-rose-600 rounded-md transition"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -1023,255 +1320,13 @@ export const SettingsPage: React.FC = () => {
         </form>
       )}
 
-      {/* Tab: Dynamic Theme Tokens */}
-      {activeTab === "theme" && (
-        <form onSubmit={handleSaveThemeTokens} className="space-y-6">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm space-y-6">
-            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
-              <div>
-                <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                  <Palette className="w-5 h-5 text-indigo-600" />
-                  <span>Dynamic Brand Colors & Tokens</span>
-                </h3>
-                <p className="text-xs text-slate-500 mt-0.5">
-                  Customize core CSS variable tokens. These settings directly
-                  style both the public website and admin dashboard without
-                  redeploying code.
-                </p>
-              </div>
-
-              <button
-                type="submit"
-                disabled={isSaving}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md shadow-indigo-600/25 transition disabled:opacity-50"
-              >
-                <Save className="w-4 h-4" />
-                <span>{isSaving ? "Saving..." : "Save Theme Tokens"}</span>
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {/* Primary Brand Color */}
-              <div className="space-y-2 p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30">
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
-                  Primary Brand Color
-                </label>
-                <div className="flex items-center gap-3">
-                  <input
-                    type="color"
-                    value={primaryColor}
-                    onChange={(e) => setPrimaryColor(e.target.value)}
-                    className="w-10 h-10 rounded-lg cursor-pointer border-0 bg-transparent p-0"
-                  />
-                  <input
-                    type="text"
-                    value={primaryColor}
-                    onChange={(e) => setPrimaryColor(e.target.value)}
-                    className="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 font-mono"
-                  />
-                </div>
-                <p className="text-[11px] text-slate-400">
-                  Used for primary action buttons, active states, and highlights
-                  (--nexora-purple).
-                </p>
-              </div>
-
-              {/* Accent Color */}
-              <div className="space-y-2 p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30">
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
-                  Accent Color
-                </label>
-                <div className="flex items-center gap-3">
-                  <input
-                    type="color"
-                    value={accentColor}
-                    onChange={(e) => setAccentColor(e.target.value)}
-                    className="w-10 h-10 rounded-lg cursor-pointer border-0 bg-transparent p-0"
-                  />
-                  <input
-                    type="text"
-                    value={accentColor}
-                    onChange={(e) => setAccentColor(e.target.value)}
-                    className="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 font-mono"
-                  />
-                </div>
-                <p className="text-[11px] text-slate-400">
-                  Used for secondary buttons, badges, and gradient accents
-                  (--nexora-blue).
-                </p>
-              </div>
-
-              {/* Dark Navy Background */}
-              <div className="space-y-2 p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30">
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
-                  Dark Background Color
-                </label>
-                <div className="flex items-center gap-3">
-                  <input
-                    type="color"
-                    value={navyColor}
-                    onChange={(e) => setNavyColor(e.target.value)}
-                    className="w-10 h-10 rounded-lg cursor-pointer border-0 bg-transparent p-0"
-                  />
-                  <input
-                    type="text"
-                    value={navyColor}
-                    onChange={(e) => setNavyColor(e.target.value)}
-                    className="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 font-mono"
-                  />
-                </div>
-                <p className="text-[11px] text-slate-400">
-                  Used for dark hero backgrounds, footer, and midnight sections
-                  (--nexora-navy).
-                </p>
-              </div>
-            </div>
-
-            {/* Typography & Radii */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 pt-4 border-t border-slate-100 dark:border-slate-800">
-              <div className="space-y-2">
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
-                  Heading Typography
-                </label>
-                <select
-                  value={fontHeading}
-                  onChange={(e) => setFontHeading(e.target.value)}
-                  className="w-full px-3 py-2.5 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 font-semibold"
-                >
-                  <option value="Plus Jakarta Sans">
-                    Plus Jakarta Sans (Modern MNC)
-                  </option>
-                  <option value="Inter">Inter (Clean Tech)</option>
-                  <option value="Poppins">Poppins (Friendly Geometric)</option>
-                  <option value="Outfit">Outfit (High-End SaaS)</option>
-                  <option value="Playfair Display">
-                    Playfair Display (Editorial Luxury)
-                  </option>
-                </select>
-              </div>
-
-              <div className="space-y-2">
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
-                  Body Typography
-                </label>
-                <select
-                  value={fontSans}
-                  onChange={(e) => setFontSans(e.target.value)}
-                  className="w-full px-3 py-2.5 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 font-semibold"
-                >
-                  <option value="Inter">Inter (Standard Enterprise)</option>
-                  <option value="system-ui">System UI (Native OS)</option>
-                  <option value="Open Sans">Open Sans (High Legibility)</option>
-                  <option value="Roboto">Roboto (Google Neutral)</option>
-                </select>
-              </div>
-
-              <div className="space-y-2">
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
-                  Corner Radius
-                </label>
-                <select
-                  value={borderRadius}
-                  onChange={(e) => setBorderRadius(e.target.value)}
-                  className="w-full px-3 py-2.5 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 font-semibold"
-                >
-                  <option value="0.25rem">
-                    0.25rem (Sharp / Modern Minimalist)
-                  </option>
-                  <option value="0.5rem">0.5rem (Default Enterprise)</option>
-                  <option value="0.75rem">0.75rem (Rounded Modern)</option>
-                  <option value="1rem">1.0rem (Organic / Soft UI)</option>
-                </select>
-              </div>
-
-              <div className="space-y-2">
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
-                  Button Style Preset
-                </label>
-                <select
-                  value={buttonStyle}
-                  onChange={(e) => setButtonStyle(e.target.value)}
-                  className="w-full px-3 py-2.5 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 font-semibold"
-                >
-                  <option value="rounded">Rounded Rectangle</option>
-                  <option value="pill">Pill (Fully Rounded)</option>
-                  <option value="sharp">Sharp (Clean Rectangle)</option>
-                </select>
-              </div>
-            </div>
-
-            {/* Live Visual Preview */}
-            <div className="p-6 rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/20 space-y-4">
-              <h4 className="text-xs font-black uppercase tracking-wider text-slate-500">
-                Live Token Preview
-              </h4>
-              <div
-                className="p-6 rounded-xl border flex flex-wrap items-center justify-between gap-4 transition-all"
-                style={{
-                  backgroundColor: navyColor,
-                  borderRadius: borderRadius,
-                  fontFamily: fontSans,
-                }}
-              >
-                <div>
-                  <h5
-                    className="text-lg font-black text-white"
-                    style={{ fontFamily: fontHeading }}
-                  >
-                    Next-Generation Marketing Platform
-                  </h5>
-                  <p className="text-xs text-slate-300 mt-1">
-                    Previewing live typography and button styles under{" "}
-                    {fontHeading} and {primaryColor}.
-                  </p>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <button
-                    type="button"
-                    className="px-5 py-2.5 text-xs font-bold text-white shadow-lg transition-transform active:scale-95"
-                    style={{
-                      backgroundColor: primaryColor,
-                      borderRadius:
-                        buttonStyle === "pill"
-                          ? "9999px"
-                          : buttonStyle === "sharp"
-                            ? "0px"
-                            : borderRadius,
-                    }}
-                  >
-                    Primary Action
-                  </button>
-
-                  <button
-                    type="button"
-                    className="px-5 py-2.5 text-xs font-bold text-white border border-white/20 transition-transform active:scale-95"
-                    style={{
-                      backgroundColor: accentColor,
-                      borderRadius:
-                        buttonStyle === "pill"
-                          ? "9999px"
-                          : buttonStyle === "sharp"
-                            ? "0px"
-                            : borderRadius,
-                    }}
-                  >
-                    Accent Action
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </form>
-      )}
-
       {/* Tab 2: Dynamic Pipeline Stages */}
       {activeTab === "pipelines" && (
         <div className="space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             {/* Category Filter Pills */}
             <div className="flex items-center gap-2">
-              {["Lead", "Client", "Task"].map((cat) => (
+              {["Lead", "Client"].map((cat) => (
                 <button
                   key={cat}
                   type="button"
@@ -2117,6 +2172,38 @@ export const SettingsPage: React.FC = () => {
                     className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   />
                 </div>
+              </div>
+
+              {/* Quick Pick Currency from dynamic .NET Culture list */}
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1 flex items-center justify-between">
+                  <span>Dynamic Currency Picker (.NET CultureInfo)</span>
+                  <span className="text-[10px] text-indigo-500 font-semibold">
+                    {globalCurrencies?.length || 0} Currencies Available
+                  </span>
+                </label>
+                <select
+                  defaultValue=""
+                  onChange={(e) => {
+                    const sel = (globalCurrencies || []).find(
+                      (c) => c.code === e.target.value,
+                    );
+                    if (sel) {
+                      setRegCurrencyCode(sel.code);
+                      setRegCurrencySymbol(sel.symbol);
+                    }
+                  }}
+                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                >
+                  <option value="" disabled>
+                    -- Select currency to auto-fill code & symbol --
+                  </option>
+                  {(globalCurrencies || []).map((c) => (
+                    <option key={`${c.code}-${c.countryName}`} value={c.code}>
+                      {c.code} - {c.name} ({c.symbol}) [{c.countryName}]
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div className="grid grid-cols-3 gap-3">

@@ -11,7 +11,7 @@ public interface IIdentityService
     Task<(bool Success, string? Error)> ChangePasswordAsync(Guid userId, string? currentPassword, string newPassword, CancellationToken ct = default);
     Task<(bool Success, string? ResetToken, string? Email, string? FullName)> ForgotPasswordAsync(string email, CancellationToken ct = default);
     Task<(bool Success, string? Error)> ResetPasswordAsync(string email, string token, string newPassword, CancellationToken ct = default);
-    Task<(bool Success, string? Error, Guid? UserId, string? InviteToken)> InviteUserAsync(string email, string fullName, string role, CancellationToken ct = default);
+    Task<(bool Success, string? Error, Guid? UserId, string? InviteToken)> InviteUserAsync(string email, string fullName, string role, string? password = null, bool mustChangePassword = true, CancellationToken ct = default);
     Task<(bool Success, string? Error)> ResendInvitationAsync(Guid userId, CancellationToken ct = default);
     Task<(bool Success, string? Error)> SendPasswordResetLinkAsync(Guid userId, CancellationToken ct = default);
     Task<(bool Success, string? Error)> UpdateUserAsync(Guid targetUserId, string? newRole, bool? isSuspended, string? suspensionReason, Guid actingUserId, CancellationToken ct = default);

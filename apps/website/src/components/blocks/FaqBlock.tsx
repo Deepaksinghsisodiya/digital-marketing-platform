@@ -18,7 +18,7 @@ interface FaqItem {
 export const FaqBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
   const { content } = block;
   const title = (content.title as string) || "Frequently Asked Questions";
-  const items = (content.items as FaqItem[]) || [
+  const rawItems = (content.items as Array<FaqItem & { enabled?: boolean }>) || [
     {
       question:
         "How quickly can Nexora deploy our custom marketing infrastructure?",
@@ -42,6 +42,8 @@ export const FaqBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
         "Unlike fragile browser cookies blocked by Safari and ad-blockers, our server-side engine logs conversion events directly from server to Meta CAPI, Google Ads, and your internal CRM with cryptographic SHA-256 validation.",
     },
   ];
+
+  const items = rawItems.filter((i) => i.enabled !== false);
 
   // FAQPage JSON-LD Schema
   const faqSchema = {
