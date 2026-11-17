@@ -251,8 +251,8 @@ export default async function HomePage() {
               latestPosts.length > 0 && (
                 <Reveal
                   variant="fade-up"
-                  distance="md"
-                  duration="slow"
+                  distance="lg"
+                  duration="slower"
                   as="div"
                   className="w-full"
                 >

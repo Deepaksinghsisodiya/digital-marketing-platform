@@ -93,8 +93,8 @@ export const BlockRenderer: React.FC<BlockRendererProps> = ({
           <Reveal
             key={block.id}
             variant="fade-up"
-            distance="md"
-            duration="slow"
+            distance="lg"
+            duration="slower"
             as="div"
             className="w-full"
           >

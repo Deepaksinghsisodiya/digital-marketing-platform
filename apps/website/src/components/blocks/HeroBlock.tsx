@@ -148,7 +148,7 @@ export const HeroBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
                 {/* Foreground Content */}
                 <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-16 text-center flex flex-col items-center justify-center space-y-4 sm:space-y-6 md:space-y-7">
                   {/* Category / Campaign Badge & Optional Image Badge */}
-                  <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-2.5">
+                  <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-2.5 animate-glide-up-1">
                     {tagText && (
                       <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-extrabold uppercase tracking-widest bg-primary/15 text-primary border border-primary/35 backdrop-blur-md shadow-lg shadow-black/40">
                         <span className="flex h-1.5 w-1.5 sm:h-2 sm:w-2 relative">
@@ -166,7 +166,7 @@ export const HeroBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
                   </div>
 
                   {/* Main Headline with Dynamic Ambient Glow from Active Admin Theme */}
-                  <div className="relative px-2 max-w-5xl mx-auto">
+                  <div className="relative px-2 max-w-5xl mx-auto animate-glide-up-2">
                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[280px] sm:w-[500px] md:w-[650px] h-[140px] sm:h-[240px] md:h-[300px] bg-primary/20 blur-[90px] sm:blur-[130px] rounded-full pointer-events-none -z-10 animate-gradient-drift" />
                     <h1 className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-[70px] font-black tracking-tight leading-[1.18] sm:leading-[1.12] lg:leading-[1.08] text-white drop-shadow-lg">
                       {slide.headline}
@@ -175,13 +175,13 @@ export const HeroBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
 
                   {/* Subheadline Description */}
                   {slide.subheadline && (
-                    <p className="text-xs xs:text-sm sm:text-base md:text-lg text-slate-200/90 max-w-2xl md:max-w-3xl mx-auto leading-relaxed font-normal drop-shadow-md px-2">
+                    <p className="text-xs xs:text-sm sm:text-base md:text-lg text-slate-200/90 max-w-2xl md:max-w-3xl mx-auto leading-relaxed font-normal drop-shadow-md px-2 animate-glide-up-3">
                       {slide.subheadline}
                     </p>
                   )}
 
                   {/* Action CTAs (Responsive on mobile, tablet & desktop) */}
-                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-2.5 sm:gap-4 pt-1 sm:pt-2 w-full max-w-xs sm:max-w-md md:max-w-none mx-auto">
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-2.5 sm:gap-4 pt-1 sm:pt-2 w-full max-w-xs sm:max-w-md md:max-w-none mx-auto animate-glide-up-4">
                     {slide.primaryCtaText && (
                       <Link
                         href={slide.primaryCtaLink || "/contact"}
@@ -204,7 +204,7 @@ export const HeroBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
                   </div>
 
                   {/* Trust Proof Badges Strip */}
-                  <div className="pt-1 sm:pt-3 flex flex-wrap items-center justify-center gap-1.5 sm:gap-2.5 text-[10px] sm:text-xs font-semibold text-slate-200">
+                  <div className="pt-1 sm:pt-3 flex flex-wrap items-center justify-center gap-1.5 sm:gap-2.5 text-[10px] sm:text-xs font-semibold text-slate-200 animate-glide-up-5">
                     <div className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-md shadow-sm">
                       <CheckCircle2 className="w-3.5 h-3.5 text-primary shrink-0" />
                       <span>Audited ROI Attribution</span>

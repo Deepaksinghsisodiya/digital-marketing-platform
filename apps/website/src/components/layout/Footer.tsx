@@ -113,7 +113,7 @@ export const Footer: React.FC<{ settings?: PublicSiteSettings | null }> = ({
 
   return (
     <footer className="border-t border-white/10 bg-navy text-slate-400 text-xs relative overflow-hidden">
-      <Reveal variant="fade-up" distance="sm" duration="slow" as="div" className="w-full">
+      <Reveal variant="fade-up" distance="md" duration="slower" as="div" className="w-full">
         <div className="absolute top-0 left-1/3 w-[500px] h-[250px] bg-blue-600/10 blur-[130px] rounded-full pointer-events-none" />
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-10 sm:py-16 grid grid-cols-2 md:grid-cols-2 lg:grid-cols-6 gap-8 sm:gap-10 relative z-10">
         {/* Brand & Corporate Column (Span 2) */}

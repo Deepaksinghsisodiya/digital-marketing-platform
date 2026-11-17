@@ -556,6 +556,34 @@ footer > div > div.max-w-7xl {
   animation: shake 350ms ease-in-out;
 }
 
+/* Apple & Stripe Silk Upward Float Keyframes */
+@keyframes heroGlideUp {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 36px, 0);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.animate-glide-up-1 {
+  animation: heroGlideUp 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0.05s both;
+}
+.animate-glide-up-2 {
+  animation: heroGlideUp 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0.18s both;
+}
+.animate-glide-up-3 {
+  animation: heroGlideUp 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0.32s both;
+}
+.animate-glide-up-4 {
+  animation: heroGlideUp 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0.46s both;
+}
+.animate-glide-up-5 {
+  animation: heroGlideUp 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0.60s both;
+}
+
 /* Global reduced motion override (Hard Rule 3 & DB 'off' mode) */
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -571,7 +599,12 @@ footer > div > div.max-w-7xl {
   .animate-gradient-drift,
   .animate-marquee,
   .animate-marquee-reverse,
-  .animate-float {
+  .animate-float,
+  .animate-glide-up-1,
+  .animate-glide-up-2,
+  .animate-glide-up-3,
+  .animate-glide-up-4,
+  .animate-glide-up-5 {
     animation: none !important;
   }
 }
@@ -589,7 +622,12 @@ footer > div > div.max-w-7xl {
 [data-animation-mode="off"] .animate-gradient-drift,
 [data-animation-mode="off"] .animate-marquee,
 [data-animation-mode="off"] .animate-marquee-reverse,
-[data-animation-mode="off"] .animate-float {
+[data-animation-mode="off"] .animate-float,
+[data-animation-mode="off"] .animate-glide-up-1,
+[data-animation-mode="off"] .animate-glide-up-2,
+[data-animation-mode="off"] .animate-glide-up-3,
+[data-animation-mode="off"] .animate-glide-up-4,
+[data-animation-mode="off"] .animate-glide-up-5 {
   animation: none !important;
 }
 
