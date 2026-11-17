@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { ReadingProgressBar } from "@/components/motion/ReadingProgressBar";
+import { Reveal } from "@/components/motion/Reveal";
 
 interface BlogPostDetail {
   id: string;
@@ -77,17 +78,17 @@ export default async function BlogPostPage({
         <div className="mb-8">
           <Link
             href="/blog"
-            className="inline-flex items-center text-xs font-bold text-emerald-600 hover:text-emerald-700 transition-colors"
+            className="inline-flex items-center text-xs font-bold text-primary hover:text-primary-hover transition-colors"
           >
             &larr; Back to all insights
           </Link>
         </div>
 
         {/* Article Header */}
-        <header className="mb-10">
+        <Reveal variant="fade-up" distance="lg" duration="slower" as="header" className="mb-10 w-full">
           <div className="flex items-center gap-3 mb-4">
             {post.category && (
-              <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
+              <span className="text-xs font-bold text-primary bg-primary/10 px-3 py-1 rounded-full border border-primary/20">
                 {post.category}
               </span>
             )}
@@ -110,19 +111,19 @@ export default async function BlogPostPage({
           </h1>
 
           {post.excerpt && (
-            <p className="mt-6 text-lg sm:text-xl text-slate-700 leading-relaxed font-normal border-l-2 border-emerald-500 pl-4 py-1 italic bg-emerald-50/40 rounded-r-xl">
+            <p className="mt-6 text-lg sm:text-xl text-slate-700 leading-relaxed font-normal border-l-2 border-primary pl-4 py-1 italic bg-primary/5 rounded-r-xl">
               {post.excerpt}
             </p>
           )}
-        </header>
+        </Reveal>
 
         {/* Article Content */}
-        <article className="prose prose-slate prose-lg max-w-none text-slate-700 leading-relaxed text-base sm:text-lg border-y border-slate-200 py-10">
+        <Reveal variant="fade-up" distance="md" duration="slower" as="article" className="prose prose-slate prose-lg max-w-none text-slate-700 leading-relaxed text-base sm:text-lg border-y border-slate-200 py-10 w-full">
           <div
             dangerouslySetInnerHTML={{ __html: post.contentHtml }}
             className="space-y-6"
           />
-        </article>
+        </Reveal>
 
         {/* Tags */}
         {tagsList.length > 0 && (

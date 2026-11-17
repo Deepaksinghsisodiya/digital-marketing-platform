@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
+import { Reveal } from "@/components/motion/Reveal";
+import { Stagger, StaggerItem } from "@/components/motion/Stagger";
 
 interface BlogPostSummary {
   id: string;
@@ -51,8 +53,8 @@ export default async function BlogIndexPage() {
     <div className="min-h-screen flex flex-col bg-white text-slate-900">
       <Header />
       <main className="flex-1 max-w-[1720px] 2xl:max-w-[1920px] mx-auto px-6 sm:px-10 lg:px-12 xl:px-16 py-16 w-full">
-        <div className="max-w-3xl mb-12">
-          <span className="text-xs font-bold text-emerald-700 uppercase tracking-widest bg-emerald-50 px-3.5 py-1.5 rounded-full border border-emerald-200">
+        <Reveal variant="fade-up" distance="lg" duration="slower" as="div" className="max-w-3xl mb-12">
+          <span className="text-xs font-bold text-primary uppercase tracking-widest bg-primary/10 px-3.5 py-1.5 rounded-full border border-primary/20">
             Insights & Thought Leadership
           </span>
           <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight mt-4 text-slate-900">
@@ -62,7 +64,7 @@ export default async function BlogIndexPage() {
             Actionable strategies, technical breakdowns, and deep dives on
             pipeline velocity, generative media, and multi-region attribution.
           </p>
-        </div>
+        </Reveal>
 
         {posts.length === 0 ? (
           <div className="rounded-2xl border border-slate-200 bg-slate-50 p-12 text-center">
@@ -74,16 +76,16 @@ export default async function BlogIndexPage() {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {posts.map((post) => (
-              <article
-                key={post.id}
-                className="group flex flex-col justify-between rounded-2xl border border-slate-200 bg-white p-6 hover:border-emerald-500/50 hover:shadow-xl transition-all duration-300 shadow-sm"
-              >
+          <Stagger className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch w-full">
+            {posts.map((post, idx) => (
+              <StaggerItem key={post.id} index={idx} className="h-full">
+                <article
+                  className="group flex flex-col justify-between rounded-2xl border border-slate-200 bg-white p-6 hover:border-primary/40 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 shadow-sm h-full"
+                >
                 <div>
                   <div className="flex items-center gap-2 mb-3">
                     {post.category && (
-                      <span className="text-xs font-medium text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+                      <span className="text-xs font-medium text-primary bg-primary/10 px-2.5 py-0.5 rounded-full border border-primary/20">
                         {post.category}
                       </span>
                     )}
@@ -99,7 +101,7 @@ export default async function BlogIndexPage() {
                     </span>
                   </div>
 
-                  <h2 className="text-xl font-bold text-slate-900 group-hover:text-emerald-600 transition-colors line-clamp-2">
+                  <h2 className="text-xl font-bold text-slate-900 group-hover:text-primary transition-colors line-clamp-2">
                     <Link href={`/blog/${post.slug}`}>{post.title}</Link>
                   </h2>
 
@@ -136,7 +138,7 @@ export default async function BlogIndexPage() {
                       )}
                       <Link
                         href={`/blog/${post.slug}`}
-                        className="text-xs font-semibold text-emerald-600 group-hover:text-emerald-700 flex items-center gap-1 ml-auto"
+                        className="text-xs font-semibold text-primary group-hover:text-primary-hover flex items-center gap-1 ml-auto"
                       >
                         Read article &rarr;
                       </Link>
@@ -144,8 +146,9 @@ export default async function BlogIndexPage() {
                   );
                 })()}
               </article>
+              </StaggerItem>
             ))}
-          </div>
+          </Stagger>
         )}
       </main>
       <Footer />

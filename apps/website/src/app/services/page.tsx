@@ -4,14 +4,9 @@ import { REGION_CONFIG, resolveRegion } from "@/config/region";
 import { getPublicSiteSettings, getPublicMenu } from "@/lib/cms";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-  CardFooter,
-} from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
+import { Reveal } from "@/components/motion/Reveal";
+import { Stagger, StaggerItem } from "@/components/motion/Stagger";
 import {
   SearchCode,
   TrendingUp,
@@ -314,9 +309,9 @@ export default async function ServicesCatalogPage() {
 
       <main className="flex-1 py-10 sm:py-16 lg:py-24 px-3 sm:px-6 lg:px-8 xl:px-12 max-w-7xl mx-auto space-y-12 sm:space-y-16 lg:space-y-20">
         {/* Header Hero */}
-        <div className="max-w-4xl space-y-3 sm:space-y-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full bg-blue-50 border border-blue-200 text-blue-700 text-[10px] sm:text-xs font-bold uppercase tracking-wider shadow-2xs">
-            <Sparkles className="w-3.5 h-3.5 text-blue-600" />
+        <Reveal variant="fade-up" distance="lg" duration="slower" as="div" className="max-w-4xl space-y-3 sm:space-y-4">
+          <div className="inline-flex items-center gap-2 px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] sm:text-xs font-bold uppercase tracking-wider shadow-2xs">
+            <Sparkles className="w-3.5 h-3.5 text-primary" />
             <span>Three Major Capabilities</span>
           </div>
           <h1 className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tight text-slate-900 leading-tight">
@@ -325,14 +320,14 @@ export default async function ServicesCatalogPage() {
           <p className="text-xs sm:text-base md:text-lg text-slate-600 leading-relaxed font-normal">
             We unite strategic marketing, modern software engineering, and intelligent automation into a single cohesive growth engine. Explore our capabilities below.
           </p>
-        </div>
+        </Reveal>
 
         {/* 3 Pillars Sections */}
         {PILLARS.map((pillar) => (
-          <div key={pillar.name} className="space-y-6 sm:space-y-8 pt-2 sm:pt-4">
+          <Reveal key={pillar.name} variant="fade-up" distance="lg" duration="slower" as="div" className="space-y-6 sm:space-y-8 pt-2 sm:pt-4 w-full">
             <div className="border-b border-slate-200 pb-3 sm:pb-4">
               <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-2">
-                <span className={`text-[10px] sm:text-xs font-bold uppercase tracking-wider px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-md border ${pillar.badgeColor}`}>
+                <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-md border bg-primary/10 text-primary border-primary/20">
                   {pillar.badge}
                 </span>
                 <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-slate-900 tracking-tight">
@@ -344,64 +339,65 @@ export default async function ServicesCatalogPage() {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+            <Stagger className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 items-stretch w-full">
               {pillar.services.map((srv, idx) => {
                 const Icon = srv.icon;
                 return (
-                  <Card
-                    key={idx}
-                    className="bg-white border border-slate-200/90 shadow-xs hover:border-blue-400 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between group rounded-2xl sm:rounded-3xl overflow-hidden p-0"
-                  >
-                    <CardHeader className="p-4 sm:p-6 pb-2 sm:pb-3">
-                      <div className="flex items-center justify-between mb-3 sm:mb-4">
-                        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-slate-50 text-slate-900 border border-slate-200 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-all duration-300 shadow-2xs shrink-0">
-                          <Icon className="w-5 h-5 sm:w-6 sm:h-6" />
-                        </div>
-                        <span className="text-[9px] sm:text-[10px] uppercase font-extrabold tracking-widest text-slate-600 bg-slate-100 px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full border border-slate-200 shrink-0">
-                          {srv.pillar}
-                        </span>
-                      </div>
-                      <CardTitle className="text-base sm:text-xl font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
-                        <Link href={`/services/${srv.slug}`}>{srv.title}</Link>
-                      </CardTitle>
-                      <CardDescription className="text-slate-600 leading-relaxed mt-1.5 sm:mt-2 text-xs sm:text-sm font-normal">
-                        {srv.desc}
-                      </CardDescription>
-                    </CardHeader>
-
-                    <CardContent className="space-y-2 px-4 sm:px-6 pt-0 pb-3 sm:pb-4">
-                      <div className="space-y-1.5 sm:space-y-2 border-t border-slate-100 pt-3 sm:pt-4">
-                        {srv.highlights.map((h, hIdx) => (
-                          <div
-                            key={hIdx}
-                            className="flex items-center gap-2 text-[11px] sm:text-xs font-semibold text-slate-700"
-                          >
-                            <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-600 shrink-0" />
-                            <span>{h}</span>
+                  <StaggerItem key={idx} index={idx} className="h-full">
+                    <Card
+                      className="bg-white border border-slate-200/90 shadow-xs hover:border-primary/40 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between group rounded-2xl sm:rounded-3xl overflow-hidden p-0 h-full"
+                    >
+                      <CardHeader className="p-4 sm:p-6 pb-2 sm:pb-3">
+                        <div className="flex items-center justify-between mb-3 sm:mb-4">
+                          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-slate-50 text-slate-900 border border-slate-200 flex items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300 shadow-2xs shrink-0">
+                            <Icon className="w-5 h-5 sm:w-6 sm:h-6" />
                           </div>
-                        ))}
-                      </div>
-                    </CardContent>
+                          <span className="text-[9px] sm:text-[10px] uppercase font-extrabold tracking-widest text-slate-600 bg-slate-100 px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full border border-slate-200 shrink-0">
+                            {srv.pillar}
+                          </span>
+                        </div>
+                        <CardTitle className="text-base sm:text-xl font-bold text-slate-900 group-hover:text-primary transition-colors">
+                          <Link href={`/services/${srv.slug}`}>{srv.title}</Link>
+                        </CardTitle>
+                        <CardDescription className="text-slate-600 leading-relaxed mt-1.5 sm:mt-2 text-xs sm:text-sm font-normal">
+                          {srv.desc}
+                        </CardDescription>
+                      </CardHeader>
 
-                    <CardFooter className="px-4 sm:px-6 py-3.5 sm:py-4 border-t border-slate-100 bg-slate-50/50">
-                      <Link
-                        href={`/services/${srv.slug}`}
-                        className="inline-flex items-center gap-1.5 sm:gap-2 text-xs font-bold text-blue-600 hover:text-blue-800 transition group-hover:translate-x-1"
-                      >
-                        <span>Explore Full Architecture</span>
-                        <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                      </Link>
-                    </CardFooter>
-                  </Card>
+                      <CardContent className="space-y-2 px-4 sm:px-6 pt-0 pb-3 sm:pb-4">
+                        <div className="space-y-1.5 sm:space-y-2 border-t border-slate-100 pt-3 sm:pt-4">
+                          {srv.highlights.map((h, hIdx) => (
+                            <div
+                              key={hIdx}
+                              className="flex items-center gap-2 text-[11px] sm:text-xs font-semibold text-slate-700"
+                            >
+                              <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary shrink-0" />
+                              <span>{h}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </CardContent>
+
+                      <CardFooter className="px-4 sm:px-6 py-3.5 sm:py-4 border-t border-slate-100 bg-slate-50/50">
+                        <Link
+                          href={`/services/${srv.slug}`}
+                          className="inline-flex items-center gap-1.5 sm:gap-2 text-xs font-bold text-primary hover:text-primary-hover transition group-hover:translate-x-1"
+                        >
+                          <span>Explore Full Architecture</span>
+                          <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                        </Link>
+                      </CardFooter>
+                    </Card>
+                  </StaggerItem>
                 );
               })}
-            </div>
-          </div>
+            </Stagger>
+          </Reveal>
         ))}
 
         {/* Closing Conversion CTA */}
-        <div className="rounded-2xl sm:rounded-3xl bg-slate-900 text-white p-5 sm:p-10 lg:p-14 text-center space-y-4 sm:space-y-6">
-          <span className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-blue-400 bg-slate-800 px-3 py-1 sm:px-3.5 sm:py-1 rounded-full border border-slate-700 inline-block">
+        <Reveal variant="fade-up" distance="lg" duration="slower" as="div" className="rounded-2xl sm:rounded-3xl bg-slate-900 text-white p-5 sm:p-10 lg:p-14 text-center space-y-4 sm:space-y-6">
+          <span className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-primary bg-slate-800 px-3 py-1 sm:px-3.5 sm:py-1 rounded-full border border-slate-700 inline-block">
             Tailored Engineering &amp; Growth Scope
           </span>
           <h2 className="text-xl sm:text-3xl md:text-4xl font-black tracking-tight leading-snug">
@@ -413,12 +409,12 @@ export default async function ServicesCatalogPage() {
           <div className="pt-2">
             <Link
               href="/contact"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 hover:bg-blue-700 px-6 sm:px-8 py-3.5 sm:py-4 text-xs sm:text-sm font-bold text-white shadow-lg transition"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-primary hover:bg-primary-hover px-6 sm:px-8 py-3.5 sm:py-4 text-xs sm:text-sm font-bold text-primary-foreground shadow-lg transition"
             >
               <span>Request Custom Proposal &rarr;</span>
             </Link>
           </div>
-        </div>
+        </Reveal>
       </main>
 
       <Footer settings={siteSettings} />

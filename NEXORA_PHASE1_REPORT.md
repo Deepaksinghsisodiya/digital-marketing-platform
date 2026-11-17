@@ -278,6 +278,16 @@ Following the master animation and micro-interactions specification, a lightweig
     - 1.5s pop-in delay on initial page load.
     - Automatically hides whenever a mobile form field (`input`, `textarea`, `select`) receives focus to prevent keyboard obstruction.
 
+14. **Apple & Stripe Easing Calibration (44px Upward Glide):**
+    - Enhanced section reveal distance from 18px to **44px** and duration from 500ms to **800ms** utilizing the Apple/Framer motion easing curve (`cubic-bezier(0.16, 1, 0.3, 1)`).
+    - Hero elements execute a 5-step sequential float-up entrance upon page load (Badge &rarr; Headline &rarr; Subheadline &rarr; CTAs &rarr; Proof Strip).
+
+15. **Inner Pages Motion Architecture:**
+    - **Services Catalog (`/services`):** Capability pillars wrapped in `<Reveal variant="fade-up" distance="lg">` with individual service cards cascading via `<Stagger>` and `<StaggerItem>`. All hardcoded blue accents replaced with active theme tokens.
+    - **Insights & Playbooks (`/blog`):** Header and article grid wrapped with `<Reveal>` and `<StaggerItem>`, replacing legacy emerald styles with active theme tokens.
+    - **Editorial Article Detail (`/blog/[slug]`):** Top `<ReadingProgressBar />`, smooth header and content `<Reveal>`, theme-token accents.
+    - **Executive Advisory (`/contact`):** Dual-column entrance where value guarantees glide in first, followed by `<Reveal delay={150}>` on the Yup-validated enterprise diagnostic form.
+
 ### 9.4 Lighthouse Mobile Performance Audit (Before vs After)
 
 | Route / Page | Metric | Dev Mode Before | Post-Optimization After | Status |

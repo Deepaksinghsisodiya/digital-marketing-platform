@@ -38,18 +38,18 @@ export const LogoStripBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
           </Badge>
         </div>
 
-        {/* Seamless Infinite Marquee with hover-pause and reduced-motion fallback */}
+        {/* Seamless Infinite Marquee with hover-pause, grayscale-to-color transition, and reduced-motion fallback */}
         <Marquee speedSec={32} gap="1.25rem" className="py-2">
           {brands.map((brand, i) => (
             <div
               key={i}
-              className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl sm:rounded-2xl bg-white border border-slate-200/90 shadow-2xs hover:shadow-md hover:border-primary/40 hover:-translate-y-0.5 transition-all duration-300 group shrink-0"
+              className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl sm:rounded-2xl bg-white border border-slate-200/90 shadow-2xs hover:shadow-md hover:border-primary/40 hover:-translate-y-0.5 transition-all duration-300 group shrink-0 filter grayscale hover:grayscale-0 opacity-80 hover:opacity-100 cursor-default"
             >
-              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl bg-primary/10 text-primary border border-primary/20 flex items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground transition-colors duration-200 shrink-0">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl bg-slate-100 text-slate-600 border border-slate-200 flex items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground group-hover:border-primary/30 transition-colors duration-200 shrink-0">
                 <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </div>
               <div className="flex flex-col min-w-0 text-left">
-                <span className="font-extrabold text-[11px] sm:text-xs md:text-sm tracking-tight text-slate-800 group-hover:text-primary transition-colors whitespace-nowrap">
+                <span className="font-extrabold text-[11px] sm:text-xs md:text-sm tracking-tight text-slate-700 group-hover:text-primary transition-colors whitespace-nowrap">
                   {brand.name}
                 </span>
                 {brand.badge && (

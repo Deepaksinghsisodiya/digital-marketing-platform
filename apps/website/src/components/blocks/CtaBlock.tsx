@@ -32,9 +32,12 @@ export const CtaBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center relative z-10">
           {/* Left Column: Value Proposition & Checklist (Span 7) */}
           <div className="lg:col-span-7 space-y-4 sm:space-y-6">
-            {/* Live Indicator Badge */}
+            {/* Live Indicator Badge with Radar Ping */}
             <div className="inline-flex items-center gap-2 px-3 sm:px-3.5 py-1 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-widest bg-primary/15 text-primary border border-primary/30 shadow-xs">
-              <span className="w-2 h-2 rounded-full bg-primary animate-pulse shrink-0" />
+              <span className="relative flex h-2 w-2 shrink-0">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+              </span>
               <Sparkles className="w-3.5 h-3.5 text-primary shrink-0" />
               <span>Zero-Obligation Growth Assessment</span>
             </div>

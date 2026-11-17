@@ -4,6 +4,7 @@ import { getPublicSiteSettings } from "../../lib/cms";
 import { Header } from "../../components/layout/Header";
 import { Footer } from "../../components/layout/Footer";
 import { ContactForm } from "../../components/forms/ContactForm";
+import { Reveal } from "../../components/motion/Reveal";
 import type { Metadata } from "next";
 import {
   ShieldCheck,
@@ -36,7 +37,7 @@ export default async function ContactPage() {
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
             {/* Left Column: Enterprise Value Proposition & Trust */}
-            <div className="lg:col-span-5 space-y-8">
+            <Reveal variant="fade-up" distance="lg" duration="slower" as="div" className="lg:col-span-5 space-y-8 w-full">
               <div>
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-primary/10 text-primary border border-primary/20 mb-4">
                   <Sparkles className="w-3.5 h-3.5 text-primary" />
@@ -121,12 +122,12 @@ export default async function ContactPage() {
                   </div>
                 </div>
               </div>
-            </div>
+            </Reveal>
 
             {/* Right Column: The Form */}
-            <div className="lg:col-span-7">
+            <Reveal variant="fade-up" distance="lg" duration="slower" delay={150} as="div" className="lg:col-span-7 w-full">
               <ContactForm initialRegion={region.code} />
-            </div>
+            </Reveal>
           </div>
         </div>
       </main>
