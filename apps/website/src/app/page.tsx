@@ -12,6 +12,7 @@ import { Footer } from "../components/layout/Footer";
 import { BlockRenderer } from "../components/blocks/BlockRenderer";
 import { HeroBlock } from "../components/blocks/HeroBlock";
 import { Reveal } from "../components/motion/Reveal";
+import { Stagger, StaggerItem } from "../components/motion/Stagger";
 import type { Metadata } from "next";
 import {
   ArrowRight,
@@ -279,7 +280,7 @@ export default async function HomePage() {
                       </Link>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+                    <Stagger className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 items-stretch w-full">
                       {latestPosts.map((post, idx) => {
                         const fallbackImages = [
                           "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80",
@@ -297,65 +298,66 @@ export default async function HomePage() {
                           .toUpperCase();
 
                         return (
-                          <article
-                            key={post.id}
-                            className="rounded-2xl sm:rounded-3xl bg-white border border-slate-200/90 shadow-xs hover:shadow-xl hover:border-primary/40 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between overflow-hidden group"
-                          >
-                            {/* Card Image Banner */}
-                            <div className="relative aspect-16/10 w-full overflow-hidden bg-slate-100">
-                              <img
-                                src={coverImg}
-                                alt={post.title}
-                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                                loading="lazy"
-                              />
-                              <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                              <span className="absolute top-3 left-3 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-900/85 backdrop-blur-md text-white border border-white/20">
-                                {post.category || "Growth Strategy"}
-                              </span>
-                              <span className="absolute bottom-3 right-3 px-2 py-0.5 rounded-md text-[10px] font-semibold bg-black/60 backdrop-blur-md text-white">
-                                4 min read
-                              </span>
-                            </div>
-
-                            {/* Card Content Body */}
-                            <div className="p-5 sm:p-6 flex-1 flex flex-col justify-between space-y-4">
-                              <div className="space-y-2.5">
-                                <h3 className="text-base sm:text-lg lg:text-xl font-bold text-slate-900 line-clamp-2 group-hover:text-primary transition-colors leading-snug">
-                                  <Link href={`/blog/${post.slug}`}>
-                                    {post.title}
-                                  </Link>
-                                </h3>
-                                {post.excerpt && (
-                                  <p className="text-xs sm:text-sm text-slate-600 line-clamp-2 sm:line-clamp-3 leading-relaxed font-normal">
-                                    {post.excerpt}
-                                  </p>
-                                )}
+                          <StaggerItem key={post.id} index={idx} className="h-full">
+                            <article
+                              className="rounded-2xl sm:rounded-3xl bg-white border border-slate-200/90 shadow-xs hover:shadow-xl hover:border-primary/40 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between overflow-hidden group h-full"
+                            >
+                              {/* Card Image Banner */}
+                              <div className="relative aspect-16/10 w-full overflow-hidden bg-slate-100">
+                                <img
+                                  src={coverImg}
+                                  alt={post.title}
+                                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                  loading="lazy"
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                                <span className="absolute top-3 left-3 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-900/85 backdrop-blur-md text-white border border-white/20">
+                                  {post.category || "Growth Strategy"}
+                                </span>
+                                <span className="absolute bottom-3 right-3 px-2 py-0.5 rounded-md text-[10px] font-semibold bg-black/60 backdrop-blur-md text-white">
+                                  4 min read
+                                </span>
                               </div>
 
-                              {/* Card Author & CTA Footer */}
-                              <div className="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-                                <div className="flex items-center gap-2">
-                                  <div className="w-7 h-7 rounded-full bg-primary/10 text-primary border border-primary/20 flex items-center justify-center font-bold text-[10px] shrink-0">
-                                    {initials}
-                                  </div>
-                                  <span className="font-medium text-slate-700 truncate max-w-[120px] sm:max-w-none">
-                                    {author}
-                                  </span>
+                              {/* Card Content Body */}
+                              <div className="p-5 sm:p-6 flex-1 flex flex-col justify-between space-y-4">
+                                <div className="space-y-2.5">
+                                  <h3 className="text-base sm:text-lg lg:text-xl font-bold text-slate-900 line-clamp-2 group-hover:text-primary transition-colors leading-snug">
+                                    <Link href={`/blog/${post.slug}`}>
+                                      {post.title}
+                                    </Link>
+                                  </h3>
+                                  {post.excerpt && (
+                                    <p className="text-xs sm:text-sm text-slate-600 line-clamp-2 sm:line-clamp-3 leading-relaxed font-normal">
+                                      {post.excerpt}
+                                    </p>
+                                  )}
                                 </div>
-                                <Link
-                                  href={`/blog/${post.slug}`}
-                                  className="font-bold text-primary group-hover:translate-x-1 transition-transform flex items-center gap-1 cursor-pointer"
-                                >
-                                  <span>Read Analysis</span>
-                                  <ArrowRight className="w-3.5 h-3.5" />
-                                </Link>
+
+                                {/* Card Author & CTA Footer */}
+                                <div className="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+                                  <div className="flex items-center gap-2">
+                                    <div className="w-7 h-7 rounded-full bg-primary/10 text-primary border border-primary/20 flex items-center justify-center font-bold text-[10px] shrink-0">
+                                      {initials}
+                                    </div>
+                                    <span className="font-medium text-slate-700 truncate max-w-[120px] sm:max-w-none">
+                                      {author}
+                                    </span>
+                                  </div>
+                                  <Link
+                                    href={`/blog/${post.slug}`}
+                                    className="font-bold text-primary group-hover:translate-x-1 transition-transform flex items-center gap-1 cursor-pointer"
+                                  >
+                                    <span>Read Analysis</span>
+                                    <ArrowRight className="w-3.5 h-3.5" />
+                                  </Link>
+                                </div>
                               </div>
-                            </div>
-                          </article>
+                            </article>
+                          </StaggerItem>
                         );
                       })}
-                    </div>
+                    </Stagger>
                   </div>
                 </section>
               </Reveal>
