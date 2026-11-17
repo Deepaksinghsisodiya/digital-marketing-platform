@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import * as yup from "yup";
 import { toast } from "sonner";
+import { ConfirmDialog } from "../../components/ConfirmDialog";
 import {
   Sparkles,
   Plus,
@@ -157,6 +158,7 @@ export const HeroBannersPage: React.FC = () => {
   const [interval, setInterval] = useState<number>(5000);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
+  const [slideToDelete, setSlideToDelete] = useState<string | null>(null);
 
   // Form Modal State (Create & Edit)
   const [isFormOpen, setIsFormOpen] = useState<boolean>(false);
@@ -303,15 +305,16 @@ export const HeroBannersPage: React.FC = () => {
     }
   };
 
-  // Toggle Entire Hero Section Visibility (No Auto-Save; requires "Save Changes" click)
-  const handleToggleHeroSection = () => {
+  // Toggle Entire Hero Section Visibility (Persists directly to API)
+  const handleToggleHeroSection = async () => {
     const nextState = !heroEnabled;
     setHeroEnabled(nextState);
-    setHasUnsavedChanges(true);
-    toast.info(
-      nextState
-        ? "Hero Section set to Active. Click 'Save Changes' to publish."
-        : "Hero Section deactivated. Click 'Save Changes' to publish.",
+    await persistChangesToApi(
+      slides,
+      nextState,
+      autoplay,
+      interval,
+      nextState ? "Hero Section activated and published live!" : "Hero Section deactivated and published live!",
     );
   };
 
@@ -459,7 +462,6 @@ export const HeroBannersPage: React.FC = () => {
             }
           : s,
       );
-      toast.success("Slide updated in table! Click 'Save Changes' to publish live.");
     } else {
       const newSlide: HeroSlideItem = {
         id: `slide-${Date.now()}`,
@@ -476,27 +478,45 @@ export const HeroBannersPage: React.FC = () => {
         enabled: formEnabled,
       };
       updated = [...slides, newSlide];
-      toast.success("New slide added to table! Click 'Save Changes' to publish live.");
     }
 
     setSlides(updated);
-    setHasUnsavedChanges(true);
     setIsFormOpen(false);
+
+    // Persist directly to backend database so refresh never loses data
+    await persistChangesToApi(
+      updated,
+      heroEnabled,
+      autoplay,
+      interval,
+      editingSlideId
+        ? "Banner slide updated and saved directly to database!"
+        : "New banner slide created and saved directly to database!",
+    );
   };
 
-  // Delete Slide (No Auto-Save; updates local state)
+  // Delete Slide (Persists directly to backend)
   const handleDeleteSlide = (id: string) => {
-    if (!window.confirm("Are you sure you want to delete this banner slide?")) {
-      return;
-    }
-    const updated = slides.filter((s) => s.id !== id);
-    setSlides(updated);
-    setHasUnsavedChanges(true);
-    toast.warning("Banner slide removed from table. Click 'Save Changes' to publish.");
+    setSlideToDelete(id);
   };
 
-  // Reorder Slide Up / Down (No Auto-Save; updates local state)
-  const handleReorder = (idx: number, direction: "up" | "down") => {
+  const confirmDeleteSlide = async () => {
+    if (!slideToDelete) return;
+    const updated = slides.filter((s) => s.id !== slideToDelete);
+    setSlides(updated);
+    setSlideToDelete(null);
+
+    await persistChangesToApi(
+      updated,
+      heroEnabled,
+      autoplay,
+      interval,
+      "Banner slide removed and updated in database!",
+    );
+  };
+
+  // Reorder Slide Up / Down (Persists directly to backend)
+  const handleReorder = async (idx: number, direction: "up" | "down") => {
     const targetIdx = direction === "up" ? idx - 1 : idx + 1;
     if (targetIdx < 0 || targetIdx >= slides.length) return;
     const copy = [...slides];
@@ -504,31 +524,44 @@ export const HeroBannersPage: React.FC = () => {
     copy.splice(idx, 1);
     copy.splice(targetIdx, 0, item);
     setSlides(copy);
-    setHasUnsavedChanges(true);
-    toast.info("Slide display order updated. Click 'Save Changes' to publish.");
+
+    await persistChangesToApi(
+      copy,
+      heroEnabled,
+      autoplay,
+      interval,
+      "Slide display order updated and saved live!",
+    );
   };
 
-  // Toggle Visibility of Individual Slide (No Auto-Save; updates local state)
-  const handleToggleSlideVisibility = (id: string) => {
+  // Toggle Visibility of Individual Slide (Persists directly to backend)
+  const handleToggleSlideVisibility = async (id: string) => {
     const updated = slides.map((s) =>
       s.id === id ? { ...s, enabled: !s.enabled } : s,
     );
     setSlides(updated);
-    setHasUnsavedChanges(true);
     const target = updated.find((s) => s.id === id);
-    toast.info(
+
+    await persistChangesToApi(
+      updated,
+      heroEnabled,
+      autoplay,
+      interval,
       target?.enabled
-        ? "Banner slide activated. Click 'Save Changes' to publish."
-        : "Banner slide deactivated. Click 'Save Changes' to publish.",
+        ? "Banner slide activated and published live!"
+        : "Banner slide deactivated and published live!",
     );
   };
 
-  // Autoplay delay change (No Auto-Save; updates local state)
-  const handleIntervalChange = (newInterval: number) => {
+  // Autoplay delay change (Persists directly to backend)
+  const handleIntervalChange = async (newInterval: number) => {
     setInterval(newInterval);
-    setHasUnsavedChanges(true);
-    toast.info(
-      `Autoplay rotation interval set to ${newInterval / 1000}s. Click 'Save Changes' to publish.`,
+    await persistChangesToApi(
+      slides,
+      heroEnabled,
+      autoplay,
+      newInterval,
+      `Autoplay rotation interval set to ${newInterval / 1000}s and saved!`,
     );
   };
 
@@ -1354,6 +1387,17 @@ export const HeroBannersPage: React.FC = () => {
           </div>
         </div>
       )}
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={Boolean(slideToDelete)}
+        title="Delete Banner Slide"
+        description="Are you sure you want to remove this banner slide from the hero rotation?"
+        confirmText="Remove Slide"
+        cancelText="Cancel"
+        variant="danger"
+        onConfirm={confirmDeleteSlide}
+        onClose={() => setSlideToDelete(null)}
+      />
     </div>
   );
 };

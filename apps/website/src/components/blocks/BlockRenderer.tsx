@@ -14,6 +14,7 @@ import { ProcessSteps } from "./ProcessSteps";
 import { BookingEmbed } from "./BookingEmbed";
 import { LogoStripBlock } from "./LogoStripBlock";
 import { BentoGridBlock } from "./BentoGridBlock";
+import { CaseStudiesBlock } from "./CaseStudiesBlock";
 
 const BLOCK_REGISTRY: Record<string, React.FC<{ block: CmsBlock }>> = {
   Hero: HeroBlock,
@@ -36,6 +37,8 @@ const BLOCK_REGISTRY: Record<string, React.FC<{ block: CmsBlock }>> = {
   TrustStrip: LogoStripBlock,
   BentoGrid: BentoGridBlock,
   Bento: BentoGridBlock,
+  CaseStudies: CaseStudiesBlock,
+  Portfolio: CaseStudiesBlock,
 };
 
 interface BlockRendererProps {

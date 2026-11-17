@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import * as yup from "yup";
 import { toast } from "sonner";
+import { ConfirmDialog } from "../../components/ConfirmDialog";
 import {
   Sparkles,
   Plus,
@@ -133,6 +134,10 @@ export const TestimonialsPage: React.FC = () => {
   );
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
+  const [testimonialToDelete, setTestimonialToDelete] = useState<{
+    id: string;
+    author: string;
+  } | null>(null);
 
   // Form Modal State (Create & Edit)
   const [isFormOpen, setIsFormOpen] = useState<boolean>(false);
@@ -305,22 +310,24 @@ export const TestimonialsPage: React.FC = () => {
     const targetIdx = direction === "up" ? index - 1 : index + 1;
     const reordered = [...testimonials];
     const [moved] = reordered.splice(index, 1);
-    reordered.splice(targetIdx, 0, moved);
-    setTestimonials(reordered);
-    setHasUnsavedChanges(true);
+    if (moved) {
+      reordered.splice(targetIdx, 0, moved);
+      setTestimonials(reordered);
+      setHasUnsavedChanges(true);
+    }
   };
 
   // Delete
   const handleDelete = (id: string, author: string) => {
-    if (
-      !window.confirm(
-        `Are you sure you want to remove the review from "${author}"?`,
-      )
-    )
-      return;
-    setTestimonials((prev) => prev.filter((t) => t.id !== id));
+    setTestimonialToDelete({ id, author });
+  };
+
+  const confirmDeleteTestimonial = () => {
+    if (!testimonialToDelete) return;
+    setTestimonials((prev) => prev.filter((t) => t.id !== testimonialToDelete.id));
     setHasUnsavedChanges(true);
-    toast.success(`Review from "${author}" removed.`);
+    toast.success(`Review from "${testimonialToDelete.author}" removed. Click 'Save Changes' to publish.`);
+    setTestimonialToDelete(null);
   };
 
   // Open Modal (Add)
@@ -460,7 +467,7 @@ export const TestimonialsPage: React.FC = () => {
       );
 
       const blockPayload: CmsBlock = {
-        id: blockIdx >= 0 ? blocks[blockIdx].id : `blk_testimonials_${Date.now()}`,
+        id: blockIdx >= 0 && blocks[blockIdx] ? blocks[blockIdx].id : `blk_testimonials_${Date.now()}`,
         type: "Testimonials",
         schemaVersion: 1,
         enabled: sectionEnabled,
@@ -493,7 +500,7 @@ export const TestimonialsPage: React.FC = () => {
         id: homePageId,
         body: {
           blocks,
-          versionToken: pageDetail.versionToken,
+          versionToken: pageDetail.versionToken ?? undefined,
         },
       }).unwrap();
 
@@ -631,7 +638,7 @@ export const TestimonialsPage: React.FC = () => {
       )}
 
       {/* 3. Metric KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
         <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-2xs">
           <span className="text-xs text-slate-500 font-semibold uppercase">
             Total Reviews
@@ -771,10 +778,9 @@ export const TestimonialsPage: React.FC = () => {
                             <div className="font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
                               <span>{item.author}</span>
                               {item.verified && (
-                                <ShieldCheck
-                                  className="w-3.5 h-3.5 text-emerald-500"
-                                  title="Verified Client"
-                                />
+                                <span title="Verified Client">
+                                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
+                                </span>
                               )}
                             </div>
                             <div className="text-[11px] text-slate-500 dark:text-slate-400">
@@ -1110,6 +1116,21 @@ export const TestimonialsPage: React.FC = () => {
           </div>
         </div>
       )}
+      {/* Delete Testimonial Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={Boolean(testimonialToDelete)}
+        title="Remove Client Testimonial"
+        description={
+          testimonialToDelete
+            ? `Are you sure you want to remove the testimonial from "${testimonialToDelete.author}"? You must click 'Save Changes' to push the update live.`
+            : ""
+        }
+        confirmText="Remove Review"
+        cancelText="Cancel"
+        variant="danger"
+        onConfirm={confirmDeleteTestimonial}
+        onClose={() => setTestimonialToDelete(null)}
+      />
     </div>
   );
 };

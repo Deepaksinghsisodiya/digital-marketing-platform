@@ -1,17 +1,13 @@
-"use client";
-
 import React from "react";
 import type { CmsBlock } from "../../lib/cms";
-import { Marquee } from "../ui/marquee";
 import { Badge } from "../ui/badge";
-import { ShieldCheck, Award, Zap, Star } from "lucide-react";
+import { ShieldCheck } from "lucide-react";
+import { Marquee } from "../motion/Marquee";
 
 export const LogoStripBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
   const { content } = block;
   const title =
     (content.title as string) || "Trusted by High-Velocity Growth Teams";
-  const speed = ((content.speed as string) || "normal") as
-    "slow" | "normal" | "fast";
 
   const defaultBrands = [
     { name: "APEX CLOUD", badge: "Enterprise" },
@@ -19,38 +15,49 @@ export const LogoStripBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
     { name: "VERTEX CORP", badge: "FinTech" },
     { name: "NOVA SCALE", badge: "E-Commerce" },
     { name: "HORIZON B2B", badge: "Healthcare" },
-    { name: "DATAPULSE", badge: "Analytics" },
   ];
 
-  return (
-    <section className="py-14 bg-gradient-to-b from-white via-slate-50/50 to-white border-y border-slate-200/80 overflow-hidden select-none relative">
-      {/* Edge gradient masks for smooth fade in/out */}
-      <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none" />
-      <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none" />
+  const brands =
+    Array.isArray(content.brands) && content.brands.length > 0
+      ? (content.brands as Array<{ name: string; badge?: string }>)
+      : defaultBrands;
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6">
-        <div className="flex items-center justify-center gap-2">
-          <span className="text-xs uppercase font-extrabold tracking-widest text-slate-500">
+  if (!brands || brands.length === 0) {
+    return null;
+  }
+
+  return (
+    <section className="py-6 sm:py-8 md:py-10 bg-gradient-to-b from-white via-slate-50/50 to-white border-y border-slate-200/80 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full overflow-hidden">
+      <div className="text-center space-y-4 sm:space-y-6">
+        <div className="flex flex-wrap items-center justify-center gap-2">
+          <span className="text-[10px] sm:text-xs uppercase font-extrabold tracking-widest text-slate-500">
             {title}
           </span>
-          <Badge variant="sample">Enterprise Ecosystem</Badge>
+          <Badge variant="sample" className="text-[9px] sm:text-xs">
+            Enterprise Ecosystem
+          </Badge>
         </div>
 
-        <Marquee speed={speed} pauseOnHover={true}>
-          {defaultBrands.map((brand, i) => (
+        {/* Seamless Infinite Marquee with hover-pause and reduced-motion fallback */}
+        <Marquee speedSec={32} gap="1.25rem" className="py-2">
+          {brands.map((brand, i) => (
             <div
               key={i}
-              className="flex items-center gap-3 px-7 py-3 rounded-2xl bg-white border border-slate-200/90 shadow-xs hover:shadow-md hover:border-indigo-400 hover:-translate-y-0.5 transition-all duration-300 shrink-0 group mx-2"
+              className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl sm:rounded-2xl bg-white border border-slate-200/90 shadow-2xs hover:shadow-md hover:border-primary/40 hover:-translate-y-0.5 transition-all duration-300 group shrink-0"
             >
-              <div className="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 border border-indigo-100 flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-colors duration-300">
-                <ShieldCheck className="w-4 h-4" />
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl bg-primary/10 text-primary border border-primary/20 flex items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground transition-colors duration-200 shrink-0">
+                <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </div>
-              <span className="font-extrabold text-sm tracking-wide text-slate-800 group-hover:text-indigo-600 transition-colors">
-                {brand.name}
-              </span>
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 font-mono font-semibold border border-slate-200">
-                {brand.badge}
-              </span>
+              <div className="flex flex-col min-w-0 text-left">
+                <span className="font-extrabold text-[11px] sm:text-xs md:text-sm tracking-tight text-slate-800 group-hover:text-primary transition-colors whitespace-nowrap">
+                  {brand.name}
+                </span>
+                {brand.badge && (
+                  <span className="text-[9px] sm:text-[10px] text-slate-500 font-mono font-medium whitespace-nowrap">
+                    {brand.badge}
+                  </span>
+                )}
+              </div>
             </div>
           ))}
         </Marquee>

@@ -1,68 +1,158 @@
 import React from "react";
 import Link from "next/link";
 import type { CmsBlock } from "../../lib/cms";
-import { ArrowRight, CheckCircle2, ShieldCheck, Sparkles } from "lucide-react";
+import {
+  ArrowRight,
+  CheckCircle2,
+  ShieldCheck,
+  Sparkles,
+  TrendingUp,
+  Clock,
+  Layers,
+} from "lucide-react";
 
 export const CtaBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
   const { content } = block;
   const headline =
     (content.headline as string) ||
-    "Ready to Accelerate Your Enterprise Pipeline?";
+    "Ready to Scale Revenue with Predictable Marketing ROI?";
   const buttonText =
     (content.buttonText as string) || "Schedule Executive Diagnostic";
   const buttonLink = (content.buttonLink as string) || "/contact";
 
   return (
-    <section className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto relative overflow-hidden">
-      <div className="max-w-5xl mx-auto rounded-3xl bg-gradient-to-r from-primary/5 via-slate-50 to-primary/5 border border-primary/20 p-10 sm:p-14 text-center text-slate-900 shadow-xl relative overflow-hidden">
-        {/* Glow orb */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-primary/10 rounded-full blur-[100px] pointer-events-none" />
+    <section className="py-10 sm:py-14 lg:py-18 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full relative overflow-hidden">
+      {/* Executive Card Container */}
+      <div className="relative rounded-3xl sm:rounded-4xl border border-primary/25 bg-gradient-to-br from-slate-900 via-slate-950 to-[#080c14] text-white p-6 sm:p-10 lg:p-12 xl:p-14 overflow-hidden shadow-2xl">
+        {/* Ambient Gradient Glows (CSS-only, GPU accelerated) */}
+        <div className="pointer-events-none absolute -top-24 -right-24 w-96 h-96 bg-primary/20 rounded-full blur-[120px] animate-gradient-drift" />
+        <div className="pointer-events-none absolute -bottom-24 -left-24 w-96 h-96 bg-cyan-500/15 rounded-full blur-[120px] animate-gradient-drift" />
 
-        <div className="relative z-10 max-w-3xl mx-auto space-y-6">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-primary/10 text-primary border border-primary/20">
-            <Sparkles className="w-3.5 h-3.5 text-primary" />
-            <span>Zero-Obligation Growth Assessment</span>
+        {/* 2-Column Responsive Grid: Stacks gracefully on mobile/tablet, 2-col on desktop */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center relative z-10">
+          {/* Left Column: Value Proposition & Checklist (Span 7) */}
+          <div className="lg:col-span-7 space-y-4 sm:space-y-6">
+            {/* Live Indicator Badge */}
+            <div className="inline-flex items-center gap-2 px-3 sm:px-3.5 py-1 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-widest bg-primary/15 text-primary border border-primary/30 shadow-xs">
+              <span className="w-2 h-2 rounded-full bg-primary animate-pulse shrink-0" />
+              <Sparkles className="w-3.5 h-3.5 text-primary shrink-0" />
+              <span>Zero-Obligation Growth Assessment</span>
+            </div>
+
+            {/* Headline */}
+            <h2 className="text-2xl xs:text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-white leading-[1.18]">
+              {headline}
+            </h2>
+
+            {/* Subheadline in Plain Customer-Facing Language */}
+            <p className="text-xs sm:text-sm md:text-base text-slate-300 leading-relaxed font-normal max-w-2xl">
+              Book an executive growth diagnostic with our senior performance
+              marketing directors. We analyze your customer acquisition funnel,
+              ad spend efficiency, attribution models, and present a custom
+              90-day ROI roadmap.
+            </p>
+
+            {/* 3 High-Value Deliverables Checklist */}
+            <div className="pt-2 space-y-2.5 sm:space-y-3">
+              <div className="flex items-start gap-3 p-3 sm:p-3.5 rounded-2xl bg-white/5 border border-white/10 hover:border-primary/30 transition-colors">
+                <div className="w-6 h-6 rounded-lg bg-primary/20 border border-primary/40 flex items-center justify-center shrink-0 mt-0.5">
+                  <TrendingUp className="w-3.5 h-3.5 text-primary" />
+                </div>
+                <div>
+                  <h4 className="text-xs sm:text-sm font-bold text-white">
+                    Ad Spend &amp; Funnel Efficiency Audit
+                  </h4>
+                  <p className="text-[11px] sm:text-xs text-slate-400 mt-0.5">
+                    Identify budget leakage and verify true customer acquisition cost across channels.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3 p-3 sm:p-3.5 rounded-2xl bg-white/5 border border-white/10 hover:border-primary/30 transition-colors">
+                <div className="w-6 h-6 rounded-lg bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center shrink-0 mt-0.5">
+                  <Layers className="w-3.5 h-3.5 text-cyan-400" />
+                </div>
+                <div>
+                  <h4 className="text-xs sm:text-sm font-bold text-white">
+                    Custom 90-Day Scaling Blueprint
+                  </h4>
+                  <p className="text-[11px] sm:text-xs text-slate-400 mt-0.5">
+                    Target ROAS projections, recommended media mix, and conversion optimization plan.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3 p-3 sm:p-3.5 rounded-2xl bg-white/5 border border-white/10 hover:border-primary/30 transition-colors">
+                <div className="w-6 h-6 rounded-lg bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center shrink-0 mt-0.5">
+                  <Clock className="w-3.5 h-3.5 text-emerald-400" />
+                </div>
+                <div>
+                  <h4 className="text-xs sm:text-sm font-bold text-white">
+                    Direct Senior Strategist Diagnostic
+                  </h4>
+                  <p className="text-[11px] sm:text-xs text-slate-400 mt-0.5">
+                    1-on-1 strategy session with senior growth directors — zero sales reps, pure strategic insight.
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <h2 className="text-3xl sm:text-4xl md:text-5xl 2xl:text-6xl font-black tracking-tight leading-tight text-slate-900">
-            {headline}
-          </h2>
+          {/* Right Column: High-Impact Action Card (Span 5) */}
+          <div className="lg:col-span-5">
+            <div className="rounded-2xl sm:rounded-3xl bg-white/10 backdrop-blur-xl border border-white/15 p-5 sm:p-7 lg:p-8 shadow-2xl space-y-4 sm:space-y-5 text-center relative overflow-hidden">
+              {/* Subtle accent border top */}
+              <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-primary via-cyan-400 to-primary" />
 
-          <p className="text-base sm:text-lg 2xl:text-xl text-slate-600 max-w-2xl 2xl:max-w-3xl mx-auto leading-relaxed font-normal">
-            Book an executive growth diagnostic with our digital marketing
-            strategists. We analyze your customer acquisition funnel,
-            attribution models, and present a custom ROI roadmap.
-          </p>
+              <div className="space-y-2">
+                <span className="inline-block text-[10px] sm:text-xs font-bold uppercase tracking-wider text-primary bg-primary/10 border border-primary/20 px-3 py-0.5 rounded-full">
+                  Complimentary Executive Diagnostic
+                </span>
+                <h3 className="text-lg sm:text-xl font-bold text-white">
+                  Claim Your 2026 Growth Audit
+                </h3>
+                <p className="text-xs text-slate-300 leading-relaxed">
+                  Limited to 5 qualified enterprise brands per month to ensure deep strategic analysis.
+                </p>
+              </div>
 
-          <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link
-              href={buttonLink}
-              className="inline-flex items-center gap-2.5 rounded-2xl bg-indigo-600 px-8 py-4 text-sm font-bold text-white shadow-xl shadow-indigo-600/25 hover:bg-indigo-700 hover:scale-105 active:scale-95 transition-all"
-            >
-              <span>{buttonText}</span>
-              <ArrowRight className="w-4 h-4" />
-            </Link>
-            <Link
-              href="/blog"
-              className="inline-flex items-center gap-2 rounded-2xl border border-slate-300 bg-white px-7 py-4 text-sm font-bold text-slate-800 hover:bg-slate-50 hover:text-indigo-600 transition shadow-sm"
-            >
-              <span>Read Enterprise Insights</span>
-            </Link>
-          </div>
+              <div className="pt-2 space-y-3">
+                <Link
+                  href={buttonLink}
+                  className="w-full inline-flex items-center justify-center gap-2.5 rounded-xl sm:rounded-2xl bg-primary hover:bg-primary-hover px-6 sm:px-8 py-3.5 sm:py-4 text-xs sm:text-sm font-bold text-primary-foreground shadow-xl shadow-primary/25 hover:shadow-primary/40 hover:scale-[1.02] active:scale-[0.98] transition-all group cursor-pointer animate-pulse-ring"
+                >
+                  <span>{buttonText}</span>
+                  <ArrowRight className="w-4 h-4 shrink-0 group-hover:translate-x-1 transition-transform" />
+                </Link>
 
-          <div className="pt-6 flex flex-wrap items-center justify-center gap-6 text-xs text-slate-500 font-medium">
-            <span className="flex items-center gap-1.5 text-slate-700">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600" /> 100%
-              Confidential
-            </span>
-            <span className="flex items-center gap-1.5 text-slate-700">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600" /> Under
-              48-Hour Delivery
-            </span>
-            <span className="flex items-center gap-1.5 text-slate-700">
-              <ShieldCheck className="w-4 h-4 text-indigo-600" /> Global
-              Enterprise Presets
-            </span>
+                <Link
+                  href="/case-studies"
+                  className="w-full inline-flex items-center justify-center gap-2 rounded-xl sm:rounded-2xl border border-white/20 bg-white/5 hover:bg-white/15 px-6 py-3 sm:py-3.5 text-xs sm:text-sm font-bold text-white transition shadow-xs cursor-pointer"
+                >
+                  <span>Explore Audited Case Studies</span>
+                </Link>
+              </div>
+
+              {/* Trust badges */}
+              <div className="pt-3 border-t border-white/10 grid grid-cols-2 gap-2 text-left text-[11px] text-slate-300 font-medium">
+                <span className="flex items-center gap-1.5">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                  100% Confidential
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                  48-Hour Delivery
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <ShieldCheck className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+                  NDA Backed
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                  Zero Sales Pressure
+                </span>
+              </div>
+            </div>
           </div>
         </div>
       </div>

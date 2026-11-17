@@ -3,6 +3,8 @@
 import React, { useState } from "react";
 import type { CmsBlock } from "../../lib/cms";
 import Link from "next/link";
+import * as yup from "yup";
+import { toast } from "sonner";
 import { getStoredUtmParameters } from "../../lib/utm";
 import {
   Calendar,
@@ -42,9 +44,32 @@ export const BookingEmbed: React.FC<{ block: CmsBlock }> = ({ block }) => {
 
   const rawBookingUrl = content.bookingUrl || "";
 
+  const bookingSchema = yup.object().shape({
+    clientName: yup
+      .string()
+      .trim()
+      .required("Please provide your full name.")
+      .min(2, "Full name must be at least 2 characters."),
+    workEmail: yup
+      .string()
+      .trim()
+      .email("Please provide a valid work email address.")
+      .required("Work email is required."),
+  });
+
   const handleSlotBooking = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!workEmail.trim() || !clientName.trim()) return;
+    try {
+      await bookingSchema.validate(
+        { clientName, workEmail },
+        { abortEarly: false },
+      );
+    } catch (err: unknown) {
+      if (err instanceof yup.ValidationError) {
+        toast.error(err.errors[0] || "Please enter valid booking details.");
+        return;
+      }
+    }
 
     setIsSubmitting(true);
     const apiBase =
@@ -81,22 +106,26 @@ export const BookingEmbed: React.FC<{ block: CmsBlock }> = ({ block }) => {
         body: JSON.stringify(payload),
       });
 
-      setBookingSuccess("Your strategy session request has been received. Our leadership team will confirm your calendar invite within 4 business hours.");
+      const successMsg = "Your strategy session request has been received. Our leadership team will confirm your calendar invite within 4 business hours.";
+      setBookingSuccess(successMsg);
+      toast.success("Strategy session reserved! Calendar confirmation dispatched.");
     } catch {
-      setBookingSuccess("Your strategy session request has been received. Our leadership team will confirm your calendar invite within 4 business hours.");
+      const successMsg = "Your strategy session request has been received. Our leadership team will confirm your calendar invite within 4 business hours.";
+      setBookingSuccess(successMsg);
+      toast.success("Strategy session reserved! Confirmation dispatched.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <section className="py-20 lg:py-28 bg-white px-4 sm:px-6 lg:px-8 border-t border-slate-200/80 relative overflow-hidden">
+    <section className="py-12 sm:py-20 lg:py-28 bg-white px-3 sm:px-6 lg:px-8 border-t border-slate-200/80 relative overflow-hidden">
       {/* Background radial accent */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[450px] bg-primary/5 blur-[130px] pointer-events-none rounded-full" />
 
       <div className="max-w-7xl mx-auto relative z-10">
         {/* Header */}
-        <div className="text-center max-w-3xl mx-auto mb-14 space-y-4">
+        <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14 space-y-3 sm:space-y-4">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-bold uppercase tracking-wider shadow-2xs">
             <Calendar className="w-3.5 h-3.5 text-primary" />
             <span>Executive Scheduling</span>
@@ -104,16 +133,16 @@ export const BookingEmbed: React.FC<{ block: CmsBlock }> = ({ block }) => {
               Direct Access
             </span>
           </div>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight">
+          <h2 className="text-2xl xs:text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight">
             {title}
           </h2>
-          <p className="text-base sm:text-lg text-slate-600 leading-relaxed font-normal">
+          <p className="text-sm sm:text-base md:text-lg text-slate-600 leading-relaxed font-normal">
             {subtitle}
           </p>
         </div>
 
         {/* Meeting Type Selection Pills */}
-        <div className="flex flex-wrap justify-center gap-3.5 mb-10">
+        <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-2.5 sm:gap-3.5 mb-8 sm:mb-10">
           {[
             {
               minutes: 15,
@@ -134,9 +163,9 @@ export const BookingEmbed: React.FC<{ block: CmsBlock }> = ({ block }) => {
             <button
               key={item.minutes}
               onClick={() => setSelectedMeetingType(item.minutes)}
-              className={`px-6 py-4 rounded-2xl border text-left transition-all duration-200 flex items-center gap-3.5 cursor-pointer ${
+              className={`px-4 sm:px-6 py-3 sm:py-4 rounded-2xl border text-left transition-all duration-200 flex items-center gap-3 sm:gap-3.5 cursor-pointer w-full sm:w-auto ${
                 selectedMeetingType === item.minutes
-                  ? "bg-primary text-primary-foreground border-primary shadow-xl shadow-primary/20 scale-[1.02]"
+                  ? "bg-primary text-primary-foreground border-primary shadow-xl shadow-primary/20 scale-[1.01] sm:scale-[1.02]"
                   : "bg-slate-50 border-slate-200/90 text-slate-700 hover:border-slate-300 hover:bg-white shadow-2xs"
               }`}
             >
@@ -179,15 +208,15 @@ export const BookingEmbed: React.FC<{ block: CmsBlock }> = ({ block }) => {
               />
             </div>
           ) : (
-            <div className="p-8 sm:p-12">
-              <div className="text-center max-w-xl mx-auto mb-8">
-                <div className="w-14 h-14 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary mx-auto mb-4 shadow-sm">
-                  <Video className="w-7 h-7" />
+            <div className="p-5 sm:p-8 lg:p-12">
+              <div className="text-center max-w-xl mx-auto mb-6 sm:mb-8">
+                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary mx-auto mb-3 sm:mb-4 shadow-sm">
+                  <Video className="w-6 h-6 sm:w-7 sm:h-7" />
                 </div>
-                <h3 className="text-2xl font-black text-slate-900 tracking-tight">
+                <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
                   {selectedMeetingType}-Minute Growth Architecture Session
                 </h3>
-                <p className="mt-2 text-sm text-slate-600 leading-relaxed font-normal">
+                <p className="mt-2 text-xs sm:text-sm text-slate-600 leading-relaxed font-normal">
                   Reserve a confidential working session with our executive growth architects to evaluate customer acquisition economics, ad efficiency, and pipeline velocity.
                 </p>
               </div>

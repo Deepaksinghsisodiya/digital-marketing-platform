@@ -63,6 +63,34 @@ export const Header: React.FC<HeaderProps> = ({
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [mobileAccordion, setMobileAccordion] = useState<string | null>(null);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const hoverTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 16);
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const handleDropdownEnter = (key: string) => {
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+      hoverTimeoutRef.current = null;
+    }
+    setActiveDropdown(key);
+  };
+
+  const handleDropdownLeave = () => {
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+    }
+    hoverTimeoutRef.current = setTimeout(() => {
+      setActiveDropdown(null);
+    }, 150);
+  };
 
   // Close mobile drawer and dropdown on route change
   useEffect(() => {
@@ -155,7 +183,7 @@ export const Header: React.FC<HeaderProps> = ({
         {
           title: "Corporate Website Development",
           href: "/services/web-design-development",
-          desc: "Next.js 15 architectures for sub-second Core Web Vitals",
+          desc: "High-speed websites built for maximum sales conversion",
           icon: Layout,
         },
         {
@@ -173,7 +201,7 @@ export const Header: React.FC<HeaderProps> = ({
         {
           title: "E-Commerce Development",
           href: "/services/ecommerce-development",
-          desc: "Headless storefronts & high-AOV checkout funnels",
+          desc: "Modern storefronts & high-AOV checkout funnels",
           icon: ShoppingCart,
         },
         {
@@ -293,13 +321,13 @@ export const Header: React.FC<HeaderProps> = ({
     {
       title: "Improve Search Visibility",
       href: "/solutions/improve-search-visibility",
-      desc: "Technical SEO, Core Web Vitals & AI Answer Engine Optimization",
+      desc: "Technical SEO, search ranking & AI answer engine visibility",
       icon: SearchCode,
     },
     {
       title: "Build Digital Products",
       href: "/solutions/build-digital-products",
-      desc: "Production-grade Next.js web applications & design systems",
+      desc: "Custom web platforms & design systems engineered for scale",
       icon: Code2,
     },
     {
@@ -311,7 +339,7 @@ export const Header: React.FC<HeaderProps> = ({
     {
       title: "Improve Customer Experience",
       href: "/solutions/improve-customer-experience",
-      desc: "Sub-second load times, intuitive UI/UX & conversational intake",
+      desc: "Ultra-fast load times, intuitive UI/UX & streamlined intake",
       icon: Sparkles,
     },
     {
@@ -364,38 +392,48 @@ export const Header: React.FC<HeaderProps> = ({
       />
 
       {/* 2. Main Sticky Header Navigation */}
-      <div className="w-full bg-white/95 backdrop-blur-md border-b border-slate-200/90 shadow-2xs">
-        <div className="w-full px-4 sm:px-8 lg:px-12 h-20 flex items-center justify-between gap-4">
+      <div
+        className={`w-full transition-all duration-300 border-b border-slate-200/90 ${
+          isScrolled
+            ? "bg-white/90 backdrop-blur-xl shadow-sm"
+            : "bg-white/95 backdrop-blur-md shadow-2xs"
+        }`}
+      >
+        <div
+          className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-2 sm:gap-4 transition-all duration-300 ${
+            isScrolled ? "h-12 sm:h-14" : "h-12 sm:h-16"
+          }`}
+        >
           {/* Brand Logo & Wordmark */}
           <Link
             href="/"
-            className="flex items-center gap-3 shrink-0 whitespace-nowrap group focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-primary rounded-xl"
+            className="flex items-center gap-1.5 sm:gap-2.5 shrink-0 whitespace-nowrap group focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-primary rounded-xl"
             aria-label={`${companyName} Homepage`}
           >
             {logoUrl ? (
               <img
                 src={logoUrl}
                 alt={companyName}
-                className="w-10 h-10 object-contain rounded-xl bg-slate-50 border border-slate-200 p-1 shadow-2xs"
+                className="w-7 h-7 sm:w-9 sm:h-9 object-contain rounded-lg sm:rounded-xl bg-slate-50 border border-slate-200 p-0.5 sm:p-1 shadow-2xs"
               />
             ) : (
-              <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-primary-foreground font-black text-xl shadow-md shadow-primary/25 group-hover:scale-105 transition-transform duration-200 shrink-0">
+              <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl bg-primary flex items-center justify-center text-primary-foreground font-black text-sm sm:text-lg shadow-md shadow-primary/25 group-hover:scale-105 transition-transform duration-200 shrink-0">
                 <span className="font-heading">N</span>
               </div>
             )}
-            <div className="flex flex-col">
-              <span className="font-black text-slate-900 text-base lg:text-lg tracking-tight leading-none group-hover:text-primary transition-colors whitespace-nowrap">
+            <div className="flex flex-col min-w-0">
+              <span className="font-black text-slate-900 text-xs sm:text-base tracking-tight leading-none group-hover:text-primary transition-colors truncate max-w-[150px] xs:max-w-[200px] sm:max-w-[280px] md:max-w-none">
                 {companyName}
               </span>
-              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1 whitespace-nowrap">
+              <span className="hidden md:block text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-0.5 whitespace-nowrap">
                 Growth &bull; Technology &bull; AI
               </span>
             </div>
           </Link>
 
-          {/* Desktop Navigation Links & Mega Menus (Dynamically Driven by Admin CMS with Curated Defaults) */}
+          {/* Desktop/Tablet Navigation Links & Mega Menus (Dynamically Driven by Admin CMS with Curated Defaults) */}
           <nav
-            className="hidden xl:flex items-center gap-0.5 2xl:gap-1.5 text-[13px] 2xl:text-sm font-semibold text-slate-700 whitespace-nowrap shrink-0"
+            className="hidden lg:flex items-center gap-0.5 xl:gap-1 text-xs xl:text-sm font-semibold text-slate-700 whitespace-nowrap shrink-0"
             aria-label="Main Navigation"
           >
             {resolvedMenuItems.map((item) => {
@@ -412,12 +450,12 @@ export const Header: React.FC<HeaderProps> = ({
                   <div
                     key={item.id || item.label}
                     className="relative shrink-0"
-                    onMouseEnter={() => setActiveDropdown(dropdownKey)}
-                    onMouseLeave={() => setActiveDropdown(null)}
+                    onMouseEnter={() => handleDropdownEnter(dropdownKey)}
+                    onMouseLeave={handleDropdownLeave}
                   >
                     <button
                       type="button"
-                      className={`px-3 py-2 rounded-xl flex items-center gap-1 transition-colors whitespace-nowrap shrink-0 cursor-pointer focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-primary ${
+                      className={`px-2.5 xl:px-3 py-1.5 rounded-lg flex items-center gap-1 transition-colors whitespace-nowrap shrink-0 cursor-pointer focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-primary ${
                         activeDropdown === dropdownKey
                           ? "text-primary bg-primary/10 font-bold"
                           : isItemActive
@@ -676,7 +714,7 @@ export const Header: React.FC<HeaderProps> = ({
                 <Link
                   key={item.id || item.label}
                   href={item.url}
-                  className={`px-3 py-2 rounded-xl transition-colors whitespace-nowrap shrink-0 ${
+                  className={`relative px-2.5 xl:px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap shrink-0 after:absolute after:bottom-0 after:left-2 after:right-2 after:h-0.5 after:bg-primary after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:duration-200 ${
                     isItemActive
                       ? "text-primary font-bold bg-primary/10"
                       : "hover:text-primary hover:bg-slate-50"
@@ -689,11 +727,11 @@ export const Header: React.FC<HeaderProps> = ({
           </nav>
 
           {/* Right Action Tools: Book a Call & Primary CTA */}
-          <div className="flex items-center gap-2 2xl:gap-3 shrink-0 whitespace-nowrap">
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 whitespace-nowrap">
             {/* Book a Call Link */}
             <Link
               href="/book-a-call"
-              className="hidden md:inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-slate-700 hover:text-primary hover:bg-primary/10 transition border border-slate-200 whitespace-nowrap shrink-0"
+              className="hidden sm:inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold text-slate-700 hover:text-primary hover:bg-primary/10 transition border border-slate-200 whitespace-nowrap shrink-0 shadow-2xs"
             >
               <Clock className="w-3.5 h-3.5 text-primary" />
               <span>Book a Call</span>
@@ -702,27 +740,27 @@ export const Header: React.FC<HeaderProps> = ({
             {/* Primary CTA Button: "Let's Talk" */}
             <Link
               href="/contact"
-              className="inline-flex items-center gap-1.5 rounded-xl bg-primary hover:bg-primary-hover px-4 py-2 text-xs font-bold text-primary-foreground shadow-md shadow-primary/25 hover:shadow-primary/40 hover:scale-[1.02] active:scale-[0.98] transition-all whitespace-nowrap shrink-0"
+              className="inline-flex items-center gap-1 sm:gap-1.5 rounded-lg bg-primary hover:bg-primary-hover px-2 sm:px-3.5 py-1 sm:py-1.5 text-[10px] sm:text-xs font-bold text-primary-foreground shadow-md shadow-primary/25 hover:shadow-primary/40 hover:scale-[1.02] active:scale-[0.98] transition-all whitespace-nowrap shrink-0"
             >
               <span>Let&apos;s Talk</span>
-              <ArrowRight className="w-3.5 h-3.5" />
+              <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
             </Link>
 
-            {/* Mobile Hamburger Drawer Trigger */}
+            {/* Mobile/Tablet Hamburger Drawer Trigger */}
             <button
               type="button"
               onClick={() => setMobileMenuOpen(true)}
-              className="xl:hidden p-2 rounded-xl text-slate-700 hover:text-primary hover:bg-slate-100 transition focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-primary"
+              className="lg:hidden p-1 sm:p-1.5 rounded-lg text-slate-700 hover:text-primary hover:bg-slate-100 transition focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-primary cursor-pointer"
               aria-label="Open Mobile Menu"
               aria-expanded={mobileMenuOpen}
             >
-              <Menu className="w-6 h-6" />
+              <Menu className="w-5 h-5" />
             </button>
           </div>
         </div>
       </div>
 
-      {/* ACCESSIBLE MOBILE NAVIGATION DRAWER */}
+      {/* ACCESSIBLE MOBILE & TABLET NAVIGATION DRAWER */}
       {mobileMenuOpen && (
         <div
           className="fixed inset-0 z-50 lg:hidden animate-in fade-in duration-200"
@@ -737,12 +775,12 @@ export const Header: React.FC<HeaderProps> = ({
           />
 
           {/* Slide-over Content Sheet */}
-          <div className="fixed inset-y-0 right-0 w-full max-w-sm bg-white shadow-2xl p-6 flex flex-col justify-between overflow-y-auto border-l border-slate-200 animate-in slide-in-from-right duration-250">
+          <div className="fixed inset-y-0 right-0 w-full max-w-sm sm:max-w-md md:max-w-lg bg-white shadow-2xl p-5 sm:p-7 flex flex-col justify-between overflow-y-auto border-l border-slate-200 animate-in slide-in-from-right duration-250">
             <div className="space-y-6">
               {/* Drawer Top Header */}
               <div className="flex items-center justify-between pb-4 border-b border-slate-100">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-black text-sm">
+                  <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground font-black text-sm shadow-sm">
                     N
                   </div>
                   <span className="font-black text-slate-900 text-sm tracking-tight">
@@ -789,53 +827,62 @@ export const Header: React.FC<HeaderProps> = ({
 
                         {/* Services Sub-tree */}
                         {mobileAccordion === dropdownKey && dropdownKey === "services" && (
-                          <div className="pl-4 pr-2 py-2 space-y-4 border-l-2 border-primary/30 ml-3 text-xs">
-                            {megaMenuPillars.map((p) => (
-                              <div key={p.pillar} className="space-y-1.5">
-                                <span className="font-extrabold text-slate-900 uppercase tracking-wider text-[10px] block">
-                                  {p.pillar}
-                                </span>
-                                {p.items.map((it) => (
-                                  <Link
-                                    key={it.href}
-                                    href={it.href}
-                                    className="block py-1 text-slate-600 hover:text-primary transition-colors"
-                                  >
-                                    {it.title}
-                                  </Link>
-                                ))}
-                              </div>
-                            ))}
+                          <div className="pl-3 sm:pl-4 pr-2 py-2 border-l-2 border-primary/30 ml-2 sm:ml-3 text-xs">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                              {megaMenuPillars.map((p) => (
+                                <div key={p.pillar} className="space-y-1.5">
+                                  <span className="font-extrabold text-slate-900 uppercase tracking-wider text-[10px] block">
+                                    {p.pillar}
+                                  </span>
+                                  {p.items.map((it) => (
+                                    <Link
+                                      key={it.href}
+                                      href={it.href}
+                                      onClick={() => setMobileMenuOpen(false)}
+                                      className="block py-1 text-slate-600 hover:text-primary transition-colors"
+                                    >
+                                      {it.title}
+                                    </Link>
+                                  ))}
+                                </div>
+                              ))}
+                            </div>
                           </div>
                         )}
 
                         {/* Industries Sub-tree */}
                         {mobileAccordion === dropdownKey && dropdownKey === "industries" && (
-                          <div className="pl-4 pr-2 py-2 space-y-2 border-l-2 border-primary/30 ml-3 text-xs">
-                            {industriesList.map((ind) => (
-                              <Link
-                                key={ind.href}
-                                href={ind.href}
-                                className="block py-1 text-slate-600 hover:text-primary transition-colors"
-                              >
-                                {ind.title}
-                              </Link>
-                            ))}
+                          <div className="pl-3 sm:pl-4 pr-2 py-2 border-l-2 border-primary/30 ml-2 sm:ml-3 text-xs">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                              {industriesList.map((ind) => (
+                                <Link
+                                  key={ind.href}
+                                  href={ind.href}
+                                  onClick={() => setMobileMenuOpen(false)}
+                                  className="block py-1 text-slate-600 hover:text-primary transition-colors"
+                                >
+                                  {ind.title}
+                                </Link>
+                              ))}
+                            </div>
                           </div>
                         )}
 
                         {/* Solutions Sub-tree */}
                         {mobileAccordion === dropdownKey && dropdownKey === "solutions" && (
-                          <div className="pl-4 pr-2 py-2 space-y-2 border-l-2 border-primary/30 ml-3 text-xs">
-                            {solutionsList.map((sol) => (
-                              <Link
-                                key={sol.href}
-                                href={sol.href}
-                                className="block py-1 text-slate-600 hover:text-primary transition-colors"
-                              >
-                                {sol.title}
-                              </Link>
-                            ))}
+                          <div className="pl-3 sm:pl-4 pr-2 py-2 border-l-2 border-primary/30 ml-2 sm:ml-3 text-xs">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                              {solutionsList.map((sol) => (
+                                <Link
+                                  key={sol.href}
+                                  href={sol.href}
+                                  onClick={() => setMobileMenuOpen(false)}
+                                  className="block py-1 text-slate-600 hover:text-primary transition-colors"
+                                >
+                                  {sol.title}
+                                </Link>
+                              ))}
+                            </div>
                           </div>
                         )}
 
@@ -846,16 +893,19 @@ export const Header: React.FC<HeaderProps> = ({
                           dropdownKey !== "solutions" &&
                           item.children &&
                           item.children.length > 0 && (
-                            <div className="pl-4 pr-2 py-2 space-y-2 border-l-2 border-primary/30 ml-3 text-xs">
-                              {item.children.map((child) => (
-                                <Link
-                                  key={child.id || child.url}
-                                  href={child.url}
-                                  className="block py-1 text-slate-600 hover:text-primary transition-colors"
-                                >
-                                  {child.label}
-                                </Link>
-                              ))}
+                            <div className="pl-3 sm:pl-4 pr-2 py-2 border-l-2 border-primary/30 ml-2 sm:ml-3 text-xs">
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                {item.children.map((child) => (
+                                  <Link
+                                    key={child.id || child.url}
+                                    href={child.url}
+                                    onClick={() => setMobileMenuOpen(false)}
+                                    className="block py-1 text-slate-600 hover:text-primary transition-colors"
+                                  >
+                                    {child.label}
+                                  </Link>
+                                ))}
+                              </div>
                             </div>
                           )}
                       </div>
@@ -867,6 +917,7 @@ export const Header: React.FC<HeaderProps> = ({
                     <Link
                       key={item.id || item.label}
                       href={item.url}
+                      onClick={() => setMobileMenuOpen(false)}
                       className="block py-2.5 px-3 rounded-xl hover:bg-slate-50 transition"
                     >
                       {item.label}
@@ -876,17 +927,28 @@ export const Header: React.FC<HeaderProps> = ({
               </div>
             </div>
 
-            {/* Drawer Bottom CTA */}
-            <div className="pt-6 border-t border-slate-100 space-y-3">
+            {/* Drawer Bottom CTAs: Primary & Book a Call */}
+            <div className="pt-6 border-t border-slate-100 space-y-2.5">
               <Link
                 href="/contact"
+                onClick={() => setMobileMenuOpen(false)}
                 className="w-full flex items-center justify-center gap-2 rounded-xl bg-primary hover:bg-primary-hover py-3 text-xs font-bold text-primary-foreground shadow-md shadow-primary/25 transition"
               >
                 <span>Let&apos;s Talk</span>
                 <ArrowRight className="w-4 h-4" />
               </Link>
-              <div className="text-center text-[11px] text-slate-500">
-                Registered: Nexora Technologies Pvt. Ltd.
+
+              <Link
+                href="/book-a-call"
+                onClick={() => setMobileMenuOpen(false)}
+                className="w-full flex items-center justify-center gap-2 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 py-2.5 text-xs font-bold text-slate-700 transition"
+              >
+                <Clock className="w-3.5 h-3.5 text-primary" />
+                <span>Book a Call</span>
+              </Link>
+
+              <div className="text-center text-[10px] sm:text-[11px] text-slate-400 pt-1">
+                {settings?.legalName || `${companyName} Technology Pvt. Ltd.`} &bull; Enterprise SLA
               </div>
             </div>
           </div>

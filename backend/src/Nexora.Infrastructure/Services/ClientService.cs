@@ -63,7 +63,10 @@ public class ClientService : IClientService
                 c.Region,
                 c.Status,
                 c.Tasks.Count(t => t.Status != TaskItemStatus.Completed && t.Status != TaskItemStatus.Cancelled),
-                c.CreatedAtUtc))
+                c.CreatedAtUtc,
+                c.Contacts.Where(con => con.IsPrimary).Select(con => con.FullName).FirstOrDefault() ?? c.Contacts.Select(con => con.FullName).FirstOrDefault(),
+                c.Contacts.Where(con => con.IsPrimary).Select(con => con.Title).FirstOrDefault() ?? c.Contacts.Select(con => con.Title).FirstOrDefault(),
+                c.Website))
             .ToListAsync(ct);
 
         return new PaginatedResult<ClientSummaryDto>(items, totalCount, page, pageSize);
@@ -154,6 +157,14 @@ public class ClientService : IClientService
         if (string.IsNullOrWhiteSpace(request.PrimaryContactEmail))
             return (false, null, "Primary contact email is required.");
 
+        var contactName = !string.IsNullOrWhiteSpace(request.PrimaryContactName)
+            ? request.PrimaryContactName.Trim()
+            : request.Name.Trim();
+
+        var contactTitle = !string.IsNullOrWhiteSpace(request.PrimaryContactTitle)
+            ? request.PrimaryContactTitle.Trim()
+            : "Primary Contact";
+
         var client = new Client(
             name: request.Name.Trim(),
             primaryContactEmail: request.PrimaryContactEmail.Trim().ToLowerInvariant(),
@@ -161,16 +172,17 @@ public class ClientService : IClientService
             website: request.Website?.Trim(),
             industry: request.Industry?.Trim(),
             region: request.Region ?? "in",
+            status: request.Status ?? ClientStatus.Active,
             billingAddress: request.BillingAddress?.Trim(),
             taxId: request.TaxId?.Trim(),
             notes: request.Notes?.Trim());
 
         var primaryContact = new Contact(
             clientId: client.Id,
-            fullName: request.Name.Trim(),
+            fullName: contactName,
             email: request.PrimaryContactEmail.Trim().ToLowerInvariant(),
             phone: request.PrimaryContactPhone?.Trim(),
-            title: "Primary Contact",
+            title: contactTitle,
             isPrimary: true);
 
         var activity = new ClientActivity(

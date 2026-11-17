@@ -7,6 +7,16 @@ public static class HealthEndpoints
     public static IEndpointRouteBuilder MapHealthEndpoints(this IEndpointRouteBuilder app)
     {
         // Live probe: signifies process is up
+        app.MapGet("/health", () => Results.Ok(new
+        {
+            status = "Healthy",
+            timestamp = DateTime.UtcNow,
+            service = "Nexora.Api"
+        }))
+        .WithName("HealthRoot")
+        .WithTags("Health")
+        .Produces(StatusCodes.Status200OK);
+
         app.MapGet("/health/live", () => Results.Ok(new
         {
             status = "Healthy",

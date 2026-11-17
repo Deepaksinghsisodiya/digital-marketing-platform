@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from "react";
+import { toast } from "sonner";
 import {
   useGetEmailTemplatesQuery,
   useUpdateEmailTemplateMutation,
@@ -236,11 +237,11 @@ export const EmailTemplatesPage: React.FC = () => {
     try {
       const res = await processOutbox().unwrap();
       refetchLogs();
-      alert(
+      toast.success(
         `Outbox batch executed: ${res.processedCount} messages dispatched.`,
       );
     } catch {
-      alert("Failed to process outbox queue.");
+      toast.error("Failed to process outbox queue.");
     }
   };
 
@@ -572,7 +573,7 @@ export const EmailTemplatesPage: React.FC = () => {
                   type="email"
                   value={testEmailTo}
                   onChange={(e) => setTestEmailTo(e.target.value)}
-                  placeholder="recipient@example.com"
+                  placeholder="recipient@company.com"
                   required
                   className="flex-1 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white px-3.5 py-2 text-xs font-medium focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                 />
@@ -683,7 +684,7 @@ export const EmailTemplatesPage: React.FC = () => {
                 <div className="flex items-baseline gap-2">
                   <span className="font-semibold text-slate-400 w-16">To:</span>
                   <span className="text-slate-700 dark:text-slate-300 font-mono text-[11px]">
-                    {mockVars["lead.email"] || "recipient@example.com"}
+                    {mockVars["lead.email"] || "recipient@company.com"}
                   </span>
                 </div>
               </div>

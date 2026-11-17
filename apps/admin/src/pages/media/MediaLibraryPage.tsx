@@ -1,4 +1,5 @@
 import React, { useState, useRef } from "react";
+import { toast } from "sonner";
 import {
   useGetMediaAssetsQuery,
   useUploadMediaMutation,
@@ -111,6 +112,13 @@ export const MediaPickerModal: React.FC<MediaPickerModalProps> = ({
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      const msg = "File size exceeds 5MB limit. Please upload an optimized web image.";
+      setUploadError(msg);
+      toast.error(msg);
+      return;
+    }
 
     setUploadError(null);
     const formData = new FormData();
@@ -342,6 +350,12 @@ export const MediaLibraryPage: React.FC = () => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        const msg = "File size exceeds 5MB limit. Please upload an optimized web image.";
+        setUploadError(msg);
+        toast.error(msg);
+        return;
+      }
       setUploadFile(file);
       setUploadError(null);
     }
@@ -470,7 +484,7 @@ export const MediaLibraryPage: React.FC = () => {
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3.5 sm:gap-4">
             {data.items.map((asset) => {
               const isImage = asset.mimeType.startsWith("image/");
               return (

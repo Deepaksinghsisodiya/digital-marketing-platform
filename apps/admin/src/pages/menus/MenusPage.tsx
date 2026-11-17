@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { ConfirmDialog } from "../../components/ConfirmDialog";
 import {
   useGetAdminMenusQuery,
   useSaveAdminMenuMutation,
@@ -45,6 +46,7 @@ export const MenusPage: React.FC = () => {
 
   // Create Menu Modal state
   const [isCreateMenuModalOpen, setIsCreateMenuModalOpen] = useState(false);
+  const [isDeleteMenuConfirmOpen, setIsDeleteMenuConfirmOpen] = useState(false);
   const [newMenuKey, setNewMenuKey] = useState("");
   const [newMenuTitle, setNewMenuTitle] = useState("");
   const [newMenuRegion, setNewMenuRegion] = useState("");
@@ -108,16 +110,17 @@ export const MenusPage: React.FC = () => {
     }
   };
 
-  const handleDeleteMenu = async () => {
+  const handleDeleteMenu = () => {
     if (!selectedMenuId) return;
-    if (
-      !window.confirm("Are you sure you want to delete this navigation menu?")
-    )
-      return;
+    setIsDeleteMenuConfirmOpen(true);
+  };
 
+  const confirmDeleteMenuAction = async () => {
+    if (!selectedMenuId) return;
     try {
       await deleteMenu(selectedMenuId).unwrap();
       setSelectedMenuId(null);
+      setIsDeleteMenuConfirmOpen(false);
       await refetch();
       setFeedback({
         type: "success",
@@ -757,6 +760,18 @@ export const MenusPage: React.FC = () => {
           </div>
         </div>
       )}
+      {/* Delete Menu Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={isDeleteMenuConfirmOpen}
+        title="Delete Navigation Menu"
+        description="Are you sure you want to permanently delete this navigation menu? All its associated menu items and links will be removed."
+        confirmText="Delete Menu"
+        cancelText="Cancel"
+        variant="danger"
+        isLoading={isDeleting}
+        onConfirm={confirmDeleteMenuAction}
+        onClose={() => setIsDeleteMenuConfirmOpen(false)}
+      />
     </div>
   );
 };

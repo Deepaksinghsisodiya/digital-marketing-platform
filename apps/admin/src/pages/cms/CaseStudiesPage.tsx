@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import * as yup from "yup";
 import { toast } from "sonner";
+import { ConfirmDialog } from "../../components/ConfirmDialog";
 import {
   Sparkles,
   Plus,
@@ -37,7 +38,7 @@ export interface CaseStudyItem {
   client: string;
   category: string;
   metric: string;
-  metricLabel: string;
+  metricLabel?: string;
   summary: string;
   imageUrl?: string;
   clientLogoUrl?: string;
@@ -147,6 +148,10 @@ export const CaseStudiesPage: React.FC = () => {
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
+  const [caseStudyToDelete, setCaseStudyToDelete] = useState<{
+    id: string;
+    title: string;
+  } | null>(null);
 
   // Form Modal State (Create & Edit)
   const [isFormOpen, setIsFormOpen] = useState<boolean>(false);
@@ -341,22 +346,24 @@ export const CaseStudiesPage: React.FC = () => {
     const targetIdx = direction === "up" ? index - 1 : index + 1;
     const reordered = [...caseStudies];
     const [moved] = reordered.splice(index, 1);
-    reordered.splice(targetIdx, 0, moved);
-    setCaseStudies(reordered);
-    setHasUnsavedChanges(true);
+    if (moved) {
+      reordered.splice(targetIdx, 0, moved);
+      setCaseStudies(reordered);
+      setHasUnsavedChanges(true);
+    }
   };
 
   // Delete
   const handleDelete = (id: string, title: string) => {
-    if (
-      !window.confirm(
-        `Are you sure you want to delete the case study "${title}"?`,
-      )
-    )
-      return;
-    setCaseStudies((prev) => prev.filter((c) => c.id !== id));
+    setCaseStudyToDelete({ id, title });
+  };
+
+  const confirmDeleteCaseStudy = () => {
+    if (!caseStudyToDelete) return;
+    setCaseStudies((prev) => prev.filter((c) => c.id !== caseStudyToDelete.id));
     setHasUnsavedChanges(true);
-    toast.success(`Case study "${title}" deleted.`);
+    toast.success(`Case study "${caseStudyToDelete.title}" removed. Click 'Save Changes' to publish.`);
+    setCaseStudyToDelete(null);
   };
 
   // Open Modal (Add)
@@ -495,7 +502,7 @@ export const CaseStudiesPage: React.FC = () => {
       );
 
       const blockPayload: CmsBlock = {
-        id: blockIdx >= 0 ? blocks[blockIdx].id : `blk_casestudies_${Date.now()}`,
+        id: blockIdx >= 0 && blocks[blockIdx] ? blocks[blockIdx].id : `blk_casestudies_${Date.now()}`,
         type: "BentoGrid",
         schemaVersion: 1,
         enabled: sectionEnabled,
@@ -518,7 +525,7 @@ export const CaseStudiesPage: React.FC = () => {
         id: targetPageId,
         body: {
           blocks,
-          versionToken: pageDetail.versionToken,
+          versionToken: pageDetail.versionToken ?? undefined,
         },
       }).unwrap();
 
@@ -660,7 +667,7 @@ export const CaseStudiesPage: React.FC = () => {
       )}
 
       {/* 3. Metric KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
         <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-2xs">
           <span className="text-xs text-slate-500 font-semibold uppercase">
             Total Case Studies
@@ -1122,6 +1129,21 @@ export const CaseStudiesPage: React.FC = () => {
           </div>
         </div>
       )}
+      {/* Delete Case Study Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={Boolean(caseStudyToDelete)}
+        title="Delete Case Study"
+        description={
+          caseStudyToDelete
+            ? `Are you sure you want to remove "${caseStudyToDelete.title}" from the portfolio? You must click 'Save Changes' to push the update live.`
+            : ""
+        }
+        confirmText="Remove Case Study"
+        cancelText="Cancel"
+        variant="danger"
+        onConfirm={confirmDeleteCaseStudy}
+        onClose={() => setCaseStudyToDelete(null)}
+      />
     </div>
   );
 };

@@ -3,6 +3,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { toast } from "sonner";
 import type { PublicSiteSettings } from "../../lib/cms";
 import { getStoredUtmParameters } from "../../lib/utm";
 import {
@@ -30,9 +31,9 @@ export const Footer: React.FC<{ settings?: PublicSiteSettings | null }> = ({
 
   const companyName = settings?.companyName || "NEXORA";
   const legalName =
-    settings?.legalName || "Nexora Technoligics Pvt. Ltd.";
-  const supportEmail = settings?.supportEmail || "contact@nexora.com";
-  const supportPhone = settings?.supportPhone || "+91-XXXXXXXXXX";
+    settings?.legalName || "Nexora Technology Pvt. Ltd.";
+  const supportEmail = settings?.supportEmail || "support@nexora.com";
+  const supportPhone = settings?.supportPhone || "+91 8889647593";
   const address =
     settings?.address || "India & United States (Global Operations)";
 
@@ -90,10 +91,12 @@ export const Footer: React.FC<{ settings?: PublicSiteSettings | null }> = ({
 
       setSubscribed(true);
       setNewsletterEmail("");
+      toast.success("Subscribed to Nexora Strategic Growth Insights! Check your inbox.");
     } catch {
       // Graceful fallback for offline / mock
       setSubscribed(true);
       setNewsletterEmail("");
+      toast.success("Subscribed to Nexora Strategic Growth Insights!");
     } finally {
       setIsSubscribing(false);
     }
@@ -110,9 +113,9 @@ export const Footer: React.FC<{ settings?: PublicSiteSettings | null }> = ({
   return (
     <footer className="border-t border-white/10 bg-navy text-slate-400 text-xs relative overflow-hidden">
       <div className="absolute top-0 left-1/3 w-[500px] h-[250px] bg-blue-600/10 blur-[130px] rounded-full pointer-events-none" />
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-10 relative z-10">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-10 sm:py-16 grid grid-cols-2 md:grid-cols-2 lg:grid-cols-6 gap-8 sm:gap-10 relative z-10">
         {/* Brand & Corporate Column (Span 2) */}
-        <div className="space-y-4 lg:col-span-2">
+        <div className="space-y-4 col-span-2 sm:col-span-2 md:col-span-2 lg:col-span-2">
           <div className="flex items-center gap-3">
             {logoUrl ? (
               <img
@@ -153,13 +156,13 @@ export const Footer: React.FC<{ settings?: PublicSiteSettings | null }> = ({
 
           {/* System Uptime Indicator */}
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-800/80 border border-slate-700 text-[11px] text-slate-300">
-            <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+            <span className="w-2 h-2 rounded-full bg-primary animate-pulse shrink-0" />
             <span>All Systems Operational</span>
           </div>
         </div>
 
         {/* Column 2: Digital Growth Services */}
-        <div className="space-y-3">
+        <div className="space-y-3 col-span-1">
           <span className="font-extrabold text-white text-xs uppercase tracking-wider block">
             Digital Growth
           </span>
@@ -203,7 +206,7 @@ export const Footer: React.FC<{ settings?: PublicSiteSettings | null }> = ({
         </div>
 
         {/* Column 3: Technology Solutions */}
-        <div className="space-y-3">
+        <div className="space-y-3 col-span-1">
           <span className="font-extrabold text-white text-xs uppercase tracking-wider block">
             Technology Solutions
           </span>
@@ -247,7 +250,7 @@ export const Footer: React.FC<{ settings?: PublicSiteSettings | null }> = ({
         </div>
 
         {/* Column 4: Industries & Solutions */}
-        <div className="space-y-3">
+        <div className="space-y-3 col-span-1">
           <span className="font-extrabold text-white text-xs uppercase tracking-wider block">
             Industries
           </span>
@@ -291,7 +294,7 @@ export const Footer: React.FC<{ settings?: PublicSiteSettings | null }> = ({
         </div>
 
         {/* Column 5: Company, Resources & Newsletter */}
-        <div className="space-y-4">
+        <div className="space-y-4 col-span-2 sm:col-span-1 lg:col-span-2">
           <span className="font-extrabold text-white text-xs uppercase tracking-wider block">
             Company &amp; Resources
           </span>
@@ -343,7 +346,7 @@ export const Footer: React.FC<{ settings?: PublicSiteSettings | null }> = ({
                 <CheckCircle2 className="w-3.5 h-3.5" /> Subscribed successfully.
               </div>
             ) : (
-              <form onSubmit={handleNewsletterSubmit} className="flex gap-1.5">
+              <form onSubmit={handleNewsletterSubmit} className="flex gap-1.5 max-w-sm">
                 <input
                   type="email"
                   value={newsletterEmail}
@@ -371,9 +374,9 @@ export const Footer: React.FC<{ settings?: PublicSiteSettings | null }> = ({
       </div>
 
       {/* Legal & Regulatory Sub-Footer */}
-      <div className="border-t border-white/10 bg-navy/95 py-6">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-slate-500">
-          <div className="flex flex-wrap items-center gap-4">
+      <div className="border-t border-white/10 bg-navy/95 py-5 sm:py-6">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-slate-500 text-center sm:text-left">
+          <div className="flex flex-wrap items-center justify-center sm:justify-start gap-x-3 gap-y-1.5">
             <span>&copy; {new Date().getFullYear()} {legalName}. All rights reserved.</span>
             <span className="hidden sm:inline">&bull;</span>
             <Link href="/privacy" className="hover:text-slate-300 transition">
@@ -399,7 +402,7 @@ export const Footer: React.FC<{ settings?: PublicSiteSettings | null }> = ({
             <button
               type="button"
               onClick={openCookiePreferences}
-              className="hover:text-emerald-400 transition underline underline-offset-2"
+              className="hover:text-emerald-400 transition underline underline-offset-2 cursor-pointer"
             >
               Cookie Preferences
             </button>
@@ -408,7 +411,7 @@ export const Footer: React.FC<{ settings?: PublicSiteSettings | null }> = ({
           <button
             type="button"
             onClick={scrollToTop}
-            className="flex items-center gap-1.5 text-slate-400 hover:text-white transition px-2.5 py-1 rounded-md hover:bg-slate-800"
+            className="flex items-center gap-1.5 text-slate-400 hover:text-white transition px-2.5 py-1 rounded-md hover:bg-slate-800 cursor-pointer shrink-0"
             aria-label="Back to top"
           >
             <span>Back to top</span>

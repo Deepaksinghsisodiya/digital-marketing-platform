@@ -6,6 +6,7 @@ import { getMessages, getLocale } from "next-intl/server";
 import { CookieBanner } from "../components/layout/CookieBanner";
 import { MobileStickyBar } from "../components/layout/MobileStickyBar";
 import { FloatingWhatsApp } from "../components/layout/FloatingWhatsApp";
+import { ToastProvider } from "../components/ui/ToastProvider";
 import { getPublicSiteSettings, getPublicTheme } from "../lib/cms";
 import { resolveTheme, themeToCss } from "@nexora/design-tokens";
 
@@ -55,13 +56,138 @@ export default async function RootLayout({
   const activeTheme = resolvedTheme.slug || publicTheme?.themeId || "cyber-emerald";
   const themeCss = themeToCss(resolvedTheme, { mode: "both" });
 
+  let trackingCodes: {
+    gtmContainerId?: string;
+    gaMeasurementId?: string;
+    metaPixelId?: string;
+    searchConsoleVerification?: string;
+  } = {};
+
+  let animationMode = "full";
+
+  if (settings?.trackingCodesJson) {
+    try {
+      trackingCodes = JSON.parse(settings.trackingCodesJson);
+    } catch {
+      // safe fallback
+    }
+  }
+
+  if (settings?.themeTokensJson) {
+    try {
+      const parsedTheme = JSON.parse(settings.themeTokensJson);
+      if (parsedTheme?.animationMode) {
+        animationMode = parsedTheme.animationMode;
+      }
+    } catch {
+      // safe fallback
+    }
+  }
+
+  const organizationSchema = {
+    "@context": "https://schema.org",
+    "@type": "MarketingAgency",
+    name: settings?.companyName || "Nexora",
+    legalName: settings?.legalName || undefined,
+    url: process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000",
+    logo: settings?.logoUrl || undefined,
+    contactPoint: settings?.supportPhone
+      ? {
+          "@type": "ContactPoint",
+          telephone: settings.supportPhone,
+          contactType: "customer service",
+          email: settings.supportEmail,
+        }
+      : undefined,
+  };
+
   return (
-    <html lang={locale} data-theme={activeTheme} suppressHydrationWarning>
-      <head />
+    <html
+      lang={locale}
+      data-theme={activeTheme}
+      data-animation-mode={animationMode}
+      suppressHydrationWarning
+    >
+      <head>
+        {/* Organization Structured Data (JSON-LD) */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(organizationSchema),
+          }}
+        />
+
+        {/* Google Search Console Verification Meta */}
+        {trackingCodes.searchConsoleVerification && (
+          <meta
+            name="google-site-verification"
+            content={trackingCodes.searchConsoleVerification}
+          />
+        )}
+
+        {/* Google Tag Manager (GTM) Container */}
+        {trackingCodes.gtmContainerId && (
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','${trackingCodes.gtmContainerId}');`,
+            }}
+          />
+        )}
+
+        {/* Google Analytics 4 (GA4) */}
+        {trackingCodes.gaMeasurementId && (
+          <>
+            <script
+              async
+              src={`https://www.googletagmanager.com/gtag/js?id=${trackingCodes.gaMeasurementId}`}
+            />
+            <script
+              dangerouslySetInnerHTML={{
+                __html: `window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', '${trackingCodes.gaMeasurementId}', { anonymize_ip: true });`,
+              }}
+            />
+          </>
+        )}
+
+        {/* Meta (Facebook) Pixel */}
+        {trackingCodes.metaPixelId && (
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '${trackingCodes.metaPixelId}');
+fbq('track', 'PageView');`,
+            }}
+          />
+        )}
+      </head>
       <body
         className={`min-h-screen antialiased bg-background text-foreground font-sans selection:bg-primary selection:text-primary-foreground ${plusJakartaSans.variable} ${inter.variable}`}
         suppressHydrationWarning
       >
+        {trackingCodes.gtmContainerId && (
+          <noscript>
+            <iframe
+              src={`https://www.googletagmanager.com/ns.html?id=${trackingCodes.gtmContainerId}`}
+              height="0"
+              width="0"
+              style={{ display: "none", visibility: "hidden" }}
+            />
+          </noscript>
+        )}
         {themeCss ? (
           <style
             id="nexora-theme-tokens"
@@ -70,7 +196,10 @@ export default async function RootLayout({
           />
         ) : null}
         <NextIntlClientProvider locale={locale} messages={messages}>
-          {children}
+          <ToastProvider />
+          <div className="flex min-h-screen flex-col pb-20 lg:pb-0">
+            {children}
+          </div>
           <CookieBanner />
           <FloatingWhatsApp phone={settings?.supportPhone} />
           <MobileStickyBar

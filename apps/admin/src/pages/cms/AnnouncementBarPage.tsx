@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import * as yup from "yup";
 import { toast } from "sonner";
+import { ConfirmDialog } from "../../components/ConfirmDialog";
 import {
   Sparkles,
   Plus,
@@ -87,6 +88,7 @@ export const AnnouncementBarPage: React.FC = () => {
   const [interval, setInterval] = useState<number>(4000);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
+  const [itemToDelete, setItemToDelete] = useState<string | null>(null);
 
   // Modal Form State
   const [isFormOpen, setIsFormOpen] = useState<boolean>(false);
@@ -161,15 +163,21 @@ export const AnnouncementBarPage: React.FC = () => {
     setHasUnsavedChanges(false);
   }, [settings]);
 
-  // Persist all changes to API ONLY on Save Changes button click
-  const handleSaveToApi = async () => {
+  // Persist all changes to API and Database
+  const persistAnnouncementToApi = async (
+    targetItems: AnnouncementItem[],
+    targetGlobalEnabled: boolean,
+    targetAutoplay: boolean,
+    targetInterval: number,
+    successMessage?: string,
+  ) => {
     if (!settings) return;
 
     const payload: AnnouncementBarPayload = {
-      enabled: globalEnabled,
-      autoplay,
-      interval,
-      items,
+      enabled: targetGlobalEnabled,
+      autoplay: targetAutoplay,
+      interval: targetInterval,
+      items: targetItems,
     };
 
     const updateRequest: UpdateSiteSettingsRequest = {
@@ -206,7 +214,8 @@ export const AnnouncementBarPage: React.FC = () => {
       await refetch();
       setHasUnsavedChanges(false);
       toast.success(
-        "Announcement Bar changes saved and published live to website via API!",
+        successMessage ||
+          "Announcement Bar changes saved and published live to website via API!",
       );
     } catch (err: unknown) {
       console.error("Failed to update announcement settings:", err);
@@ -218,24 +227,38 @@ export const AnnouncementBarPage: React.FC = () => {
     }
   };
 
-  // Toggle Master Global Announcement Bar Switch (No auto-save)
-  const handleToggleGlobal = () => {
-    const next = !globalEnabled;
-    setGlobalEnabled(next);
-    setHasUnsavedChanges(true);
-    toast.info(
-      next
-        ? "Announcement Bar set to Active. Click 'Save Changes' to publish."
-        : "Announcement Bar deactivated. Click 'Save Changes' to publish.",
+  const handleSaveToApi = async () => {
+    await persistAnnouncementToApi(
+      items,
+      globalEnabled,
+      autoplay,
+      interval,
+      "Announcement Bar changes saved and published live to website via API!",
     );
   };
 
-  // Change Rotation Interval (No auto-save)
-  const handleIntervalChange = (val: number) => {
+  // Toggle Master Global Announcement Bar Switch (Persists to API)
+  const handleToggleGlobal = async () => {
+    const next = !globalEnabled;
+    setGlobalEnabled(next);
+    await persistAnnouncementToApi(
+      items,
+      next,
+      autoplay,
+      interval,
+      next ? "Announcement Bar activated live!" : "Announcement Bar deactivated live!",
+    );
+  };
+
+  // Change Rotation Interval (Persists to API)
+  const handleIntervalChange = async (val: number) => {
     setInterval(val);
-    setHasUnsavedChanges(true);
-    toast.info(
-      `Rotation interval set to ${val / 1000}s. Click 'Save Changes' to publish.`,
+    await persistAnnouncementToApi(
+      items,
+      globalEnabled,
+      autoplay,
+      val,
+      `Rotation interval set to ${val / 1000}s and saved!`,
     );
   };
 
@@ -306,7 +329,6 @@ export const AnnouncementBarPage: React.FC = () => {
             }
           : it,
       );
-      toast.success("Announcement updated in table! Click 'Save Changes' to publish.");
     } else {
       const newItem: AnnouncementItem = {
         id: `ann-${Date.now()}`,
@@ -317,42 +339,64 @@ export const AnnouncementBarPage: React.FC = () => {
         enabled: formEnabled,
       };
       updated = [...items, newItem];
-      toast.success("New announcement added to table! Click 'Save Changes' to publish.");
     }
 
     setItems(updated);
-    setHasUnsavedChanges(true);
-    setIsFormOpen(false);
+    setIsModalOpen(false);
+
+    // Persist immediately to API so refresh never reverts data
+    await persistAnnouncementToApi(
+      updated,
+      globalEnabled,
+      autoplay,
+      interval,
+      editingId
+        ? "Announcement updated and saved directly to database!"
+        : "New announcement added and saved directly to database!",
+    );
   };
 
   // Delete Announcement (No auto-save)
   const handleDeleteItem = (id: string) => {
-    if (!window.confirm("Are you sure you want to delete this announcement?")) {
-      return;
-    }
-    const updated = items.filter((it) => it.id !== id);
-    setItems(updated);
-    setHasUnsavedChanges(true);
-    toast.warning("Announcement removed from table. Click 'Save Changes' to publish.");
+    setItemToDelete(id);
   };
 
-  // Toggle Individual Status (No auto-save)
-  const handleToggleItemStatus = (id: string) => {
+  const confirmDeleteItem = async () => {
+    if (!itemToDelete) return;
+    const updated = items.filter((it) => it.id !== itemToDelete);
+    setItems(updated);
+    setItemToDelete(null);
+
+    await persistAnnouncementToApi(
+      updated,
+      globalEnabled,
+      autoplay,
+      interval,
+      "Announcement removed and saved to database!",
+    );
+  };
+
+  // Toggle Individual Status (Persists directly to backend)
+  const handleToggleItemStatus = async (id: string) => {
     const updated = items.map((it) =>
       it.id === id ? { ...it, enabled: !it.enabled } : it,
     );
     setItems(updated);
-    setHasUnsavedChanges(true);
     const target = updated.find((it) => it.id === id);
-    toast.info(
+
+    await persistAnnouncementToApi(
+      updated,
+      globalEnabled,
+      autoplay,
+      interval,
       target?.enabled
-        ? "Announcement activated. Click 'Save Changes' to publish."
-        : "Announcement deactivated. Click 'Save Changes' to publish.",
+        ? "Announcement activated and published live!"
+        : "Announcement deactivated and published live!",
     );
   };
 
-  // Reorder Item Up / Down (No auto-save)
-  const handleReorder = (idx: number, direction: "up" | "down") => {
+  // Reorder Item Up / Down (Persists directly to backend)
+  const handleReorder = async (idx: number, direction: "up" | "down") => {
     const targetIdx = direction === "up" ? idx - 1 : idx + 1;
     if (targetIdx < 0 || targetIdx >= items.length) return;
     const copy = [...items];
@@ -360,8 +404,14 @@ export const AnnouncementBarPage: React.FC = () => {
     copy.splice(idx, 1);
     copy.splice(targetIdx, 0, item);
     setItems(copy);
-    setHasUnsavedChanges(true);
-    toast.info("Announcement order updated. Click 'Save Changes' to publish.");
+
+    await persistAnnouncementToApi(
+      copy,
+      globalEnabled,
+      autoplay,
+      interval,
+      "Announcement order updated and saved live!",
+    );
   };
 
   const filteredItems = items.filter(
@@ -873,6 +923,17 @@ export const AnnouncementBarPage: React.FC = () => {
           </div>
         </div>
       )}
+      {/* Delete Announcement Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={Boolean(itemToDelete)}
+        title="Delete Announcement"
+        description="Are you sure you want to remove this announcement from the ticker bar? You must click 'Save Changes' to push the update live."
+        confirmText="Remove Announcement"
+        cancelText="Cancel"
+        variant="danger"
+        onConfirm={confirmDeleteItem}
+        onClose={() => setItemToDelete(null)}
+      />
     </div>
   );
 };

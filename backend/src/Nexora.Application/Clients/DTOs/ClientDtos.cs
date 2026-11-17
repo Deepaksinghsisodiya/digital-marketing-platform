@@ -11,7 +11,10 @@ public record ClientSummaryDto(
     string Region,
     ClientStatus Status,
     int ActiveTasksCount,
-    DateTime CreatedAtUtc);
+    DateTime CreatedAtUtc,
+    string? PrimaryContactName = null,
+    string? PrimaryContactTitle = null,
+    string? Website = null);
 
 public record ContactDto(
     Guid Id,
@@ -68,12 +71,15 @@ public record CreateClientRequest(
     string Name,
     string PrimaryContactEmail,
     string? PrimaryContactPhone = null,
+    string? PrimaryContactName = null,
+    string? PrimaryContactTitle = null,
     string? Website = null,
     string? Industry = null,
     string Region = "in",
     string? BillingAddress = null,
     string? TaxId = null,
-    string? Notes = null);
+    string? Notes = null,
+    ClientStatus? Status = null);
 
 public record UpdateClientRequest(
     string Name,

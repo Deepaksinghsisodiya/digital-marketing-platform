@@ -1,16 +1,21 @@
 import React, { useState } from "react";
+import * as yup from "yup";
+import { toast } from "sonner";
 import {
   useGetClientsQuery,
   useGetClientByIdQuery,
   useCreateClientMutation,
+  useUpdateClientMutation,
   useUpdateClientStatusMutation,
   useAddClientContactMutation,
   useAddClientActivityMutation,
   useCreateTaskMutation,
+  useUpdateTaskMutation,
   useGetPipelineStagesQuery,
   useGetCountryRegionsQuery,
 } from "../../store/api/adminApi";
 import type { ClientSummary, ClientStatus } from "../../types";
+import { DEFAULT_GLOBAL_COUNTRIES } from "../settings/SettingsPage";
 import {
   Building2,
   Search,
@@ -24,6 +29,10 @@ import {
   UserCheck,
   Calendar,
   TrendingUp,
+  Mail,
+  AlertCircle,
+  Edit3,
+  Download,
 } from "lucide-react";
 
 const STATUS_CONFIG: Record<
@@ -92,27 +101,47 @@ export const ClientsPage: React.FC = () => {
   const [addContact] = useAddClientContactMutation();
   const [addActivity] = useAddClientActivityMutation();
   const [createTask] = useCreateTaskMutation();
+  const [updateTask] = useUpdateTaskMutation();
 
   // Selected client for detail slide-over
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
   const { data: clientDetail, isLoading: loadingDetail } =
     useGetClientByIdQuery(selectedClientId!, { skip: !selectedClientId });
 
-  // Modal states
+  // Modal states for creating client
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [newClientName, setNewClientName] = useState("");
+  const [newContactName, setNewContactName] = useState("");
+  const [newContactTitle, setNewContactTitle] = useState("");
   const [newClientEmail, setNewClientEmail] = useState("");
-  const [newClientPhone, setNewClientPhone] = useState("");
+  const [phoneCountryCode, setPhoneCountryCode] = useState("+91");
+  const [phoneNationalNumber, setPhoneNationalNumber] = useState("");
+  const [phoneValidationError, setPhoneValidationError] = useState<string | null>(null);
+  const [newClientWebsite, setNewClientWebsite] = useState("");
   const [newClientIndustry, setNewClientIndustry] = useState("");
   const [newClientRegion, setNewClientRegion] = useState("in");
+  const [newClientStatus, setNewClientStatus] = useState<ClientStatus>(1);
   const [createError, setCreateError] = useState<string | null>(null);
 
-  // Contact modal state
+  // Edit modal states
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [editName, setEditName] = useState("");
+  const [editWebsite, setEditWebsite] = useState("");
+  const [editIndustry, setEditIndustry] = useState("");
+  const [editRegion, setEditRegion] = useState("in");
+  const [editBillingAddress, setEditBillingAddress] = useState("");
+  const [editTaxId, setEditTaxId] = useState("");
+  const [editNotes, setEditNotes] = useState("");
+  const [updateClient, { isLoading: updatingClient }] = useUpdateClientMutation();
+
+  // Contact modal state (in drawer)
   const [contactModalOpen, setContactModalOpen] = useState(false);
-  const [newContactName, setNewContactName] = useState("");
-  const [newContactEmail, setNewContactEmail] = useState("");
-  const [newContactPhone, setNewContactPhone] = useState("");
-  const [newContactTitle, setNewContactTitle] = useState("");
+  const [newSecondaryContactName, setNewSecondaryContactName] = useState("");
+  const [newSecondaryContactEmail, setNewSecondaryContactEmail] = useState("");
+  const [contactPhoneCountryCode, setContactPhoneCountryCode] = useState("+91");
+  const [contactPhoneNational, setContactPhoneNational] = useState("");
+  const [contactPhoneError, setContactPhoneError] = useState<string | null>(null);
+  const [newSecondaryContactTitle, setNewSecondaryContactTitle] = useState("");
 
   // Activity note state
   const [newActivityNote, setNewActivityNote] = useState("");
@@ -122,26 +151,160 @@ export const ClientsPage: React.FC = () => {
   const [newTaskTitle, setNewTaskTitle] = useState("");
   const [newTaskDueDate, setNewTaskDueDate] = useState("");
 
+  const handlePhoneChange = (dialCode: string, national: string) => {
+    setPhoneCountryCode(dialCode);
+    setPhoneNationalNumber(national);
+    if (!national.trim()) {
+      setPhoneValidationError(null);
+      return;
+    }
+    const cleanDigits = national.replace(/\D/g, "");
+    if (cleanDigits.length < 7 || cleanDigits.length > 15) {
+      setPhoneValidationError("Phone number must contain between 7 and 15 digits.");
+    } else {
+      setPhoneValidationError(null);
+    }
+  };
+
+  const handleContactPhoneChange = (dialCode: string, national: string) => {
+    setContactPhoneCountryCode(dialCode);
+    setContactPhoneNational(national);
+    if (!national.trim()) {
+      setContactPhoneError(null);
+      return;
+    }
+    const cleanDigits = national.replace(/\D/g, "");
+    if (cleanDigits.length < 7 || cleanDigits.length > 15) {
+      setContactPhoneError("Phone number must contain between 7 and 15 digits.");
+    } else {
+      setContactPhoneError(null);
+    }
+  };
+
+  const clientSchema = yup.object().shape({
+    name: yup
+      .string()
+      .trim()
+      .required("Company / Organization name is required.")
+      .min(2, "Company name must be at least 2 characters."),
+    contactName: yup
+      .string()
+      .trim()
+      .required("Client / Contact person name is required.")
+      .min(2, "Client contact name must be at least 2 characters."),
+    email: yup
+      .string()
+      .trim()
+      .email("Please provide a valid corporate email.")
+      .required("Primary corporate email is required."),
+  });
+
+  const contactSchema = yup.object().shape({
+    name: yup
+      .string()
+      .trim()
+      .required("Contact person name is required.")
+      .min(2, "Contact name must be at least 2 characters."),
+    email: yup
+      .string()
+      .trim()
+      .email("Please provide a valid email address.")
+      .required("Contact email is required."),
+  });
+
   const handleCreateClient = async (e: React.FormEvent) => {
     e.preventDefault();
     setCreateError(null);
     try {
+      await clientSchema.validate(
+        {
+          name: newClientName,
+          contactName: newContactName,
+          email: newClientEmail,
+        },
+        { abortEarly: false },
+      );
+    } catch (err: unknown) {
+      if (err instanceof yup.ValidationError) {
+        const msg = err.errors[0] || "Please check client inputs.";
+        setCreateError(msg);
+        toast.error(msg);
+        return;
+      }
+    }
+
+    if (phoneValidationError) {
+      toast.error(phoneValidationError);
+      return;
+    }
+
+    const fullPhone = phoneNationalNumber.trim()
+      ? `${phoneCountryCode} ${phoneNationalNumber.trim()}`
+      : undefined;
+
+    try {
       await createClient({
-        name: newClientName,
-        primaryContactEmail: newClientEmail,
-        primaryContactPhone: newClientPhone || undefined,
-        industry: newClientIndustry || undefined,
+        name: newClientName.trim(),
+        primaryContactName: newContactName.trim(),
+        primaryContactTitle: newContactTitle.trim() || undefined,
+        primaryContactEmail: newClientEmail.trim().toLowerCase(),
+        primaryContactPhone: fullPhone,
+        website: newClientWebsite.trim() || undefined,
+        industry: newClientIndustry.trim() || undefined,
         region: newClientRegion,
+        status: newClientStatus,
       }).unwrap();
 
+      toast.success(`Client "${newClientName.trim()}" created successfully!`);
       setCreateModalOpen(false);
       setNewClientName("");
+      setNewContactName("");
+      setNewContactTitle("");
       setNewClientEmail("");
-      setNewClientPhone("");
+      setPhoneNationalNumber("");
+      setPhoneValidationError(null);
+      setNewClientWebsite("");
       setNewClientIndustry("");
+      setNewClientStatus(1);
     } catch (err: unknown) {
       const error = err as { data?: { error?: string } };
-      setCreateError(error?.data?.error ?? "Failed to create client.");
+      const msg = error?.data?.error ?? "Failed to create client.";
+      setCreateError(msg);
+      toast.error(msg);
+    }
+  };
+
+  const openEditModal = (client: NonNullable<typeof clientDetail>) => {
+    setEditName(client.name || "");
+    setEditWebsite(client.website || "");
+    setEditIndustry(client.industry || "");
+    setEditRegion(client.region || "in");
+    setEditBillingAddress(client.billingAddress || "");
+    setEditTaxId(client.taxId || "");
+    setEditNotes(client.notes || "");
+    setEditModalOpen(true);
+  };
+
+  const handleUpdateClient = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedClientId) return;
+    try {
+      await updateClient({
+        id: selectedClientId,
+        data: {
+          name: editName.trim(),
+          website: editWebsite.trim() || null,
+          industry: editIndustry.trim() || null,
+          region: editRegion,
+          billingAddress: editBillingAddress.trim() || null,
+          taxId: editTaxId.trim() || null,
+          notes: editNotes.trim() || null,
+        },
+      }).unwrap();
+      toast.success("Client account profile updated successfully!");
+      setEditModalOpen(false);
+    } catch {
+      toast.error("Failed to update client profile.");
     }
   };
 
@@ -149,41 +312,73 @@ export const ClientsPage: React.FC = () => {
     e.preventDefault();
     if (!selectedClientId) return;
     try {
+      await contactSchema.validate(
+        { name: newSecondaryContactName, email: newSecondaryContactEmail },
+        { abortEarly: false },
+      );
+    } catch (err: unknown) {
+      if (err instanceof yup.ValidationError) {
+        toast.error(err.errors[0] || "Please enter valid contact details.");
+        return;
+      }
+    }
+
+    if (contactPhoneError) {
+      toast.error(contactPhoneError);
+      return;
+    }
+
+    const fullPhone = contactPhoneNational.trim()
+      ? `${contactPhoneCountryCode} ${contactPhoneNational.trim()}`
+      : undefined;
+
+    try {
       await addContact({
         clientId: selectedClientId,
-        fullName: newContactName,
-        email: newContactEmail,
-        phone: newContactPhone || undefined,
-        title: newContactTitle || undefined,
+        fullName: newSecondaryContactName.trim(),
+        email: newSecondaryContactEmail.trim(),
+        phone: fullPhone,
+        title: newSecondaryContactTitle.trim() || undefined,
       }).unwrap();
+      toast.success(`Contact "${newSecondaryContactName.trim()}" added successfully.`);
       setContactModalOpen(false);
-      setNewContactName("");
-      setNewContactEmail("");
-      setNewContactPhone("");
-      setNewContactTitle("");
+      setNewSecondaryContactName("");
+      setNewSecondaryContactEmail("");
+      setContactPhoneNational("");
+      setContactPhoneError(null);
+      setNewSecondaryContactTitle("");
     } catch {
-      alert("Failed to add contact.");
+      toast.error("Failed to add contact.");
     }
   };
 
   const handleAddActivity = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedClientId || !newActivityNote.trim()) return;
+    if (!selectedClientId) return;
+    if (!newActivityNote.trim()) {
+      toast.error("Please enter activity note details.");
+      return;
+    }
     try {
       await addActivity({
         clientId: selectedClientId,
         activityType: "Note",
         description: newActivityNote.trim(),
       }).unwrap();
+      toast.success("Activity note recorded.");
       setNewActivityNote("");
     } catch {
-      alert("Failed to record activity.");
+      toast.error("Failed to record activity.");
     }
   };
 
   const handleCreateTask = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedClientId || !newTaskTitle.trim()) return;
+    if (!selectedClientId) return;
+    if (!newTaskTitle.trim()) {
+      toast.error("Task title is required.");
+      return;
+    }
     try {
       await createTask({
         clientId: selectedClientId,
@@ -192,11 +387,25 @@ export const ClientsPage: React.FC = () => {
           ? new Date(newTaskDueDate).toISOString()
           : null,
       }).unwrap();
+      toast.success("Action item / task created.");
       setTaskModalOpen(false);
       setNewTaskTitle("");
       setNewTaskDueDate("");
     } catch {
-      alert("Failed to create task.");
+      toast.error("Failed to create task.");
+    }
+  };
+
+  const handleToggleTaskStatus = async (taskId: string, currentStatus: number) => {
+    try {
+      const nextStatus = currentStatus === 3 ? 1 : 3;
+      await updateTask({
+        id: taskId,
+        data: { status: nextStatus },
+      }).unwrap();
+      toast.success(nextStatus === 3 ? "Task marked completed!" : "Task reopened!");
+    } catch {
+      toast.error("Failed to update task status.");
     }
   };
 
@@ -208,6 +417,54 @@ export const ClientsPage: React.FC = () => {
       .join("")
       .toUpperCase()
       .slice(0, 2);
+  };
+
+  const handleExportClientsCsv = () => {
+    const items = clientsData?.items || [];
+    if (items.length === 0) {
+      toast.warning("No client accounts available to export.");
+      return;
+    }
+    const headers = [
+      "Account ID",
+      "Company Name",
+      "Primary Contact",
+      "Contact Title",
+      "Contact Email",
+      "Contact Phone",
+      "Industry",
+      "Operating Region",
+      "Status",
+      "Active Tasks Count",
+      "Created Date (UTC)",
+    ];
+    const rows = items.map((c) => [
+      c.id,
+      `"${(c.name || "").replace(/"/g, '""')}"`,
+      `"${(c.primaryContactName || "").replace(/"/g, '""')}"`,
+      `"${(c.primaryContactTitle || "").replace(/"/g, '""')}"`,
+      c.primaryContactEmail || "",
+      c.primaryContactPhone || "",
+      `"${(c.industry || "").replace(/"/g, '""')}"`,
+      c.region || "",
+      STATUS_CONFIG[c.status]?.label || String(c.status),
+      c.activeTasksCount || 0,
+      c.createdAtUtc || "",
+    ]);
+    const csvContent =
+      "data:text/csv;charset=utf-8," +
+      [headers.join(","), ...rows.map((e) => e.join(","))].join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute(
+      "download",
+      `nexora_clients_${new Date().toISOString().slice(0, 10)}.csv`,
+    );
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast.success("Client directory exported to CSV successfully!");
   };
 
   const totalClients = clientsData?.totalCount ?? 0;
@@ -233,18 +490,30 @@ export const ClientsPage: React.FC = () => {
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={() => setCreateModalOpen(true)}
-          className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-xs font-bold text-white shadow-lg shadow-indigo-600/30 hover:bg-indigo-500 hover:shadow-indigo-600/40 active:scale-95 transition-all"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Add New Account</span>
-        </button>
+        <div className="flex items-center gap-2.5">
+          <button
+            type="button"
+            onClick={handleExportClientsCsv}
+            className="inline-flex items-center gap-2 rounded-xl bg-white dark:bg-[#0c1222] border border-slate-200/80 dark:border-slate-800/80 px-3.5 py-2.5 text-xs font-bold text-slate-700 dark:text-slate-200 shadow-xs hover:bg-slate-50 dark:hover:bg-slate-800/60 transition"
+            title="Export CSV"
+          >
+            <Download className="w-4 h-4 text-indigo-500" />
+            <span>Export CSV</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setCreateModalOpen(true)}
+            className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-xs font-bold text-white shadow-lg shadow-indigo-600/30 hover:bg-indigo-500 hover:shadow-indigo-600/40 active:scale-95 transition-all"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Add New Account</span>
+          </button>
+        </div>
       </div>
 
       {/* MNC Executive KPI Metrics Strip */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <div className="p-4 rounded-2xl bg-white dark:bg-[#0c1222] border border-slate-200/80 dark:border-slate-800/80 shadow-sm">
           <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
             <span className="text-[11px] font-bold uppercase tracking-wider">
@@ -273,7 +542,7 @@ export const ClientsPage: React.FC = () => {
             </div>
           </div>
           <div className="text-2xl font-extrabold text-slate-900 dark:text-white">
-            {activeCount > 0 ? `${activeCount} Retainers` : "Enterprise"}
+            {activeCount > 0 ? `${activeCount} Retainers` : `${totalClients} Accounts`}
           </div>
           <div className="mt-1 text-[11px] text-slate-500 font-medium">
             Under verified SLA
@@ -290,7 +559,7 @@ export const ClientsPage: React.FC = () => {
             </div>
           </div>
           <div className="text-2xl font-extrabold text-slate-900 dark:text-white">
-            India & US
+            {dynamicRegions?.length ? `${dynamicRegions.length} Jurisdictions` : "Multi-Region"}
           </div>
           <div className="mt-1 text-[11px] text-slate-500 font-medium">
             Multi-currency & tax ready
@@ -300,17 +569,17 @@ export const ClientsPage: React.FC = () => {
         <div className="p-4 rounded-2xl bg-white dark:bg-[#0c1222] border border-slate-200/80 dark:border-slate-800/80 shadow-sm">
           <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
             <span className="text-[11px] font-bold uppercase tracking-wider">
-              Security & Audit
+              Conversion Lifecycle
             </span>
             <div className="p-1.5 rounded-lg bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400">
               <UserCheck className="w-3.5 h-3.5" />
             </div>
           </div>
-          <div className="text-2xl font-extrabold text-emerald-600 dark:text-emerald-400">
-            SOC-2 Type II
+          <div className="text-2xl font-extrabold text-indigo-600 dark:text-indigo-400">
+            {clientsData?.items.filter((c) => c.status === 2).length ?? 0} Prospects
           </div>
           <div className="mt-1 text-[11px] text-slate-500 font-medium">
-            Immutable audit trail
+            Active in conversion pipeline
           </div>
         </div>
       </div>
@@ -413,9 +682,23 @@ export const ClientsPage: React.FC = () => {
                             {getInitials(c.name)}
                           </div>
                           <div>
-                            <span className="font-bold text-slate-900 dark:text-slate-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
-                              {c.name}
-                            </span>
+                            <div className="flex items-center gap-1.5">
+                              <span className="font-bold text-slate-900 dark:text-slate-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                                {c.name}
+                              </span>
+                              {c.website && (
+                                <a
+                                  href={c.website.startsWith("http") ? c.website : `https://${c.website}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  onClick={(e) => e.stopPropagation()}
+                                  title={`Open ${c.website}`}
+                                  className="text-slate-400 hover:text-indigo-600 transition"
+                                >
+                                  <ExternalLink className="w-3 h-3" />
+                                </a>
+                              )}
+                            </div>
                             <span className="block text-[10px] text-slate-400 font-normal">
                               ID: {c.id.slice(0, 8)}...
                             </span>
@@ -423,15 +706,38 @@ export const ClientsPage: React.FC = () => {
                         </div>
                       </td>
 
-                      {/* Primary Contact */}
+                      {/* Primary Stakeholder */}
                       <td className="px-4 py-3.5">
-                        <div className="font-medium text-slate-800 dark:text-slate-200 truncate max-w-[200px]">
-                          {c.primaryContactEmail}
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-bold text-slate-900 dark:text-slate-100">
+                            {c.primaryContactName || "Primary Stakeholder"}
+                          </span>
+                          {c.primaryContactTitle && (
+                            <span className="text-[10px] font-medium text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/60 px-1.5 py-0.2 rounded border border-indigo-200 dark:border-indigo-800/60">
+                              {c.primaryContactTitle}
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1 mt-0.5">
+                          <Mail className="w-2.5 h-2.5 shrink-0 text-slate-400" />
+                          <a
+                            href={`mailto:${c.primaryContactEmail}`}
+                            onClick={(e) => e.stopPropagation()}
+                            className="hover:underline hover:text-indigo-600 truncate max-w-[180px]"
+                          >
+                            {c.primaryContactEmail}
+                          </a>
                         </div>
                         {c.primaryContactPhone && (
                           <div className="text-[11px] text-slate-400 flex items-center gap-1 mt-0.5">
-                            <Phone className="w-2.5 h-2.5" />
-                            <span>{c.primaryContactPhone}</span>
+                            <Phone className="w-2.5 h-2.5 shrink-0 text-slate-400" />
+                            <a
+                              href={`tel:${c.primaryContactPhone.replace(/\s+/g, "")}`}
+                              onClick={(e) => e.stopPropagation()}
+                              className="hover:underline hover:text-indigo-600"
+                            >
+                              {c.primaryContactPhone}
+                            </a>
                           </div>
                         )}
                       </td>
@@ -586,13 +892,24 @@ export const ClientsPage: React.FC = () => {
                       )}
                     </div>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => setSelectedClientId(null)}
-                    className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition"
-                  >
-                    <X className="w-5 h-5" />
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => openEditModal(clientDetail)}
+                      className="px-2.5 py-1.5 rounded-lg text-xs font-semibold text-slate-700 dark:text-slate-200 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 transition flex items-center gap-1.5 border border-slate-200/80 dark:border-slate-700/80"
+                      title="Edit Account Profile"
+                    >
+                      <Edit3 className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
+                      <span>Edit Profile</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedClientId(null)}
+                      className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
                 </div>
 
                 {/* Status Switcher Bar */}
@@ -604,10 +921,15 @@ export const ClientsPage: React.FC = () => {
                     value={clientDetail.status}
                     onChange={async (e) => {
                       const newStatus = Number(e.target.value) as ClientStatus;
-                      await updateClientStatus({
-                        id: clientDetail.id,
-                        status: newStatus,
-                      });
+                      try {
+                        await updateClientStatus({
+                          id: clientDetail.id,
+                          status: newStatus,
+                        }).unwrap();
+                        toast.success("Client account status updated.");
+                      } catch {
+                        toast.error("Failed to update account status.");
+                      }
                     }}
                     className="text-xs rounded-lg border border-slate-200 dark:border-slate-700 px-3 py-1.5 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   >
@@ -619,52 +941,83 @@ export const ClientsPage: React.FC = () => {
                 </div>
 
                 {/* Overview Dossier Cards */}
-                <div className="grid grid-cols-2 gap-3 text-xs bg-slate-50 dark:bg-slate-900/60 p-4 rounded-xl border border-slate-200/80 dark:border-slate-800/80">
-                  <div>
-                    <span className="text-slate-400 font-medium block text-[11px]">
-                      Primary Contact
-                    </span>
-                    <span className="font-bold text-slate-900 dark:text-white">
-                      {clientDetail.primaryContactEmail}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-slate-400 font-medium block text-[11px]">
-                      Direct Phone
-                    </span>
-                    <span className="font-bold text-slate-900 dark:text-white">
-                      {clientDetail.primaryContactPhone ?? "—"}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-slate-400 font-medium block text-[11px]">
-                      Website
-                    </span>
-                    <span className="font-bold text-indigo-600 dark:text-indigo-400">
-                      {clientDetail.website ? (
+                {(() => {
+                  const primaryStakeholder =
+                    clientDetail.contacts?.find((c) => c.isPrimary) ||
+                    clientDetail.contacts?.[0];
+                  return (
+                    <div className="grid grid-cols-2 gap-3 text-xs bg-slate-50 dark:bg-slate-900/60 p-4 rounded-xl border border-slate-200/80 dark:border-slate-800/80">
+                      <div>
+                        <span className="text-slate-400 font-medium block text-[11px]">
+                          Primary Stakeholder
+                        </span>
+                        <span className="font-bold text-slate-900 dark:text-white block truncate">
+                          {primaryStakeholder?.fullName || "Primary Contact"}
+                        </span>
+                        {primaryStakeholder?.title && (
+                          <span className="inline-block mt-0.5 text-[10px] bg-indigo-50 dark:bg-indigo-950/70 text-indigo-700 dark:text-indigo-300 px-1.5 py-0.5 rounded font-semibold border border-indigo-200/50 dark:border-indigo-800/50 truncate max-w-full">
+                            {primaryStakeholder.title}
+                          </span>
+                        )}
+                      </div>
+                      <div>
+                        <span className="text-slate-400 font-medium block text-[11px]">
+                          Direct Phone & Email
+                        </span>
+                        <div className="font-bold text-slate-900 dark:text-white">
+                          {clientDetail.primaryContactPhone ? (
+                            <a
+                              href={`tel:${clientDetail.primaryContactPhone}`}
+                              className="hover:text-indigo-600 transition"
+                            >
+                              {clientDetail.primaryContactPhone}
+                            </a>
+                          ) : (
+                            "—"
+                          )}
+                        </div>
                         <a
-                          href={clientDetail.website}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="hover:underline inline-flex items-center gap-1"
+                          href={`mailto:${clientDetail.primaryContactEmail}`}
+                          className="text-[11px] text-slate-500 hover:text-indigo-600 truncate block mt-0.5"
                         >
-                          {clientDetail.website}
-                          <ExternalLink className="w-3 h-3" />
+                          {clientDetail.primaryContactEmail}
                         </a>
-                      ) : (
-                        "—"
-                      )}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-slate-400 font-medium block text-[11px]">
-                      Tax ID / GSTIN
-                    </span>
-                    <span className="font-bold text-slate-900 dark:text-white">
-                      {clientDetail.taxId ?? "—"}
-                    </span>
-                  </div>
-                </div>
+                      </div>
+                      <div>
+                        <span className="text-slate-400 font-medium block text-[11px]">
+                          Website
+                        </span>
+                        <span className="font-bold text-indigo-600 dark:text-indigo-400">
+                          {clientDetail.website ? (
+                            <a
+                              href={
+                                clientDetail.website.startsWith("http")
+                                  ? clientDetail.website
+                                  : `https://${clientDetail.website}`
+                              }
+                              target="_blank"
+                              rel="noreferrer"
+                              className="hover:underline inline-flex items-center gap-1"
+                            >
+                              {clientDetail.website.replace(/^https?:\/\//, "")}
+                              <ExternalLink className="w-3 h-3" />
+                            </a>
+                          ) : (
+                            "—"
+                          )}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-slate-400 font-medium block text-[11px]">
+                          Tax ID / GSTIN
+                        </span>
+                        <span className="font-bold text-slate-900 dark:text-white">
+                          {clientDetail.taxId ?? "—"}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })()}
 
                 {/* Contacts Section */}
                 <div className="space-y-3">
@@ -726,36 +1079,61 @@ export const ClientsPage: React.FC = () => {
                     </button>
                   </div>
                   <div className="space-y-2">
-                    {clientDetail.tasks.map((task) => (
-                      <div
-                        key={task.id}
-                        className="p-3 border border-slate-200/80 dark:border-slate-800/80 rounded-xl flex items-center justify-between text-xs bg-slate-50/50 dark:bg-slate-900/40"
-                      >
-                        <div>
-                          <div className="font-bold text-slate-900 dark:text-white">
-                            {task.title}
-                          </div>
-                          {task.dueDateUtc && (
-                            <div className="text-slate-400 text-[11px] mt-0.5 flex items-center gap-1">
-                              <Calendar className="w-3 h-3" />
-                              <span>
-                                Due:{" "}
-                                {new Date(task.dueDateUtc).toLocaleDateString()}
-                              </span>
-                            </div>
-                          )}
-                        </div>
-                        <span
-                          className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                            task.status === 3
-                              ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20"
-                              : "bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20"
-                          }`}
+                    {clientDetail.tasks.map((task) => {
+                      const isDone = task.status === 3;
+                      return (
+                        <div
+                          key={task.id}
+                          className="p-3 border border-slate-200/80 dark:border-slate-800/80 rounded-xl flex items-center justify-between text-xs bg-slate-50/50 dark:bg-slate-900/40"
                         >
-                          {task.status === 3 ? "Completed" : "In Progress"}
-                        </span>
-                      </div>
-                    ))}
+                          <div className="flex items-center gap-2.5">
+                            <button
+                              type="button"
+                              onClick={() => handleToggleTaskStatus(task.id, task.status)}
+                              className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${
+                                isDone
+                                  ? "bg-emerald-600 border-emerald-600 text-white"
+                                  : "border-slate-300 dark:border-slate-600 hover:border-indigo-500"
+                              }`}
+                              title={isDone ? "Mark in progress" : "Mark completed"}
+                            >
+                              {isDone && <CheckCircle2 className="w-3.5 h-3.5" />}
+                            </button>
+                            <div>
+                              <div
+                                className={`font-bold ${
+                                  isDone
+                                    ? "line-through text-slate-400 dark:text-slate-500"
+                                    : "text-slate-900 dark:text-white"
+                                }`}
+                              >
+                                {task.title}
+                              </div>
+                              {task.dueDateUtc && (
+                                <div className="text-slate-400 text-[11px] mt-0.5 flex items-center gap-1">
+                                  <Calendar className="w-3 h-3" />
+                                  <span>
+                                    Due:{" "}
+                                    {new Date(task.dueDateUtc).toLocaleDateString()}
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => handleToggleTaskStatus(task.id, task.status)}
+                            className={`px-2 py-0.5 rounded-full text-[10px] font-bold cursor-pointer transition ${
+                              isDone
+                                ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20"
+                                : "bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20 hover:bg-amber-500/20"
+                            }`}
+                          >
+                            {isDone ? "Completed" : "In Progress"}
+                          </button>
+                        </div>
+                      );
+                    })}
                     {clientDetail.tasks.length === 0 && (
                       <p className="text-xs text-slate-400">
                         No scheduled tasks for this account.
@@ -817,112 +1195,220 @@ export const ClientsPage: React.FC = () => {
       {/* Create Client Modal */}
       {createModalOpen && (
         <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-[#0c1222] text-slate-900 dark:text-slate-100 border border-slate-200/80 dark:border-slate-800/80 rounded-2xl shadow-2xl max-w-md w-full p-6 space-y-5">
+          <div className="bg-white dark:bg-[#0c1222] text-slate-900 dark:text-slate-100 border border-slate-200/80 dark:border-slate-800/80 rounded-2xl shadow-2xl max-w-2xl w-full p-6 space-y-5">
             <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/80 pb-3">
-              <h2 className="text-base font-black text-slate-900 dark:text-white">
-                Register Institutional Account
-              </h2>
+              <div>
+                <h2 className="text-base font-black text-slate-900 dark:text-white flex items-center gap-2">
+                  <Building2 className="w-5 h-5 text-indigo-600" />
+                  Register Institutional Account & Primary Stakeholder
+                </h2>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  Configure enterprise brand profile, regional operating context, and designated key client contact.
+                </p>
+              </div>
               <button
                 type="button"
                 onClick={() => setCreateModalOpen(false)}
-                className="text-slate-400 hover:text-slate-700 dark:hover:text-white"
+                className="text-slate-400 hover:text-slate-700 dark:hover:text-white p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             {createError && (
-              <div className="p-3 bg-red-500/10 text-red-600 text-xs rounded-xl border border-red-500/20 font-semibold">
-                {createError}
+              <div className="p-3 bg-red-500/10 text-red-600 text-xs rounded-xl border border-red-500/20 font-semibold flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                <span>{createError}</span>
               </div>
             )}
 
-            <form onSubmit={handleCreateClient} className="space-y-3.5 text-xs">
-              <div>
-                <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
-                  Company / Organization Name
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={newClientName}
-                  onChange={(e) => setNewClientName(e.target.value)}
-                  placeholder="e.g. Apex Cloud Solutions"
-                  className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 px-3 py-2 text-xs text-slate-900 dark:text-slate-100"
-                />
-              </div>
+            <form onSubmit={handleCreateClient} className="space-y-4 text-xs">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Column 1: Institutional & Corporate Details */}
+                <div className="space-y-3 p-3.5 bg-slate-50/70 dark:bg-slate-900/50 rounded-xl border border-slate-200/60 dark:border-slate-800/60">
+                  <span className="text-[11px] font-black uppercase tracking-wider text-indigo-600 dark:text-indigo-400 flex items-center gap-1.5">
+                    <Building2 className="w-3.5 h-3.5" />
+                    Company & Enterprise Info
+                  </span>
 
-              <div>
-                <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
-                  Primary Corporate Email
-                </label>
-                <input
-                  type="email"
-                  required
-                  value={newClientEmail}
-                  onChange={(e) => setNewClientEmail(e.target.value)}
-                  placeholder="enterprise@company.com"
-                  className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 px-3 py-2 text-xs text-slate-900 dark:text-slate-100"
-                />
-              </div>
+                  <div>
+                    <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+                      Company / Organization Name <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={newClientName}
+                      onChange={(e) => setNewClientName(e.target.value)}
+                      placeholder="e.g. Apex Cloud Solutions"
+                      className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 font-semibold"
+                    />
+                  </div>
 
-              <div>
-                <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
-                  Direct Phone (Optional)
-                </label>
-                <input
-                  type="tel"
-                  value={newClientPhone}
-                  onChange={(e) => setNewClientPhone(e.target.value)}
-                  placeholder="+91 98765 43210"
-                  className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 px-3 py-2 text-xs text-slate-900 dark:text-slate-100"
-                />
-              </div>
+                  <div>
+                    <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+                      Website URL
+                    </label>
+                    <input
+                      type="text"
+                      value={newClientWebsite}
+                      onChange={(e) => setNewClientWebsite(e.target.value)}
+                      placeholder="https://example.com"
+                      className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500"
+                    />
+                  </div>
 
-              <div>
-                <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
-                  Industry / Sector
-                </label>
-                <input
-                  type="text"
-                  value={newClientIndustry}
-                  onChange={(e) => setNewClientIndustry(e.target.value)}
-                  placeholder="e.g. Enterprise SaaS, FinTech, Logistics"
-                  className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 px-3 py-2 text-xs text-slate-900 dark:text-slate-100"
-                />
-              </div>
+                  <div>
+                    <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+                      Industry / Sector
+                    </label>
+                    <input
+                      type="text"
+                      value={newClientIndustry}
+                      onChange={(e) => setNewClientIndustry(e.target.value)}
+                      placeholder="e.g. Enterprise SaaS, FinTech, E-Commerce"
+                      className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500"
+                    />
+                  </div>
 
-              <div>
-                <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
-                  Primary Operating Region
-                </label>
-                <select
-                  value={newClientRegion}
-                  onChange={(e) => setNewClientRegion(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 font-semibold"
-                >
-                  <option value="in">🇮🇳 India (INR ₹)</option>
-                  <option value="us">🇺🇸 United States (USD $)</option>
-                  <option value="ae">🇦🇪 UAE (AED)</option>
-                  <option value="gb">🇬🇧 United Kingdom (GBP)</option>
-                  <option value="sg">🇸🇬 Singapore (SGD)</option>
-                </select>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+                        Operating Region
+                      </label>
+                      <select
+                        value={newClientRegion}
+                        onChange={(e) => setNewClientRegion(e.target.value)}
+                        className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-2.5 py-2 text-xs text-slate-900 dark:text-slate-100 font-semibold focus:ring-2 focus:ring-indigo-500"
+                      >
+                        {dynamicRegions && dynamicRegions.length > 0 ? (
+                          dynamicRegions.map((r) => (
+                            <option key={r.code} value={r.code.toLowerCase()}>
+                              {r.flagEmoji || "🌐"} {r.name} ({r.currencyCode})
+                            </option>
+                          ))
+                        ) : (
+                          DEFAULT_GLOBAL_COUNTRIES.slice(0, 8).map((c) => (
+                            <option key={c.code} value={c.code.toLowerCase()}>
+                              {c.flag} {c.name}
+                            </option>
+                          ))
+                        )}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+                        Account Stage
+                      </label>
+                      <select
+                        value={newClientStatus}
+                        onChange={(e) => setNewClientStatus(Number(e.target.value) as ClientStatus)}
+                        className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-2.5 py-2 text-xs text-slate-900 dark:text-slate-100 font-semibold focus:ring-2 focus:ring-indigo-500"
+                      >
+                        <option value="1">Active Account</option>
+                        <option value="2">Prospect Opportunity</option>
+                        <option value="3">Inactive / Onboarding</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Column 2: Primary Client Contact & Multi-Country Phone */}
+                <div className="space-y-3 p-3.5 bg-slate-50/70 dark:bg-slate-900/50 rounded-xl border border-slate-200/60 dark:border-slate-800/60">
+                  <span className="text-[11px] font-black uppercase tracking-wider text-purple-600 dark:text-purple-400 flex items-center gap-1.5">
+                    <UserCheck className="w-3.5 h-3.5" />
+                    Key Client Stakeholder
+                  </span>
+
+                  <div>
+                    <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+                      Client / Contact Person Name <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={newContactName}
+                      onChange={(e) => setNewContactName(e.target.value)}
+                      placeholder="e.g. Rahul Sharma"
+                      className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 font-semibold"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+                      Designation / Role Title
+                    </label>
+                    <input
+                      type="text"
+                      value={newContactTitle}
+                      onChange={(e) => setNewContactTitle(e.target.value)}
+                      placeholder="e.g. Chief Marketing Officer / VP Growth"
+                      className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+                      Corporate Email <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="email"
+                      required
+                      value={newClientEmail}
+                      onChange={(e) => setNewClientEmail(e.target.value)}
+                      placeholder="e.g. rahul@example.com"
+                      className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+                      Direct Phone (Multi-Country Support)
+                    </label>
+                    <div className="flex gap-2">
+                      <select
+                        value={phoneCountryCode}
+                        onChange={(e) => handlePhoneChange(e.target.value, phoneNationalNumber)}
+                        className="w-32 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-2 py-2 text-xs text-slate-900 dark:text-slate-100 font-semibold focus:ring-2 focus:ring-indigo-500 shrink-0"
+                      >
+                        {DEFAULT_GLOBAL_COUNTRIES.map((c) => (
+                          <option key={c.code} value={c.dialCode}>
+                            {c.flag} {c.dialCode} ({c.code})
+                          </option>
+                        ))}
+                      </select>
+                      <input
+                        type="tel"
+                        value={phoneNationalNumber}
+                        onChange={(e) => handlePhoneChange(phoneCountryCode, e.target.value)}
+                        placeholder="98765 43210"
+                        className="flex-1 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500"
+                      />
+                    </div>
+                    {phoneValidationError && (
+                      <p className="text-[11px] text-red-500 mt-1 font-medium">
+                        {phoneValidationError}
+                      </p>
+                    )}
+                  </div>
+                </div>
               </div>
 
               <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100 dark:border-slate-800">
                 <button
                   type="button"
                   onClick={() => setCreateModalOpen(false)}
-                  className="px-4 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700"
+                  className="px-4 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 transition"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={creatingClient}
-                  className="px-4 py-2 text-xs font-bold text-white bg-indigo-600 rounded-xl hover:bg-indigo-500 disabled:opacity-50 shadow-md shadow-indigo-600/30"
+                  className="px-5 py-2 text-xs font-bold text-white bg-indigo-600 rounded-xl hover:bg-indigo-500 disabled:opacity-50 shadow-md shadow-indigo-600/30 transition flex items-center gap-1.5"
                 >
-                  {creatingClient ? "Registering..." : "Save Account"}
+                  {creatingClient ? "Registering Account..." : "Save Institutional Account"}
                 </button>
               </div>
             </form>
@@ -933,44 +1419,46 @@ export const ClientsPage: React.FC = () => {
       {/* Add Contact Modal */}
       {contactModalOpen && selectedClientId && (
         <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-[#0c1222] text-slate-900 dark:text-slate-100 border border-slate-200/80 dark:border-slate-800/80 rounded-2xl shadow-2xl max-w-sm w-full p-6 space-y-4">
-            <h3 className="font-black text-slate-900 dark:text-white text-sm">
-              Add Key Stakeholder
-            </h3>
-            <form onSubmit={handleAddContact} className="space-y-3 text-xs">
+          <div className="bg-white dark:bg-[#0c1222] text-slate-900 dark:text-slate-100 border border-slate-200/80 dark:border-slate-800/80 rounded-2xl shadow-2xl max-w-md w-full p-6 space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/80 pb-3">
+              <h3 className="font-black text-slate-900 dark:text-white text-sm flex items-center gap-2">
+                <UserCheck className="w-4 h-4 text-indigo-600" />
+                Add Key Stakeholder
+              </h3>
+              <button
+                type="button"
+                onClick={() => setContactModalOpen(false)}
+                className="text-slate-400 hover:text-slate-700 dark:hover:text-white"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleAddContact} className="space-y-3.5 text-xs">
               <div>
                 <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
-                  Full Name
+                  Full Name <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
                   required
-                  value={newContactName}
-                  onChange={(e) => setNewContactName(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 p-2"
+                  value={newSecondaryContactName}
+                  onChange={(e) => setNewSecondaryContactName(e.target.value)}
+                  placeholder="e.g. Priya Nair"
+                  className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 p-2.5 focus:ring-2 focus:ring-indigo-500 font-semibold"
                 />
               </div>
               <div>
                 <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
-                  Corporate Email
+                  Corporate Email <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="email"
                   required
-                  value={newContactEmail}
-                  onChange={(e) => setNewContactEmail(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 p-2"
-                />
-              </div>
-              <div>
-                <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
-                  Phone (Optional)
-                </label>
-                <input
-                  type="tel"
-                  value={newContactPhone}
-                  onChange={(e) => setNewContactPhone(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 p-2"
+                  value={newSecondaryContactEmail}
+                  onChange={(e) => setNewSecondaryContactEmail(e.target.value)}
+                  placeholder="e.g. priya@company.com"
+                  className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 p-2.5 focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
               <div>
@@ -979,25 +1467,198 @@ export const ClientsPage: React.FC = () => {
                 </label>
                 <input
                   type="text"
-                  value={newContactTitle}
-                  onChange={(e) => setNewContactTitle(e.target.value)}
-                  placeholder="e.g. Chief Marketing Officer"
-                  className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 p-2"
+                  value={newSecondaryContactTitle}
+                  onChange={(e) => setNewSecondaryContactTitle(e.target.value)}
+                  placeholder="e.g. Head of Performance Marketing"
+                  className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 p-2.5 focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
-              <div className="flex justify-end gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+              <div>
+                <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+                  Phone (Multi-Country Support)
+                </label>
+                <div className="flex gap-2">
+                  <select
+                    value={contactPhoneCountryCode}
+                    onChange={(e) => handleContactPhoneChange(e.target.value, contactPhoneNational)}
+                    className="w-28 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-2 py-2 text-xs text-slate-900 dark:text-slate-100 font-semibold focus:ring-2 focus:ring-indigo-500 shrink-0"
+                  >
+                    {DEFAULT_GLOBAL_COUNTRIES.map((c) => (
+                      <option key={c.code} value={c.dialCode}>
+                        {c.flag} {c.dialCode}
+                      </option>
+                    ))}
+                  </select>
+                  <input
+                    type="tel"
+                    value={contactPhoneNational}
+                    onChange={(e) => handleContactPhoneChange(contactPhoneCountryCode, e.target.value)}
+                    placeholder="98765 43210"
+                    className="flex-1 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 p-2.5 focus:ring-2 focus:ring-indigo-500"
+                  />
+                </div>
+                {contactPhoneError && (
+                  <p className="text-[11px] text-red-500 mt-1 font-medium">{contactPhoneError}</p>
+                )}
+              </div>
+              <div className="flex justify-end gap-2 pt-3 border-t border-slate-100 dark:border-slate-800">
                 <button
                   type="button"
                   onClick={() => setContactModalOpen(false)}
-                  className="px-3 py-1.5 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-700 dark:text-slate-300"
+                  className="px-3.5 py-2 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-3.5 py-1.5 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-500 shadow-sm"
+                  className="px-4 py-2 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-500 shadow-sm transition"
                 >
                   Save Stakeholder
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Client Modal */}
+      {editModalOpen && selectedClientId && (
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-[#0c1222] text-slate-900 dark:text-slate-100 border border-slate-200/80 dark:border-slate-800/80 rounded-2xl shadow-2xl max-w-lg w-full p-6 space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/80 pb-3">
+              <h3 className="font-black text-slate-900 dark:text-white text-base flex items-center gap-2">
+                <Edit3 className="w-4 h-4 text-indigo-600" />
+                Edit Account Profile
+              </h3>
+              <button
+                type="button"
+                onClick={() => setEditModalOpen(false)}
+                className="text-slate-400 hover:text-slate-700 dark:hover:text-white"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleUpdateClient} className="space-y-3.5 text-xs">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="col-span-2">
+                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+                    Company / Organization Name <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={editName}
+                    onChange={(e) => setEditName(e.target.value)}
+                    className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 font-semibold focus:ring-2 focus:ring-indigo-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+                    Website URL
+                  </label>
+                  <input
+                    type="text"
+                    value={editWebsite}
+                    onChange={(e) => setEditWebsite(e.target.value)}
+                    placeholder="https://company.com"
+                    className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+                    Industry / Sector
+                  </label>
+                  <input
+                    type="text"
+                    value={editIndustry}
+                    onChange={(e) => setEditIndustry(e.target.value)}
+                    placeholder="e.g. FinTech, SaaS"
+                    className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+                    Operating Region
+                  </label>
+                  <select
+                    value={editRegion}
+                    onChange={(e) => setEditRegion(e.target.value)}
+                    className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 font-semibold focus:ring-2 focus:ring-indigo-500"
+                  >
+                    {dynamicRegions && dynamicRegions.length > 0 ? (
+                      dynamicRegions.map((r) => (
+                        <option key={r.code} value={r.code.toLowerCase()}>
+                          {r.flagEmoji || "🌐"} {r.name}
+                        </option>
+                      ))
+                    ) : (
+                      DEFAULT_GLOBAL_COUNTRIES.slice(0, 8).map((c) => (
+                        <option key={c.code} value={c.code.toLowerCase()}>
+                          {c.flag} {c.name}
+                        </option>
+                      ))
+                    )}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+                    Tax ID / GSTIN
+                  </label>
+                  <input
+                    type="text"
+                    value={editTaxId}
+                    onChange={(e) => setEditTaxId(e.target.value)}
+                    placeholder="e.g. 27AAAAA0000A1Z5"
+                    className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500"
+                  />
+                </div>
+
+                <div className="col-span-2">
+                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+                    Billing Registered Address
+                  </label>
+                  <textarea
+                    rows={2}
+                    value={editBillingAddress}
+                    onChange={(e) => setEditBillingAddress(e.target.value)}
+                    placeholder="Corporate headquarters or billing address..."
+                    className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500"
+                  />
+                </div>
+
+                <div className="col-span-2">
+                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+                    Internal Operational Notes
+                  </label>
+                  <textarea
+                    rows={2}
+                    value={editNotes}
+                    onChange={(e) => setEditNotes(e.target.value)}
+                    placeholder="Contract notes, SLAs, executive expectations..."
+                    className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500"
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-2 pt-3 border-t border-slate-100 dark:border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => setEditModalOpen(false)}
+                  className="px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={updatingClient}
+                  className="px-5 py-2 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-500 disabled:opacity-50 shadow-md shadow-indigo-600/30 transition"
+                >
+                  {updatingClient ? "Updating..." : "Save Profile Changes"}
                 </button>
               </div>
             </form>

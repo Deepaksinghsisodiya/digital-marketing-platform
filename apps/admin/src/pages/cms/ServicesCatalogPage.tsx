@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import * as yup from "yup";
 import { toast } from "sonner";
+import { ConfirmDialog } from "../../components/ConfirmDialog";
 import {
   Sparkles,
   Plus,
@@ -120,6 +121,10 @@ export const ServicesCatalogPage: React.FC = () => {
   const [selectedPillar, setSelectedPillar] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
+  const [serviceToDelete, setServiceToDelete] = useState<{
+    id: string;
+    title: string;
+  } | null>(null);
 
   // Form Modal State (Create & Edit)
   const [isFormOpen, setIsFormOpen] = useState<boolean>(false);
@@ -154,7 +159,7 @@ export const ServicesCatalogPage: React.FC = () => {
       if (content.sectionSubtitle)
         setSectionSubtitle(content.sectionSubtitle as string);
 
-      const rawServices = Array.isArray(content.services)
+      const rawServices: Array<Partial<ServiceItem>> = Array.isArray(content.services)
         ? (content.services as ServiceItem[])
         : Array.isArray(content.features)
         ? (content.features as Array<{
@@ -329,18 +334,24 @@ export const ServicesCatalogPage: React.FC = () => {
     const targetIdx = direction === "up" ? index - 1 : index + 1;
     const reordered = [...services];
     const [moved] = reordered.splice(index, 1);
-    reordered.splice(targetIdx, 0, moved);
-    setServices(reordered);
-    setHasUnsavedChanges(true);
+    if (moved) {
+      reordered.splice(targetIdx, 0, moved);
+      setServices(reordered);
+      setHasUnsavedChanges(true);
+    }
   };
 
   // Delete
   const handleDelete = (id: string, title: string) => {
-    if (!window.confirm(`Are you sure you want to delete the service "${title}"?`))
-      return;
-    setServices((prev) => prev.filter((s) => s.id !== id));
+    setServiceToDelete({ id, title });
+  };
+
+  const confirmDeleteService = () => {
+    if (!serviceToDelete) return;
+    setServices((prev) => prev.filter((s) => s.id !== serviceToDelete.id));
     setHasUnsavedChanges(true);
-    toast.success(`Service "${title}" deleted.`);
+    toast.success(`Service "${serviceToDelete.title}" removed. Click 'Save Changes' to publish.`);
+    setServiceToDelete(null);
   };
 
   // Open Modal (Add)
@@ -456,7 +467,7 @@ export const ServicesCatalogPage: React.FC = () => {
       );
 
       const blockPayload: CmsBlock = {
-        id: blockIdx >= 0 ? blocks[blockIdx].id : `blk_features_${Date.now()}`,
+        id: blockIdx >= 0 && blocks[blockIdx] ? blocks[blockIdx].id : `blk_features_${Date.now()}`,
         type: "FeatureGrid",
         schemaVersion: 1,
         enabled: sectionEnabled,
@@ -487,7 +498,7 @@ export const ServicesCatalogPage: React.FC = () => {
         id: targetPageId,
         body: {
           blocks,
-          versionToken: pageDetail.versionToken,
+          versionToken: pageDetail.versionToken ?? undefined,
         },
       }).unwrap();
 
@@ -626,7 +637,7 @@ export const ServicesCatalogPage: React.FC = () => {
       )}
 
       {/* 3. Pillar KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
         <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-2xs">
           <span className="text-xs text-slate-500 font-semibold uppercase">
             Total Services
@@ -1039,6 +1050,21 @@ export const ServicesCatalogPage: React.FC = () => {
           </div>
         </div>
       )}
+      {/* Delete Service Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={Boolean(serviceToDelete)}
+        title="Delete Service Offering"
+        description={
+          serviceToDelete
+            ? `Are you sure you want to remove "${serviceToDelete.title}" from the capabilities catalog? You must click 'Save Changes' to push the update live.`
+            : ""
+        }
+        confirmText="Remove Service"
+        cancelText="Cancel"
+        variant="danger"
+        onConfirm={confirmDeleteService}
+        onClose={() => setServiceToDelete(null)}
+      />
     </div>
   );
 };

@@ -32,6 +32,15 @@ const config: Config = {
         sans: [tokens.fonts.sans],
         mono: [tokens.fonts.mono],
       },
+      transitionDuration: {
+        fast: "150ms",
+        normal: "250ms",
+        slow: "500ms",
+        slower: "700ms",
+      },
+      transitionTimingFunction: {
+        "out-cubic": "cubic-bezier(0.22, 1, 0.36, 1)",
+      },
       keyframes: {
         marquee: {
           "0%": { transform: "translateX(0%)" },

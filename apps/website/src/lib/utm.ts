@@ -10,6 +10,8 @@ export interface StoredUtmParams {
   utmCampaign?: string;
   utmTerm?: string;
   utmContent?: string;
+  gclid?: string;
+  fbclid?: string;
   referrerUrl?: string;
   landingPageUrl?: string;
 }
@@ -30,7 +32,9 @@ export function captureUtmParameters(): StoredUtmParams | null {
       urlParams.has("utm_medium") ||
       urlParams.has("utm_campaign") ||
       urlParams.has("utm_term") ||
-      urlParams.has("utm_content");
+      urlParams.has("utm_content") ||
+      urlParams.has("gclid") ||
+      urlParams.has("fbclid");
 
     // Retrieve existing UTMs if already saved in this session
     const existingRaw = sessionStorage.getItem(STORAGE_KEY);
@@ -45,6 +49,8 @@ export function captureUtmParameters(): StoredUtmParams | null {
         utmCampaign: urlParams.get("utm_campaign") || existing.utmCampaign,
         utmTerm: urlParams.get("utm_term") || existing.utmTerm,
         utmContent: urlParams.get("utm_content") || existing.utmContent,
+        gclid: urlParams.get("gclid") || existing.gclid,
+        fbclid: urlParams.get("fbclid") || existing.fbclid,
       };
     }
 

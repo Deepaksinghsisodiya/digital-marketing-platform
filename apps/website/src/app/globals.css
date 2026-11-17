@@ -425,33 +425,15 @@ h1, h2, h3, h4, h5, h6, .font-heading {
 
 @media (max-width: 767px) {
   :root {
-    --nexora-content-width: 92%;
+    --nexora-content-width: 100%;
   }
 }
 
-/* 1. Global Header Navigation & Announcement Bar (Aligned to 85% grid) */
-header .h-20 {
-  width: var(--nexora-content-width) !important;
-  max-width: var(--nexora-content-width) !important;
-  margin-left: auto !important;
-  margin-right: auto !important;
-  padding-left: 0 !important;
-  padding-right: 0 !important;
-}
-
-header .bg-navy.py-2 > div {
-  width: var(--nexora-content-width) !important;
-  max-width: var(--nexora-content-width) !important;
-  margin-left: auto !important;
-  margin-right: auto !important;
-  padding-left: 0 !important;
-  padding-right: 0 !important;
-}
-
-/* 2. All Page Sections & Block Containers (BentoGrid, FeatureGrid, Comparison, Pricing, Testimonials, Hero, Stats, Booking) */
+/* 1. All Page Sections, Header & Footer Block Containers (Aligned to Unified Content Grid) */
 .max-w-7xl,
 .max-w-6xl,
 .max-w-\[1440px\],
+header > div > div.max-w-7xl,
 main section[class*="max-w-"],
 main section > div[class*="max-w-7xl"],
 main section > div[class*="max-w-6xl"] {
@@ -478,6 +460,140 @@ footer > div > div.max-w-7xl {
   margin-left: auto !important;
   margin-right: auto !important;
 }
+
+/* =========================================================================
+   GLOBAL UNIFIED MOBILE & DESKTOP SECTION GUTTER ARCHITECTURE
+   Controls horizontal padding (px) across Header, Announcement Bar,
+   all Sections, and Footer globally from this single stylesheet.
+   To adjust the padding across the entire website, change this ONE variable:
+   ========================================================================= */
+:root {
+  --nexora-mobile-gutter: 1rem; /* 16px (matches navbar & announcement bar px-4 on mobile) */
+  --nexora-section-py-mobile: 2.5rem; /* 40px (py-10) */
+  --nexora-section-py-tablet: 3.5rem; /* 56px (py-14) */
+  --nexora-section-py-desktop: 4.5rem; /* 72px (py-18) */
+}
+
+@media (max-width: 639px) {
+  /* 1. Header Navigation Container */
+  header .h-12,
+  header .h-14,
+  header .h-16,
+  header > div > .w-full,
+  /* 2. Announcement Bar Container */
+  header div[class*="bg-"] > div,
+  /* 3. All Direct Main Sections & CMS Block Containers */
+  main > section,
+  main > div > section,
+  main section[class*="max-w-"],
+  main section > div[class*="max-w-7xl"],
+  main section > div[class*="max-w-6xl"],
+  main section > div[class*="max-w-5xl"],
+  /* 4. Footer Outer & Inner Containers */
+  footer > div,
+  footer > div > div {
+    padding-left: var(--nexora-mobile-gutter) !important;
+    padding-right: var(--nexora-mobile-gutter) !important;
+  }
+}
+
+/* =========================================================================
+   GLOBAL MOTION SYSTEM (Hard Rule 6 & Rule 3)
+   Consistent motion tokens, easing, distance, and global reduced-motion overrides
+   ========================================================================= */
+:root {
+  --nexora-motion-fast: 150ms;
+  --nexora-motion-normal: 250ms;
+  --nexora-motion-slow: 500ms;
+  --nexora-motion-slower: 700ms;
+  --nexora-motion-easing: cubic-bezier(0.22, 1, 0.36, 1);
+  --nexora-motion-dist-sm: 12px;
+  --nexora-motion-dist-md: 18px;
+  --nexora-motion-dist-lg: 24px;
+}
+
+@keyframes ctaPulseRing {
+  0% {
+    box-shadow: 0 0 0 0 rgba(var(--nexora-primary-rgb, 16 185 129), 0.45);
+  }
+  70% {
+    box-shadow: 0 0 0 12px rgba(var(--nexora-primary-rgb, 16 185 129), 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(var(--nexora-primary-rgb, 16 185 129), 0);
+  }
+}
+
+.animate-pulse-ring {
+  animation: ctaPulseRing 3s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+
+.animate-pulse-ring:hover {
+  animation: none !important;
+}
+
+@keyframes gradientDrift {
+  0%, 100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(8px, -8px, 0);
+  }
+}
+
+.animate-gradient-drift {
+  animation: gradientDrift 8s ease-in-out infinite;
+  will-change: transform;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-4px); }
+  40%, 80% { transform: translateX(4px); }
+}
+
+.animate-shake {
+  animation: shake 350ms ease-in-out;
+}
+
+/* Global reduced motion override (Hard Rule 3 & DB 'off' mode) */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .animate-pulse-ring,
+  .animate-gradient-drift,
+  .animate-marquee,
+  .animate-marquee-reverse,
+  .animate-float {
+    animation: none !important;
+  }
+}
+
+[data-animation-mode="off"] *,
+[data-animation-mode="off"] *::before,
+[data-animation-mode="off"] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+[data-animation-mode="off"] .animate-pulse-ring,
+[data-animation-mode="off"] .animate-gradient-drift,
+[data-animation-mode="off"] .animate-marquee,
+[data-animation-mode="off"] .animate-marquee-reverse,
+[data-animation-mode="off"] .animate-float {
+  animation: none !important;
+}
+
+
 
 
 

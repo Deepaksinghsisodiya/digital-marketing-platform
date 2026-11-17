@@ -56,6 +56,7 @@ interface BlogPostSummary {
   tags?: string;
   authorName?: string;
   publishedAtUtc?: string;
+  coverImageUrl?: string;
 }
 
 async function getLatestPosts(): Promise<BlogPostSummary[]> {
@@ -132,18 +133,18 @@ const FALLBACK_HERO_SLIDER_BLOCK: CmsBlock = {
       },
       {
         id: "slide-2",
-        tag: "Enterprise Web Engineering",
-        headline: "Engineered Digital Experiences for Modern Scale.",
+        tag: "High-Converting Digital Platforms",
+        headline: "Engineered Digital Experiences Built to Turn Traffic into Revenue.",
         subheadline:
-          "Next.js 15 enterprise web applications, modular headless CMS, bespoke APIs, and sub-second Core Web Vitals.",
-        primaryCtaText: "Build Modern Web App",
+          "High-speed custom websites, optimized sales funnels, and enterprise e-commerce platforms designed to maximize your customer conversion rate.",
+        primaryCtaText: "Upgrade Your Website",
         primaryCtaLink: "/contact",
-        secondaryCtaText: "Explore Tech Stack",
-        secondaryCtaLink: "/services",
+        secondaryCtaText: "View Client Results",
+        secondaryCtaLink: "/case-studies",
         imageUrl:
           "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=2000&q=85",
-        imageAlt: "Next.js 15 Technology Workspace",
-        imageBadge: "100% Typed • Sub-Second CWV",
+        imageAlt: "High-Converting Digital Growth Architecture",
+        imageBadge: "High-Converting Sales Platforms",
         imagePosition: "background",
       },
       {
@@ -213,6 +214,20 @@ export default async function HomePage() {
     if (type === "cta" && sectionVisibility.showCtaBanner === false)
       return false;
     if (type === "faq" && sectionVisibility.showFaq === false) return false;
+    if (type === "testimonials" && (sectionVisibility as Record<string, boolean>).showTestimonials === false) return false;
+    if ((type === "casestudies" || type === "portfolio") && (sectionVisibility as Record<string, boolean>).showCaseStudies === false) return false;
+    if (
+      type === "roicalculator" ||
+      type === "roi" ||
+      type === "comparisontable" ||
+      type === "comparison" ||
+      type === "pricing" ||
+      type === "pricingblock"
+    ) {
+      return false;
+    }
+    if (type === "processsteps" && (sectionVisibility as Record<string, boolean>).showProcess === false) return false;
+    if (type === "logostrip" && (sectionVisibility as Record<string, boolean>).showLogos === false) return false;
     return true;
   });
 
@@ -232,61 +247,106 @@ export default async function HomePage() {
             {/* Latest Insights / Blog Articles (when using CMS blocks) */}
             {sectionVisibility.showBlogInsights !== false &&
               latestPosts.length > 0 && (
-                <section className="py-24 bg-slate-50 border-t border-slate-200/80 px-6 sm:px-10 lg:px-12 xl:px-16">
-                  <div className="max-w-7xl mx-auto">
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-14">
-                      <div>
-                        <span className="text-xs font-bold text-blue-700 uppercase tracking-widest bg-blue-50 px-3 py-1 rounded-full border border-blue-200">
-                          Strategic Knowledge Base
+                <section className="py-10 sm:py-14 lg:py-18 bg-slate-50/70 border-t border-slate-200/80 w-full relative overflow-hidden">
+                  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                    <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 sm:gap-6 mb-8 sm:mb-12">
+                      <div className="space-y-2">
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-widest bg-primary/10 text-primary border border-primary/20 shadow-2xs">
+                          <Sparkles className="w-3.5 h-3.5 text-primary shrink-0" />
+                          <span>Strategic Knowledge Base</span>
                         </span>
-                        <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight mt-3">
-                          Latest Insights &amp; Thought Leadership
+                        <h2 className="text-2xl xs:text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight">
+                          Latest Insights &amp; Market Intelligence
                         </h2>
+                        <p className="text-xs sm:text-sm md:text-base text-slate-600 max-w-xl font-normal leading-relaxed">
+                          Actionable analysis on customer acquisition, conversion optimization, and predictable pipeline growth.
+                        </p>
                       </div>
                       <Link
                         href="/blog"
-                        className="inline-flex items-center gap-1.5 text-sm font-bold text-blue-600 hover:text-blue-700 bg-white border border-slate-200 px-4 py-2 rounded-xl shadow-xs hover:shadow transition"
+                        className="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-slate-800 hover:text-primary bg-white hover:bg-slate-50 border border-slate-200/90 hover:border-primary/40 px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl shadow-xs hover:shadow-md transition-all group shrink-0 self-start sm:self-auto cursor-pointer"
                       >
                         <span>Explore all articles</span>
-                        <span>&rarr;</span>
+                        <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
                       </Link>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                      {latestPosts.map((post) => (
-                        <article
-                          key={post.id}
-                          className="rounded-3xl bg-white border border-slate-200/90 p-7 shadow-xs hover:shadow-xl hover:border-blue-400 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between group"
-                        >
-                          <div>
-                            <span className="text-xs font-bold text-blue-700 bg-blue-50 px-3 py-1 rounded-full border border-blue-100">
-                              {post.category || "Growth Strategy"}
-                            </span>
-                            <h3 className="text-xl font-bold text-slate-900 mt-4 line-clamp-2 group-hover:text-blue-600 transition-colors">
-                              <Link href={`/blog/${post.slug}`}>
-                                {post.title}
-                              </Link>
-                            </h3>
-                            {post.excerpt && (
-                              <p className="text-sm text-slate-600 mt-2.5 line-clamp-3 leading-relaxed font-normal">
-                                {post.excerpt}
-                              </p>
-                            )}
-                          </div>
-                          <div className="mt-8 pt-5 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-                            <span className="font-medium text-slate-700">
-                              {post.authorName || "Chief Growth Strategist"}
-                            </span>
-                            <Link
-                              href={`/blog/${post.slug}`}
-                              className="font-bold text-blue-600 group-hover:translate-x-0.5 transition-transform flex items-center gap-1"
-                            >
-                              <span>Read Analysis</span>
-                              <ArrowRight className="w-3.5 h-3.5" />
-                            </Link>
-                          </div>
-                        </article>
-                      ))}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+                      {latestPosts.map((post, idx) => {
+                        const fallbackImages = [
+                          "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80",
+                          "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=800&q=80",
+                          "https://images.unsplash.com/photo-1557804506-669a67965ba0?auto=format&fit=crop&w=800&q=80",
+                        ];
+                        const coverImg =
+                          post.coverImageUrl || fallbackImages[idx % fallbackImages.length];
+                        const author = post.authorName || "Chief Growth Strategist";
+                        const initials = author
+                          .split(" ")
+                          .map((n) => n[0])
+                          .join("")
+                          .slice(0, 2)
+                          .toUpperCase();
+
+                        return (
+                          <article
+                            key={post.id}
+                            className="rounded-2xl sm:rounded-3xl bg-white border border-slate-200/90 shadow-xs hover:shadow-xl hover:border-primary/40 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between overflow-hidden group"
+                          >
+                            {/* Card Image Banner */}
+                            <div className="relative aspect-16/10 w-full overflow-hidden bg-slate-100">
+                              <img
+                                src={coverImg}
+                                alt={post.title}
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                loading="lazy"
+                              />
+                              <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                              <span className="absolute top-3 left-3 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-900/85 backdrop-blur-md text-white border border-white/20">
+                                {post.category || "Growth Strategy"}
+                              </span>
+                              <span className="absolute bottom-3 right-3 px-2 py-0.5 rounded-md text-[10px] font-semibold bg-black/60 backdrop-blur-md text-white">
+                                4 min read
+                              </span>
+                            </div>
+
+                            {/* Card Content Body */}
+                            <div className="p-5 sm:p-6 flex-1 flex flex-col justify-between space-y-4">
+                              <div className="space-y-2.5">
+                                <h3 className="text-base sm:text-lg lg:text-xl font-bold text-slate-900 line-clamp-2 group-hover:text-primary transition-colors leading-snug">
+                                  <Link href={`/blog/${post.slug}`}>
+                                    {post.title}
+                                  </Link>
+                                </h3>
+                                {post.excerpt && (
+                                  <p className="text-xs sm:text-sm text-slate-600 line-clamp-2 sm:line-clamp-3 leading-relaxed font-normal">
+                                    {post.excerpt}
+                                  </p>
+                                )}
+                              </div>
+
+                              {/* Card Author & CTA Footer */}
+                              <div className="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+                                <div className="flex items-center gap-2">
+                                  <div className="w-7 h-7 rounded-full bg-primary/10 text-primary border border-primary/20 flex items-center justify-center font-bold text-[10px] shrink-0">
+                                    {initials}
+                                  </div>
+                                  <span className="font-medium text-slate-700 truncate max-w-[120px] sm:max-w-none">
+                                    {author}
+                                  </span>
+                                </div>
+                                <Link
+                                  href={`/blog/${post.slug}`}
+                                  className="font-bold text-primary group-hover:translate-x-1 transition-transform flex items-center gap-1 cursor-pointer"
+                                >
+                                  <span>Read Analysis</span>
+                                  <ArrowRight className="w-3.5 h-3.5" />
+                                </Link>
+                              </div>
+                            </div>
+                          </article>
+                        );
+                      })}
                     </div>
                   </div>
                 </section>
@@ -301,17 +361,17 @@ export default async function HomePage() {
             )}
 
             {/* 04. TRUST & SOCIAL PROOF STRIP */}
-            <section className="py-6 bg-[#080c14] text-slate-300 border-y border-white/10 overflow-hidden relative">
+            <section className="py-4 sm:py-6 bg-[#080c14] text-slate-300 border-y border-white/10 overflow-hidden relative">
               <div className="absolute inset-0 bg-radial from-primary/10 via-transparent to-transparent pointer-events-none" />
-              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative flex flex-wrap items-center justify-between gap-6 text-xs">
+              <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 relative flex flex-wrap items-center justify-center sm:justify-between gap-3 sm:gap-6 text-xs text-center sm:text-left">
                 {/* Client Rating & Reviews Badge */}
-                <div className="flex items-center gap-3">
+                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 sm:gap-3">
                   <div className="flex items-center text-amber-400 gap-0.5">
-                    <Star className="w-4 h-4 fill-amber-400" />
-                    <Star className="w-4 h-4 fill-amber-400" />
-                    <Star className="w-4 h-4 fill-amber-400" />
-                    <Star className="w-4 h-4 fill-amber-400" />
-                    <Star className="w-4 h-4 fill-amber-400" />
+                    <Star className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-amber-400" />
+                    <Star className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-amber-400" />
+                    <Star className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-amber-400" />
+                    <Star className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-amber-400" />
+                    <Star className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-amber-400" />
                   </div>
                   <span className="font-bold text-white text-xs">
                     4.9/5 Rating
@@ -322,10 +382,10 @@ export default async function HomePage() {
                 </div>
 
                 {/* Performance & Engineering Badges */}
-                <div className="flex flex-wrap items-center gap-4 text-[11px] font-mono uppercase tracking-wider text-slate-400">
-                  <span className="flex items-center gap-1.5 text-white"><Check className="w-3.5 h-3.5 text-primary" /> Sub-Second CWV</span>
-                  <span className="flex items-center gap-1.5 text-white"><Check className="w-3.5 h-3.5 text-primary" /> Next.js 15 &amp; React 19</span>
-                  <span className="flex items-center gap-1.5 text-white"><Check className="w-3.5 h-3.5 text-accent" /> Server-Side Attribution</span>
+                <div className="flex flex-wrap items-center justify-center sm:justify-end gap-2 sm:gap-4 text-[10px] sm:text-[11px] font-mono uppercase tracking-wider text-slate-400">
+                  <span className="flex items-center gap-1.5 text-white"><Check className="w-3.5 h-3.5 text-primary shrink-0" /> Sub-Second CWV</span>
+                  <span className="flex items-center gap-1.5 text-white"><Check className="w-3.5 h-3.5 text-primary shrink-0" /> Next.js 15 &amp; React 19</span>
+                  <span className="flex items-center gap-1.5 text-white"><Check className="w-3.5 h-3.5 text-accent shrink-0" /> Server-Side Attribution</span>
                 </div>
               </div>
             </section>
@@ -349,46 +409,46 @@ export default async function HomePage() {
             </section>
 
             {/* 06. CORE CAPABILITIES (3 Large Feature Cards) */}
-            <section className="py-24 bg-gradient-to-b from-slate-50 via-white to-slate-50 border-y border-slate-200/80 px-6 sm:px-10 lg:px-12 xl:px-16 relative overflow-hidden">
+            <section className="py-10 sm:py-16 lg:py-24 bg-gradient-to-b from-slate-50 via-white to-slate-50 border-y border-slate-200/80 px-3 sm:px-6 lg:px-8 xl:px-12 relative overflow-hidden">
               <div className="absolute inset-0 grid-matrix-light opacity-50 pointer-events-none" />
-              <div className="max-w-7xl mx-auto space-y-14 relative z-10">
-                <div className="text-center max-w-3xl mx-auto space-y-3">
-                  <span className="text-xs font-extrabold text-emerald-700 uppercase tracking-widest px-3.5 py-1 rounded-full bg-emerald-50 border border-emerald-200/60 inline-block">
+              <div className="max-w-7xl mx-auto space-y-8 sm:space-y-12 lg:space-y-14 relative z-10">
+                <div className="text-center max-w-3xl mx-auto space-y-2.5 sm:space-y-3">
+                  <span className="text-[10px] sm:text-xs font-extrabold text-emerald-700 uppercase tracking-widest px-3.5 py-1 rounded-full bg-emerald-50 border border-emerald-200/60 inline-block shadow-2xs">
                     Full-Funnel Capabilities
                   </span>
-                  <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight">
+                  <h2 className="text-2xl xs:text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight">
                     Comprehensive Digital Capabilities
                   </h2>
-                  <p className="text-sm sm:text-base text-slate-600">
+                  <p className="text-xs sm:text-sm md:text-base text-slate-600 leading-relaxed font-normal">
                     Engineered from the ground up for measurable commercial pipeline and enterprise resilience.
                   </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
                   {/* Card 1: Digital Growth */}
-                  <div className="rounded-3xl border border-slate-200/90 bg-white p-8 sm:p-10 shadow-sm hover:shadow-2xl hover:shadow-emerald-500/10 hover:border-emerald-400 hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between group relative overflow-hidden">
+                  <div className="rounded-2xl sm:rounded-3xl border border-slate-200/90 bg-white p-5 sm:p-7 md:p-8 lg:p-10 shadow-sm hover:shadow-2xl hover:shadow-emerald-500/10 hover:border-emerald-400 hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between group relative overflow-hidden">
                     <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-emerald-500 to-teal-400" />
-                    <div className="space-y-4">
-                      <div className="w-13 h-13 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white flex items-center justify-center shadow-lg shadow-emerald-500/25 group-hover:scale-105 transition-transform">
-                        <TrendingUp className="w-6 h-6" />
+                    <div className="space-y-3 sm:space-y-4">
+                      <div className="w-11 h-11 sm:w-13 sm:h-13 rounded-xl sm:rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white flex items-center justify-center shadow-lg shadow-emerald-500/25 group-hover:scale-105 transition-transform shrink-0">
+                        <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6" />
                       </div>
-                      <span className="text-[11px] font-extrabold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-md inline-block border border-emerald-100">
+                      <span className="text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-md inline-block border border-emerald-100">
                         Capability 01
                       </span>
-                      <h3 className="text-2xl font-black text-slate-900 group-hover:text-emerald-600 transition-colors">
+                      <h3 className="text-xl sm:text-2xl font-black text-slate-900 group-hover:text-emerald-600 transition-colors">
                         Digital Growth
                       </h3>
-                      <p className="text-sm text-slate-600 leading-relaxed">
+                      <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
                         Data-driven customer acquisition programs designed to turn commercial search intent and targeted advertising into predictable, compounded pipeline.
                       </p>
-                      <ul className="space-y-2.5 pt-2 text-xs text-slate-700 font-medium">
-                        <li className="flex items-center gap-2.5"><CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" /> Search Engine Optimization (SEO)</li>
-                        <li className="flex items-center gap-2.5"><CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" /> Performance Paid Media (Google &amp; Meta)</li>
-                        <li className="flex items-center gap-2.5"><CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" /> Conversion Rate Optimization (CRO)</li>
-                        <li className="flex items-center gap-2.5"><CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" /> Content &amp; Editorial Marketing</li>
+                      <ul className="space-y-2 sm:space-y-2.5 pt-2 text-xs text-slate-700 font-medium">
+                        <li className="flex items-center gap-2 sm:gap-2.5"><CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" /> Search Engine Optimization (SEO)</li>
+                        <li className="flex items-center gap-2.5"><CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" /> Performance Paid Media (Google &amp; Meta)</li>
+                        <li className="flex items-center gap-2.5"><CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" /> Conversion Rate Optimization (CRO)</li>
+                        <li className="flex items-center gap-2.5"><CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" /> Content &amp; Editorial Marketing</li>
                       </ul>
                     </div>
-                    <div className="pt-8 border-t border-slate-100 mt-8">
+                    <div className="pt-6 sm:pt-8 border-t border-slate-100 mt-6 sm:mt-8">
                       <Link href="/services/seo" className="text-xs font-bold text-emerald-600 hover:text-emerald-800 flex items-center gap-1 group-hover:translate-x-1.5 transition-transform">
                         <span>Explore Growth Capabilities</span>
                         <ArrowRight className="w-4 h-4" />
@@ -397,29 +457,29 @@ export default async function HomePage() {
                   </div>
 
                   {/* Card 2: Technology Solutions */}
-                  <div className="rounded-3xl border border-slate-200/90 bg-white p-8 sm:p-10 shadow-sm hover:shadow-2xl hover:shadow-teal-500/10 hover:border-teal-400 hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between group relative overflow-hidden">
+                  <div className="rounded-2xl sm:rounded-3xl border border-slate-200/90 bg-white p-5 sm:p-7 md:p-8 lg:p-10 shadow-sm hover:shadow-2xl hover:shadow-teal-500/10 hover:border-teal-400 hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between group relative overflow-hidden">
                     <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-teal-500 to-cyan-400" />
-                    <div className="space-y-4">
-                      <div className="w-13 h-13 rounded-2xl bg-gradient-to-tr from-teal-600 to-cyan-600 text-white flex items-center justify-center shadow-lg shadow-teal-500/25 group-hover:scale-105 transition-transform">
-                        <Code2 className="w-6 h-6" />
+                    <div className="space-y-3 sm:space-y-4">
+                      <div className="w-11 h-11 sm:w-13 sm:h-13 rounded-xl sm:rounded-2xl bg-gradient-to-tr from-teal-600 to-cyan-600 text-white flex items-center justify-center shadow-lg shadow-teal-500/25 group-hover:scale-105 transition-transform shrink-0">
+                        <Code2 className="w-5 h-5 sm:w-6 sm:h-6" />
                       </div>
-                      <span className="text-[11px] font-extrabold uppercase tracking-wider text-teal-700 bg-teal-50 px-2.5 py-1 rounded-md inline-block border border-teal-100">
+                      <span className="text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider text-teal-700 bg-teal-50 px-2.5 py-1 rounded-md inline-block border border-teal-100">
                         Capability 02
                       </span>
-                      <h3 className="text-2xl font-black text-slate-900 group-hover:text-teal-600 transition-colors">
+                      <h3 className="text-xl sm:text-2xl font-black text-slate-900 group-hover:text-teal-600 transition-colors">
                         Technology Solutions
                       </h3>
-                      <p className="text-sm text-slate-600 leading-relaxed">
+                      <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
                         Production-grade web applications, headless corporate websites, and enterprise software engineered for sub-second load times and long-term maintainability.
                       </p>
-                      <ul className="space-y-2.5 pt-2 text-xs text-slate-700 font-medium">
-                        <li className="flex items-center gap-2.5"><CheckCircle2 className="w-4 h-4 text-teal-600 flex-shrink-0" /> Corporate Website Development (Next.js)</li>
-                        <li className="flex items-center gap-2.5"><CheckCircle2 className="w-4 h-4 text-teal-600 flex-shrink-0" /> Custom Web Application Engineering</li>
-                        <li className="flex items-center gap-2.5"><CheckCircle2 className="w-4 h-4 text-teal-600 flex-shrink-0" /> Headless E-Commerce Development</li>
-                        <li className="flex items-center gap-2.5"><CheckCircle2 className="w-4 h-4 text-teal-600 flex-shrink-0" /> UI/UX Design &amp; Central Design Systems</li>
+                      <ul className="space-y-2 sm:space-y-2.5 pt-2 text-xs text-slate-700 font-medium">
+                        <li className="flex items-center gap-2 sm:gap-2.5"><CheckCircle2 className="w-4 h-4 text-teal-600 shrink-0" /> Corporate Website Development (Next.js)</li>
+                        <li className="flex items-center gap-2.5"><CheckCircle2 className="w-4 h-4 text-teal-600 shrink-0" /> Custom Web Application Engineering</li>
+                        <li className="flex items-center gap-2.5"><CheckCircle2 className="w-4 h-4 text-teal-600 shrink-0" /> Headless E-Commerce Development</li>
+                        <li className="flex items-center gap-2.5"><CheckCircle2 className="w-4 h-4 text-teal-600 shrink-0" /> UI/UX Design &amp; Central Design Systems</li>
                       </ul>
                     </div>
-                    <div className="pt-8 border-t border-slate-100 mt-8">
+                    <div className="pt-6 sm:pt-8 border-t border-slate-100 mt-6 sm:mt-8">
                       <Link href="/services/web-design-development" className="text-xs font-bold text-teal-600 hover:text-teal-800 flex items-center gap-1 group-hover:translate-x-1.5 transition-transform">
                         <span>Explore Technology Capabilities</span>
                         <ArrowRight className="w-4 h-4" />
@@ -428,29 +488,29 @@ export default async function HomePage() {
                   </div>
 
                   {/* Card 3: AI & Automation */}
-                  <div className="rounded-3xl border border-slate-200/90 bg-white p-8 sm:p-10 shadow-sm hover:shadow-2xl hover:shadow-cyan-500/10 hover:border-cyan-400 hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between group relative overflow-hidden">
+                  <div className="rounded-2xl sm:rounded-3xl border border-slate-200/90 bg-white p-5 sm:p-7 md:p-8 lg:p-10 shadow-sm hover:shadow-2xl hover:shadow-cyan-500/10 hover:border-cyan-400 hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between group relative overflow-hidden">
                     <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-cyan-500 to-emerald-400" />
-                    <div className="space-y-4">
-                      <div className="w-13 h-13 rounded-2xl bg-gradient-to-tr from-cyan-600 to-emerald-600 text-white flex items-center justify-center shadow-lg shadow-cyan-500/25 group-hover:scale-105 transition-transform">
-                        <Workflow className="w-6 h-6" />
+                    <div className="space-y-3 sm:space-y-4">
+                      <div className="w-11 h-11 sm:w-13 sm:h-13 rounded-xl sm:rounded-2xl bg-gradient-to-tr from-cyan-600 to-emerald-600 text-white flex items-center justify-center shadow-lg shadow-cyan-500/25 group-hover:scale-105 transition-transform shrink-0">
+                        <Workflow className="w-5 h-5 sm:w-6 sm:h-6" />
                       </div>
-                      <span className="text-[11px] font-extrabold uppercase tracking-wider text-cyan-700 bg-cyan-50 px-2.5 py-1 rounded-md inline-block border border-cyan-100">
+                      <span className="text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider text-cyan-700 bg-cyan-50 px-2.5 py-1 rounded-md inline-block border border-cyan-100">
                         Capability 03
                       </span>
-                      <h3 className="text-2xl font-black text-slate-900 group-hover:text-cyan-600 transition-colors">
+                      <h3 className="text-xl sm:text-2xl font-black text-slate-900 group-hover:text-cyan-600 transition-colors">
                         AI &amp; Automation
                       </h3>
-                      <p className="text-sm text-slate-600 leading-relaxed">
+                      <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
                         Custom AI integrations, intelligent chatbots, and event-driven business process automations that eliminate manual bottlenecks and scale lead velocity.
                       </p>
-                      <ul className="space-y-2.5 pt-2 text-xs text-slate-700 font-medium">
-                        <li className="flex items-center gap-2.5"><CheckCircle2 className="w-4 h-4 text-cyan-600 flex-shrink-0" /> AI Integrations &amp; Custom LLM Tools</li>
-                        <li className="flex items-center gap-2.5"><CheckCircle2 className="w-4 h-4 text-cyan-600 flex-shrink-0" /> Conversational AI Intake Chatbots</li>
-                        <li className="flex items-center gap-2.5"><CheckCircle2 className="w-4 h-4 text-cyan-600 flex-shrink-0" /> Automated Lead Scoring &amp; CRM Sync</li>
-                        <li className="flex items-center gap-2.5"><CheckCircle2 className="w-4 h-4 text-cyan-600 flex-shrink-0" /> Event-Driven Business Workflow Pipelines</li>
+                      <ul className="space-y-2 sm:space-y-2.5 pt-2 text-xs text-slate-700 font-medium">
+                        <li className="flex items-center gap-2 sm:gap-2.5"><CheckCircle2 className="w-4 h-4 text-cyan-600 shrink-0" /> AI Integrations &amp; Custom LLM Tools</li>
+                        <li className="flex items-center gap-2.5"><CheckCircle2 className="w-4 h-4 text-cyan-600 shrink-0" /> Conversational AI Intake Chatbots</li>
+                        <li className="flex items-center gap-2.5"><CheckCircle2 className="w-4 h-4 text-cyan-600 shrink-0" /> Automated Lead Scoring &amp; CRM Sync</li>
+                        <li className="flex items-center gap-2.5"><CheckCircle2 className="w-4 h-4 text-cyan-600 shrink-0" /> Event-Driven Business Workflow Pipelines</li>
                       </ul>
                     </div>
-                    <div className="pt-8 border-t border-slate-100 mt-8">
+                    <div className="pt-6 sm:pt-8 border-t border-slate-100 mt-6 sm:mt-8">
                       <Link href="/services/marketing-automation-crm" className="text-xs font-bold text-cyan-600 hover:text-cyan-800 flex items-center gap-1 group-hover:translate-x-1.5 transition-transform">
                         <span>Explore AI Capabilities</span>
                         <ArrowRight className="w-4 h-4" />
@@ -462,7 +522,7 @@ export default async function HomePage() {
             </section>
 
             {/* 07. CLIENT SOCIAL PROOF & TESTIMONIALS (Measurable Impact) */}
-            <section className="py-24 bg-white px-4 sm:px-6 lg:px-8 border-b border-slate-200/80">
+            <section className="py-24 bg-white px-3 sm:px-6 lg:px-8 border-b border-slate-200/80">
               <div className="max-w-7xl mx-auto space-y-14">
                 <div className="text-center max-w-3xl mx-auto space-y-3">
                   <span className="text-xs font-extrabold text-primary uppercase tracking-widest px-3.5 py-1 rounded-full bg-primary/10 border border-primary/20 inline-block">
@@ -574,7 +634,7 @@ export default async function HomePage() {
             </section>
 
             {/* 08. WHY NEXORA (Key Differentiators) */}
-            <section className="py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+            <section className="py-24 px-3 sm:px-6 lg:px-8 max-w-7xl mx-auto">
               <div className="text-center max-w-3xl mx-auto space-y-3 mb-16">
                 <span className="text-xs font-bold text-primary uppercase tracking-widest px-3 py-1 rounded-full bg-primary/10 border border-primary/20">
                   The Nexora Advantage
@@ -678,14 +738,14 @@ export default async function HomePage() {
                       title: "Execute",
                       gradient: "from-cyan-400 to-emerald-400",
                       badge: "High-Velocity Build",
-                      desc: "High-velocity development in Next.js, campaign deployment, CRM integrations, and rigorous QA verification.",
+                      desc: "Multi-channel campaign deployment, conversion rate optimization, CRM tracking integrations, and rigorous funnel QA.",
                     },
                     {
                       step: "04",
                       title: "Optimize",
                       gradient: "from-emerald-400 to-teal-300",
                       badge: "Continuous Scaling",
-                      desc: "Continuous multivariate testing, Core Web Vitals maintenance, conversion funnel tuning, and systematic scaling.",
+                      desc: "Continuous multivariate testing, conversion funnel tuning, customer journey optimization, and systematic revenue scaling.",
                     },
                   ].map((s, idx) => (
                     <div
@@ -730,8 +790,8 @@ export default async function HomePage() {
                     a: "Yes. Nexora is a full-service global digital marketing and engineering agency. We support scaling brands and enterprises worldwide with seamless timezone-aligned collaboration (PST, EST, GMT, IST), transparent sprint milestones, and enterprise data privacy standards.",
                   },
                   {
-                    q: "What technologies and frameworks do you build with?",
-                    a: "Our core production stack includes Next.js 15 (App Router), React 19, TypeScript, Tailwind CSS, and Radix UI on the frontend, with robust ASP.NET Core and Node.js APIs, PostgreSQL databases, Docker containers, and Cloudflare edge delivery.",
+                    q: "What technology stack powers your digital marketing and web solutions?",
+                    a: "We engineer solutions using enterprise-grade cloud architecture and ultra-fast web frameworks engineered for speed, bank-grade data security, multi-channel attribution, and seamless CRM integrations to turn traffic into qualified pipeline.",
                   },
                   {
                     q: "What is your pricing and engagement model?",

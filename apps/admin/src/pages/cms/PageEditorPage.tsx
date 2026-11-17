@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+import { ConfirmDialog } from "../../components/ConfirmDialog";
 import {
   useGetPageByIdQuery,
   useSavePageDraftMutation,
@@ -321,6 +323,8 @@ export const PageEditorPage: React.FC = () => {
   const [canonicalUrl, setCanonicalUrl] = useState("");
   const [noIndex, setNoIndex] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
+  const [publishConfirmOpen, setPublishConfirmOpen] = useState(false);
+  const [discardConfirmOpen, setDiscardConfirmOpen] = useState(false);
 
   // Status banner / Conflict state
   const [saveMessage, setSaveMessage] = useState<{
@@ -347,12 +351,8 @@ export const PageEditorPage: React.FC = () => {
   }, [isDirty]);
 
   const handleBack = () => {
-    if (
-      isDirty &&
-      !window.confirm(
-        "You have unsaved changes. Are you sure you want to discard them?",
-      )
-    ) {
+    if (isDirty) {
+      setDiscardConfirmOpen(true);
       return;
     }
     navigate("/cms/pages");
@@ -463,19 +463,23 @@ export const PageEditorPage: React.FC = () => {
     }
   };
 
-  const handlePublish = async () => {
+  const handlePublish = () => {
     if (!id || !page) return;
-    if (!window.confirm("Publish changes to the live website?")) return;
+    setPublishConfirmOpen(true);
+  };
 
+  const confirmPublishAction = async () => {
+    if (!id || !page) return;
     try {
       await handleSaveDraft();
       await publishPage(id).unwrap();
       refetch();
       setIframeKey((k) => k + 1);
-      alert("Page published successfully!");
+      setPublishConfirmOpen(false);
+      toast.success("Page published successfully to the live site!");
     } catch (err: unknown) {
       const errObj = err as { data?: { error?: string } };
-      alert(errObj?.data?.error || "Failed to publish page.");
+      toast.error(errObj?.data?.error || "Failed to publish page.");
     }
   };
 
@@ -490,7 +494,7 @@ export const PageEditorPage: React.FC = () => {
         "_blank",
       );
     } catch {
-      alert("Failed to generate preview token.");
+      toast.error("Failed to generate preview token.");
     }
   };
 
@@ -2182,6 +2186,33 @@ export const PageEditorPage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Discard Unsaved Changes Dialog */}
+      <ConfirmDialog
+        isOpen={discardConfirmOpen}
+        title="Discard Unsaved Changes"
+        description="You have unsaved changes on this page draft. Leaving now will discard your modifications."
+        confirmText="Discard Changes"
+        cancelText="Keep Editing"
+        variant="warning"
+        onConfirm={() => {
+          setDiscardConfirmOpen(false);
+          navigate("/cms/pages");
+        }}
+        onClose={() => setDiscardConfirmOpen(false)}
+      />
+
+      {/* Publish Page Dialog */}
+      <ConfirmDialog
+        isOpen={publishConfirmOpen}
+        title="Publish Live Page"
+        description={`Publish "${page?.title || "Page"}" to the public website? All draft changes will immediately be visible to live site visitors.`}
+        confirmText="Publish to Live Site"
+        cancelText="Cancel"
+        variant="primary"
+        onConfirm={confirmPublishAction}
+        onClose={() => setPublishConfirmOpen(false)}
+      />
     </div>
   );
 };

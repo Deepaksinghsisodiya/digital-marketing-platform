@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { toast } from "sonner";
 import {
   useGetRolesQuery,
   useGetPermissionsQuery,
@@ -221,7 +222,7 @@ export const RolesPage: React.FC = () => {
       setTimeout(() => setFeedback(null), 4000);
     } catch (err: unknown) {
       const errorObj = err as { data?: { error?: string } };
-      alert(errorObj?.data?.error || "Failed to create role.");
+      toast.error(errorObj?.data?.error || "Failed to create role.");
     }
   };
 
@@ -238,36 +239,23 @@ export const RolesPage: React.FC = () => {
 
       setEditRoleModalOpen(false);
       refetchRoles();
-      setFeedback({
-        type: "success",
-        message: `Permissions updated for role '${editingRole.name}'! Changes applied immediately.`,
-      });
-      setTimeout(() => setFeedback(null), 4000);
+      toast.success(
+        `Permissions updated for role '${editingRole.name}'! Changes applied immediately.`
+      );
     } catch (err: unknown) {
       const errorObj = err as { data?: { error?: string } };
-      alert(errorObj?.data?.error || "Failed to update role permissions.");
+      toast.error(errorObj?.data?.error || "Failed to update role permissions.");
     }
   };
 
   const handleDelete = async (roleName: string) => {
-    if (
-      !window.confirm(
-        `Are you sure you want to permanently delete role '${roleName}'? This action cannot be undone.`,
-      )
-    ) {
-      return;
-    }
     try {
       await deleteRole(roleName).unwrap();
       refetchRoles();
-      setFeedback({
-        type: "success",
-        message: `Role '${roleName}' has been deleted successfully.`,
-      });
-      setTimeout(() => setFeedback(null), 4000);
+      toast.success(`Role '${roleName}' has been deleted successfully.`);
     } catch (err: unknown) {
       const errorObj = err as { data?: { error?: string } };
-      alert(errorObj?.data?.error || "Failed to delete role.");
+      toast.error(errorObj?.data?.error || "Failed to delete role.");
     }
   };
 

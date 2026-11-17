@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import * as yup from "yup";
+import { toast } from "sonner";
+import { Loader2, CheckCircle2 } from "lucide-react";
 import { captureUtmParameters, getStoredUtmParameters } from "../../lib/utm";
 
 // Yup Validation Schema for Website Contact / Lead Form
@@ -48,6 +50,7 @@ export const ContactForm: React.FC<ContactFormProps> = () => {
   const [submitSuccess, setSubmitSuccess] = useState<string | null>(null);
   const [referenceNumber, setReferenceNumber] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [hasErrorShake, setHasErrorShake] = useState(false);
 
   const apiUrl =
     process.env.INTERNAL_API_URL ||
@@ -91,15 +94,19 @@ export const ContactForm: React.FC<ContactFormProps> = () => {
       );
     } catch (err: unknown) {
       if (err instanceof yup.ValidationError) {
-        setErrorMessage(err.errors[0] || "Please check your form inputs.");
+        const errorMsg = err.errors[0] || "Please check your form inputs.";
+        setErrorMessage(errorMsg);
+        setHasErrorShake(true);
+        setTimeout(() => setHasErrorShake(false), 500);
+        toast.error(errorMsg);
         return;
       }
     }
 
     if (!apiUrl) {
-      setErrorMessage(
-        "API configuration error: NEXT_PUBLIC_API_URL is not set.",
-      );
+      const errorMsg = "API configuration error: NEXT_PUBLIC_API_URL is not set.";
+      setErrorMessage(errorMsg);
+      toast.error(errorMsg);
       return;
     }
 
@@ -119,6 +126,8 @@ export const ContactForm: React.FC<ContactFormProps> = () => {
           budget: budget || "Not Specified",
           ...(message.trim() ? { notes: message.trim() } : {}),
           ...(utm.landingPageUrl ? { landingPageUrl: utm.landingPageUrl } : {}),
+          ...(utm.gclid ? { gclid: utm.gclid } : {}),
+          ...(utm.fbclid ? { fbclid: utm.fbclid } : {}),
         },
         utmSource: utm.utmSource || undefined,
         utmMedium: utm.utmMedium || undefined,
@@ -155,9 +164,14 @@ export const ContactForm: React.FC<ContactFormProps> = () => {
         );
       }
 
-      setSubmitSuccess(
+      const successMsg =
         data.message ||
-          "Thank you! Your inquiry has been submitted successfully.",
+        "Thank you! Your inquiry has been submitted successfully.";
+      setSubmitSuccess(successMsg);
+      toast.success(
+        data.referenceNumber
+          ? `Inquiry received! Reference #${data.referenceNumber}`
+          : "Inquiry received! Our team will respond within 24 hours.",
       );
       if (data.referenceNumber) {
         setReferenceNumber(data.referenceNumber);
@@ -180,7 +194,7 @@ export const ContactForm: React.FC<ContactFormProps> = () => {
   };
 
   return (
-    <div className="w-full max-w-xl mx-auto rounded-3xl border border-slate-200 bg-white p-8 md:p-10 shadow-xl">
+    <div className="w-full max-w-xl mx-auto rounded-3xl border border-slate-200 bg-white p-5 sm:p-8 md:p-10 shadow-xl">
       <div className="mb-6">
         <h2 className="text-2xl font-bold tracking-tight text-slate-900">
           Request an Executive Consultation
@@ -215,7 +229,12 @@ export const ContactForm: React.FC<ContactFormProps> = () => {
           </button>
         </div>
       ) : (
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form
+          onSubmit={handleSubmit}
+          className={`space-y-4 ${
+            hasErrorShake ? "animate-shake motion-reduce:animate-none" : ""
+          }`}
+        >
           {errorMessage && (
             <div className="rounded-xl bg-red-50 border border-red-200 p-3 text-xs text-red-700">
               {errorMessage}
@@ -363,9 +382,16 @@ export const ContactForm: React.FC<ContactFormProps> = () => {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full rounded-xl bg-primary py-3.5 text-sm font-bold text-primary-foreground shadow-lg shadow-primary/25 hover:bg-primary-hover active:scale-[0.99] transition disabled:opacity-50 cursor-pointer"
+              className="w-full rounded-xl bg-primary py-3.5 text-sm font-bold text-primary-foreground shadow-lg shadow-primary/25 hover:bg-primary-hover active:scale-[0.99] transition disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2"
             >
-              {isSubmitting ? "Submitting Inquiry..." : "Submit Inquiry"}
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin shrink-0" />
+                  <span>Submitting Inquiry...</span>
+                </>
+              ) : (
+                <span>Submit Inquiry</span>
+              )}
             </button>
           </div>
         </form>

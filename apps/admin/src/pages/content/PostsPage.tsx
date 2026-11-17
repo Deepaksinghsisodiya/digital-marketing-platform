@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { toast } from "sonner";
+import { ConfirmDialog } from "../../components/ConfirmDialog";
 import {
   useGetAdminPostsQuery,
   useCreateBlogPostMutation,
@@ -32,6 +34,10 @@ export const PostsPage: React.FC = () => {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingPost, setEditingPost] = useState<BlogPostSummary | null>(null);
+  const [postToDelete, setPostToDelete] = useState<{
+    id: string;
+    title: string;
+  } | null>(null);
   const [isMediaPickerOpen, setIsMediaPickerOpen] = useState(false);
 
   // Form State
@@ -110,19 +116,23 @@ export const PostsPage: React.FC = () => {
       }
       setIsModalOpen(false);
       refetch();
+      toast.success(editingPost ? "Blog post updated successfully!" : "Blog post created successfully!");
     } catch (err: unknown) {
-      alert("Failed to save post: " + JSON.stringify(err));
+      const errObj = err as { data?: { error?: string } };
+      toast.error(errObj?.data?.error || "Failed to save post.");
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (confirm("Are you sure you want to delete this blog post?")) {
-      try {
-        await deletePost(id).unwrap();
-        refetch();
-      } catch (err: unknown) {
-        alert("Failed to delete post: " + JSON.stringify(err));
-      }
+  const confirmDeletePost = async () => {
+    if (!postToDelete) return;
+    try {
+      await deletePost(postToDelete.id).unwrap();
+      refetch();
+      toast.success(`Post "${postToDelete.title}" deleted successfully.`);
+      setPostToDelete(null);
+    } catch (err: unknown) {
+      const errObj = err as { data?: { error?: string } };
+      toast.error(errObj?.data?.error || "Failed to delete post.");
     }
   };
 
@@ -286,7 +296,9 @@ export const PostsPage: React.FC = () => {
                         Edit
                       </button>
                       <button
-                        onClick={() => handleDelete(post.id)}
+                        onClick={() =>
+                          setPostToDelete({ id: post.id, title: post.title })
+                        }
                         disabled={isDeleting}
                         className="text-rose-600 dark:text-rose-400 hover:underline"
                       >
@@ -568,6 +580,23 @@ export const PostsPage: React.FC = () => {
         onSelect={(url) => {
           setFormData((prev) => ({ ...prev, coverImageUrl: url }));
         }}
+      />
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={Boolean(postToDelete)}
+        title="Delete Blog Post"
+        description={
+          postToDelete
+            ? `Are you sure you want to permanently delete "${postToDelete.title}"? This cannot be undone.`
+            : ""
+        }
+        confirmText="Delete Post"
+        cancelText="Cancel"
+        variant="danger"
+        isLoading={isDeleting}
+        onConfirm={confirmDeletePost}
+        onClose={() => setPostToDelete(null)}
       />
     </div>
   );

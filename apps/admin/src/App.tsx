@@ -32,7 +32,6 @@ import { FaqsPage } from "./pages/cms/FaqsPage";
 import { LeadsPage } from "./pages/leads/LeadsPage";
 import { EmailTemplatesPage } from "./pages/EmailTemplatesPage";
 import { ClientsPage } from "./pages/clients/ClientsPage";
-import { TasksPage } from "./pages/tasks/TasksPage";
 import { PostsPage } from "./pages/content/PostsPage";
 import { MediaLibraryPage } from "./pages/media/MediaLibraryPage";
 import { MenusPage } from "./pages/menus/MenusPage";

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { toast } from "sonner";
 import {
   useGetSettingsQuery,
   useUpdateSettingsMutation,
@@ -104,7 +105,7 @@ export const phoneValidationSchema = yup.object().shape({
 
 export const SettingsPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<
-    "identity" | "pipelines" | "regions" | "smtp" | "sections"
+    "identity" | "pipelines" | "regions" | "smtp" | "tracking"
   >("identity");
 
   // Site Settings Query & Mutation
@@ -171,6 +172,7 @@ export const SettingsPage: React.FC = () => {
   const [fontHeading, setFontHeading] = useState("Plus Jakarta Sans");
   const [borderRadius, setBorderRadius] = useState("0.5rem");
   const [buttonStyle, setButtonStyle] = useState("rounded");
+  const [animationMode, setAnimationMode] = useState<"full" | "reduced" | "off">("full");
   const [animationEnabled, setAnimationEnabled] = useState(true);
   const [animationSpeed, setAnimationSpeed] = useState<
     "fast" | "normal" | "slow"
@@ -219,6 +221,13 @@ export const SettingsPage: React.FC = () => {
     success: boolean;
     message: string;
   } | null>(null);
+
+  // Tab 5: Marketing Pixels & Analytics State
+  const [gtmContainerId, setGtmContainerId] = useState("");
+  const [gaMeasurementId, setGaMeasurementId] = useState("");
+  const [metaPixelId, setMetaPixelId] = useState("");
+  const [searchConsoleVerification, setSearchConsoleVerification] = useState("");
+  const [bookingUrl, setBookingUrl] = useState("");
 
   // Tab 5: Website Section Visibility State
   const [sectionVisibility, setSectionVisibility] = useState<
@@ -295,6 +304,11 @@ export const SettingsPage: React.FC = () => {
           if (parsed.fontHeading) setFontHeading(parsed.fontHeading);
           if (parsed.radius) setBorderRadius(parsed.radius);
           if (parsed.buttonStyle) setButtonStyle(parsed.buttonStyle);
+          if (parsed.animationMode) {
+            setAnimationMode(parsed.animationMode);
+          } else if (parsed.animation?.enabled === false) {
+            setAnimationMode("off");
+          }
           if (parsed.animation) {
             if (typeof parsed.animation.enabled === "boolean")
               setAnimationEnabled(parsed.animation.enabled);
@@ -326,6 +340,22 @@ export const SettingsPage: React.FC = () => {
         } catch {
           // fallback defaults
         }
+      }
+
+      if (settings.trackingCodesJson) {
+        try {
+          const parsed = JSON.parse(settings.trackingCodesJson);
+          if (parsed.gtmContainerId) setGtmContainerId(parsed.gtmContainerId);
+          if (parsed.gaMeasurementId) setGaMeasurementId(parsed.gaMeasurementId);
+          if (parsed.metaPixelId) setMetaPixelId(parsed.metaPixelId);
+          if (parsed.searchConsoleVerification) setSearchConsoleVerification(parsed.searchConsoleVerification);
+        } catch {
+          // fallback
+        }
+      }
+
+      if (settings.bookingUrl) {
+        setBookingUrl(settings.bookingUrl);
       }
     }
   }, [settings]);
@@ -453,6 +483,14 @@ export const SettingsPage: React.FC = () => {
         smtpFromEmail: smtpFromEmail.trim() || null,
         smtpFromName: smtpFromName.trim() || null,
         sectionVisibilityJson: JSON.stringify(sectionVisibility),
+        themeTokensJson: JSON.stringify({
+          ...(settings?.themeTokensJson ? JSON.parse(settings.themeTokensJson) : {}),
+          animationMode,
+          animation: {
+            enabled: animationMode !== "off",
+            speed: animationMode === "reduced" ? "slow" : "normal",
+          },
+        }),
         announcementBarJson: JSON.stringify({
           enabled: announcementEnabled,
           text: announcementText,
@@ -479,6 +517,57 @@ export const SettingsPage: React.FC = () => {
           type: "error",
           message: apiErr?.data?.error || "Failed to update platform settings.",
         });
+      }
+    }
+  };
+
+  const handleTrackingSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setFeedback(null);
+
+    const trackingPayload = JSON.stringify({
+      gtmContainerId: gtmContainerId.trim(),
+      gaMeasurementId: gaMeasurementId.trim(),
+      metaPixelId: metaPixelId.trim(),
+      searchConsoleVerification: searchConsoleVerification.trim(),
+    });
+
+    try {
+      const res = await updateSettings({
+        companyName,
+        legalName: legalName || null,
+        supportEmail,
+        supportPhone: phoneNationalNumber.trim() ? `${phoneCountryCode} ${phoneNationalNumber.trim()}` : supportPhone,
+        address: address || null,
+        defaultRegion,
+        supportedRegions: activeRegionCodes,
+        timeZoneId,
+        logoMediaId,
+        versionToken,
+        trackingCodesJson: trackingPayload,
+        bookingUrl: bookingUrl.trim() || undefined,
+      }).unwrap();
+
+      setVersionToken(res.versionToken);
+      setFeedback({
+        type: "success",
+        message: "Marketing analytics, pixels, and tracking tags saved and deployed to live website!",
+      });
+      toast.success("Marketing tracking pixels saved successfully!");
+      refetch();
+    } catch (err: unknown) {
+      const apiErr = err as { status?: number; data?: { error?: string } };
+      if (apiErr?.status === 409) {
+        setFeedback({
+          type: "conflict",
+          message: "Concurrency conflict (409): Settings modified by another user. Please reload.",
+        });
+      } else {
+        setFeedback({
+          type: "error",
+          message: apiErr?.data?.error || "Failed to update tracking configuration.",
+        });
+        toast.error("Failed to save tracking tags.");
       }
     }
   };
@@ -539,6 +628,14 @@ export const SettingsPage: React.FC = () => {
           smtpFromEmail.trim() || supportEmail || "noreply@nexora.local",
         smtpFromName: smtpFromName.trim() || companyName || "Nexora Platform",
         sectionVisibilityJson: JSON.stringify(sectionVisibility),
+        themeTokensJson: JSON.stringify({
+          ...(settings?.themeTokensJson ? JSON.parse(settings.themeTokensJson) : {}),
+          animationMode,
+          animation: {
+            enabled: animationMode !== "off",
+            speed: animationMode === "reduced" ? "slow" : "normal",
+          },
+        }),
         announcementBarJson: JSON.stringify({
           enabled: announcementEnabled,
           text: announcementText,
@@ -627,6 +724,14 @@ export const SettingsPage: React.FC = () => {
         smtpFromEmail: smtpFromEmail ? smtpFromEmail.trim() : null,
         smtpFromName: smtpFromName ? smtpFromName.trim() : null,
         sectionVisibilityJson: JSON.stringify(sectionVisibility),
+        themeTokensJson: JSON.stringify({
+          ...(settings?.themeTokensJson ? JSON.parse(settings.themeTokensJson) : {}),
+          animationMode,
+          animation: {
+            enabled: animationMode !== "off",
+            speed: animationMode === "reduced" ? "slow" : "normal",
+          },
+        }),
         announcementBarJson: JSON.stringify({
           enabled: announcementEnabled,
           text: announcementText,
@@ -905,15 +1010,15 @@ export const SettingsPage: React.FC = () => {
 
         <button
           type="button"
-          onClick={() => setActiveTab("sections")}
+          onClick={() => setActiveTab("tracking")}
           className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
-            activeTab === "sections"
+            activeTab === "tracking"
               ? "bg-primary text-primary-foreground shadow-md shadow-primary/30"
               : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60"
           }`}
         >
-          <Layout className="w-4 h-4" />
-          <span>Website Section Toggles</span>
+          <BarChart3 className="w-4 h-4" />
+          <span>Marketing Pixels & Analytics</span>
         </button>
       </div>
 
@@ -1303,6 +1408,57 @@ export const SettingsPage: React.FC = () => {
                     </div>
                   );
                 })}
+              </div>
+            </div>
+            {/* Animation & Motion Control (Hard Rule 9) */}
+            <div className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40 space-y-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                    Website Motion &amp; Animation Engine
+                  </h4>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    Control public website animations globally from database without rebuild.
+                  </p>
+                </div>
+                <Sparkles className="w-4 h-4 text-indigo-500" />
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {[
+                  {
+                    id: "full",
+                    label: "Full Motion",
+                    desc: "GPU reveals, count-up & micro-interactions",
+                  },
+                  {
+                    id: "reduced",
+                    label: "Reduced Motion",
+                    desc: "Instant transitions, no movement (accessible)",
+                  },
+                  {
+                    id: "off",
+                    label: "Off",
+                    desc: "Completely disable all animations",
+                  },
+                ].map((mode) => (
+                  <button
+                    key={mode.id}
+                    type="button"
+                    onClick={() =>
+                      setAnimationMode(mode.id as "full" | "reduced" | "off")
+                    }
+                    className={`p-3 rounded-xl border text-left transition ${
+                      animationMode === mode.id
+                        ? "bg-indigo-50 dark:bg-indigo-950/40 border-indigo-500 text-indigo-900 dark:text-indigo-200 ring-1 ring-indigo-500"
+                        : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-slate-300"
+                    }`}
+                  >
+                    <span className="block text-xs font-bold">{mode.label}</span>
+                    <span className="block text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                      {mode.desc}
+                    </span>
+                  </button>
+                ))}
               </div>
             </div>
           </div>
@@ -1840,180 +1996,121 @@ export const SettingsPage: React.FC = () => {
         </div>
       )}
 
-      {/* Tab 5: Website Section Toggles */}
-      {activeTab === "sections" && (
-        <div className="space-y-6">
+      {/* Tab 5: Marketing Pixels & Analytics (GTM, GA4, Meta Pixel) */}
+      {activeTab === "tracking" && (
+        <form onSubmit={handleTrackingSubmit} className="space-y-6">
           <div className="p-6 rounded-2xl bg-white dark:bg-[#0c1222] border border-slate-200/80 dark:border-slate-800/80 shadow-sm space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-100 dark:border-slate-800/80 pb-5">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/80 pb-3">
               <div>
-                <h3 className="text-base font-bold text-slate-900 dark:text-white">
-                  Dynamic Public Website Section Visibility
+                <h3 className="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 flex items-center gap-2">
+                  <BarChart3 className="w-4 h-4" />
+                  Marketing Analytics, Conversion Pixels &amp; Tracking Architecture
                 </h3>
-                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                  Toggle individual sections on the public homepage on or off in
-                  real time without code deployments. Changes persist
-                  immediately in the platform database.
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                  Deploy Google Tag Manager, GA4, Meta Pixel, and Search Console tags dynamically to the live public website without code changes.
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              {/* Google Tag Manager Container ID */}
+              <div className="p-4 rounded-xl border border-slate-200/80 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-900/40 space-y-2">
+                <label className="block text-xs font-bold text-slate-900 dark:text-white">
+                  Google Tag Manager (GTM) Container ID
+                </label>
+                <input
+                  type="text"
+                  value={gtmContainerId}
+                  onChange={(e) => setGtmContainerId(e.target.value.toUpperCase().trim())}
+                  placeholder="e.g. GTM-XXXXXXX"
+                  className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-mono text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                />
+                <p className="text-[10px] text-slate-400 leading-tight">
+                  Automatically initializes GTM datalayer script in the website &lt;head&gt; across all public marketing pages.
                 </p>
               </div>
 
-              <div className="flex items-center gap-2">
-                <a
-                  href="http://localhost:3000"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 border border-indigo-200 dark:border-indigo-800/40 transition"
-                >
-                  <Globe className="w-3.5 h-3.5" />
-                  <span>Preview Website</span>
-                </a>
-                <button
-                  type="button"
-                  onClick={handleSaveSectionVisibility}
-                  disabled={isSaving}
-                  className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-md shadow-indigo-600/30 transition disabled:opacity-50"
-                >
-                  <Save className="w-4 h-4" />
-                  <span>
-                    {isSaving ? "Saving..." : "Save Visibility Settings"}
-                  </span>
-                </button>
+              {/* Google Analytics 4 Measurement ID */}
+              <div className="p-4 rounded-xl border border-slate-200/80 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-900/40 space-y-2">
+                <label className="block text-xs font-bold text-slate-900 dark:text-white">
+                  Google Analytics 4 (GA4) Measurement ID
+                </label>
+                <input
+                  type="text"
+                  value={gaMeasurementId}
+                  onChange={(e) => setGaMeasurementId(e.target.value.toUpperCase().trim())}
+                  placeholder="e.g. G-XXXXXXXXXX"
+                  className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-mono text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                />
+                <p className="text-[10px] text-slate-400 leading-tight">
+                  Loads Google gtag.js library and dispatches pageview and scroll depth events with anonymized IP telemetry.
+                </p>
+              </div>
+
+              {/* Meta (Facebook) Pixel ID */}
+              <div className="p-4 rounded-xl border border-slate-200/80 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-900/40 space-y-2">
+                <label className="block text-xs font-bold text-slate-900 dark:text-white">
+                  Meta (Facebook &amp; Instagram) Pixel ID
+                </label>
+                <input
+                  type="text"
+                  value={metaPixelId}
+                  onChange={(e) => setMetaPixelId(e.target.value.trim())}
+                  placeholder="e.g. 123456789012345"
+                  className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-mono text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                />
+                <p className="text-[10px] text-slate-400 leading-tight">
+                  Tracks PageView, Lead submission, and ViewContent events for Meta retargeting and Lookalike audience modeling.
+                </p>
+              </div>
+
+              {/* Google Search Console Verification Token */}
+              <div className="p-4 rounded-xl border border-slate-200/80 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-900/40 space-y-2">
+                <label className="block text-xs font-bold text-slate-900 dark:text-white">
+                  Google Search Console Verification Token
+                </label>
+                <input
+                  type="text"
+                  value={searchConsoleVerification}
+                  onChange={(e) => setSearchConsoleVerification(e.target.value.trim())}
+                  placeholder="e.g. abcdef123456_xyz"
+                  className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-mono text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                />
+                <p className="text-[10px] text-slate-400 leading-tight">
+                  Generates &lt;meta name=&quot;google-site-verification&quot;&gt; tag for immediate domain ownership verification.
+                </p>
+              </div>
+
+              {/* Direct Strategy Booking Calendar URL */}
+              <div className="p-4 rounded-xl border border-slate-200/80 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-900/40 space-y-2 md:col-span-2">
+                <label className="block text-xs font-bold text-slate-900 dark:text-white">
+                  Direct Strategy Call Booking URL (Cal.com / Calendly / HubSpot)
+                </label>
+                <input
+                  type="url"
+                  value={bookingUrl}
+                  onChange={(e) => setBookingUrl(e.target.value.trim())}
+                  placeholder="https://cal.com/nexora/growth-strategy"
+                  className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                />
+                <p className="text-[10px] text-slate-400 leading-tight">
+                  Embedded into the &quot;Book a Strategy Call&quot; page and mobile quick-action bar for instant 30-minute calendar reservations.
+                </p>
               </div>
             </div>
 
-            {/* Toggle Switches List */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {[
-                {
-                  key: "showHero",
-                  title: "Hero Banner & Value Proposition",
-                  description:
-                    "Main above-the-fold headline, enterprise badges, and primary call-to-action buttons.",
-                  icon: Layout,
-                },
-                {
-                  key: "showMetricsBar",
-                  title: "Key Metrics & Live Telemetry",
-                  description:
-                    "Enterprise metrics bar displaying pipeline influenced, account audits, and attribution stats.",
-                  icon: BarChart3,
-                },
-                {
-                  key: "showCapabilitiesGrid",
-                  title: "Enterprise Capabilities 6-Grid",
-                  description:
-                    "Comprehensive grid showcasing SEO, multi-channel attribution, AI audience modeling, and tracking.",
-                  icon: Grid,
-                },
-                {
-                  key: "showBlogInsights",
-                  title: "Thought Leadership & Recent Articles",
-                  description:
-                    "Dynamically populated recent articles and strategic guides pulled from the blog collection.",
-                  icon: BookOpen,
-                },
-                {
-                  key: "showCtaBanner",
-                  title: "Bottom Enterprise Conversion CTA Banner",
-                  description:
-                    "High-contrast conversion banner inviting visitors to schedule an executive growth diagnostic.",
-                  icon: Megaphone,
-                },
-                {
-                  key: "showFaq",
-                  title: "Enterprise FAQ & Compliance Matrix",
-                  description:
-                    "Interactive FAQ section answering enterprise security, onboarding, and multi-country questions.",
-                  icon: HelpCircle,
-                },
-              ].map((item) => {
-                const isEnabled = sectionVisibility[item.key] !== false;
-                const Icon = item.icon;
-                return (
-                  <div
-                    key={item.key}
-                    onClick={() =>
-                      setSectionVisibility((prev) => ({
-                        ...prev,
-                        [item.key]: !isEnabled,
-                      }))
-                    }
-                    className={`p-5 rounded-2xl border transition-all cursor-pointer flex items-start justify-between gap-4 ${
-                      isEnabled
-                        ? "bg-indigo-50/30 dark:bg-indigo-950/20 border-indigo-200/80 dark:border-indigo-800/60 shadow-sm"
-                        : "bg-slate-50/60 dark:bg-slate-900/40 border-slate-200 dark:border-slate-800 opacity-60"
-                    }`}
-                  >
-                    <div className="flex items-start gap-3.5">
-                      <div
-                        className={`p-2.5 rounded-xl flex-shrink-0 transition-colors ${
-                          isEnabled
-                            ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
-                            : "bg-slate-200 dark:bg-slate-800 text-slate-500"
-                        }`}
-                      >
-                        <Icon className="w-5 h-5" />
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <h4 className="text-xs font-bold text-slate-900 dark:text-white">
-                            {item.title}
-                          </h4>
-                          <span
-                            className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
-                              isEnabled
-                                ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
-                                : "bg-slate-200 dark:bg-slate-800 text-slate-500"
-                            }`}
-                          >
-                            {isEnabled ? "Visible" : "Hidden"}
-                          </span>
-                        </div>
-                        <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
-                          {item.description}
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Smooth Pill Switch */}
-                    <button
-                      type="button"
-                      aria-label={`Toggle ${item.title}`}
-                      className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                        isEnabled
-                          ? "bg-indigo-600"
-                          : "bg-slate-300 dark:bg-slate-700"
-                      }`}
-                    >
-                      <span
-                        className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-                          isEnabled ? "translate-x-5" : "translate-x-0"
-                        }`}
-                      />
-                    </button>
-                  </div>
-                );
-              })}
-            </div>
-
-            <div className="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-800">
-              <span className="text-xs text-slate-500 dark:text-slate-400">
-                Tip: After saving, reload the public website tab to verify that
-                the disabled sections are removed from the DOM.
-              </span>
+            <div className="flex justify-end pt-3 border-t border-slate-100 dark:border-slate-800">
               <button
-                type="button"
-                onClick={handleSaveSectionVisibility}
+                type="submit"
                 disabled={isSaving}
                 className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-md shadow-indigo-600/30 transition disabled:opacity-50"
               >
                 <Save className="w-4 h-4" />
-                <span>
-                  {isSaving ? "Saving..." : "Save Visibility Settings"}
-                </span>
+                <span>{isSaving ? "Deploying Pixels..." : "Save &amp; Deploy Tracking Configuration"}</span>
               </button>
             </div>
           </div>
-        </div>
+        </form>
       )}
 
       {/* Stage Create/Edit Modal */}

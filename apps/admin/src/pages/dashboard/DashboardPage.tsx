@@ -5,6 +5,7 @@ import {
   useGetAuditLogsQuery,
   useGetLeadStatsQuery,
   useGetClientsQuery,
+  useGetLeadsQuery,
 } from "../../store/api/adminApi";
 import {
   Users,
@@ -28,10 +29,12 @@ export const DashboardPage: React.FC = () => {
   const { data: auditData } = useGetAuditLogsQuery({ page: 1, pageSize: 6 });
   const { data: leadStats } = useGetLeadStatsQuery();
   const { data: clientsData } = useGetClientsQuery({ page: 1, pageSize: 5 });
+  const { data: recentLeadsData } = useGetLeadsQuery({ page: 1, pageSize: 5 });
 
   const totalUsers = usersData?.totalCount ?? 0;
   const recentLogs = auditData?.items ?? [];
   const totalClients = clientsData?.totalCount ?? 0;
+  const recentLeads = recentLeadsData?.items ?? [];
 
   return (
     <div className="space-y-4">
@@ -94,9 +97,9 @@ export const DashboardPage: React.FC = () => {
           </div>
           <div className="mt-1.5 flex items-center justify-between text-[11px]">
             <span className="text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1">
-              <TrendingUp className="w-3 h-3" /> +18.4% MoM
+              <TrendingUp className="w-3 h-3" /> Active Retainers
             </span>
-            <span className="text-slate-400 font-medium">Under Retainer</span>
+            <span className="text-slate-400 font-medium">Enterprise CRM</span>
           </div>
         </div>
 
@@ -157,7 +160,7 @@ export const DashboardPage: React.FC = () => {
           </div>
           <div className="mt-2 flex items-center justify-between text-[11px]">
             <span className="text-amber-600 dark:text-amber-400 font-bold">
-              Zero Violations
+              Append-Only Ledger
             </span>
             <span className="text-slate-400 font-medium">Immutable</span>
           </div>
@@ -229,6 +232,107 @@ export const DashboardPage: React.FC = () => {
               </span>
             </div>
           </Link>
+        </div>
+      </div>
+
+      {/* Recent Inbound Inquiries Table */}
+      <div className="p-5 rounded-2xl bg-white dark:bg-[#0c1222] border border-slate-200/80 dark:border-slate-800/80 shadow-sm space-y-3">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
+              <Inbox className="w-4 h-4 text-indigo-500" />
+              Latest Inbound Inquiries
+            </h2>
+            <p className="text-xs text-slate-400 mt-0.5">
+              Direct form submissions from website visitors needing attention
+            </p>
+          </div>
+          <Link
+            to="/leads"
+            className="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1"
+          >
+            <span>View All Leads</span>
+            <ArrowUpRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr className="border-b border-slate-100 dark:border-slate-800/80 text-[11px] font-bold uppercase text-slate-400 tracking-wider">
+                <th className="py-2.5 px-3">Contact & Company</th>
+                <th className="py-2.5 px-3">Email & Phone</th>
+                <th className="py-2.5 px-3">Region</th>
+                <th className="py-2.5 px-3">Stage</th>
+                <th className="py-2.5 px-3">Received</th>
+                <th className="py-2.5 px-3 text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
+              {recentLeads.slice(0, 5).map((l) => (
+                <tr
+                  key={l.id}
+                  className="hover:bg-slate-50 dark:hover:bg-slate-900/40 transition"
+                >
+                  <td className="py-2.5 px-3">
+                    <div className="font-bold text-slate-900 dark:text-white">
+                      {l.fullName}
+                    </div>
+                    {l.company && (
+                      <div className="text-[11px] text-slate-500">{l.company}</div>
+                    )}
+                  </td>
+                  <td className="py-2.5 px-3">
+                    <div className="text-slate-700 dark:text-slate-300 font-mono text-[11px]">
+                      {l.email}
+                    </div>
+                    {l.phone && (
+                      <div className="text-slate-400 text-[11px]">{l.phone}</div>
+                    )}
+                  </td>
+                  <td className="py-2.5 px-3">
+                    <span className="font-mono text-[10px] uppercase px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold">
+                      {l.region || "IN"}
+                    </span>
+                  </td>
+                  <td className="py-2.5 px-3">
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
+                      {l.status === 0
+                        ? "New"
+                        : l.status === 1
+                          ? "Under Eval"
+                          : l.status === 2
+                            ? "Contacted"
+                            : l.status === 3
+                              ? "SQL"
+                              : "Converted"}
+                    </span>
+                  </td>
+                  <td className="py-2.5 px-3 text-[11px] text-slate-400">
+                    {new Date(l.createdAtUtc).toLocaleDateString()}
+                  </td>
+                  <td className="py-2.5 px-3 text-right">
+                    <Link
+                      to="/leads"
+                      className="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline"
+                    >
+                      Review →
+                    </Link>
+                  </td>
+                </tr>
+              ))}
+              {recentLeads.length === 0 && (
+                <tr>
+                  <td
+                    colSpan={6}
+                    className="py-6 text-center text-xs text-slate-400"
+                  >
+                    No inbound inquiries recorded yet.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
 

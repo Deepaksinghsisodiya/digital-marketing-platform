@@ -158,13 +158,13 @@ export const AdminLayout: React.FC = () => {
       label: "Platform Core",
       items: [
         {
-          name: "Executive Dashboard",
+          name: "Dashboard",
           path: "/dashboard",
           icon: LayoutDashboard,
           show: true,
         },
         {
-          name: "Leads & Inquiries",
+          name: "Leads Inbox",
           path: "/leads",
           icon: Inbox,
           show: hasPerm("leads.view"),
@@ -175,7 +175,7 @@ export const AdminLayout: React.FC = () => {
       label: "Website CMS Engine",
       items: [
         {
-          name: "Pages & Layout Builder",
+          name: "Pages & Builder",
           path: "/cms/pages",
           icon: Globe,
           show: hasPerm("pages.view"),
@@ -205,13 +205,13 @@ export const AdminLayout: React.FC = () => {
           show: hasPerm("pages.view"),
         },
         {
-          name: "Case Studies & Portfolio",
+          name: "Case Studies",
           path: "/cms/case-studies",
           icon: Award,
           show: hasPerm("pages.view"),
         },
         {
-          name: "Client Reviews & Feedback",
+          name: "Testimonials & Reviews",
           path: "/cms/testimonials",
           icon: MessageSquareQuote,
           show: hasPerm("pages.view"),
@@ -223,13 +223,13 @@ export const AdminLayout: React.FC = () => {
           show: hasPerm("pages.view"),
         },
         {
-          name: "Blog & Insights",
+          name: "Blog & Articles",
           path: "/posts",
           icon: BookOpen,
           show: hasPerm("pages.view"),
         },
         {
-          name: "Media Library & Assets",
+          name: "Media Library",
           path: "/media",
           icon: Image,
           show: hasPerm("pages.view"),
@@ -240,13 +240,13 @@ export const AdminLayout: React.FC = () => {
       label: "Agency Operations",
       items: [
         {
-          name: "Client Accounts & CRM",
+          name: "Clients & CRM",
           path: "/clients",
           icon: Briefcase,
           show: hasPerm("clients.view"),
         },
         {
-          name: "Email Gateway & Logs",
+          name: "Email & Outbox",
           path: "/emails",
           icon: Mail,
           show: hasPerm("settings.view"),
@@ -257,7 +257,7 @@ export const AdminLayout: React.FC = () => {
       label: "Security & Governance",
       items: [
         {
-          name: "Team Members & Staff",
+          name: "Staff & Users",
           path: "/users",
           icon: Users,
           show: hasPerm("users.view"),
@@ -275,13 +275,13 @@ export const AdminLayout: React.FC = () => {
           show: hasPerm("audit.view"),
         },
         {
-          name: "Platform Master Configuration",
+          name: "Master Configuration",
           path: "/settings",
           icon: Sliders,
           show: hasPerm("settings.view"),
         },
         {
-          name: "Dynamic Theme Studio",
+          name: "Theme Studio",
           path: "/settings/theme-studio",
           icon: Palette,
           show: hasPerm("themes.view") || hasPerm("themes.manage"),
@@ -403,7 +403,7 @@ export const AdminLayout: React.FC = () => {
         className={`${
           mobileMenuOpen ? "fixed inset-0 z-50 overflow-y-auto" : "hidden"
         } lg:flex lg:h-screen ${
-          sidebarCollapsed ? "lg:w-20" : "lg:w-[285px]"
+          sidebarCollapsed ? "lg:w-20" : "lg:w-64"
         } bg-white dark:bg-[#0c1222] border-r border-slate-200/90 dark:border-slate-800/90 flex-shrink-0 flex-col justify-between transition-all duration-200 shadow-sm z-30 overflow-y-auto`}
       >
         <div className="flex flex-col h-full justify-between">

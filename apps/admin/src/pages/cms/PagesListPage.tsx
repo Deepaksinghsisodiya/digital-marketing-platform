@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { toast } from "sonner";
 import {
   useGetPagesQuery,
   useGetPageByIdQuery,
@@ -14,6 +15,7 @@ import {
 } from "../../store/api/adminApi";
 import { useAuth } from "../../hooks/useAuth";
 import type { CmsBlock } from "../../types";
+import { ConfirmDialog } from "../../components/ConfirmDialog";
 import {
   Globe,
   Layout,
@@ -299,6 +301,13 @@ export const PagesListPage: React.FC = () => {
   const [pageBlocks, setPageBlocks] = useState<CmsBlock[]>([]);
   const [pageTitle, setPageTitle] = useState("");
   const [pageVersionToken, setPageVersionToken] = useState("");
+  const [metaTitle, setMetaTitle] = useState("");
+  const [metaDescription, setMetaDescription] = useState("");
+  const [canonicalUrl, setCanonicalUrl] = useState("");
+  const [noIndex, setNoIndex] = useState(false);
+  const [isSeoModalOpen, setIsSeoModalOpen] = useState(false);
+  const [pageToArchive, setPageToArchive] = useState<{ id: string; title: string } | null>(null);
+  const [blockIndexToDelete, setBlockIndexToDelete] = useState<number | null>(null);
   const [expandedBlockIndex, setExpandedBlockIndex] = useState<number | null>(
     null,
   );
@@ -319,21 +328,20 @@ export const PagesListPage: React.FC = () => {
     useRollbackPageMutation();
   const [archivePage, { isLoading: isArchiving }] = useArchivePageMutation();
 
-  const handleArchive = async (id: string, title: string) => {
-    if (
-      !window.confirm(
-        `Are you sure you want to archive page "${title}"? It will be unpublished from the live site while preserving all version history.`,
-      )
-    ) {
-      return;
-    }
+  const handleArchive = (id: string, title: string) => {
+    setPageToArchive({ id, title });
+  };
+
+  const confirmArchivePage = async () => {
+    if (!pageToArchive) return;
     try {
-      await archivePage(id).unwrap();
+      await archivePage(pageToArchive.id).unwrap();
       refetchPages();
       setFeedback({
         type: "success",
-        message: `Page "${title}" archived successfully.`,
+        message: `Page "${pageToArchive.title}" archived successfully.`,
       });
+      setPageToArchive(null);
     } catch {
       setFeedback({
         type: "error",
@@ -354,6 +362,10 @@ export const PagesListPage: React.FC = () => {
       );
       setPageTitle(activePageDetail.title);
       setPageVersionToken(activePageDetail.versionToken || "");
+      setMetaTitle(activePageDetail.metaTitle || "");
+      setMetaDescription(activePageDetail.metaDescription || "");
+      setCanonicalUrl(activePageDetail.canonicalUrl || "");
+      setNoIndex(Boolean(activePageDetail.noIndex));
     }
   }, [activePageDetail]);
 
@@ -414,7 +426,7 @@ export const PagesListPage: React.FC = () => {
       });
       setTimeout(() => setFeedback(null), 3000);
     } catch {
-      alert("Failed to toggle section visibility.");
+      toast.error("Failed to toggle section visibility.");
     }
   };
 
@@ -442,7 +454,12 @@ export const PagesListPage: React.FC = () => {
   };
 
   const handleDeleteBlock = (index: number) => {
-    if (!window.confirm("Remove this section from the page?")) return;
+    setBlockIndexToDelete(index);
+  };
+
+  const confirmDeleteBlock = () => {
+    if (blockIndexToDelete === null) return;
+    const index = blockIndexToDelete;
     const updated = pageBlocks.filter((_, i) => i !== index);
     setPageBlocks(updated);
     if (expandedBlockIndex === index) {
@@ -450,6 +467,8 @@ export const PagesListPage: React.FC = () => {
     } else if (expandedBlockIndex !== null && expandedBlockIndex > index) {
       setExpandedBlockIndex(expandedBlockIndex - 1);
     }
+    setBlockIndexToDelete(null);
+    toast.success("Section removed from page draft.");
   };
 
   const handleAddBlock = (type: string) => {
@@ -495,6 +514,10 @@ export const PagesListPage: React.FC = () => {
           title: pageTitle,
           blocks: pageBlocks,
           versionToken: pageVersionToken,
+          metaTitle: metaTitle.trim() || null,
+          metaDescription: metaDescription.trim() || null,
+          canonicalUrl: canonicalUrl.trim() || null,
+          noIndex,
         },
       }).unwrap();
 
@@ -508,14 +531,12 @@ export const PagesListPage: React.FC = () => {
       setTimeout(() => setFeedback(null), 3500);
     } catch (err: unknown) {
       const errObj = err as { data?: { error?: string } };
-      alert(errObj?.data?.error || "Failed to save draft.");
+      toast.error(errObj?.data?.error || "Failed to save draft.");
     }
   };
 
   const handlePublish = async () => {
     if (!selectedPageId) return;
-    if (!window.confirm("Publish changes to the live website right now?"))
-      return;
 
     try {
       await handleSaveDraft();
@@ -523,26 +544,17 @@ export const PagesListPage: React.FC = () => {
       refetchPageDetail();
       refetchPages();
       setPreviewKey(Date.now());
-      setFeedback({
-        type: "success",
-        message:
-          "Page published live! Public website now serves this updated version.",
-      });
-      setTimeout(() => setFeedback(null), 4000);
+      toast.success(
+        "Page published live! Public website now serves this updated version."
+      );
     } catch (err: unknown) {
       const errObj = err as { data?: { error?: string } };
-      alert(errObj?.data?.error || "Failed to publish page.");
+      toast.error(errObj?.data?.error || "Failed to publish page.");
     }
   };
 
   const handleRollback = async (versionNumber: number) => {
     if (!selectedPageId) return;
-    if (
-      !window.confirm(
-        `Rollback to Version ${versionNumber}? Unsaved draft changes will be replaced.`,
-      )
-    )
-      return;
 
     try {
       await rollbackPage({
@@ -554,16 +566,12 @@ export const PagesListPage: React.FC = () => {
       refetchPages();
       refetchVersions();
       setPreviewKey(Date.now());
-      setFeedback({
-        type: "success",
-        message: `Successfully restored Page Version ${versionNumber}!`,
-      });
-      setTimeout(() => setFeedback(null), 4000);
+      toast.success(`Successfully restored Page Version ${versionNumber}!`);
     } catch (err: unknown) {
       const errObj = err as { data?: { error?: string } };
-      alert(
+      toast.error(
         errObj?.data?.error ||
-          `Failed to rollback to version ${versionNumber}.`,
+          `Failed to rollback to version ${versionNumber}.`
       );
     }
   };
@@ -780,6 +788,16 @@ export const PagesListPage: React.FC = () => {
                 <ExternalLink className="w-3.5 h-3.5" />
                 <span className="hidden sm:inline">Open Live</span>
               </a>
+
+              <button
+                type="button"
+                onClick={() => setIsSeoModalOpen(true)}
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:text-indigo-600 transition"
+                title="Page SEO, Social Meta & Canonical Tags"
+              >
+                <SlidersHorizontal className="w-3.5 h-3.5 text-purple-500" />
+                <span className="hidden sm:inline">SEO Meta</span>
+              </button>
 
               <button
                 type="button"
@@ -1611,6 +1629,177 @@ export const PagesListPage: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* SEO & Social Metadata Modal */}
+      {isSeoModalOpen && (
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-[#0c1222] text-slate-900 dark:text-slate-100 border border-slate-200/80 dark:border-slate-800/80 rounded-2xl shadow-2xl max-w-xl w-full p-6 space-y-5 animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/80 pb-3">
+              <div>
+                <h3 className="text-base font-black text-slate-900 dark:text-white flex items-center gap-2">
+                  <SlidersHorizontal className="w-4 h-4 text-purple-600" />
+                  SEO & Search Engine Snippet Metadata
+                </h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  Configure Google indexing tags, meta titles, descriptions, and canonical URLs.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsSeoModalOpen(false)}
+                className="text-slate-400 hover:text-slate-700 dark:hover:text-white p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+              >
+                <span className="text-sm font-bold">✕</span>
+              </button>
+            </div>
+
+            {/* Google Search Snippet Simulation */}
+            <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200/60 dark:border-slate-800/60 space-y-1">
+              <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">
+                Google Search Result Preview
+              </span>
+              <div className="text-xs text-slate-500 truncate">
+                https://nexora.com/{activePageDetail?.slug === "home" ? "" : activePageDetail?.slug}
+              </div>
+              <div className="text-sm font-semibold text-blue-600 dark:text-blue-400 truncate">
+                {metaTitle || pageTitle || "Page Title"} &bull; Nexora Performance Platform
+              </div>
+              <div className="text-xs text-slate-600 dark:text-slate-300 line-clamp-2 leading-relaxed">
+                {metaDescription ||
+                  "Add a high-converting meta description to preview how this page will be displayed in search engine rankings."}
+              </div>
+            </div>
+
+            <div className="space-y-4 text-xs">
+              <div>
+                <div className="flex justify-between items-center mb-1">
+                  <label className="font-bold text-slate-700 dark:text-slate-300">
+                    SEO Meta Title
+                  </label>
+                  <span
+                    className={`text-[10px] ${
+                      metaTitle.length > 60
+                        ? "text-amber-500 font-bold"
+                        : "text-slate-400"
+                    }`}
+                  >
+                    {metaTitle.length}/60 chars (Recommended)
+                  </span>
+                </div>
+                <input
+                  type="text"
+                  value={metaTitle}
+                  onChange={(e) => setMetaTitle(e.target.value)}
+                  placeholder="e.g. Enterprise Digital Marketing & Performance Engineering"
+                  className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500"
+                />
+              </div>
+
+              <div>
+                <div className="flex justify-between items-center mb-1">
+                  <label className="font-bold text-slate-700 dark:text-slate-300">
+                    SEO Meta Description
+                  </label>
+                  <span
+                    className={`text-[10px] ${
+                      metaDescription.length > 160
+                        ? "text-amber-500 font-bold"
+                        : "text-slate-400"
+                    }`}
+                  >
+                    {metaDescription.length}/160 chars (Recommended)
+                  </span>
+                </div>
+                <textarea
+                  rows={3}
+                  value={metaDescription}
+                  onChange={(e) => setMetaDescription(e.target.value)}
+                  placeholder="Summarize the core commercial value, client offerings, and target keywords for search engines..."
+                  className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500"
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+                  Canonical URL (Optional)
+                </label>
+                <input
+                  type="text"
+                  value={canonicalUrl}
+                  onChange={(e) => setCanonicalUrl(e.target.value)}
+                  placeholder="https://nexora.com/canonical-source"
+                  className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500"
+                />
+              </div>
+
+              <div className="flex items-center gap-2 pt-1">
+                <input
+                  type="checkbox"
+                  id="page-noindex-toggle"
+                  checked={noIndex}
+                  onChange={(e) => setNoIndex(e.target.checked)}
+                  className="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 border-slate-300"
+                />
+                <label
+                  htmlFor="page-noindex-toggle"
+                  className="text-xs font-semibold text-slate-700 dark:text-slate-300 cursor-pointer"
+                >
+                  Do not index this page (inject <code>noindex, nofollow</code> robot header)
+                </label>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100 dark:border-slate-800/80">
+              <button
+                type="button"
+                onClick={() => setIsSeoModalOpen(false)}
+                className="px-4 py-2 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsSeoModalOpen(false);
+                  toast.success("SEO metadata updated in draft. Click 'Save Draft' or 'Publish' to persist.");
+                }}
+                className="px-4 py-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-500 rounded-xl shadow-md shadow-indigo-600/30 transition"
+              >
+                Apply SEO Metadata
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Archive Page Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={Boolean(pageToArchive)}
+        title="Archive CMS Page"
+        description={
+          pageToArchive
+            ? `Are you sure you want to archive page "${pageToArchive.title}"? It will be unpublished from the live site while preserving all version history.`
+            : ""
+        }
+        confirmText="Archive Page"
+        cancelText="Cancel"
+        variant="warning"
+        isLoading={isArchiving}
+        onConfirm={confirmArchivePage}
+        onClose={() => setPageToArchive(null)}
+      />
+
+      {/* Delete Block Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={blockIndexToDelete !== null}
+        title="Remove Page Section"
+        description="Are you sure you want to remove this section from the page? You must click 'Save Draft' or 'Publish' to persist the change."
+        confirmText="Remove Section"
+        cancelText="Cancel"
+        variant="danger"
+        onConfirm={confirmDeleteBlock}
+        onClose={() => setBlockIndexToDelete(null)}
+      />
     </div>
   );
 };

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
+import { ReadingProgressBar } from "@/components/motion/ReadingProgressBar";
 
 interface BlogPostDetail {
   id: string;
@@ -69,13 +70,14 @@ export default async function BlogPostPage({
 
   return (
     <div className="min-h-screen flex flex-col bg-white text-slate-900">
+      <ReadingProgressBar />
       <Header />
       <main className="flex-1 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 w-full">
         {/* Navigation & Breadcrumb */}
         <div className="mb-8">
           <Link
             href="/blog"
-            className="inline-flex items-center text-xs font-semibold text-emerald-400 hover:text-emerald-300 transition-colors"
+            className="inline-flex items-center text-xs font-bold text-emerald-600 hover:text-emerald-700 transition-colors"
           >
             &larr; Back to all insights
           </Link>
@@ -85,7 +87,7 @@ export default async function BlogPostPage({
         <header className="mb-10">
           <div className="flex items-center gap-3 mb-4">
             {post.category && (
-              <span className="text-xs font-medium text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
+              <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
                 {post.category}
               </span>
             )}
@@ -98,24 +100,24 @@ export default async function BlogPostPage({
                 })}
               </time>
             )}
-            <span className="text-xs text-slate-500">
+            <span className="text-xs text-slate-500 font-medium">
               &bull; By {post.authorName || "Nexora Team"}
             </span>
           </div>
 
-          <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-white leading-tight">
+          <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-slate-900 leading-tight">
             {post.title}
           </h1>
 
           {post.excerpt && (
-            <p className="mt-6 text-lg sm:text-xl text-slate-300 leading-relaxed font-normal border-l-2 border-emerald-500/50 pl-4 py-1 italic">
+            <p className="mt-6 text-lg sm:text-xl text-slate-700 leading-relaxed font-normal border-l-2 border-emerald-500 pl-4 py-1 italic bg-emerald-50/40 rounded-r-xl">
               {post.excerpt}
             </p>
           )}
         </header>
 
         {/* Article Content */}
-        <article className="prose prose-invert prose-emerald max-w-none text-slate-300 leading-relaxed text-base sm:text-lg border-y border-slate-800/80 py-10">
+        <article className="prose prose-slate prose-lg max-w-none text-slate-700 leading-relaxed text-base sm:text-lg border-y border-slate-200 py-10">
           <div
             dangerouslySetInnerHTML={{ __html: post.contentHtml }}
             className="space-y-6"
@@ -129,7 +131,7 @@ export default async function BlogPostPage({
             {tagsList.map((tag) => (
               <span
                 key={tag}
-                className="text-xs text-slate-700 bg-slate-100 border border-slate-200 px-2.5 py-1 rounded-md"
+                className="text-xs text-slate-700 bg-slate-100 border border-slate-200 px-2.5 py-1 rounded-md font-medium"
               >
                 #{tag}
               </span>
@@ -138,11 +140,11 @@ export default async function BlogPostPage({
         )}
 
         {/* CTA Card */}
-        <div className="mt-16 rounded-2xl border border-emerald-500/30 bg-gradient-to-br from-emerald-950/30 to-slate-900 p-8 sm:p-10 text-center">
-          <h2 className="text-2xl font-bold text-white">
+        <div className="mt-16 rounded-3xl border border-emerald-200 bg-gradient-to-br from-emerald-50 via-white to-slate-50 p-8 sm:p-10 text-center shadow-lg shadow-emerald-500/5">
+          <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
             Ready to accelerate your B2B growth?
           </h2>
-          <p className="mt-3 text-sm text-slate-400 max-w-xl mx-auto">
+          <p className="mt-3 text-sm text-slate-600 max-w-xl mx-auto leading-relaxed">
             Book an executive growth diagnostic with Nexora&apos;s digital
             marketing strategists. We analyze your pipeline, attribution, and
             acquisition channels.
@@ -150,7 +152,7 @@ export default async function BlogPostPage({
           <div className="mt-6">
             <Link
               href="/contact"
-              className="inline-flex items-center justify-center rounded-lg bg-emerald-500 px-6 py-3 text-sm font-semibold text-slate-950 hover:bg-emerald-400 transition-colors shadow-lg shadow-emerald-500/20"
+              className="inline-flex items-center justify-center rounded-xl bg-emerald-600 px-6 py-3.5 text-sm font-bold text-white hover:bg-emerald-500 transition-all shadow-md shadow-emerald-600/25"
             >
               Schedule Growth Diagnostic
             </Link>

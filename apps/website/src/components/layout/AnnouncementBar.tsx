@@ -37,6 +37,7 @@ export const AnnouncementBar: React.FC<AnnouncementBarProps> = ({
 }) => {
   const [mounted, setMounted] = useState(false);
   const [dismissed, setDismissed] = useState(true);
+  const [isCollapsing, setIsCollapsing] = useState(false);
   const [items, setItems] = useState<AnnouncementItem[]>([]);
   const [intervalMs, setIntervalMs] = useState(4000);
   const [autoplayEnabled, setAutoplayEnabled] = useState(true);
@@ -157,16 +158,25 @@ export const AnnouncementBar: React.FC<AnnouncementBarProps> = ({
   if (!mounted || dismissed || items.length === 0) return null;
 
   const handleDismiss = () => {
-    setDismissed(true);
-    if (typeof window !== "undefined") {
-      sessionStorage.setItem("nexora_announcement_dismissed", "true");
-    }
+    setIsCollapsing(true);
+    setTimeout(() => {
+      setDismissed(true);
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("nexora_announcement_dismissed", "true");
+      }
+    }, 250);
   };
 
   return (
-    <div className="relative z-50 w-full bg-[#060913] text-slate-200 text-xs py-2 border-b border-white/10 shadow-sm transition-all select-none overflow-hidden">
-      <div className="w-full px-3 sm:px-6 lg:px-8 flex items-center justify-between gap-2 sm:gap-4">
-        {/* Left Carousel Arrow Controls on multi items */}
+    <div
+      className={`relative z-50 w-full bg-[#060913] text-slate-200 text-[10px] sm:text-xs border-b border-white/10 shadow-sm transition-all duration-300 select-none overflow-hidden ${
+        isCollapsing
+          ? "opacity-0 -translate-y-full max-h-0 py-0"
+          : "opacity-100 translate-y-0 max-h-16 py-0.5 sm:py-1.5"
+      }`}
+    >
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-1.5 sm:gap-4">
+        {/* Left Carousel Arrow Controls on multi items (Tablet / Desktop) */}
         <div className="hidden md:flex items-center gap-0.5 w-14 shrink-0">
           {isMultiSlide && (
             <>
@@ -198,31 +208,31 @@ export const AnnouncementBar: React.FC<AnnouncementBarProps> = ({
             {items.map((item, idx) => (
               <div
                 key={item.id || idx}
-                className="flex-[0_0_100%] min-w-0 flex flex-wrap items-center justify-center gap-2 sm:gap-3 text-center px-2"
+                className="flex-[0_0_100%] min-w-0 flex items-center justify-center gap-1.5 sm:gap-2.5 text-center px-1 sm:px-2"
               >
                 {item.badge && (
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-primary/20 text-primary font-extrabold border border-primary/30 text-[10px] uppercase tracking-wider shadow-xs shrink-0">
-                    <Sparkles className="w-3 h-3 text-primary animate-pulse" />
+                  <span className="inline-flex items-center gap-1 px-2 sm:px-2.5 py-0.5 rounded-full bg-primary/20 text-primary font-extrabold border border-primary/30 text-[9px] sm:text-[10px] uppercase tracking-wider shadow-xs shrink-0">
+                    <Sparkles className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-primary animate-pulse" />
                     <span>{item.badge}</span>
                   </span>
                 )}
 
-                <span className="text-slate-200 font-medium text-xs truncate max-w-xl sm:max-w-2xl">
+                <span className="text-slate-200 font-medium text-[11px] sm:text-xs truncate min-w-0 max-w-[210px] xs:max-w-[300px] sm:max-w-xl md:max-w-2xl">
                   {item.text}
                 </span>
 
                 {item.linkUrl && (
                   <Link
                     href={item.linkUrl}
-                    className="inline-flex items-center gap-1 font-bold text-primary hover:text-primary-hover transition underline underline-offset-4 shrink-0 text-xs group"
+                    className="inline-flex items-center gap-0.5 sm:gap-1 font-bold text-primary hover:text-primary-hover transition underline underline-offset-4 shrink-0 text-[11px] sm:text-xs group"
                   >
                     <span>{item.linkText || "Explore"}</span>
-                    <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
+                    <ArrowRight className="w-2.5 h-2.5 sm:w-3 sm:h-3 group-hover:translate-x-0.5 transition-transform" />
                   </Link>
                 )}
 
                 {isMultiSlide && (
-                  <span className="hidden sm:inline-block text-[10px] font-mono text-slate-400 ml-1">
+                  <span className="text-[9px] sm:text-[10px] font-mono text-slate-400 ml-0.5 sm:ml-1 shrink-0">
                     ({selectedIndex + 1}/{items.length})
                   </span>
                 )}
@@ -236,7 +246,7 @@ export const AnnouncementBar: React.FC<AnnouncementBarProps> = ({
           type="button"
           onClick={handleDismiss}
           aria-label="Dismiss announcement"
-          className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition shrink-0 cursor-pointer"
+          className="p-1 sm:p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition shrink-0 cursor-pointer"
           title="Dismiss banner"
         >
           <X className="w-3.5 h-3.5" />

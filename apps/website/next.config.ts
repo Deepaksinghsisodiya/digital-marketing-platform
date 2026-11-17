@@ -9,6 +9,7 @@ const cspFrameAncestors = process.env.CSP_FRAME_ANCESTORS
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  devIndicators: false,
   transpilePackages: ["@nexora/design-tokens"],
   webpack: (config) => {
     config.resolve.extensionAlias = {

@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import * as yup from "yup";
 import { toast } from "sonner";
+import { ConfirmDialog } from "../../components/ConfirmDialog";
 import {
   Sparkles,
   Plus,
@@ -91,6 +92,7 @@ export const FaqsPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
+  const [faqToDelete, setFaqToDelete] = useState<string | null>(null);
 
   // Form Modal State (Create & Edit)
   const [isFormOpen, setIsFormOpen] = useState<boolean>(false);
@@ -230,17 +232,24 @@ export const FaqsPage: React.FC = () => {
     const targetIdx = direction === "up" ? index - 1 : index + 1;
     const reordered = [...faqs];
     const [moved] = reordered.splice(index, 1);
-    reordered.splice(targetIdx, 0, moved);
-    setFaqs(reordered);
-    setHasUnsavedChanges(true);
+    if (moved) {
+      reordered.splice(targetIdx, 0, moved);
+      setFaqs(reordered);
+      setHasUnsavedChanges(true);
+    }
   };
 
   // Delete
   const handleDelete = (id: string) => {
-    if (!window.confirm("Are you sure you want to delete this FAQ?")) return;
-    setFaqs((prev) => prev.filter((f) => f.id !== id));
+    setFaqToDelete(id);
+  };
+
+  const confirmDeleteFaq = () => {
+    if (!faqToDelete) return;
+    setFaqs((prev) => prev.filter((f) => f.id !== faqToDelete));
     setHasUnsavedChanges(true);
-    toast.success("FAQ deleted.");
+    toast.success("FAQ removed from list. Click 'Save Changes' to publish.");
+    setFaqToDelete(null);
   };
 
   // Open Modal (Add)
@@ -333,7 +342,7 @@ export const FaqsPage: React.FC = () => {
       );
 
       const blockPayload: CmsBlock = {
-        id: blockIdx >= 0 ? blocks[blockIdx].id : `blk_faq_${Date.now()}`,
+        id: blockIdx >= 0 && blocks[blockIdx] ? blocks[blockIdx].id : `blk_faq_${Date.now()}`,
         type: "FAQ",
         schemaVersion: 1,
         enabled: sectionEnabled,
@@ -361,7 +370,7 @@ export const FaqsPage: React.FC = () => {
         id: homePageId,
         body: {
           blocks,
-          versionToken: pageDetail.versionToken,
+          versionToken: pageDetail.versionToken ?? undefined,
         },
       }).unwrap();
 
@@ -812,6 +821,17 @@ export const FaqsPage: React.FC = () => {
           </div>
         </div>
       )}
+      {/* Delete FAQ Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={Boolean(faqToDelete)}
+        title="Delete FAQ Item"
+        description="Are you sure you want to remove this FAQ from the knowledge base? You must click 'Save Changes' to push the update live."
+        confirmText="Remove FAQ"
+        cancelText="Cancel"
+        variant="danger"
+        onConfirm={confirmDeleteFaq}
+        onClose={() => setFaqToDelete(null)}
+      />
     </div>
   );
 };

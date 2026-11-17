@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import { ConfirmDialog } from "../../components/ConfirmDialog";
 import {
   AlertCircle,
   Check,
@@ -145,6 +146,8 @@ export const ThemeStudioPage: React.FC = () => {
   const [saveAsCustomName, setSaveAsCustomName] = useState("");
   const [busy, setBusy] = useState<string | null>(null);
   const [revision, setRevision] = useState(0);
+  const [themeToDelete, setThemeToDelete] = useState<string | null>(null);
+  const [versionToRestore, setVersionToRestore] = useState<number | null>(null);
   const { refreshServerTheme, applyThemeBySlug } = useTheme();
 
   const selectTheme = useCallback((themeId: string | null) => {
@@ -562,16 +565,21 @@ export const ThemeStudioPage: React.FC = () => {
     }
   };
 
-  const handleDelete = async (themeId: string) => {
-    if (!window.confirm("Delete this theme? This cannot be undone.")) return;
+  const handleDelete = (themeId: string) => {
+    setThemeToDelete(themeId);
+  };
+
+  const confirmDeleteThemeAction = async () => {
+    if (!themeToDelete) return;
     clearNotice();
     setBusy("delete");
     try {
-      await deleteTheme(themeId).unwrap();
-      if (selectedThemeId === themeId) {
+      await deleteTheme(themeToDelete).unwrap();
+      if (selectedThemeId === themeToDelete) {
         selectTheme(null);
       }
       setMessage("Theme deleted.");
+      setThemeToDelete(null);
     } catch (err) {
       setError(extractError(err));
     } finally {
@@ -628,22 +636,27 @@ export const ThemeStudioPage: React.FC = () => {
     }
   };
 
-  const handleRollback = async (versionNumber: number) => {
+  const handleRollback = (versionNumber: number) => {
     if (!themeDetail) return;
-    if (!window.confirm(`Restore version ${versionNumber}?`)) return;
+    setVersionToRestore(versionNumber);
+  };
+
+  const confirmRollbackAction = async () => {
+    if (!themeDetail || versionToRestore === null) return;
     clearNotice();
     setBusy("rollback");
     try {
       const updated = await rollbackTheme({
         id: themeDetail.id,
-        request: { versionNumber },
+        request: { versionNumber: versionToRestore },
       }).unwrap();
       const restored = resolveTheme(parseThemeJson(updated.configJson));
       setPublished(restored);
       setBaseline(restored);
       setWorking(restored);
       setRevision((value) => value + 1);
-      setMessage(`Restored version ${versionNumber}.`);
+      setMessage(`Restored version ${versionToRestore}.`);
+      setVersionToRestore(null);
       void refreshServerTheme();
     } catch (err) {
       setError(extractError(err));
@@ -1644,6 +1657,36 @@ export const ThemeStudioPage: React.FC = () => {
           </div>
         </div>
       ) : null}
+
+      {/* Delete Theme Dialog */}
+      <ConfirmDialog
+        isOpen={Boolean(themeToDelete)}
+        title="Delete Theme"
+        description="Are you sure you want to permanently delete this theme? This action cannot be undone."
+        confirmText="Delete Theme"
+        cancelText="Cancel"
+        variant="danger"
+        isLoading={busy === "delete"}
+        onConfirm={confirmDeleteThemeAction}
+        onClose={() => setThemeToDelete(null)}
+      />
+
+      {/* Rollback Version Dialog */}
+      <ConfirmDialog
+        isOpen={versionToRestore !== null}
+        title="Restore Theme Version"
+        description={
+          versionToRestore !== null
+            ? `Are you sure you want to restore Version ${versionToRestore}? Your current working theme draft will be replaced with this version.`
+            : ""
+        }
+        confirmText="Restore Version"
+        cancelText="Cancel"
+        variant="primary"
+        isLoading={busy === "rollback"}
+        onConfirm={confirmRollbackAction}
+        onClose={() => setVersionToRestore(null)}
+      />
     </div>
   );
 };

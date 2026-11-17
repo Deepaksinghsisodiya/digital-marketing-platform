@@ -349,6 +349,9 @@ export interface ClientSummary {
   status: ClientStatus;
   primaryContactEmail: string;
   primaryContactPhone?: string | null;
+  primaryContactName?: string | null;
+  primaryContactTitle?: string | null;
+  website?: string | null;
   activeTasksCount: number;
   createdAtUtc: string;
 }
@@ -377,17 +380,22 @@ export interface CreateClientRequest {
   name: string;
   primaryContactEmail: string;
   primaryContactPhone?: string | null;
+  primaryContactName?: string | null;
+  primaryContactTitle?: string | null;
+  website?: string | null;
   industry?: string | null;
   region: string;
+  status?: ClientStatus;
 }
 
 export interface UpdateClientRequest {
   name: string;
-  status: ClientStatus;
-  primaryContactEmail: string;
-  primaryContactPhone?: string | null;
+  website?: string | null;
   industry?: string | null;
   region: string;
+  billingAddress?: string | null;
+  taxId?: string | null;
+  notes?: string | null;
 }
 
 export interface ContactDto {

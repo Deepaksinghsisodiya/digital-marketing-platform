@@ -294,7 +294,9 @@ describe("BlockRenderer", () => {
     );
     expect(htmlSlider).toContain("First Slide Growth Headline");
     expect(htmlSlider).toContain("https://images.unsplash.com/slide-1.jpg");
-    // Verify slide counter rendering
-    expect(htmlSlider).toContain("01 / 02");
+    // Verify multi-slide navigation controls and content
+    expect(htmlSlider).toContain("Previous slide");
+    expect(htmlSlider).toContain("Next slide");
+    expect(htmlSlider).toContain("Second Slide Tech Headline");
   });
 });

@@ -1,4 +1,6 @@
 import React, { useState, useMemo } from "react";
+import { toast } from "sonner";
+import { ConfirmDialog } from "../../components/ConfirmDialog";
 import {
   useGetLeadsQuery,
   useGetLeadByIdQuery,
@@ -117,6 +119,7 @@ export const LeadsPage: React.FC = () => {
   );
   const [regionFilter, setRegionFilter] = useState<string>("");
   const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null);
+  const [isConvertConfirmOpen, setIsConvertConfirmOpen] = useState(false);
   const [newNote, setNewNote] = useState("");
   const [isExporting, setIsExporting] = useState(false);
 
@@ -149,13 +152,33 @@ export const LeadsPage: React.FC = () => {
   const [convertLead, { isLoading: isConverting }] =
     useConvertLeadToClientMutation();
 
+  const handleConfirmConvert = async () => {
+    if (!selectedLead) return;
+    try {
+      const res = await convertLead({
+        leadId: selectedLead.id,
+        clientName: selectedLead.company || selectedLead.fullName,
+        initialTaskTitle: "Send introductory service agreement & kickoff",
+      }).unwrap();
+      toast.success(`Client Account created! ID: ${res.clientId}`);
+      setIsConvertConfirmOpen(false);
+      refetchLead();
+    } catch (err: unknown) {
+      const error = err as { data?: { error?: string } };
+      toast.error(error?.data?.error ?? "Lead conversion failed.");
+    }
+  };
+
   const handleStatusChange = async (leadId: string, newStatus: LeadStatus) => {
     try {
       await updateStatus({ id: leadId, status: newStatus }).unwrap();
       refetchLead();
       refetch();
+      toast.success(
+        `Lead pipeline stage updated to ${STATUS_CONFIG[newStatus]?.label || newStatus}`,
+      );
     } catch {
-      alert("Failed to update status.");
+      toast.error("Failed to update status.");
     }
   };
 
@@ -167,8 +190,9 @@ export const LeadsPage: React.FC = () => {
       await addNote({ id: selectedLeadId, note: newNote.trim() }).unwrap();
       setNewNote("");
       refetchLead();
+      toast.success("Internal qualification note recorded.");
     } catch {
-      alert("Failed to add note.");
+      toast.error("Failed to add note.");
     }
   };
 
@@ -198,8 +222,9 @@ export const LeadsPage: React.FC = () => {
       a.click();
       document.body.removeChild(a);
       window.URL.revokeObjectURL(url);
+      toast.success("Verified leads CSV exported successfully.");
     } catch {
-      alert("Failed to export CSV. Please try again.");
+      toast.error("Failed to export CSV. Please try again.");
     } finally {
       setIsExporting(false);
     }
@@ -390,12 +415,12 @@ export const LeadsPage: React.FC = () => {
 
       {/* Main Content: Kanban Pipeline vs Table */}
       {viewMode === "kanban" ? (
-        /* KANBAN BOARD VIEW */
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 items-start overflow-x-auto pb-4">
+        /* KANBAN BOARD VIEW (Horizontal Scrollable Strip, never squashed or stacked) */
+        <div className="flex gap-4 items-start overflow-x-auto pb-6 w-full">
           {kanbanColumns.map((col) => (
             <div
               key={col.status}
-              className="rounded-2xl border border-slate-200/80 dark:border-slate-800/80 bg-slate-50/60 dark:bg-slate-900/40 p-3.5 space-y-3 min-h-[500px] flex flex-col"
+              className="w-72 sm:w-80 shrink-0 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 bg-slate-50/60 dark:bg-slate-900/40 p-3.5 space-y-3 min-h-[520px] flex flex-col"
             >
               {/* Column Header */}
               <div className="flex items-center justify-between pb-2 border-b border-slate-200/80 dark:border-slate-800/80">
@@ -710,28 +735,7 @@ export const LeadsPage: React.FC = () => {
                     <button
                       type="button"
                       disabled={isConverting}
-                      onClick={async () => {
-                        if (
-                          confirm(
-                            `Promote "${selectedLead.company || selectedLead.fullName}" to an Institutional Client Account?`,
-                          )
-                        ) {
-                          try {
-                            const res = await convertLead({
-                              leadId: selectedLead.id,
-                              clientName:
-                                selectedLead.company || selectedLead.fullName,
-                              initialTaskTitle:
-                                "Send introductory service agreement & kickoff",
-                            }).unwrap();
-                            alert(`Account created! ID: ${res.clientId}`);
-                            refetchLead();
-                          } catch (err: unknown) {
-                            const error = err as { data?: { error?: string } };
-                            alert(error?.data?.error ?? "Conversion failed.");
-                          }
-                        }
-                      }}
+                      onClick={() => setIsConvertConfirmOpen(true)}
                       className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md shadow-emerald-600/30 transition disabled:opacity-50"
                     >
                       <UserPlus className="w-4 h-4" />
@@ -870,6 +874,22 @@ export const LeadsPage: React.FC = () => {
           </div>
         </div>
       )}
+      {/* Convert Lead Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={isConvertConfirmOpen}
+        title="Promote Lead to Client Account"
+        description={
+          selectedLead
+            ? `Promote "${selectedLead.company || selectedLead.fullName}" to an active enterprise Client account? A dedicated client workspace and onboarding kickoff task will be generated.`
+            : ""
+        }
+        confirmText="Promote to Client"
+        cancelText="Cancel"
+        variant="primary"
+        isLoading={isConverting}
+        onConfirm={handleConfirmConvert}
+        onClose={() => setIsConvertConfirmOpen(false)}
+      />
     </div>
   );
 };

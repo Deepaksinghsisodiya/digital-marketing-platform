@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { ConfirmDialog } from "../../components/ConfirmDialog";
 import {
   useGetUsersQuery,
   useInviteUserMutation,
@@ -8,6 +9,7 @@ import {
   useDeleteUserMutation,
 } from "../../store/api/adminApi";
 import { useAppSelector } from "../../store/hooks";
+import { toast } from "sonner";
 import {
   UserPlus,
   Search,
@@ -42,6 +44,11 @@ export const UsersPage: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [mustChangePassword, setMustChangePassword] = useState(true);
   const [inviteError, setInviteError] = useState<string | null>(null);
+  const [userToDelete, setUserToDelete] = useState<{
+    id: string;
+    email: string;
+    name: string;
+  } | null>(null);
 
   // Helper to generate an enterprise 14-char secure temporary password
   const generateSecurePassword = () => {
@@ -81,40 +88,25 @@ export const UsersPage: React.FC = () => {
   const [sendUserPasswordReset, { isLoading: isResetting }] =
     useSendUserPasswordResetMutation();
   const [updateUser] = useUpdateUserMutation();
-  const [deleteUser] = useDeleteUserMutation();
+  const [deleteUser, { isLoading: isDeletingUser }] = useDeleteUserMutation();
 
   const handleResendInvite = async (userId: string, email: string) => {
     try {
       const res = await resendInvitation(userId).unwrap();
-      setActionMsg({
-        text: res.message || `Invitation resent to ${email} successfully!`,
-        type: "success",
-      });
+      toast.success(res.message || `Invitation resent to ${email} successfully!`);
     } catch (err: unknown) {
       const apiErr = err as { data?: { error?: string } };
-      setActionMsg({
-        text: apiErr?.data?.error || "Failed to resend invitation.",
-        type: "error",
-      });
+      toast.error(apiErr?.data?.error || "Failed to resend invitation.");
     }
   };
 
   const handleSendResetPassword = async (userId: string, email: string) => {
-    if (!window.confirm(`Send password reset instructions to ${email}?`))
-      return;
     try {
       const res = await sendUserPasswordReset(userId).unwrap();
-      setActionMsg({
-        text:
-          res.message || `Password reset link sent to ${email} successfully!`,
-        type: "success",
-      });
+      toast.success(res.message || `Password reset link sent to ${email} successfully!`);
     } catch (err: unknown) {
       const apiErr = err as { data?: { error?: string } };
-      setActionMsg({
-        text: apiErr?.data?.error || "Failed to send password reset.",
-        type: "error",
-      });
+      toast.error(apiErr?.data?.error || "Failed to send password reset.");
     }
   };
 
@@ -144,16 +136,15 @@ export const UsersPage: React.FC = () => {
       setInviteEmail("");
       setInviteFullName("");
       setInvitePassword("");
-      setActionMsg({
-        text:
-          res.message ||
-          `Staff member added successfully! Login credentials dispatched to ${inviteEmail}.`,
-        type: "success",
-      });
+      toast.success(
+        res.message ||
+          `Staff member added successfully! Login credentials dispatched to ${inviteEmail}.`
+      );
       refetch();
     } catch (err: unknown) {
       const apiErr = err as { data?: { error?: string } };
       setInviteError(apiErr?.data?.error || "Failed to create staff account.");
+      toast.error(apiErr?.data?.error || "Failed to create staff account.");
     }
   };
 
@@ -170,33 +161,25 @@ export const UsersPage: React.FC = () => {
           : "Manual administrative suspension",
       }).unwrap();
 
-      setActionMsg({
-        text: `User ${isCurrentlySuspended ? "reactivated" : "suspended"} successfully.`,
-        type: "success",
-      });
+      toast.success(
+        `User ${isCurrentlySuspended ? "reactivated" : "suspended"} successfully.`
+      );
     } catch (err: unknown) {
       const apiErr = err as { data?: { error?: string } };
-      setActionMsg({
-        text: apiErr?.data?.error || "Failed to update user status.",
-        type: "error",
-      });
+      toast.error(apiErr?.data?.error || "Failed to update user status.");
     }
   };
 
-  const handleDelete = async (targetUserId: string) => {
-    if (
-      !window.confirm("Are you sure you want to permanently delete this user?")
-    )
-      return;
+  const confirmDeleteUser = async () => {
+    if (!userToDelete) return;
     try {
-      await deleteUser(targetUserId).unwrap();
-      setActionMsg({ text: "User removed successfully.", type: "success" });
+      await deleteUser(userToDelete.id).unwrap();
+      toast.success(`User ${userToDelete.email} removed successfully.`);
+      setUserToDelete(null);
+      refetch();
     } catch (err: unknown) {
       const apiErr = err as { data?: { error?: string } };
-      setActionMsg({
-        text: apiErr?.data?.error || "Failed to delete user.",
-        type: "error",
-      });
+      toast.error(apiErr?.data?.error || "Failed to delete user.");
     }
   };
 
@@ -379,7 +362,13 @@ export const UsersPage: React.FC = () => {
                               )}
                             </button>
                             <button
-                              onClick={() => handleDelete(u.id)}
+                              onClick={() =>
+                                setUserToDelete({
+                                  id: u.id,
+                                  email: u.email,
+                                  name: u.fullName,
+                                })
+                              }
                               title="Delete user"
                               className="p-1.5 rounded-lg border border-red-500/30 text-red-400 hover:bg-red-500/10 transition-colors"
                             >
@@ -587,6 +576,22 @@ export const UsersPage: React.FC = () => {
           </div>
         </div>
       )}
+      {/* Delete User Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={Boolean(userToDelete)}
+        title="Remove Staff User"
+        description={
+          userToDelete
+            ? `Are you sure you want to permanently remove "${userToDelete.name || userToDelete.email}" (${userToDelete.email}) from the platform? This will revoke all session access and role bindings.`
+            : ""
+        }
+        confirmText="Delete User"
+        cancelText="Cancel"
+        variant="danger"
+        isLoading={isDeletingUser}
+        onConfirm={confirmDeleteUser}
+        onClose={() => setUserToDelete(null)}
+      />
     </div>
   );
 };
