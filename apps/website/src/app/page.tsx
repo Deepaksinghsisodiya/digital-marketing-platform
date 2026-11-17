@@ -11,6 +11,7 @@ import { Header } from "../components/layout/Header";
 import { Footer } from "../components/layout/Footer";
 import { BlockRenderer } from "../components/blocks/BlockRenderer";
 import { HeroBlock } from "../components/blocks/HeroBlock";
+import { Reveal } from "../components/motion/Reveal";
 import type { Metadata } from "next";
 import {
   ArrowRight,
@@ -247,8 +248,15 @@ export default async function HomePage() {
             {/* Latest Insights / Blog Articles (when using CMS blocks) */}
             {sectionVisibility.showBlogInsights !== false &&
               latestPosts.length > 0 && (
-                <section className="py-10 sm:py-14 lg:py-18 bg-slate-50/70 border-t border-slate-200/80 w-full relative overflow-hidden">
-                  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                <Reveal
+                  variant="fade-up"
+                  distance="md"
+                  duration="slow"
+                  as="div"
+                  className="w-full"
+                >
+                  <section className="py-10 sm:py-14 lg:py-18 bg-slate-50/70 border-t border-slate-200/80 w-full relative overflow-hidden">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                     <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 sm:gap-6 mb-8 sm:mb-12">
                       <div className="space-y-2">
                         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-widest bg-primary/10 text-primary border border-primary/20 shadow-2xs">
@@ -350,7 +358,8 @@ export default async function HomePage() {
                     </div>
                   </div>
                 </section>
-              )}
+              </Reveal>
+            )}
           </div>
         ) : (
           /* COMPLETE 17-SECTION BLUEPRINT ENTERPRISE HOMEPAGE */

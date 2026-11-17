@@ -12,6 +12,8 @@ export interface RevealProps extends React.HTMLAttributes<HTMLElement> {
   delay?: number; // ms
   duration?: keyof typeof MOTION_DURATIONS;
   distance?: keyof typeof MOTION_DISTANCES;
+  threshold?: number;
+  rootMargin?: string;
   once?: boolean;
   as?: React.ElementType;
   children: React.ReactNode;
@@ -27,6 +29,8 @@ export const Reveal: React.FC<RevealProps> = ({
   delay = 0,
   duration = "slow",
   distance = "md",
+  threshold = 0.08,
+  rootMargin = "0px 0px -30px 0px",
   once = true,
   as: Component = "div",
   className = "",
@@ -34,7 +38,7 @@ export const Reveal: React.FC<RevealProps> = ({
   children,
   ...rest
 }) => {
-  const [ref, inView] = useInView({ threshold: 0.15, once });
+  const [ref, inView] = useInView({ threshold, rootMargin, once });
   const isReduced = useReducedMotion();
   const isOff = useAnimationOff();
 

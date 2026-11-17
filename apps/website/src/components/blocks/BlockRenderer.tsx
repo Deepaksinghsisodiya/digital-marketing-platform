@@ -15,6 +15,7 @@ import { BookingEmbed } from "./BookingEmbed";
 import { LogoStripBlock } from "./LogoStripBlock";
 import { BentoGridBlock } from "./BentoGridBlock";
 import { CaseStudiesBlock } from "./CaseStudiesBlock";
+import { Reveal } from "../motion/Reveal";
 
 const BLOCK_REGISTRY: Record<string, React.FC<{ block: CmsBlock }>> = {
   Hero: HeroBlock,
@@ -84,7 +85,22 @@ export const BlockRenderer: React.FC<BlockRendererProps> = ({
           return null;
         }
 
-        return <Component key={block.id} block={block} />;
+        if (block.type === "Hero") {
+          return <Component key={block.id} block={block} />;
+        }
+
+        return (
+          <Reveal
+            key={block.id}
+            variant="fade-up"
+            distance="md"
+            duration="slow"
+            as="div"
+            className="w-full"
+          >
+            <Component block={block} />
+          </Reveal>
+        );
       })}
     </div>
   );
