@@ -225,8 +225,8 @@
         <div class="label">Links Verified 200 OK</div>
       </div>
       <div class="stat-pill">
-        <div class="num" style="color: #fbbf24;">158 Passed</div>
-        <div class="label">Automated Tests Pass</div>
+        <div class="num" style="color: #fbbf24;">209 Passed</div>
+        <div class="label">Automated Tests Pass (100%)</div>
       </div>
     </div>
 
@@ -310,7 +310,7 @@
       <div class="features-inner">
         <h5>Screen Features:</h5>
         <ul class="check-list">
-          <li><span class="bullet">✔</span> <div><strong>Block Inserter:</strong> Hero Banner, Bento Grid, Logo Marquee, Comparison Table, ROI Calculator, Booking Embed, FAQ Accordion, Process Steps, Stats Counters, CTA Banner, Rich Text.</div></li>
+          <li><span class="bullet">✔</span> <div><strong>Block Inserter:</strong> Hero Banner, Bento Grid, Logo Marquee, Booking Embed, FAQ Accordion, Process Steps, Stats Counters, CTA Banner, Rich Text (Dynamically populated from DB).</div></li>
           <li><span class="bullet">✔</span> <div><strong>Drag & Drop Reorder:</strong> Blocks ko upar-neeche drag karke order badlein.</div></li>
           <li><span class="bullet">✔</span> <div><strong>Device Preview:</strong> Desktop (1280px), Tablet (768px), aur Mobile (390px) responsive preview iframe.</div></li>
           <li><span class="bullet">✔</span> <div><strong>Unsaved Changes Warning:</strong> Bina save kiye tab band karne par browser alert dega.</div></li>
@@ -491,16 +491,16 @@
       <p class="module-desc">Agency ke sabhi active clients ki company profile, contact person, aur contract status.</p>
     </div>
 
-    <!-- 14. Tasks & Outbox -->
+    <!-- 14. Phase 1 Scope & Outbox -->
     <div class="module-box">
       <div class="module-top">
         <div>
-          <h3>⚙️ 14. Background Operations & Tasks</h3>
-          <span class="badge">Route: /admin/tasks (TasksPage.tsx)</span>
+          <h3>⚙️ 14. Background Operations & Transactional Outbox</h3>
+          <span class="badge">Route: /admin/clients (Phase 1 Focused)</span>
         </div>
         <span class="tag-status">Operations</span>
       </div>
-      <p class="module-desc">Outbox email dispatcher aur background retry jobs ka live health monitor.</p>
+      <p class="module-desc">Outbox email dispatcher aur background retry jobs ka atomic database worker. Complex project task management Phase 1 scope se bahar hai (redirects to /clients).</p>
     </div>
 
     <!-- 15-18 Auth Screens -->
@@ -555,8 +555,7 @@
           <li><span class="bullet">✔</span> <div><strong>Logo Strip (Marquee):</strong> Partner brands ka smooth infinite scrolling marquee strip.</div></li>
           <li><span class="bullet">✔</span> <div><strong>Bento Grid:</strong> Performance Architecture, Multichannel Attribution, aur CRO cards.</div></li>
           <li><span class="bullet">✔</span> <div><strong>4-Phase Delivery Framework:</strong> Discovery & Audit ➔ Strategy & Roadmap ➔ High-Velocity Execution ➔ Scale & Optimization.</div></li>
-          <li><span class="bullet">✔</span> <div><strong>Comparison Benchmark Table:</strong> Nexora Enterprise vs Traditional Retainer Agency vs In-House Freelancer.</div></li>
-          <li><span class="bullet">✔</span> <div><strong>Animated Stats:</strong> 99.9% Uptime, $50M+ Managed Spend, 4.2x Average ROAS.</div></li>
+          <li><span class="bullet">✔</span> <div><strong>Honesty-First Dynamic Sections:</strong> Stats counters, client testimonials, and logo strips render exclusively from verified database records (empty sections automatically return null).</div></li>
           <li><span class="bullet">✔</span> <div><strong>FAQ Accordion:</strong> Objection handling questions with automated Google FAQPage schema.</div></li>
         </ul>
       </div>
@@ -626,19 +625,18 @@
       </div>
     </div>
 
-    <!-- Tools & Booking -->
+    <!-- Booking & Strategy -->
     <div class="module-box">
       <div class="module-top">
         <div>
-          <h3>⚡ 23 & 24. Growth Tools & Meeting Booking</h3>
-          <span class="badge">URL: /tools/roi-calculator & /book-a-call</span>
+          <h3>⚡ 23 & 24. Executive Briefing & Meeting Booking</h3>
+          <span class="badge">URL: /book-a-call</span>
         </div>
         <span class="tag-status">Conversion Tools</span>
       </div>
       <div class="features-inner">
         <ul class="check-list">
-          <li><span class="bullet">✔</span> <div><strong>Interactive Growth ROI Calculator (<code>/tools/roi-calculator</code>):</strong> Monthly marketing spend slider, target conversion rate slider, live projected pipeline revenue aur estimated ROAS.</div></li>
-          <li><span class="bullet">✔</span> <div><strong>Executive Briefing Booking Embed (<code>/book-a-call</code>):</strong> Cal.com / Calendly calendar directly embedded hai jahan visitor 1 click me meeting schedule kar sakta hai.</div></li>
+          <li><span class="bullet">✔</span> <div><strong>Executive Briefing Booking Embed (<code>/book-a-call</code>):</strong> Dynamic scheduler configured from Site Settings; fallback interactive strategy consultation form with time-trap anti-bot protection when no external calendar is set.</div></li>
         </ul>
       </div>
     </div>
@@ -657,8 +655,8 @@
           <li><span class="bullet">✔</span> <div><strong>Universal Search (<code>/search</code>):</strong> Live query endpoint jo services aur blogs instantly filter karta hai.</div></li>
           <li><span class="bullet">✔</span> <div><strong>Contact Us Page (<code>/contact</code>):</strong> Lead intake form with corporate email validation, budget tier selector, urgency picker.</div></li>
           <li><span class="bullet">✔</span> <div><strong>Blog Hub & Article Reader (<code>/blog</code> & <code>/blog/[slug]</code>):</strong> Category filters, reading time badge, author credentials, social share buttons.</div></li>
-          <li><span class="bullet">✔</span> <div><strong>Legal & Trust Pages:</strong> Privacy Policy, Terms of Service, Cookies Policy (category toggles ke sath), Accessibility Statement, aur Trust/SOC2 compliance page.</div></li>
-          <li><span class="bullet">✔</span> <div><strong>Branded 404 & 500:</strong> <code>not-found.tsx</code> aur <code>error.tsx</code> graceful screens.</div></li>
+          <li><span class="bullet">✔</span> <div><strong>Legal & Trust Pages:</strong> Privacy Policy, Terms of Service, Cookies Policy (category toggles ke sath), Accessibility Statement, aur Trust page with real policy disclosures.</div></li>
+          <li><span class="bullet">✔</span> <div><strong>Branded 404 & 500:</strong> <code>not-found.tsx</code> aur <code>error.tsx</code> graceful screens with strict HTTP 404 status.</div></li>
         </ul>
       </div>
     </div>
@@ -685,7 +683,7 @@
 
     <!-- Footer -->
     <div class="footer">
-      Nexora Digital Marketing Platform • Complete 100% Inventory Audit • 158 Automated Tests Passing • Zero 404s
+      Nexora Digital Marketing Platform • Complete 100% Inventory Audit • 209 Automated Tests Passing (100%) • Zero 404s
     </div>
 
   </div>

@@ -26,10 +26,10 @@ export default function ErrorPage({
       </div>
 
       <Badge variant="destructive">Platform Runtime Notice</Badge>
-      <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight mt-3">
+      <h1 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight mt-3">
         Unexpected System Exception
       </h1>
-      <p className="mt-2 text-sm text-slate-400 max-w-md mx-auto leading-relaxed">
+      <p className="mt-2 text-sm text-slate-600 max-w-md mx-auto leading-relaxed">
         Our automated telemetry has captured this event. Our reliability
         engineers have been notified via the Outbox alerting pipeline.
       </p>

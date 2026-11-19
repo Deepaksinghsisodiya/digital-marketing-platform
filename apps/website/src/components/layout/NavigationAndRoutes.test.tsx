@@ -13,6 +13,9 @@ describe("Global Layout & Navigation Suite", () => {
           companyName: "NEXORA ENTERPRISE",
           supportEmail: "growth@nexora.digital",
           supportPhone: "+1 (800) 555-0199",
+          defaultRegion: "IN",
+          supportedRegions: [],
+          timeZoneId: "Asia/Kolkata",
         }}
         currentRegionCode="IN"
       />,
@@ -45,6 +48,9 @@ describe("Global Layout & Navigation Suite", () => {
           legalName: "Nexora Technologies Inc.",
           supportEmail: "growth@nexora.digital",
           supportPhone: "+1 (800) 555-0199",
+          defaultRegion: "IN",
+          supportedRegions: [],
+          timeZoneId: "Asia/Kolkata",
         }}
       />,
     );

@@ -23,7 +23,7 @@ export const CtaBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
   return (
     <section className="py-10 sm:py-14 lg:py-18 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full relative overflow-hidden">
       {/* Executive Card Container */}
-      <div className="relative rounded-3xl sm:rounded-4xl border border-primary/25 bg-gradient-to-br from-slate-900 via-slate-950 to-[#080c14] text-white p-6 sm:p-10 lg:p-12 xl:p-14 overflow-hidden shadow-2xl">
+      <div className="relative rounded-3xl sm:rounded-4xl border border-primary/25 bg-gradient-to-br from-slate-900 via-slate-950 to-slate-950 text-white p-6 sm:p-10 lg:p-12 xl:p-14 overflow-hidden shadow-2xl">
         {/* Ambient Gradient Glows (CSS-only, GPU accelerated) */}
         <div className="pointer-events-none absolute -top-24 -right-24 w-96 h-96 bg-primary/20 rounded-full blur-[120px] animate-gradient-drift" />
         <div className="pointer-events-none absolute -bottom-24 -left-24 w-96 h-96 bg-cyan-500/15 rounded-full blur-[120px] animate-gradient-drift" />

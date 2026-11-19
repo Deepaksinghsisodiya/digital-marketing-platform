@@ -116,11 +116,12 @@ public static class LeadEndpoints
             [FromQuery] string? search,
             [FromQuery] int? status,
             [FromQuery] string? region,
+            [FromQuery] string? formKey,
             ILeadService leadService,
             CancellationToken ct) =>
         {
             LeadStatus? leadStatus = status.HasValue ? (LeadStatus)status.Value : null;
-            var csvBytes = await leadService.ExportLeadsCsvAsync(search, leadStatus, region, ct);
+            var csvBytes = await leadService.ExportLeadsCsvAsync(search, leadStatus, region, formKey, ct);
 
             var fileName = $"leads_export_{DateTime.UtcNow:yyyyMMdd_HHmmss}.csv";
             return Results.File(csvBytes, "text/csv", fileName);

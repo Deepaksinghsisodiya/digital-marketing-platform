@@ -215,6 +215,7 @@ public static class CmsEndpoints
 
             return Results.Ok(pages);
         })
+        .CacheOutput("PublicCache")
         .WithName("GetPublishedPagesForSitemap")
         .WithSummary("Retrieve all published pages with slugs and timestamps for dynamic XML sitemap generation.");
 
@@ -228,6 +229,7 @@ public static class CmsEndpoints
             if (page == null) return Results.NotFound(new { error = "Page not found." });
             return Results.Ok(page);
         })
+        .CacheOutput("PublicCache")
         .WithName("GetPublicPage")
         .WithSummary("Fetch published page blocks and SEO metadata for website rendering.");
 

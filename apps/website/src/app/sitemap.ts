@@ -42,7 +42,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   let dynamicPageEntries: MetadataRoute.Sitemap = [];
   try {
     const res = await fetch(`${apiUrl}/api/v1/public/pages/published-sitemap`, {
-      cache: "no-store",
+      next: { revalidate: 3600, tags: ["cms-pages"] },
     });
     if (res.ok) {
       const pages: SitemapPageItem[] = await res.json();
@@ -62,7 +62,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   let dynamicPostEntries: MetadataRoute.Sitemap = [];
   try {
     const res = await fetch(`${apiUrl}/api/v1/public/posts?pageSize=100`, {
-      cache: "no-store",
+      next: { revalidate: 3600, tags: ["blog-posts"] },
     });
     if (res.ok) {
       const data = await res.json();

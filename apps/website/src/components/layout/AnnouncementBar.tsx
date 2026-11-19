@@ -169,7 +169,7 @@ export const AnnouncementBar: React.FC<AnnouncementBarProps> = ({
 
   return (
     <div
-      className={`relative z-50 w-full bg-[#060913] text-slate-200 text-[10px] sm:text-xs border-b border-white/10 shadow-sm transition-all duration-300 select-none overflow-hidden ${
+      className={`relative z-50 w-full bg-slate-950 text-slate-200 text-[10px] sm:text-xs border-b border-white/10 shadow-sm transition-all duration-300 select-none overflow-hidden ${
         isCollapsing
           ? "opacity-0 -translate-y-full max-h-0 py-0"
           : "opacity-100 translate-y-0 max-h-16 py-0.5 sm:py-1.5"

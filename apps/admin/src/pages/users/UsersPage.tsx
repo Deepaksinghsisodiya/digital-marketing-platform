@@ -118,8 +118,8 @@ export const UsersPage: React.FC = () => {
     e.preventDefault();
     setInviteError(null);
 
-    if (invitePassword.trim() && invitePassword.trim().length < 8) {
-      setInviteError("Password must be at least 8 characters long.");
+    if (invitePassword.trim() && invitePassword.trim().length < 12) {
+      setInviteError("Password must be at least 12 characters long.");
       return;
     }
 

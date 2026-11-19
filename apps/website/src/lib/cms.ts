@@ -57,7 +57,10 @@ export async function getPublicPage(
 
   try {
     const res = await fetch(url, {
-      cache: "no-store",
+      next: {
+        revalidate: 3600,
+        tags: ["cms-pages", `cms-page-${cleanSlug}`],
+      },
     });
 
     if (res.status === 404) return null;
@@ -101,7 +104,10 @@ export async function getPublicSiteSettings(): Promise<PublicSiteSettings | null
 
   try {
     const res = await fetch(url, {
-      cache: "no-store",
+      next: {
+        revalidate: 3600,
+        tags: ["site-settings"],
+      },
     });
 
     if (!res.ok) return null;
@@ -140,7 +146,10 @@ export async function getPublicMenu(
 
   try {
     const res = await fetch(url, {
-      cache: "no-store",
+      next: {
+        revalidate: 3600,
+        tags: ["site-menus", `menu-${key}`],
+      },
     });
 
     if (!res.ok) return null;
@@ -169,7 +178,12 @@ export async function getPublicTheme(
   const url = `${API_BASE}/api/v1/public/theme?app=${app}`;
 
   try {
-    const res = await fetch(url, { cache: "no-store" });
+    const res = await fetch(url, {
+      next: {
+        revalidate: 3600,
+        tags: ["site-theme", `theme-${app}`],
+      },
+    });
     if (!res.ok) return null;
     return (await res.json()) as PublicThemePayload;
   } catch (err) {

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import type { CmsBlock } from "../../lib/cms";
 import Link from "next/link";
 import * as yup from "yup";
@@ -35,6 +35,22 @@ export const BookingEmbed: React.FC<{ block: CmsBlock }> = ({ block }) => {
   const [clientName, setClientName] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [bookingSuccess, setBookingSuccess] = useState<string | null>(null);
+  const [timeTrapToken, setTimeTrapToken] = useState<string | null>(null);
+
+  useEffect(() => {
+    const apiBase =
+      process.env.INTERNAL_API_URL ||
+      process.env.NEXT_PUBLIC_API_URL ||
+      "http://localhost:5201";
+    fetch(`${apiBase}/api/v1/public/forms/contact`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data?.timeTrapToken) {
+          setTimeTrapToken(data.timeTrapToken);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const title =
     content.sectionTitle || "Schedule Your Strategic Growth Consultation";
@@ -42,7 +58,8 @@ export const BookingEmbed: React.FC<{ block: CmsBlock }> = ({ block }) => {
     content.sectionSubtitle ||
     "Select a convenient time for a confidential, one-on-one session with our senior growth architects.";
 
-  const rawBookingUrl = content.bookingUrl || "";
+  const rawBookingUrl =
+    content.bookingUrl || (content as { url?: string }).url || "";
 
   const bookingSchema = yup.object().shape({
     clientName: yup
@@ -98,6 +115,7 @@ export const BookingEmbed: React.FC<{ block: CmsBlock }> = ({ block }) => {
         utmTerm: utm.utmTerm || undefined,
         utmContent: utm.utmContent || undefined,
         referrerUrl: utm.referrerUrl || undefined,
+        timeTrapToken: timeTrapToken || undefined,
       };
 
       await fetch(`${apiBase}/api/v1/public/forms/contact/submissions`, {
@@ -253,12 +271,12 @@ export const BookingEmbed: React.FC<{ block: CmsBlock }> = ({ block }) => {
               </div>
 
               {bookingSuccess ? (
-                <div className="rounded-2xl bg-emerald-50 border border-emerald-200 p-6 text-center max-w-lg mx-auto space-y-3">
-                  <div className="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto font-bold text-lg">
+                <div className="rounded-2xl bg-primary/10 border border-primary/20 p-6 text-center max-w-lg mx-auto space-y-3">
+                  <div className="w-10 h-10 bg-primary/20 text-primary rounded-full flex items-center justify-center mx-auto font-bold text-lg">
                     ✓
                   </div>
-                  <h4 className="text-base font-bold text-emerald-900">Session Requested Successfully</h4>
-                  <p className="text-xs text-emerald-700 leading-relaxed">{bookingSuccess}</p>
+                  <h4 className="text-base font-bold text-slate-900">Session Requested Successfully</h4>
+                  <p className="text-xs text-slate-700 leading-relaxed">{bookingSuccess}</p>
                 </div>
               ) : (
                 <form onSubmit={handleSlotBooking} className="max-w-xl mx-auto space-y-4 bg-slate-50/70 p-6 rounded-2xl border border-slate-200">

@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import * as yup from "yup";
 import { toast } from "sonner";
+import { trackFormSubmit } from "@/lib/tracking";
 import { Loader2, CheckCircle2 } from "lucide-react";
 import { captureUtmParameters, getStoredUtmParameters } from "../../lib/utm";
 
@@ -173,6 +174,7 @@ export const ContactForm: React.FC<ContactFormProps> = () => {
           ? `Inquiry received! Reference #${data.referenceNumber}`
           : "Inquiry received! Our team will respond within 24 hours.",
       );
+      trackFormSubmit("contact_form", data.referenceNumber);
       if (data.referenceNumber) {
         setReferenceNumber(data.referenceNumber);
       }

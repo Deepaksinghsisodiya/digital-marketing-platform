@@ -118,6 +118,7 @@ export const LeadsPage: React.FC = () => {
     undefined,
   );
   const [regionFilter, setRegionFilter] = useState<string>("");
+  const [formKeyFilter, setFormKeyFilter] = useState<string>("");
   const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null);
   const [isConvertConfirmOpen, setIsConvertConfirmOpen] = useState(false);
   const [newNote, setNewNote] = useState("");
@@ -138,6 +139,7 @@ export const LeadsPage: React.FC = () => {
     search: search || undefined,
     status: statusFilter,
     region: regionFilter || undefined,
+    formKey: formKeyFilter || undefined,
   });
 
   const { data: statsData } = useGetLeadStatsQuery();
@@ -205,6 +207,7 @@ export const LeadsPage: React.FC = () => {
       if (statusFilter !== undefined)
         params.set("status", String(statusFilter));
       if (regionFilter) params.set("region", regionFilter);
+      if (formKeyFilter) params.set("formKey", formKeyFilter);
 
       const res = await fetch(
         `${apiUrl}/api/v1/admin/leads/export?${params.toString()}`,
@@ -389,6 +392,21 @@ export const LeadsPage: React.FC = () => {
                 {r.flagEmoji} {r.name} ({r.code})
               </option>
             ))}
+          </select>
+
+          <select
+            aria-label="Filter leads by source form"
+            value={formKeyFilter}
+            onChange={(e) => {
+              setFormKeyFilter(e.target.value);
+              setPage(1);
+            }}
+            className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          >
+            <option value="">📂 All Lead Sources</option>
+            <option value="contact">Contact Inquiry</option>
+            <option value="booking">Strategy Booking</option>
+            <option value="newsletter">Newsletter Subscriber</option>
           </select>
 
           {viewMode === "table" && (

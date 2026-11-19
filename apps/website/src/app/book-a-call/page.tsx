@@ -1,11 +1,12 @@
-import { cookies } from "next/headers";
-import { REGION_CONFIG, resolveRegion } from "@/config/region";
+import { resolveRegion } from "@/config/region";
 import { getPublicSiteSettings, getPublicMenu } from "@/lib/cms";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { BookingEmbed } from "@/components/blocks/BookingEmbed";
 import { Badge } from "@/components/ui/badge";
 import type { Metadata } from "next";
+
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: "Schedule Strategic Discovery Session — Nexora",
@@ -14,9 +15,7 @@ export const metadata: Metadata = {
 };
 
 export default async function BookACallPage() {
-  const cookieStore = await cookies();
-  const currentRegionCode = cookieStore.get(REGION_CONFIG.cookieName)?.value;
-  const region = resolveRegion(currentRegionCode);
+  const region = resolveRegion();
 
   const [siteSettings, headerMenu] = await Promise.all([
     getPublicSiteSettings(),
@@ -55,9 +54,7 @@ export default async function BookACallPage() {
               headline: "Reserve Calendar Slot",
               subheadline:
                 "Direct booking with our technical performance directors.",
-              url:
-                siteSettings?.bookingUrl ||
-                "https://cal.com/nexora-digital/growth-strategy",
+              bookingUrl: siteSettings?.bookingUrl || "",
             },
           }}
         />

@@ -9,20 +9,12 @@ export const LogoStripBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
   const title =
     (content.title as string) || "Trusted by High-Velocity Growth Teams";
 
-  const defaultBrands = [
-    { name: "APEX CLOUD", badge: "Enterprise" },
-    { name: "ZENITH AI", badge: "SaaS" },
-    { name: "VERTEX CORP", badge: "FinTech" },
-    { name: "NOVA SCALE", badge: "E-Commerce" },
-    { name: "HORIZON B2B", badge: "Healthcare" },
-  ];
-
   const brands =
-    Array.isArray(content.brands) && content.brands.length > 0
-      ? (content.brands as Array<{ name: string; badge?: string }>)
-      : defaultBrands;
+    Array.isArray(content?.brands) && content.brands.length > 0
+      ? (content.brands as Array<{ name: string; badge?: string }>).filter((b) => b && b.name)
+      : [];
 
-  if (!brands || brands.length === 0) {
+  if (brands.length === 0) {
     return null;
   }
 

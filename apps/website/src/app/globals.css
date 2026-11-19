@@ -498,6 +498,30 @@ footer > div > div.max-w-7xl {
 }
 
 /* =========================================================================
+   UNIFIED LAYOUT SYSTEM (ONE Shared Container, max 1280px, gutters 16/24/32)
+   ========================================================================= */
+.nexora-container {
+  width: 100%;
+  max-width: 1280px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+@media (min-width: 640px) {
+  .nexora-container {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+@media (min-width: 1024px) {
+  .nexora-container {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+/* =========================================================================
    GLOBAL MOTION SYSTEM (Hard Rule 6 & Rule 3)
    Consistent motion tokens, easing, distance, and global reduced-motion overrides
    ========================================================================= */
@@ -554,6 +578,19 @@ footer > div > div.max-w-7xl {
 
 .animate-shake {
   animation: shake 350ms ease-in-out;
+}
+
+@keyframes beamDrift {
+  0% {
+    stroke-dashoffset: 200;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+.animate-beam-drift {
+  animation: beamDrift 3s linear infinite;
 }
 
 /* Apple & Stripe Silk Upward Float Keyframes */

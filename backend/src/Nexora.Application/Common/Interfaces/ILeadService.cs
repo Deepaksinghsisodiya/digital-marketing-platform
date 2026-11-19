@@ -44,6 +44,7 @@ public interface ILeadService
         string? search,
         LeadStatus? status,
         string? region,
+        string? formKey = null,
         CancellationToken ct = default);
 
     Task<IReadOnlyList<AdminFormDefinitionDto>> GetAdminFormsAsync(CancellationToken ct = default);

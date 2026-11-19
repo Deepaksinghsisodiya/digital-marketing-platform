@@ -105,6 +105,7 @@ public static class SettingsEndpoints
             var publicSettings = await settingsService.GetPublicSettingsAsync(ct);
             return Results.Ok(publicSettings);
         })
+        .CacheOutput("PublicCache")
         .AllowAnonymous()
         .WithTags("Settings")
         .WithName("GetPublicSiteSettings")

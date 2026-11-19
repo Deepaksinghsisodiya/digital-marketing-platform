@@ -1,6 +1,5 @@
-import { cookies } from "next/headers";
 import Link from "next/link";
-import { REGION_CONFIG, resolveRegion } from "@/config/region";
+import { resolveRegion } from "@/config/region";
 import { getPublicSiteSettings, getPublicMenu } from "@/lib/cms";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
@@ -30,6 +29,8 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import type { Metadata } from "next";
+
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: "Digital Growth & Technology Services — Nexora",
@@ -140,149 +141,149 @@ const PILLARS = [
     ],
   },
   {
-    name: "Technology Solutions",
+    name: "Web & Conversion Experiences",
     badge: "Pillar 2",
     badgeColor: "bg-slate-100 text-slate-800 border-slate-300",
-    desc: "Production-grade web applications, headless corporate websites, and enterprise software engineered for sub-second load times and maintainability.",
+    desc: "Fast-loading, mobile-optimized business websites, landing pages, and storefronts engineered to turn casual visitors into paying customers.",
     services: [
       {
-        title: "Corporate Website Development",
+        title: "High-Converting Business Websites",
         slug: "web-design-development",
-        pillar: "Technology Solutions",
+        pillar: "Web & Conversion Experiences",
         icon: Layout,
-        desc: "Sub-second Next.js web platforms engineered for maximum conversion velocity, WCAG AA accessibility, and mobile elegance.",
+        desc: "Lightning-fast business websites designed to establish immediate market authority and convert visitor traffic into high-value sales inquiries.",
         highlights: [
-          "Zero-hydration layout shifts",
-          "Sub-second load times",
-          "Dynamic headless CMS wiring",
+          "Ultra-fast mobile loading speed",
+          "Mobile-first lead capture forms",
+          "Clean, trust-building brand aesthetics",
         ],
       },
       {
-        title: "Custom Web Applications",
+        title: "Client Portals & Booking Experiences",
         slug: "web-application-development",
-        pillar: "Technology Solutions",
+        pillar: "Web & Conversion Experiences",
         icon: Code2,
-        desc: "Scalable, resilient web applications built with modern frontend frameworks and robust backend architectures.",
+        desc: "Interactive client portals, online quote calculators, and automated appointment booking systems that make buying from you effortless.",
         highlights: [
-          "Modular component systems",
-          "Type-safe API contracts",
-          "Microservices & modular monoliths",
+          "Frictionless customer intake",
+          "Interactive appointment booking",
+          "Seamless mobile & desktop flow",
         ],
       },
       {
-        title: "Custom Software Engineering",
+        title: "Interactive Lead Generation Tools",
         slug: "custom-software-development",
-        pillar: "Technology Solutions",
+        pillar: "Web & Conversion Experiences",
         icon: Terminal,
-        desc: "Bespoke business platforms, internal portals, and enterprise engineering tailored to proprietary business models.",
+        desc: "Custom price estimators, ROI calculators, and interactive assessment funnels that capture high-intent contact details before prospects bounce.",
         highlights: [
-          "C# .NET & Node.js backends",
-          "PostgreSQL & Redis caching",
-          "Automated test coverage",
+          "Custom quote & ROI calculators",
+          "Automated lead qualification funnels",
+          "Instant lead handoff to sales team",
         ],
       },
       {
-        title: "Enterprise E-Commerce Development",
+        title: "High-AOV E-Commerce Storefronts",
         slug: "ecommerce-development",
-        pillar: "Technology Solutions",
+        pillar: "Web & Conversion Experiences",
         icon: ShoppingCart,
-        desc: "High-converting, lightning-fast digital storefronts and headless commerce platforms optimized for high AOV and checkout speed.",
+        desc: "High-converting online storefronts optimized to increase average order value, reduce cart abandonment, and maximize customer lifetime value.",
         highlights: [
-          "Headless commerce architecture",
-          "Sub-second product filtering",
-          "Multi-currency payment gateways",
+          "High-converting 1-page checkout",
+          "Instant product search & filtering",
+          "Multiple localized payment methods",
         ],
       },
       {
-        title: "UI/UX Design & Design Systems",
+        title: "Conversion-Focused UI/UX Design",
         slug: "ui-ux-design",
-        pillar: "Technology Solutions",
+        pillar: "Web & Conversion Experiences",
         icon: Palette,
-        desc: "Human-centered digital product design, high-fidelity prototypes, and scalable design token systems that bridge design and engineering.",
+        desc: "Modern, customer-focused visual design and psychology-driven page layouts that build immediate credibility and guide buyers to act.",
         highlights: [
-          "Atomic design tokens",
-          "Figma prototypes & usability tests",
-          "Strict WCAG 2.2 AA compliance",
+          "Buyer psychology page wireframes",
+          "Trust-building visual hierarchy",
+          "Mobile-first usability testing",
         ],
       },
       {
-        title: "API Development & System Integration",
+        title: "CRM & Marketing Tool Integrations",
         slug: "api-development",
-        pillar: "Technology Solutions",
+        pillar: "Web & Conversion Experiences",
         icon: Database,
-        desc: "Connect mission-critical enterprise systems with secure, high-throughput RESTful and event-driven APIs, webhooks, and cloud services.",
+        desc: "Connect your website directly to your CRM, payment processors, WhatsApp, and email tools so your marketing operations run on autopilot.",
         highlights: [
-          "OpenAPI / Swagger specs",
-          "Event-driven webhooks",
-          "Rate-limiting & security middleware",
+          "Real-time CRM contact sync",
+          "Instant WhatsApp & email notifications",
+          "Automated pipeline data flow",
         ],
       },
     ],
   },
   {
-    name: "AI & Automation",
+    name: "Marketing Automation & AI Lead Ops",
     badge: "Pillar 3",
     badgeColor: "bg-purple-50 text-purple-700 border-purple-200",
-    desc: "Custom AI integrations, intelligent chatbots, and event-driven business process automations that eliminate manual bottlenecks and scale lead velocity.",
+    desc: "Automate lead qualification, respond to inquiries within 60 seconds, and eliminate manual busywork so your sales team closes more deals.",
     services: [
       {
-        title: "AI Integration & Custom Agents",
+        title: "24/7 Smart AI Lead Assistants",
         slug: "ai-integration",
-        pillar: "AI & Automation",
+        pillar: "Marketing Automation & AI Lead Ops",
         icon: Bot,
-        desc: "Custom LLM integrations, retrieval-augmented generation (RAG) knowledge bases, and autonomous workflow agents.",
+        desc: "Intelligent AI assistants trained on your business offerings to answer customer questions, collect contact details, and book consultations 24/7.",
         highlights: [
-          "Private RAG knowledge bases",
-          "Autonomous workflow agents",
-          "Secure enterprise API connectors",
+          "24/7 instant client inquiry support",
+          "Trained on your business FAQs",
+          "Automated consultation booking",
         ],
       },
       {
-        title: "AI Conversational Chatbots",
+        title: "Conversational WhatsApp & Web Chatbots",
         slug: "ai-chatbots",
-        pillar: "AI & Automation",
+        pillar: "Marketing Automation & AI Lead Ops",
         icon: MessageSquare,
-        desc: "Intelligent, natural language conversational bots for website lead qualification, appointment booking, and customer intake.",
+        desc: "Natural language chatbots for your website and WhatsApp that qualify buyer intent and schedule appointments directly on your calendar.",
         highlights: [
-          "Instant lead qualification",
-          "CRM appointment booking",
-          "Multi-channel deployment",
+          "Instant buyer qualification",
+          "Direct calendar meeting booking",
+          "WhatsApp & website integration",
         ],
       },
       {
-        title: "Business Process Automation",
+        title: "Automated Lead Routing & Team Alerts",
         slug: "workflow-automation",
-        pillar: "AI & Automation",
+        pillar: "Marketing Automation & AI Lead Ops",
         icon: Workflow,
-        desc: "End-to-end event-driven workflow automation connecting intake forms, internal communications, and fulfillment systems.",
+        desc: "Connect your intake forms to team WhatsApp and Slack so your sales reps are alerted within seconds of a hot lead submission.",
         highlights: [
-          "Webhook event triggers",
-          "Cross-platform data sync",
-          "Error monitoring & retries",
+          "Sub-60s new inquiry alerts",
+          "Automated customer record updates",
+          "Zero manual data entry delay",
         ],
       },
       {
-        title: "Marketing Automation & CRM Architecture",
+        title: "CRM Pipeline Architecture & Lead Scoring",
         slug: "marketing-automation-crm",
-        pillar: "AI & Automation",
+        pillar: "Marketing Automation & AI Lead Ops",
         icon: Cpu,
-        desc: "Automated lead scoring, instantaneous SLA routing, and bidirectional synchronization across CRMs.",
+        desc: "Set up automated lead scoring and deal stages in HubSpot, Zoho, or Salesforce so high-value buyers get prioritized by your team.",
         highlights: [
-          "Algorithmic lead scoring",
-          "Instant SLA outbox routing",
-          "Full CRM synchronization",
+          "Automated high-intent lead scoring",
+          "Instant sales rep assignment",
+          "Complete lead-to-revenue tracking",
         ],
       },
       {
-        title: "Lifecycle Email & Automated Sequences",
+        title: "Automated Email & Lead Nurturing Flows",
         slug: "email-marketing",
-        pillar: "AI & Automation",
+        pillar: "Marketing Automation & AI Lead Ops",
         icon: Mail,
-        desc: "Automated B2B lead nurturing sequences, behavioral trigger flows, and transactional deliverability infrastructure.",
+        desc: "Nurture cold leads and re-engage past buyers with automated email drip campaigns that consistently turn interest into revenue.",
         highlights: [
-          "Behavioral trigger sequences",
-          "Automated re-engagement drips",
-          "99.8% inbox deliverability",
+          "Automated client onboarding drips",
+          "Lead re-engagement campaigns",
+          "High inbox deliverability setup",
         ],
       },
     ],
@@ -290,9 +291,7 @@ const PILLARS = [
 ];
 
 export default async function ServicesCatalogPage() {
-  const cookieStore = await cookies();
-  const currentRegionCode = cookieStore.get(REGION_CONFIG.cookieName)?.value;
-  const region = resolveRegion(currentRegionCode);
+  const region = resolveRegion();
 
   const [siteSettings, headerMenu] = await Promise.all([
     getPublicSiteSettings(),
@@ -315,10 +314,10 @@ export default async function ServicesCatalogPage() {
             <span>Three Major Capabilities</span>
           </div>
           <h1 className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tight text-slate-900 leading-tight">
-            Digital Growth, Technology Solutions &amp; AI Automation
+            Full-Funnel Digital Marketing, High-Converting Websites &amp; Lead Automation
           </h1>
           <p className="text-xs sm:text-base md:text-lg text-slate-600 leading-relaxed font-normal">
-            We unite strategic marketing, modern software engineering, and intelligent automation into a single cohesive growth engine. Explore our capabilities below.
+            Everything ambitious businesses need to attract high-intent buyers, generate qualified inquiries, and scale revenue predictably. Explore our services below.
           </p>
         </Reveal>
 

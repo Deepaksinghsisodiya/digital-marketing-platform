@@ -1,5 +1,4 @@
-import { cookies } from "next/headers";
-import { REGION_CONFIG, resolveRegion } from "../../config/region";
+import { resolveRegion } from "../../config/region";
 import { getPublicSiteSettings } from "../../lib/cms";
 import { Header } from "../../components/layout/Header";
 import { Footer } from "../../components/layout/Footer";
@@ -17,6 +16,8 @@ import {
   Globe2,
 } from "lucide-react";
 
+export const revalidate = 3600;
+
 export const metadata: Metadata = {
   title: "Executive Consultation & Discovery — Nexora",
   description:
@@ -24,9 +25,7 @@ export const metadata: Metadata = {
 };
 
 export default async function ContactPage() {
-  const cookieStore = await cookies();
-  const currentRegionCode = cookieStore.get(REGION_CONFIG.cookieName)?.value;
-  const region = resolveRegion(currentRegionCode);
+  const region = resolveRegion();
   const siteSettings = await getPublicSiteSettings();
 
   return (

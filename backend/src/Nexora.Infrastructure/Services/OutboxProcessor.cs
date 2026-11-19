@@ -42,22 +42,31 @@ public class OutboxProcessor : IOutboxProcessor
             var now = DateTime.UtcNow;
             var cutoff = now.AddMinutes(-5);
 
-            // Fetch unprocessed or lock-expired pending messages that are due for attempt
+            // Atomic claim with UPDLOCK, READPAST inside a transaction to prevent duplicate claims by concurrent workers
+            await using var tx = await _context.Database.BeginTransactionAsync(System.Data.IsolationLevel.ReadCommitted, ct);
+
             var pending = await _context.OutboxMessages
-                .Where(o => o.Status == OutboxMessageStatus.Pending
-                         && (o.NextAttemptAtUtc == null || o.NextAttemptAtUtc <= now)
-                         && (o.LockClaimedAtUtc == null || o.LockClaimedAtUtc < cutoff))
-                .OrderBy(o => o.CreatedAtUtc)
-                .Take(100)
+                .FromSqlInterpolated($@"
+                    SELECT TOP (100) *
+                    FROM OutboxMessages WITH (UPDLOCK, READPAST)
+                    WHERE Status = {OutboxMessageStatus.Pending}
+                      AND (NextAttemptAtUtc IS NULL OR NextAttemptAtUtc <= {now})
+                      AND (LockClaimedAtUtc IS NULL OR LockClaimedAtUtc < {cutoff})
+                    ORDER BY CreatedAtUtc")
                 .ToListAsync(ct);
 
-            if (pending.Count == 0) break;
+            if (pending.Count == 0)
+            {
+                await tx.RollbackAsync(ct);
+                break;
+            }
 
             foreach (var message in pending)
             {
                 message.MarkClaimed();
             }
             await _context.SaveChangesAsync(ct);
+            await tx.CommitAsync(ct);
 
             foreach (var message in pending)
             {

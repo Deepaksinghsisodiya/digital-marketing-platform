@@ -56,4 +56,21 @@ backend/backups/
 infra/tools/
 *.exe
 
+# Logs, Builds, Media & Audit Cache
+*.log
+logs/
+backend/src/Nexora.Api/logs/
+backend/src/Nexora.Worker/logs/
+uploads/
+backend/src/Nexora.Api/uploads/
+*.tsbuildinfo
+.eslintcache
+lighthouse-*/
+*.mdf
+*.ldf
+.vercel/
+.env.*
+!.env.example
+
+
 

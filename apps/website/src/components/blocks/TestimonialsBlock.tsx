@@ -25,34 +25,14 @@ export const TestimonialsBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
     (content.sectionSubtitle as string) ||
     "Discover how global brands and fast-scaling enterprises achieve predictable revenue growth with Nexora.";
 
-  const rawItems = (content.testimonials as TestimonialItem[]) || [
-    {
-      quote:
-        "Nexora's attribution engine gave our executive team real-time clarity across multi-region campaigns. We increased pipeline velocity by 340% within two quarters.",
-      author: "Aditi Rao",
-      role: "VP of Global Marketing",
-      company: "Apex Cloud Enterprise",
-      rating: 5,
-    },
-    {
-      quote:
-        "The automated audience modeling and deterministic lead scoring transformed our conversion rates. The transparency and ROI tracking are unlike anything else in B2B.",
-      author: "Marcus Vance",
-      role: "Chief Commercial Officer",
-      company: "Synapse Financial Networks",
-      rating: 5,
-    },
-    {
-      quote:
-        "From DPDP and GDPR compliance to cross-border campaign governance, Nexora handled our multi-currency operations with zero friction. An indispensable platform.",
-      author: "Vikram Malhotra",
-      role: "Managing Director",
-      company: "Zenith Retail Group",
-      rating: 5,
-    },
-  ];
+  const rawItems = Array.isArray(content?.testimonials)
+    ? (content.testimonials as TestimonialItem[])
+    : [];
 
-  const items = rawItems.filter((item) => item.enabled !== false);
+  const items = rawItems.filter(
+    (item) => item && item.enabled !== false && item.quote && item.author,
+  );
+
   const isReduced = useReducedMotion();
 
   // Embla setup with autoplay (6s, paused on hover/focus/reduced-motion)
@@ -107,6 +87,10 @@ export const TestimonialsBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
   const scrollNext = useCallback(() => {
     if (emblaApi) emblaApi.scrollNext();
   }, [emblaApi]);
+
+  if (items.length === 0) {
+    return null;
+  }
 
   return (
     <section className="relative py-10 sm:py-14 lg:py-18 bg-slate-50 text-slate-900 overflow-hidden border-t border-slate-200 w-full">

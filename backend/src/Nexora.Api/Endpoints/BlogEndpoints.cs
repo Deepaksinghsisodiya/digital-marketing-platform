@@ -33,6 +33,7 @@ public static class BlogEndpoints
 
             return Results.Ok(result);
         })
+        .CacheOutput("PublicCache")
         .WithName("GetPublishedPosts")
         .WithSummary("Paginated list of published blog posts.");
 
@@ -45,6 +46,7 @@ public static class BlogEndpoints
             if (post == null) return Results.NotFound(new { error = "Post not found." });
             return Results.Ok(post);
         })
+        .CacheOutput("PublicCache")
         .WithName("GetPublishedPostBySlug")
         .WithSummary("Get published blog post by slug.");
 

@@ -13,6 +13,7 @@ import {
   ChevronDown,
   CheckCircle2,
 } from "lucide-react";
+import { MagneticButton } from "../motion/MagneticButton";
 
 export interface HeroSlide {
   id?: string;
@@ -95,7 +96,7 @@ export const HeroBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
   }
 
   return (
-    <section className="relative w-full overflow-hidden text-white bg-[#060913] select-none min-h-[500px] sm:min-h-[580px] md:min-h-[620px] lg:h-[calc(100vh-64px)] lg:min-h-[640px] lg:max-h-[960px] flex items-center border-b border-slate-900/60 p-0 m-0">
+    <section className="relative w-full overflow-hidden text-white bg-slate-950 select-none min-h-[500px] sm:min-h-[580px] md:min-h-[620px] lg:h-[calc(100vh-64px)] lg:min-h-[640px] lg:max-h-[960px] flex items-center border-b border-slate-900/60 p-0 m-0">
       {/* Embla Carousel Viewport */}
       <div className="overflow-hidden w-full h-full" ref={emblaRef}>
         <div className="flex w-full h-full">
@@ -183,14 +184,16 @@ export const HeroBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
                   {/* Action CTAs (Responsive on mobile, tablet & desktop) */}
                   <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-2.5 sm:gap-4 pt-1 sm:pt-2 w-full max-w-xs sm:max-w-md md:max-w-none mx-auto animate-glide-up-4">
                     {slide.primaryCtaText && (
-                      <Link
-                        href={slide.primaryCtaLink || "/contact"}
-                        className="group relative overflow-hidden inline-flex items-center justify-center gap-2.5 rounded-xl bg-primary hover:bg-primary-hover px-5 sm:px-8 py-3 sm:py-4 text-xs sm:text-sm md:text-base font-black text-primary-foreground shadow-2xl shadow-primary/30 hover:shadow-primary/50 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 w-full sm:w-auto text-center"
-                      >
-                        <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full bg-gradient-to-r from-transparent via-white/30 to-transparent transition-transform duration-1000 ease-out pointer-events-none" />
-                        <span>{slide.primaryCtaText}</span>
-                        <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1 shrink-0" />
-                      </Link>
+                      <MagneticButton>
+                        <Link
+                          href={slide.primaryCtaLink || "/contact"}
+                          className="group relative overflow-hidden inline-flex items-center justify-center gap-2.5 rounded-xl bg-primary hover:bg-primary-hover px-5 sm:px-8 py-3 sm:py-4 text-xs sm:text-sm md:text-base font-black text-primary-foreground shadow-2xl shadow-primary/30 hover:shadow-primary/50 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 w-full sm:w-auto text-center cursor-pointer"
+                        >
+                          <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full bg-gradient-to-r from-transparent via-white/30 to-transparent transition-transform duration-1000 ease-out pointer-events-none" />
+                          <span>{slide.primaryCtaText}</span>
+                          <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1 shrink-0" />
+                        </Link>
+                      </MagneticButton>
                     )}
 
                     {slide.secondaryCtaText && (

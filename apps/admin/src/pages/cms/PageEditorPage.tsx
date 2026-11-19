@@ -849,6 +849,67 @@ export const PageEditorPage: React.FC = () => {
                         {/* Inline Content Editor when Selected */}
                         {isSelected && (
                           <div className="p-4 border-t border-indigo-100 dark:border-indigo-950/60 bg-white/70 dark:bg-slate-950/70 space-y-3 text-xs">
+                            {/* Universal Block Tone & Animation Controls */}
+                            <div className="p-2.5 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 grid grid-cols-2 gap-3 mb-3">
+                              <div>
+                                <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">
+                                  Section Tone
+                                </label>
+                                <select
+                                  value={(b.settings?.tone as string) || "light"}
+                                  onChange={(e) => {
+                                    const updated = [...blocks];
+                                    const cur = updated[idx];
+                                    if (cur) {
+                                      updated[idx] = {
+                                        ...cur,
+                                        settings: {
+                                          ...cur.settings,
+                                          tone: e.target.value,
+                                        },
+                                      };
+                                      setBlocks(updated);
+                                      setIsDirty(true);
+                                    }
+                                  }}
+                                  className="w-full text-xs rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white px-2 py-1.5 focus:ring-1 focus:ring-indigo-500"
+                                >
+                                  <option value="light">Light (Clean White)</option>
+                                  <option value="alt">Alt (Subtle Surface)</option>
+                                  <option value="dark">Dark (Deep Contrast)</option>
+                                  <option value="brand-gradient">Brand Gradient</option>
+                                </select>
+                              </div>
+                              <div>
+                                <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">
+                                  Motion Animation
+                                </label>
+                                <select
+                                  value={(b.settings?.animation as string) || "subtle"}
+                                  onChange={(e) => {
+                                    const updated = [...blocks];
+                                    const cur = updated[idx];
+                                    if (cur) {
+                                      updated[idx] = {
+                                        ...cur,
+                                        settings: {
+                                          ...cur.settings,
+                                          animation: e.target.value,
+                                        },
+                                      };
+                                      setBlocks(updated);
+                                      setIsDirty(true);
+                                    }
+                                  }}
+                                  className="w-full text-xs rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white px-2 py-1.5 focus:ring-1 focus:ring-indigo-500"
+                                >
+                                  <option value="subtle">Subtle Reveal (Default)</option>
+                                  <option value="rich">Rich Motion (Spotlight & Tilt)</option>
+                                  <option value="none">None (Reduced Motion)</option>
+                                </select>
+                              </div>
+                            </div>
+
                             {/* Hero Editor Fields with Multi-Slide Carousel & Image Customization */}
                             {b.type === "Hero" && (() => {
                               const isSliderMode = true;

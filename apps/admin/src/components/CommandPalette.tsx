@@ -11,7 +11,6 @@ import {
   Inbox,
   Mail,
   Briefcase,
-  CheckSquare,
   BookOpen,
   Image as ImageIcon,
   FolderTree,

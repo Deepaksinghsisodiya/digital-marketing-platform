@@ -32,10 +32,24 @@ while (searchDir != null)
 
 var builder = Host.CreateApplicationBuilder(args);
 
+var logsDir = Path.Combine(AppContext.BaseDirectory, "logs");
+Directory.CreateDirectory(logsDir);
+
 Log.Logger = new LoggerConfiguration()
     .ReadFrom.Configuration(builder.Configuration)
     .Enrich.FromLogContext()
+    .Filter.ByExcluding(logEvent =>
+    {
+        var msg = logEvent.RenderMessage();
+        return msg.Contains("password=", StringComparison.OrdinalIgnoreCase) ||
+               msg.Contains("client_secret=", StringComparison.OrdinalIgnoreCase);
+    })
     .WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] (Worker) {Message:lj}{NewLine}{Exception}")
+    .WriteTo.File(
+        path: Path.Combine(logsDir, "nexora-worker-.log"),
+        rollingInterval: RollingInterval.Day,
+        retainedFileCountLimit: 14,
+        outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] (Worker) {Message:lj}{NewLine}{Exception}")
     .CreateLogger();
 
 builder.Services.AddSerilog();

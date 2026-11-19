@@ -9,12 +9,12 @@ export default function NotFound() {
       <header className="border-b border-slate-200 bg-white/90 backdrop-blur-md px-6 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 font-black text-xl text-slate-900 tracking-tight">
-            <span className="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-sm">N</span>
+            <span className="w-8 h-8 rounded-xl bg-primary text-white flex items-center justify-center font-bold text-sm">N</span>
             <span>NEXORA</span>
           </Link>
           <Link
             href="/"
-            className="text-xs font-bold text-blue-600 hover:text-blue-700"
+            className="text-xs font-bold text-primary hover:text-primary-hover"
           >
             &larr; Back to Platform
           </Link>
@@ -23,7 +23,7 @@ export default function NotFound() {
 
       {/* 404 Main Area */}
       <main className="flex-1 flex flex-col items-center justify-center py-20 px-6 text-center max-w-xl mx-auto space-y-6">
-        <div className="w-20 h-20 rounded-3xl bg-blue-50 text-blue-600 border border-blue-200 flex items-center justify-center font-black text-3xl shadow-xl shadow-blue-500/10">
+        <div className="w-20 h-20 rounded-3xl bg-primary/10 text-primary border border-primary/20 flex items-center justify-center font-black text-3xl shadow-xl shadow-primary/10">
           404
         </div>
 
@@ -43,7 +43,7 @@ export default function NotFound() {
         <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
           <Link
             href="/"
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-blue-600 text-white text-xs font-bold hover:bg-blue-700 transition shadow-md shadow-blue-600/20"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-primary text-white text-xs font-bold hover:bg-primary-hover transition shadow-md shadow-primary/20"
           >
             <span>Return to Homepage</span>
             <ArrowRight className="w-4 h-4" />
@@ -60,10 +60,10 @@ export default function NotFound() {
         <div className="w-full pt-8 border-t border-slate-200 grid grid-cols-3 gap-3 text-left">
           <Link
             href="/services"
-            className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 hover:border-blue-300 transition group shadow-xs"
+            className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 hover:border-primary/40 transition group shadow-xs"
           >
-            <SearchCode className="w-4 h-4 text-blue-600 mb-1.5" />
-            <span className="text-xs font-bold text-slate-900 block group-hover:text-blue-600">
+            <SearchCode className="w-4 h-4 text-primary mb-1.5" />
+            <span className="text-xs font-bold text-slate-900 block group-hover:text-primary">
               Services
             </span>
             <span className="text-[10px] text-slate-500">All capabilities</span>
@@ -71,10 +71,10 @@ export default function NotFound() {
 
           <Link
             href="/blog"
-            className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 hover:border-blue-300 transition group shadow-xs"
+            className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 hover:border-primary/40 transition group shadow-xs"
           >
-            <BookOpen className="w-4 h-4 text-blue-600 mb-1.5" />
-            <span className="text-xs font-bold text-slate-900 block group-hover:text-blue-600">
+            <BookOpen className="w-4 h-4 text-primary mb-1.5" />
+            <span className="text-xs font-bold text-slate-900 block group-hover:text-primary">
               Insights
             </span>
             <span className="text-[10px] text-slate-500">Growth playbooks</span>
@@ -82,10 +82,10 @@ export default function NotFound() {
 
           <Link
             href="/contact"
-            className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 hover:border-blue-300 transition group shadow-xs"
+            className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 hover:border-primary/40 transition group shadow-xs"
           >
-            <Mail className="w-4 h-4 text-blue-600 mb-1.5" />
-            <span className="text-xs font-bold text-slate-900 block group-hover:text-blue-600">
+            <Mail className="w-4 h-4 text-primary mb-1.5" />
+            <span className="text-xs font-bold text-slate-900 block group-hover:text-primary">
               Support
             </span>
             <span className="text-[10px] text-slate-500">Direct assistance</span>

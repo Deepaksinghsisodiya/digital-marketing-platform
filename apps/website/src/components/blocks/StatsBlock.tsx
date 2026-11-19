@@ -50,12 +50,13 @@ const STAT_METADATA = [
 
 export const StatsBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
   const { content } = block;
-  const metrics = (content.metrics as MetricItem[]) || [
-    { value: "340%", label: "Avg Pipeline Velocity", change: "+42% QoQ" },
-    { value: "$120M+", label: "Enterprise Revenue Influenced", change: "Verified" },
-    { value: "4.8x", label: "Sustained Blended ROAS", change: "Audit-grade" },
-    { value: "99.8%", label: "Attribution Accuracy", change: "SOC2" },
-  ];
+  const metrics = Array.isArray(content?.metrics)
+    ? (content.metrics as MetricItem[]).filter((m) => m && m.value && m.label)
+    : [];
+
+  if (metrics.length === 0) {
+    return null;
+  }
 
   return (
     <section className="py-8 sm:py-12 md:py-14 lg:py-16 bg-gradient-to-b from-white via-slate-50 to-white border-y border-slate-200/80 text-slate-900 w-full relative overflow-hidden">
@@ -92,7 +93,7 @@ export const StatsBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
                     <span className="inline-flex items-center gap-1.5 text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full bg-slate-100 text-slate-700 border border-slate-200 shrink-0 shadow-2xs">
                       <span className={`w-1.5 h-1.5 rounded-full ${meta.dot} animate-pulse shrink-0`} />
                       <span className="truncate max-w-[120px] xs:max-w-[160px] sm:max-w-none">
-                        {m.change || "Audited"}
+                        {m.change || "Growth Metric"}
                       </span>
                     </span>
                     <div className={`w-8 h-8 sm:w-9 sm:h-9 rounded-xl border flex items-center justify-center transition-all duration-300 shadow-2xs shrink-0 ${meta.iconBg}`}>

@@ -108,37 +108,8 @@ describe("BlockRenderer", () => {
     expect(html).toContain("Uptime SLA");
   });
 
-  it("renders new growth blocks: ComparisonTable, RoiCalculator, ProcessSteps, and BookingEmbed", () => {
+  it("renders growth blocks: ProcessSteps, BookingEmbed, LogoStrip, and BentoGrid", () => {
     const blocks: CmsBlock[] = [
-      {
-        id: "b-comparison",
-        type: "ComparisonTable",
-        schemaVersion: 1,
-        settings: {},
-        content: {
-          sectionTitle: "Enterprise Platform Benchmark",
-          rows: [
-            {
-              feature: "Attribution Engine",
-              nexora: "Deterministic ML",
-              agency: "Spreadsheets",
-              freelancer: "Basic GA4",
-            },
-          ],
-        },
-        enabled: true,
-      },
-      {
-        id: "b-roi",
-        type: "RoiCalculator",
-        schemaVersion: 1,
-        settings: {},
-        content: {
-          sectionTitle: "Growth ROI Modeling Tool",
-          defaultSpend: 10000,
-        },
-        enabled: true,
-      },
       {
         id: "b-process",
         type: "ProcessSteps",
@@ -166,6 +137,7 @@ describe("BlockRenderer", () => {
         settings: {},
         content: {
           title: "Trusted Partners Across Industry Sectors",
+          brands: [{ name: "Ecosystem Partner", badge: "Technology" }],
         },
         enabled: true,
       },
@@ -182,9 +154,6 @@ describe("BlockRenderer", () => {
     ];
 
     const html = renderToString(<BlockRenderer blocks={blocks} />);
-    expect(html).toContain("Enterprise Platform Benchmark");
-    expect(html).toContain("Attribution Engine");
-    expect(html).toContain("Growth ROI Modeling Tool");
     expect(html).toContain("4-Phase Execution Framework");
     expect(html).toContain("Book Executive Briefing");
     expect(html).toContain("Trusted Partners Across Industry Sectors");

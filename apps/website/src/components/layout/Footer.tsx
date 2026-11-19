@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
 import type { PublicSiteSettings } from "../../lib/cms";
@@ -29,6 +29,7 @@ export const Footer: React.FC<{ settings?: PublicSiteSettings | null }> = ({
   const [newsletterEmail, setNewsletterEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
   const [isSubscribing, setIsSubscribing] = useState(false);
+  const [timeTrapToken, setTimeTrapToken] = useState<string | null>(null);
 
   const companyName = settings?.companyName || "NEXORA";
   const legalName =
@@ -42,6 +43,17 @@ export const Footer: React.FC<{ settings?: PublicSiteSettings | null }> = ({
     process.env.INTERNAL_API_URL ||
     process.env.NEXT_PUBLIC_API_URL ||
     "http://localhost:5201";
+
+  useEffect(() => {
+    fetch(`${apiBase}/api/v1/public/forms/contact`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data?.timeTrapToken) {
+          setTimeTrapToken(data.timeTrapToken);
+        }
+      })
+      .catch(() => {});
+  }, [apiBase]);
 
   const rawLogo =
     settings?.logoUrl ||
@@ -82,6 +94,7 @@ export const Footer: React.FC<{ settings?: PublicSiteSettings | null }> = ({
         utmTerm: utm.utmTerm || undefined,
         utmContent: utm.utmContent || undefined,
         referrerUrl: utm.referrerUrl || undefined,
+        timeTrapToken: timeTrapToken || undefined,
       };
 
       await fetch(`${apiBase}/api/v1/public/forms/contact/submissions`, {
@@ -307,23 +320,18 @@ export const Footer: React.FC<{ settings?: PublicSiteSettings | null }> = ({
               </Link>
             </li>
             <li>
-              <Link href="/case-studies" className="hover:text-white transition">
-                Case Studies &amp; Work
+              <Link href="/services" className="hover:text-white transition">
+                Services &amp; Capabilities
               </Link>
             </li>
             <li>
-              <Link href="/pricing" className="hover:text-white transition">
-                Pricing &amp; Engagement Models
+              <Link href="/industries" className="hover:text-white transition">
+                Industry Solutions
               </Link>
             </li>
             <li>
               <Link href="/blog" className="hover:text-white transition">
                 Insights &amp; Strategy
-              </Link>
-            </li>
-            <li>
-              <Link href="/tools/roi-calculator" className="hover:text-white transition">
-                ROI &amp; Growth Calculator
               </Link>
             </li>
             <li>

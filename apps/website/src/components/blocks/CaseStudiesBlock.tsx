@@ -40,55 +40,13 @@ export const CaseStudiesBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
     (content?.sectionSubtitle as string) ||
     "Real, verifiable revenue acceleration delivered through bespoke marketing infrastructure, programmatic SEO, and deterministic attribution.";
 
-  const rawCaseStudies = (content?.caseStudies as CaseStudyItem[]) || [
-    {
-      id: "cs-1",
-      title: "Scaling B2B Enterprise Pipeline by 340% in 180 Days",
-      client: "Apex Cloud Infrastructure",
-      category: "B2B SaaS",
-      metric: "+340%",
-      metricLabel: "Qualified Pipeline Velocity",
-      summary:
-        "Replaced fragmented legacy paid campaigns with real-time account-based intent modeling and sub-second landing pages. Mapped commercial intent directly to enterprise buyer groups.",
-      imageUrl:
-        "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1200&q=80",
-      caseStudyUrl: "/contact?ref=apex-case-study",
-      featured: true,
-      enabled: true,
-    },
-    {
-      id: "cs-2",
-      title: "Dominating Commercial Search: From Page 4 to #1 for 140+ Keywords",
-      client: "Zenith Retail Technologies",
-      category: "E-Commerce & Retail",
-      metric: "4.8x",
-      metricLabel: "Sustained Blended ROAS",
-      summary:
-        "Implemented programmatic SEO architecture and high-converting speed-optimized front-end, reducing bounce rate by 52% and generating over 2.4M organic visits in 9 months.",
-      imageUrl:
-        "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1200&q=80",
-      caseStudyUrl: "/contact?ref=zenith-case-study",
-      featured: true,
-      enabled: true,
-    },
-    {
-      id: "cs-3",
-      title: "Eliminating Attribution Blindspots for Cross-Border FinTech",
-      client: "Synapse Financial Networks",
-      category: "FinTech & Banking",
-      metric: "$42M+",
-      metricLabel: "Net-New Influenced ARR",
-      summary:
-        "Engineered server-side privacy-first conversion tracking and automated CRM routing. Reduced customer acquisition cost (CAC) by 38% across US and global markets.",
-      imageUrl:
-        "https://images.unsplash.com/photo-1559526324-4b87b5e36e44?auto=format&fit=crop&w=1200&q=80",
-      caseStudyUrl: "/contact?ref=synapse-case-study",
-      featured: false,
-      enabled: true,
-    },
-  ];
+  const rawCaseStudies = Array.isArray(content?.caseStudies)
+    ? (content.caseStudies as CaseStudyItem[])
+    : [];
 
-  const activeStudies = rawCaseStudies.filter((item) => item.enabled !== false);
+  const activeStudies = rawCaseStudies.filter(
+    (item) => item && item.enabled !== false && item.title && item.client,
+  );
 
   const categories = [
     "All",

@@ -26,11 +26,16 @@ interface PaginatedPosts {
   totalPages: number;
 }
 
+export const revalidate = 3600;
+
 async function getPublishedPosts(): Promise<BlogPostSummary[]> {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5201";
   try {
     const res = await fetch(`${apiUrl}/api/v1/public/posts?pageSize=12`, {
-      cache: "no-store",
+      next: {
+        revalidate: 3600,
+        tags: ["blog-posts"],
+      },
     });
     if (!res.ok) return [];
     const data: PaginatedPosts = await res.json();
@@ -52,7 +57,7 @@ export default async function BlogIndexPage() {
   return (
     <div className="min-h-screen flex flex-col bg-white text-slate-900">
       <Header />
-      <main className="flex-1 max-w-[1720px] 2xl:max-w-[1920px] mx-auto px-6 sm:px-10 lg:px-12 xl:px-16 py-16 w-full">
+      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 w-full">
         <Reveal variant="fade-up" distance="lg" duration="slower" as="div" className="max-w-3xl mb-12">
           <span className="text-xs font-bold text-primary uppercase tracking-widest bg-primary/10 px-3.5 py-1.5 rounded-full border border-primary/20">
             Insights & Thought Leadership

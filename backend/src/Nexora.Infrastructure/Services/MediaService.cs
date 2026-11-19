@@ -17,7 +17,7 @@ public class MediaService : IMediaService
     private readonly IAuditLogService _auditLogService;
     private readonly ILogger<MediaService> _logger;
 
-    private const long MaxFileSizeBytes = 10 * 1024 * 1024; // 10 MB
+    private const long MaxFileSizeBytes = 5 * 1024 * 1024; // 5 MB
 
     private static readonly HashSet<string> AllowedExtensions = new(StringComparer.OrdinalIgnoreCase)
     {
@@ -119,7 +119,7 @@ public class MediaService : IMediaService
 
         if (sizeBytes > MaxFileSizeBytes)
         {
-            return (false, "File size exceeds the 10MB limit.", null);
+            return (false, "File size exceeds the 5MB limit.", null);
         }
 
         // 2. Validate extension

@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { Stagger, StaggerItem } from "../motion/Stagger";
+import { SectionHeading } from "../ui/SectionHeading";
 
 interface FeatureItem {
   title: string;
@@ -52,7 +53,7 @@ const FEATURE_METADATA = [
   {
     icon: ShieldCheck,
     tag: "Multi-Country Governance",
-    badge: "DPDP / GDPR / SOC2",
+    badge: "DPDP / GDPR Compliance",
     color: "from-rose-600 to-pink-500",
   },
 ];
@@ -100,30 +101,28 @@ export const FeatureGridBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
   ];
 
   const incomingList =
-    Array.isArray(content.services) && content.services.length > 0
+    Array.isArray(content?.services) && content.services.length > 0
       ? (content.services as Array<FeatureItem & { link?: string; enabled?: boolean }>)
-      : Array.isArray(content.features) && content.features.length > 0
+      : Array.isArray(content?.features) && content.features.length > 0
         ? (content.features as Array<FeatureItem & { link?: string; enabled?: boolean }>)
         : defaultFeatures;
 
   const features = incomingList.filter(
-    (f) => (f as { enabled?: boolean }).enabled !== false,
+    (f) => (f as { enabled?: boolean }).enabled !== false && f.title,
   );
+
+  if (features.length === 0) {
+    return null;
+  }
 
   return (
     <section className="py-10 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
       {/* Section Header */}
-      <div className="text-center max-w-3xl mx-auto space-y-2.5 sm:space-y-4 mb-8 sm:mb-14">
-        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] sm:text-xs font-bold text-primary bg-primary/10 border border-primary/20 uppercase tracking-widest shadow-2xs">
-          Comprehensive Growth Pillars
-        </span>
-        <h2 className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-slate-900 leading-tight">
-          {sectionTitle}
-        </h2>
-        <p className="text-xs sm:text-sm md:text-base text-slate-600 leading-relaxed font-normal max-w-2xl mx-auto">
-          {sectionSubtitle}
-        </p>
-      </div>
+      <SectionHeading
+        eyebrow="Comprehensive Growth Pillars"
+        title={sectionTitle}
+        description={sectionSubtitle}
+      />
 
       {/* 100% Pure CSS Grid:
           - Mobile (< 640px): 1 column (grid-cols-1) with full width cards

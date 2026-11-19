@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import DOMPurify from "isomorphic-dompurify";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { ReadingProgressBar } from "@/components/motion/ReadingProgressBar";
@@ -21,11 +22,32 @@ interface BlogPostDetail {
   metaDescription?: string;
 }
 
+export const revalidate = 3600;
+
+export async function generateStaticParams() {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5201";
+  try {
+    const res = await fetch(`${apiUrl}/api/v1/public/posts?pageSize=100`, {
+      next: { revalidate: 3600, tags: ["blog-posts"] },
+    });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return (data.items || []).map((post: { slug: string }) => ({
+      slug: post.slug,
+    }));
+  } catch {
+    return [];
+  }
+}
+
 async function getPostBySlug(slug: string): Promise<BlogPostDetail | null> {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5201";
   try {
     const res = await fetch(`${apiUrl}/api/v1/public/posts/${slug}`, {
-      cache: "no-store",
+      next: {
+        revalidate: 3600,
+        tags: ["blog-posts", `post-${slug}`],
+      },
     });
     if (!res.ok) return null;
     return await res.json();
@@ -47,6 +69,22 @@ export async function generateMetadata({
   return {
     title: `${post.metaTitle || post.title} | Nexora Insights`,
     description: post.metaDescription || post.excerpt,
+    alternates: {
+      canonical: `/blog/${slug}`,
+    },
+    openGraph: {
+      title: post.metaTitle || post.title,
+      description: post.metaDescription || post.excerpt,
+      type: "article",
+      publishedTime: post.publishedAtUtc,
+      images: post.coverImageUrl ? [{ url: post.coverImageUrl }] : undefined,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: post.metaTitle || post.title,
+      description: post.metaDescription || post.excerpt,
+      images: post.coverImageUrl ? [post.coverImageUrl] : undefined,
+    },
   };
 }
 
@@ -69,10 +107,28 @@ export default async function BlogPostPage({
         .filter(Boolean)
     : [];
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: post.title,
+    description: post.metaDescription || post.excerpt,
+    datePublished: post.publishedAtUtc,
+    author: {
+      "@type": "Person",
+      name: post.authorName || "Nexora Team",
+    },
+    image: post.coverImageUrl ? [post.coverImageUrl] : undefined,
+    keywords: post.tags,
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-white text-slate-900">
       <ReadingProgressBar />
       <Header />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <main className="flex-1 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 w-full">
         {/* Navigation & Breadcrumb */}
         <div className="mb-8">
@@ -120,7 +176,7 @@ export default async function BlogPostPage({
         {/* Article Content */}
         <Reveal variant="fade-up" distance="md" duration="slower" as="article" className="prose prose-slate prose-lg max-w-none text-slate-700 leading-relaxed text-base sm:text-lg border-y border-slate-200 py-10 w-full">
           <div
-            dangerouslySetInnerHTML={{ __html: post.contentHtml }}
+            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.contentHtml) }}
             className="space-y-6"
           />
         </Reveal>
@@ -141,7 +197,7 @@ export default async function BlogPostPage({
         )}
 
         {/* CTA Card */}
-        <div className="mt-16 rounded-3xl border border-emerald-200 bg-gradient-to-br from-emerald-50 via-white to-slate-50 p-8 sm:p-10 text-center shadow-lg shadow-emerald-500/5">
+        <div className="mt-16 rounded-3xl border border-primary/20 bg-gradient-to-br from-primary/5 via-white to-slate-50 p-8 sm:p-10 text-center shadow-lg shadow-primary/5">
           <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
             Ready to accelerate your B2B growth?
           </h2>
@@ -153,7 +209,7 @@ export default async function BlogPostPage({
           <div className="mt-6">
             <Link
               href="/contact"
-              className="inline-flex items-center justify-center rounded-xl bg-emerald-600 px-6 py-3.5 text-sm font-bold text-white hover:bg-emerald-500 transition-all shadow-md shadow-emerald-600/25"
+              className="inline-flex items-center justify-center rounded-xl bg-primary px-6 py-3.5 text-sm font-bold text-primary-foreground hover:bg-primary-hover transition-all shadow-md shadow-primary/25"
             >
               Schedule Growth Diagnostic
             </Link>

@@ -33,6 +33,7 @@ export const CookieBanner: React.FC = () => {
       timestamp: new Date().toISOString(),
     };
     localStorage.setItem("nexora_cookie_consent", JSON.stringify(preferences));
+    window.dispatchEvent(new Event("nexora_cookie_consent_updated"));
     setVisible(false);
   };
 
@@ -44,6 +45,7 @@ export const CookieBanner: React.FC = () => {
       timestamp: new Date().toISOString(),
     };
     localStorage.setItem("nexora_cookie_consent", JSON.stringify(preferences));
+    window.dispatchEvent(new Event("nexora_cookie_consent_updated"));
     setVisible(false);
   };
 
@@ -55,6 +57,7 @@ export const CookieBanner: React.FC = () => {
       timestamp: new Date().toISOString(),
     };
     localStorage.setItem("nexora_cookie_consent", JSON.stringify(preferences));
+    window.dispatchEvent(new Event("nexora_cookie_consent_updated"));
     setVisible(false);
   };
 

@@ -7,14 +7,13 @@ import { StatsBlock } from "./StatsBlock";
 import { CtaBlock } from "./CtaBlock";
 import { FaqBlock } from "./FaqBlock";
 import { TestimonialsBlock } from "./TestimonialsBlock";
-import { PricingBlock } from "./PricingBlock";
-import { ComparisonTable } from "./ComparisonTable";
-import { RoiCalculator } from "./RoiCalculator";
 import { ProcessSteps } from "./ProcessSteps";
 import { BookingEmbed } from "./BookingEmbed";
 import { LogoStripBlock } from "./LogoStripBlock";
 import { BentoGridBlock } from "./BentoGridBlock";
 import { CaseStudiesBlock } from "./CaseStudiesBlock";
+import { ChannelsGrowthDiagram } from "./ChannelsGrowthDiagram";
+import { TechEcosystemBlock } from "./TechEcosystemBlock";
 import { Reveal } from "../motion/Reveal";
 
 const BLOCK_REGISTRY: Record<string, React.FC<{ block: CmsBlock }>> = {
@@ -25,11 +24,6 @@ const BLOCK_REGISTRY: Record<string, React.FC<{ block: CmsBlock }>> = {
   CTA: CtaBlock,
   FAQ: FaqBlock,
   Testimonials: TestimonialsBlock,
-  Pricing: PricingBlock,
-  ComparisonTable: ComparisonTable,
-  Comparison: ComparisonTable,
-  RoiCalculator: RoiCalculator,
-  ROI: RoiCalculator,
   ProcessSteps: ProcessSteps,
   Process: ProcessSteps,
   BookingEmbed: BookingEmbed,
@@ -40,6 +34,10 @@ const BLOCK_REGISTRY: Record<string, React.FC<{ block: CmsBlock }>> = {
   Bento: BentoGridBlock,
   CaseStudies: CaseStudiesBlock,
   Portfolio: CaseStudiesBlock,
+  ChannelsGrowth: ChannelsGrowthDiagram,
+  GrowthEngine: ChannelsGrowthDiagram,
+  TechEcosystem: TechEcosystemBlock,
+  Ecosystem: TechEcosystemBlock,
 };
 
 interface BlockRendererProps {
@@ -77,26 +75,37 @@ export const BlockRenderer: React.FC<BlockRendererProps> = ({
         const Component = BLOCK_REGISTRY[block.type];
 
         if (!Component) {
-          // Gracefully skip unknown block and log warning
-          // eslint-disable-next-line no-console
-          console.warn(
-            `[BlockRenderer] Unknown block type: '${block.type}'. Skipping rendering.`,
-          );
           return null;
         }
 
-        if (block.type === "Hero") {
-          return <Component key={block.id} block={block} />;
+        const tone = (block.settings?.tone as string) || "light";
+        const toneClass =
+          tone === "dark"
+            ? "bg-slate-950 text-white"
+            : tone === "alt"
+              ? "bg-slate-50/70 text-slate-900 border-y border-slate-200/80"
+              : tone === "brand-gradient"
+                ? "bg-gradient-to-br from-slate-900 via-primary/10 to-slate-950 text-white"
+                : "";
+
+        const animation = (block.settings?.animation as string) || "subtle";
+
+        if (block.type === "Hero" || animation === "none") {
+          return (
+            <div key={block.id} className={`w-full ${toneClass}`}>
+              <Component block={block} />
+            </div>
+          );
         }
 
         return (
           <Reveal
             key={block.id}
             variant="fade-up"
-            distance="lg"
-            duration="slower"
+            distance={animation === "rich" ? "lg" : "md"}
+            duration={animation === "rich" ? "slower" : "slow"}
             as="div"
-            className="w-full"
+            className={`w-full ${toneClass}`}
           >
             <Component block={block} />
           </Reveal>

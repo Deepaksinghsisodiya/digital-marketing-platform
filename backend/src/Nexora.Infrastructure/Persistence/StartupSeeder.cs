@@ -31,8 +31,8 @@ public static class StartupSeeder
             return;
         }
 
-        // 0. Database Migration (Strictly gated by Development environment with race guard)
-        if (environment.IsDevelopment())
+        // 0. Database Migration (Development environment or explicitly opted-in via ApplyMigrationsOnStartup)
+        if (environment.IsDevelopment() || configuration.GetValue<bool>("ApplyMigrationsOnStartup", false))
         {
             await _migrationLock.WaitAsync();
             try
@@ -484,46 +484,46 @@ public static class StartupSeeder
                   "slides": [
                     {
                       "id": "slide-1",
-                      "tag": "Performance Marketing & Growth",
-                      "headline": "Technology Meets Creativity. Growth Becomes Reality.",
-                      "subheadline": "We help ambitious businesses build stronger digital brands, engineer powerful digital experiences and accelerate growth through strategic marketing, innovative technology and intelligent automation.",
-                      "primaryCtaText": "Let's Build Something Great",
+                      "tag": "Performance Paid Ads & ROI",
+                      "headline": "Turn Your Ad Spend Into Predictable Sales & Profit.",
+                      "subheadline": "Stop wasting marketing budget on low-quality clicks. We build high-converting ad campaigns across Google, Meta, and LinkedIn that flood your pipeline with qualified, ready-to-buy customers.",
+                      "primaryCtaText": "Get Free Ad Spend Audit",
                       "primaryCtaLink": "/contact",
-                      "secondaryCtaText": "Explore Capabilities",
+                      "secondaryCtaText": "Explore Paid Ads Strategy",
                       "secondaryCtaLink": "/services",
                       "imageUrl": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=2000&q=85",
-                      "imageAlt": "Digital Growth Analytics Dashboard",
-                      "imageBadge": "Global Growth Platform",
+                      "imageAlt": "Paid Ads Performance & Sales Dashboard",
+                      "imageBadge": "4.5x+ Average Client ROAS",
                       "overlayOpacity": 0.65,
                       "enabled": true
                     },
                     {
                       "id": "slide-2",
-                      "tag": "Enterprise Web Engineering",
-                      "headline": "Engineered Digital Experiences Built for Modern Scale.",
-                      "subheadline": "Next.js 15 enterprise web applications, modular headless CMS, bespoke APIs, and sub-second Core Web Vitals.",
-                      "primaryCtaText": "Build Modern Web App",
+                      "tag": "Google Search Dominance (SEO)",
+                      "headline": "Rank #1 on Google for Customers Ready to Buy Today.",
+                      "subheadline": "Capture high-intent buyers at the exact second they search for your services. We build organic Google rankings and high-converting landing pages that compound sales month after month.",
+                      "primaryCtaText": "Get Free SEO Blueprint",
                       "primaryCtaLink": "/contact",
-                      "secondaryCtaText": "Explore Tech Stack",
+                      "secondaryCtaText": "Explore Search Strategy",
                       "secondaryCtaLink": "/services",
-                      "imageUrl": "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=2000&q=85",
-                      "imageAlt": "Next.js 15 Technology Workspace",
-                      "imageBadge": "100% Typed • Sub-Second CWV",
+                      "imageUrl": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=2000&q=85",
+                      "imageAlt": "Google Search Rankings and Organic Traffic Growth",
+                      "imageBadge": "Page #1 Commercial Rankings",
                       "overlayOpacity": 0.65,
                       "enabled": true
                     },
                     {
                       "id": "slide-3",
-                      "tag": "Intelligent AI Automation",
-                      "headline": "Automate Business Operations with Intelligent AI.",
-                      "subheadline": "Conversational AI chatbots, event-driven CRM synchronizations, and intelligent lead scoring that scales operations without friction.",
-                      "primaryCtaText": "Deploy Intelligent AI",
-                      "primaryCtaLink": "/contact",
-                      "secondaryCtaText": "AI Solutions Catalog",
+                      "tag": "Lead Conversion & Instant Follow-Up",
+                      "headline": "Convert 2x More Website Visitors into Paying Clients.",
+                      "subheadline": "Double your lead conversion rate without spending more on media. Ultra-fast landing pages, frictionless WhatsApp qualification, and automated email follow-ups within 60 seconds.",
+                      "primaryCtaText": "Schedule Strategy Session",
+                      "primaryCtaLink": "/book-a-call",
+                      "secondaryCtaText": "Explore Conversion Systems",
                       "secondaryCtaLink": "/services",
-                      "imageUrl": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=2000&q=85",
-                      "imageAlt": "Intelligent AI Automation Platform",
-                      "imageBadge": "Event-Driven • Zero Latency",
+                      "imageUrl": "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=2000&q=85",
+                      "imageAlt": "Lead Conversion and WhatsApp Automation",
+                      "imageBadge": "Sub-60s Instant Lead Routing",
                       "overlayOpacity": 0.65,
                       "enabled": true
                     }
@@ -534,32 +534,20 @@ public static class StartupSeeder
                 "id": "blk_logos_1",
                 "type": "LogoStrip",
                 "schemaVersion": 1,
-                "enabled": true,
+                "enabled": false,
                 "content": {
-                  "title": "Trusted by High-Velocity Growth Teams Worldwide",
+                  "title": "Trusted by High-Velocity Growth Teams",
                   "speed": "normal",
-                  "brands": [
-                    { "name": "APEX CLOUD", "badge": "Enterprise" },
-                    { "name": "ZENITH AI", "badge": "SaaS" },
-                    { "name": "VERTEX CORP", "badge": "FinTech" },
-                    { "name": "NOVA SCALE", "badge": "E-Commerce" },
-                    { "name": "HORIZON B2B", "badge": "Healthcare" },
-                    { "name": "DATAPULSE", "badge": "Analytics" }
-                  ]
+                  "brands": []
                 }
               },
               {
                 "id": "blk_stats_1",
                 "type": "Stats",
                 "schemaVersion": 1,
-                "enabled": true,
+                "enabled": false,
                 "content": {
-                  "metrics": [
-                    { "value": "340%", "label": "Avg Pipeline Velocity" },
-                    { "value": "$120M+", "label": "Enterprise Revenue Influenced" },
-                    { "value": "4.8x", "label": "Sustained Blended ROAS" },
-                    { "value": "99.8%", "label": "Attribution Accuracy" }
-                  ]
+                  "metrics": []
                 }
               },
               {
@@ -627,46 +615,46 @@ public static class StartupSeeder
                   "steps": [
                     {
                       "number": "01",
-                      "title": "Deep-Funnel Audit & Leakage Teardown",
+                      "title": "Ad Spend & Funnel Audit",
                       "timeline": "Days 1 — 7",
-                      "description": "We audit historical ad accounts, landing page drop-offs, tracking blindspots, and competitor positioning to stop immediate budget waste.",
+                      "description": "We analyze your existing ad accounts, competitor campaigns, and website drop-offs to immediately stop wasted marketing spend.",
                       "deliverables": [
-                        "Full ad spend leakage teardown",
-                        "Competitor creative intelligence brief",
-                        "High-intent keyword opportunities list"
+                        "Ad budget waste & leakage breakdown",
+                        "Competitor ad intelligence report",
+                        "High-intent buyer search terms list"
                       ]
                     },
                     {
                       "number": "02",
                       "title": "High-Converting Creatives & Landing Pages",
                       "timeline": "Days 8 — 14",
-                      "description": "Our creative and development teams craft scroll-stopping video/image ad variants, write psychological sales copy, and deploy sub-second landing pages.",
+                      "description": "Our creative team designs scroll-stopping ad creatives and writes persuasive copy that hooks buyers and compels them to take action.",
                       "deliverables": [
-                        "Multi-variant landing page deployment",
-                        "Scroll-stopping Meta/Google ad creatives",
-                        "Instant WhatsApp & email lead routing"
+                        "High-converting ad video & image variants",
+                        "Mobile-optimized landing page deployment",
+                        "Instant WhatsApp lead capture funnels"
                       ]
                     },
                     {
                       "number": "03",
-                      "title": "Full-Funnel Campaign Launch & Tracking",
+                      "title": "Multi-Channel Campaign Launch",
                       "timeline": "Days 15 — 30",
-                      "description": "We launch multi-channel campaigns with server-side CAPI tracking, algorithmic bidding, and real-time CRM attribution from day one.",
+                      "description": "We launch targeted campaigns across Google, Meta, and LinkedIn with continuous budget optimization towards your highest-profit ads.",
                       "deliverables": [
-                        "Server-side Meta/Google CAPI integration",
-                        "Algorithmic bid strategy activation",
-                        "Executive live performance dashboard"
+                        "Targeted Google & Meta campaign rollout",
+                        "Real-time sales lead & revenue tracking",
+                        "Weekly performance sprint reports"
                       ]
                     },
                     {
                       "number": "04",
-                      "title": "Continuous Scale, CRO & Profit Compounding",
+                      "title": "Scale, Optimize & Compound Profits",
                       "timeline": "Day 31 Onward",
-                      "description": "We systematically double down on winning creative hooks, ruthlessly prune underperforming ads, and continuously run landing page split tests.",
+                      "description": "We double down on winning audiences, test fresh creative hooks, and optimize conversion rates so customer acquisition gets cheaper over time.",
                       "deliverables": [
-                        "Weekly creative refreshes & testing",
-                        "Ongoing landing page CRO split tests",
-                        "Bi-weekly executive ROI strategy calls"
+                        "Weekly creative refreshes & split testing",
+                        "Automated lead nurturing & review drips",
+                        "Monthly strategic ROI review calls"
                       ]
                     }
                   ]
@@ -676,97 +664,23 @@ public static class StartupSeeder
                 "id": "blk_casestudies_1",
                 "type": "CaseStudies",
                 "schemaVersion": 1,
-                "enabled": true,
+                "enabled": false,
                 "content": {
-                  "sectionTitle": "Proven Commercial Outcomes & Case Studies",
-                  "sectionSubtitle": "Explore how Nexora delivers verifiable pipeline, sub-second CWV engineering, and algorithmic ROAS across enterprise clients.",
-                  "caseStudies": [
-                    {
-                      "id": "cs-1",
-                      "title": "Scaling B2B Enterprise Pipeline by 340% in 180 Days",
-                      "client": "Apex Cloud Infrastructure",
-                      "category": "B2B SaaS",
-                      "metric": "+340%",
-                      "metricLabel": "Pipeline Velocity",
-                      "summary": "Replaced fragmented legacy paid campaigns with real-time account-based intent modeling and sub-second landing pages.",
-                      "imageUrl": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1200&q=80",
-                      "caseStudyUrl": "/contact?ref=apex",
-                      "featured": true,
-                      "enabled": true
-                    },
-                    {
-                      "id": "cs-2",
-                      "title": "Dominating Commercial Search: From Page 4 to #1 for 140+ Keywords",
-                      "client": "Zenith Retail Technologies",
-                      "category": "E-Commerce",
-                      "metric": "4.8x",
-                      "metricLabel": "Blended ROAS",
-                      "summary": "Implemented programmatic SEO architecture and Next.js 15 headless storefront, generating 2.4M organic visits in 9 months.",
-                      "imageUrl": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1200&q=80",
-                      "caseStudyUrl": "/contact?ref=zenith",
-                      "featured": true,
-                      "enabled": true
-                    },
-                    {
-                      "id": "cs-3",
-                      "title": "Eliminating Attribution Blindspots for Cross-Border FinTech",
-                      "client": "Synapse Financial Networks",
-                      "category": "FinTech",
-                      "metric": "$42M+",
-                      "metricLabel": "Influenced ARR",
-                      "summary": "Engineered server-side cryptographic conversion tracking and automated CRM routing. Reduced CAC by 38%.",
-                      "imageUrl": "https://images.unsplash.com/photo-1559526324-4b87b5e36e44?auto=format&fit=crop&w=1200&q=80",
-                      "caseStudyUrl": "/contact?ref=synapse",
-                      "featured": false,
-                      "enabled": true
-                    }
-                  ]
+                  "sectionTitle": "Commercial Outcomes & Case Studies",
+                  "sectionSubtitle": "Real client results delivered through our marketing and engineering capabilities.",
+                  "caseStudies": []
                 }
               },
               {
                 "id": "blk_testimonials_1",
                 "type": "Testimonials",
                 "schemaVersion": 1,
-                "enabled": true,
+                "enabled": false,
                 "settings": { "theme": "light" },
                 "content": {
-                  "sectionTitle": "Validated by Enterprise Marketing Leaders",
-                  "sectionSubtitle": "Discover how global brands and fast-scaling enterprises achieve predictable revenue growth with Nexora.",
-                  "testimonials": [
-                    {
-                      "id": "testi-1",
-                      "author": "Aditi Rao",
-                      "role": "VP of Global Marketing",
-                      "company": "Apex Cloud Enterprise",
-                      "quote": "Nexora's attribution engine gave our executive team real-time clarity across multi-region campaigns. We increased pipeline velocity by 340% within two quarters.",
-                      "rating": 5,
-                      "metricBadge": "+340% Pipeline",
-                      "verified": true,
-                      "enabled": true
-                    },
-                    {
-                      "id": "testi-2",
-                      "author": "Marcus Vance",
-                      "role": "Chief Commercial Officer",
-                      "company": "Synapse Financial Networks",
-                      "quote": "The automated audience modeling and deterministic lead scoring transformed our conversion rates. The transparency and ROI tracking are unlike anything else in B2B.",
-                      "rating": 5,
-                      "metricBadge": "$42M ARR",
-                      "verified": true,
-                      "enabled": true
-                    },
-                    {
-                      "id": "testi-3",
-                      "author": "Vikram Malhotra",
-                      "role": "Managing Director",
-                      "company": "Zenith Retail Group",
-                      "quote": "From DPDP and GDPR compliance to cross-border campaign governance, Nexora handled our multi-currency operations with zero friction. An indispensable platform.",
-                      "rating": 5,
-                      "metricBadge": "4.8x ROAS",
-                      "verified": true,
-                      "enabled": true
-                    }
-                  ]
+                  "sectionTitle": "Client Feedback",
+                  "sectionSubtitle": "What our clients say about our work.",
+                  "testimonials": []
                 }
               },
               {
@@ -847,7 +761,7 @@ public static class StartupSeeder
             if (existingHome != null && existingHome.PublishedVersion != null)
             {
                 var content = existingHome.PublishedVersion.ContentJson ?? string.Empty;
-                if (!content.Contains("CaseStudies") || content.Contains("RoiCalculator") || content.Contains("ComparisonTable") || content.Contains("Pricing") || !content.Contains("LogoStrip") || content.Contains("\"slides\": []"))
+                if (!content.Contains("CaseStudies") || content.Contains("RoiCalculator") || content.Contains("ComparisonTable") || content.Contains("Pricing") || !content.Contains("LogoStrip") || content.Contains("\"slides\": []") || !content.Contains("Turn Your Ad Spend Into Predictable Sales"))
                 {
                     var updatedBlocksJson = """
                     [
@@ -864,46 +778,46 @@ public static class StartupSeeder
                           "slides": [
                             {
                               "id": "slide-1",
-                              "tag": "Performance Marketing & Growth",
-                              "headline": "Technology Meets Creativity. Growth Becomes Reality.",
-                              "subheadline": "We help ambitious businesses build stronger digital brands, engineer powerful digital experiences and accelerate growth through strategic marketing, innovative technology and intelligent automation.",
-                              "primaryCtaText": "Let's Build Something Great",
+                              "tag": "Performance Paid Ads & ROI",
+                              "headline": "Turn Your Ad Spend Into Predictable Sales & Profit.",
+                              "subheadline": "Stop wasting marketing budget on low-quality clicks. We build high-converting ad campaigns across Google, Meta, and LinkedIn that flood your pipeline with qualified, ready-to-buy customers.",
+                              "primaryCtaText": "Get Free Ad Spend Audit",
                               "primaryCtaLink": "/contact",
-                              "secondaryCtaText": "Explore Capabilities",
+                              "secondaryCtaText": "Explore Paid Ads Strategy",
                               "secondaryCtaLink": "/services",
                               "imageUrl": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=2000&q=85",
-                              "imageAlt": "Digital Growth Analytics Dashboard",
-                              "imageBadge": "Global Growth Platform",
+                              "imageAlt": "Paid Ads Performance & Sales Dashboard",
+                              "imageBadge": "4.5x+ Average Client ROAS",
                               "overlayOpacity": 0.65,
                               "enabled": true
                             },
                             {
                               "id": "slide-2",
-                              "tag": "Enterprise Web Engineering",
-                              "headline": "Engineered Digital Experiences Built for Modern Scale.",
-                              "subheadline": "Next.js 15 enterprise web applications, modular headless CMS, bespoke APIs, and sub-second Core Web Vitals.",
-                              "primaryCtaText": "Build Modern Web App",
+                              "tag": "Google Search Dominance (SEO)",
+                              "headline": "Rank #1 on Google for Customers Ready to Buy Today.",
+                              "subheadline": "Capture high-intent buyers at the exact second they search for your services. We build organic Google rankings and high-converting landing pages that compound sales month after month.",
+                              "primaryCtaText": "Get Free SEO Blueprint",
                               "primaryCtaLink": "/contact",
-                              "secondaryCtaText": "Explore Tech Stack",
+                              "secondaryCtaText": "Explore Search Strategy",
                               "secondaryCtaLink": "/services",
-                              "imageUrl": "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=2000&q=85",
-                              "imageAlt": "Next.js 15 Technology Workspace",
-                              "imageBadge": "100% Typed • Sub-Second CWV",
+                              "imageUrl": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=2000&q=85",
+                              "imageAlt": "Google Search Rankings and Organic Traffic Growth",
+                              "imageBadge": "Page #1 Commercial Rankings",
                               "overlayOpacity": 0.65,
                               "enabled": true
                             },
                             {
                               "id": "slide-3",
-                              "tag": "Intelligent AI Automation",
-                              "headline": "Automate Business Operations with Intelligent AI.",
-                              "subheadline": "Conversational AI chatbots, event-driven CRM synchronizations, and intelligent lead scoring that scales operations without friction.",
-                              "primaryCtaText": "Deploy Intelligent AI",
-                              "primaryCtaLink": "/contact",
-                              "secondaryCtaText": "AI Solutions Catalog",
+                              "tag": "Lead Conversion & Instant Follow-Up",
+                              "headline": "Convert 2x More Website Visitors into Paying Clients.",
+                              "subheadline": "Double your lead conversion rate without spending more on media. Ultra-fast landing pages, frictionless WhatsApp qualification, and automated email follow-ups within 60 seconds.",
+                              "primaryCtaText": "Schedule Strategy Session",
+                              "primaryCtaLink": "/book-a-call",
+                              "secondaryCtaText": "Explore Conversion Systems",
                               "secondaryCtaLink": "/services",
-                              "imageUrl": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=2000&q=85",
-                              "imageAlt": "Intelligent AI Automation Platform",
-                              "imageBadge": "Event-Driven • Zero Latency",
+                              "imageUrl": "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=2000&q=85",
+                              "imageAlt": "Lead Conversion and WhatsApp Automation",
+                              "imageBadge": "Sub-60s Instant Lead Routing",
                               "overlayOpacity": 0.65,
                               "enabled": true
                             }
@@ -914,32 +828,20 @@ public static class StartupSeeder
                         "id": "blk_logos_1",
                         "type": "LogoStrip",
                         "schemaVersion": 1,
-                        "enabled": true,
+                        "enabled": false,
                         "content": {
-                          "title": "Trusted by High-Velocity Growth Teams Worldwide",
+                          "title": "Trusted by High-Velocity Growth Teams",
                           "speed": "normal",
-                          "brands": [
-                            { "name": "APEX CLOUD", "badge": "Enterprise" },
-                            { "name": "ZENITH AI", "badge": "SaaS" },
-                            { "name": "VERTEX CORP", "badge": "FinTech" },
-                            { "name": "NOVA SCALE", "badge": "E-Commerce" },
-                            { "name": "HORIZON B2B", "badge": "Healthcare" },
-                            { "name": "DATAPULSE", "badge": "Analytics" }
-                          ]
+                          "brands": []
                         }
                       },
                       {
                         "id": "blk_stats_1",
                         "type": "Stats",
                         "schemaVersion": 1,
-                        "enabled": true,
+                        "enabled": false,
                         "content": {
-                          "metrics": [
-                            { "value": "340%", "label": "Avg Pipeline Velocity" },
-                            { "value": "$120M+", "label": "Enterprise Revenue Influenced" },
-                            { "value": "4.8x", "label": "Sustained Blended ROAS" },
-                            { "value": "99.8%", "label": "Attribution Accuracy" }
-                          ]
+                          "metrics": []
                         }
                       },
                       {
@@ -1007,46 +909,46 @@ public static class StartupSeeder
                           "steps": [
                             {
                               "number": "01",
-                              "title": "Deep-Funnel Audit & Leakage Teardown",
+                              "title": "Ad Spend & Funnel Audit",
                               "timeline": "Days 1 — 7",
-                              "description": "We audit historical ad accounts, landing page drop-offs, tracking blindspots, and competitor positioning to stop immediate budget waste.",
+                              "description": "We analyze your existing ad accounts, competitor campaigns, and website drop-offs to immediately stop wasted marketing spend.",
                               "deliverables": [
-                                "Full ad spend leakage teardown",
-                                "Competitor creative intelligence brief",
-                                "High-intent keyword opportunities list"
+                                "Ad budget waste & leakage breakdown",
+                                "Competitor ad intelligence report",
+                                "High-intent buyer search terms list"
                               ]
                             },
                             {
                               "number": "02",
                               "title": "High-Converting Creatives & Landing Pages",
                               "timeline": "Days 8 — 14",
-                              "description": "Our creative and development teams craft scroll-stopping video/image ad variants, write psychological sales copy, and deploy sub-second landing pages.",
+                              "description": "Our creative team designs scroll-stopping ad creatives and writes persuasive copy that hooks buyers and compels them to take action.",
                               "deliverables": [
-                                "Multi-variant landing page deployment",
-                                "Scroll-stopping Meta/Google ad creatives",
-                                "Instant WhatsApp & email lead routing"
+                                "High-converting ad video & image variants",
+                                "Mobile-optimized landing page deployment",
+                                "Instant WhatsApp lead capture funnels"
                               ]
                             },
                             {
                               "number": "03",
-                              "title": "Full-Funnel Campaign Launch & Tracking",
+                              "title": "Multi-Channel Campaign Launch",
                               "timeline": "Days 15 — 30",
-                              "description": "We launch multi-channel campaigns with server-side CAPI tracking, algorithmic bidding, and real-time CRM attribution from day one.",
+                              "description": "We launch targeted campaigns across Google, Meta, and LinkedIn with continuous budget optimization towards your highest-profit ads.",
                               "deliverables": [
-                                "Server-side Meta/Google CAPI integration",
-                                "Algorithmic bid strategy activation",
-                                "Executive live performance dashboard"
+                                "Targeted Google & Meta campaign rollout",
+                                "Real-time sales lead & revenue tracking",
+                                "Weekly performance sprint reports"
                               ]
                             },
                             {
                               "number": "04",
-                              "title": "Continuous Scale, CRO & Profit Compounding",
+                              "title": "Scale, Optimize & Compound Profits",
                               "timeline": "Day 31 Onward",
-                              "description": "We systematically double down on winning creative hooks, ruthlessly prune underperforming ads, and continuously run landing page split tests.",
+                              "description": "We double down on winning audiences, test fresh creative hooks, and optimize conversion rates so customer acquisition gets cheaper over time.",
                               "deliverables": [
-                                "Weekly creative refreshes & testing",
-                                "Ongoing landing page CRO split tests",
-                                "Bi-weekly executive ROI strategy calls"
+                                "Weekly creative refreshes & split testing",
+                                "Automated lead nurturing & review drips",
+                                "Monthly strategic ROI review calls"
                               ]
                             }
                           ]
@@ -1056,97 +958,23 @@ public static class StartupSeeder
                         "id": "blk_casestudies_1",
                         "type": "CaseStudies",
                         "schemaVersion": 1,
-                        "enabled": true,
+                        "enabled": false,
                         "content": {
-                          "sectionTitle": "Proven Commercial Outcomes & Case Studies",
-                          "sectionSubtitle": "Explore how Nexora delivers verifiable pipeline, sub-second CWV engineering, and algorithmic ROAS across enterprise clients.",
-                          "caseStudies": [
-                            {
-                              "id": "cs-1",
-                              "title": "Scaling B2B Enterprise Pipeline by 340% in 180 Days",
-                              "client": "Apex Cloud Infrastructure",
-                              "category": "B2B SaaS",
-                              "metric": "+340%",
-                              "metricLabel": "Pipeline Velocity",
-                              "summary": "Replaced fragmented legacy paid campaigns with real-time account-based intent modeling and sub-second landing pages.",
-                              "imageUrl": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1200&q=80",
-                              "caseStudyUrl": "/contact?ref=apex",
-                              "featured": true,
-                              "enabled": true
-                            },
-                            {
-                              "id": "cs-2",
-                              "title": "Dominating Commercial Search: From Page 4 to #1 for 140+ Keywords",
-                              "client": "Zenith Retail Technologies",
-                              "category": "E-Commerce",
-                              "metric": "4.8x",
-                              "metricLabel": "Blended ROAS",
-                              "summary": "Implemented programmatic SEO architecture and Next.js 15 headless storefront, generating 2.4M organic visits in 9 months.",
-                              "imageUrl": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1200&q=80",
-                              "caseStudyUrl": "/contact?ref=zenith",
-                              "featured": true,
-                              "enabled": true
-                            },
-                            {
-                              "id": "cs-3",
-                              "title": "Eliminating Attribution Blindspots for Cross-Border FinTech",
-                              "client": "Synapse Financial Networks",
-                              "category": "FinTech",
-                              "metric": "$42M+",
-                              "metricLabel": "Influenced ARR",
-                              "summary": "Engineered server-side cryptographic conversion tracking and automated CRM routing. Reduced CAC by 38%.",
-                              "imageUrl": "https://images.unsplash.com/photo-1559526324-4b87b5e36e44?auto=format&fit=crop&w=1200&q=80",
-                              "caseStudyUrl": "/contact?ref=synapse",
-                              "featured": false,
-                              "enabled": true
-                            }
-                          ]
+                          "sectionTitle": "Commercial Outcomes & Case Studies",
+                          "sectionSubtitle": "Real client results delivered through our marketing and engineering capabilities.",
+                          "caseStudies": []
                         }
                       },
                       {
                         "id": "blk_testimonials_1",
                         "type": "Testimonials",
                         "schemaVersion": 1,
-                        "enabled": true,
+                        "enabled": false,
                         "settings": { "theme": "light" },
                         "content": {
-                          "sectionTitle": "Validated by Enterprise Marketing Leaders",
-                          "sectionSubtitle": "Discover how global brands and fast-scaling enterprises achieve predictable revenue growth with Nexora.",
-                          "testimonials": [
-                            {
-                              "id": "testi-1",
-                              "author": "Aditi Rao",
-                              "role": "VP of Global Marketing",
-                              "company": "Apex Cloud Enterprise",
-                              "quote": "Nexora's attribution engine gave our executive team real-time clarity across multi-region campaigns. We increased pipeline velocity by 340% within two quarters.",
-                              "rating": 5,
-                              "metricBadge": "+340% Pipeline",
-                              "verified": true,
-                              "enabled": true
-                            },
-                            {
-                              "id": "testi-2",
-                              "author": "Marcus Vance",
-                              "role": "Chief Commercial Officer",
-                              "company": "Synapse Financial Networks",
-                              "quote": "The automated audience modeling and deterministic lead scoring transformed our conversion rates. The transparency and ROI tracking are unlike anything else in B2B.",
-                              "rating": 5,
-                              "metricBadge": "$42M ARR",
-                              "verified": true,
-                              "enabled": true
-                            },
-                            {
-                              "id": "testi-3",
-                              "author": "Vikram Malhotra",
-                              "role": "Managing Director",
-                              "company": "Zenith Retail Group",
-                              "quote": "From DPDP and GDPR compliance to cross-border campaign governance, Nexora handled our multi-currency operations with zero friction. An indispensable platform.",
-                              "rating": 5,
-                              "metricBadge": "4.8x ROAS",
-                              "verified": true,
-                              "enabled": true
-                            }
-                          ]
+                          "sectionTitle": "Client Feedback",
+                          "sectionSubtitle": "What our clients say about our work.",
+                          "testimonials": []
                         }
                       },
                       {

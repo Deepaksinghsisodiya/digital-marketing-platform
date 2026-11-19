@@ -483,8 +483,7 @@ export const Header: React.FC<HeaderProps> = ({
                     {/* 1. SERVICES MEGA MENU CANVAS (100% Solid Opaque Background - Zero Transparency) */}
                     {activeDropdown === dropdownKey && dropdownKey === "services" && (
                       <div
-                        style={{ backgroundColor: "#ffffff" }}
-                        className="absolute top-full left-0 w-[840px] xl:w-[920px] max-w-[calc(100vw-3rem)] bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl p-5 sm:p-6 animate-in fade-in-50 zoom-in-95 duration-150 z-50 select-none"
+                        className="absolute top-full left-0 w-[840px] xl:w-[920px] max-w-[calc(100vw-3rem)] bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl p-5 sm:p-6 animate-in fade-in-50 zoom-in-95 duration-150 z-50 select-none"
                       >
                         <div className="flex items-center justify-between pb-3.5 mb-5 border-b border-slate-100 dark:border-slate-800">
                           <div className="flex items-center gap-2.5">
@@ -565,8 +564,7 @@ export const Header: React.FC<HeaderProps> = ({
                     {/* 2. INDUSTRIES DROPDOWN CANVAS (100% Solid Opaque Background) */}
                     {activeDropdown === dropdownKey && dropdownKey === "industries" && (
                       <div
-                        style={{ backgroundColor: "#ffffff" }}
-                        className="absolute top-full left-0 w-[540px] max-w-[calc(100vw-3rem)] bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl p-5 animate-in fade-in-50 zoom-in-95 duration-150 z-50 select-none"
+                        className="absolute top-full left-0 w-[540px] max-w-[calc(100vw-3rem)] bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl p-5 animate-in fade-in-50 zoom-in-95 duration-150 z-50 select-none"
                       >
                         <div className="flex items-center justify-between pb-2.5 mb-3 border-b border-slate-100 dark:border-slate-800">
                           <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400">
@@ -610,8 +608,7 @@ export const Header: React.FC<HeaderProps> = ({
                     {/* 3. SOLUTIONS DROPDOWN CANVAS (2-Column Solid Opaque Card Grid - ZERO Transparency) */}
                     {activeDropdown === dropdownKey && dropdownKey === "solutions" && (
                       <div
-                        style={{ backgroundColor: "#ffffff" }}
-                        className="absolute top-full left-0 w-[620px] max-w-[calc(100vw-2rem)] bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl p-5 sm:p-6 animate-in fade-in-50 zoom-in-95 duration-150 z-50 select-none"
+                        className="absolute top-full left-0 w-[620px] max-w-[calc(100vw-2rem)] bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl p-5 sm:p-6 animate-in fade-in-50 zoom-in-95 duration-150 z-50 select-none"
                       >
                         {/* Header Row */}
                         <div className="pb-3 mb-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
@@ -690,8 +687,7 @@ export const Header: React.FC<HeaderProps> = ({
                       item.children &&
                       item.children.length > 0 && (
                         <div
-                          style={{ backgroundColor: "#ffffff" }}
-                          className="absolute top-full left-0 min-w-[220px] bg-white dark:bg-[#0f172a] rounded-xl border border-slate-200 dark:border-slate-800 shadow-xl p-2 animate-in fade-in-50 zoom-in-95 duration-150 z-50 space-y-0.5 select-none"
+                          className="absolute top-full left-0 min-w-[220px] bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xl p-2 animate-in fade-in-50 zoom-in-95 duration-150 z-50 space-y-0.5 select-none"
                         >
                           {item.children.map((child) => (
                             <Link

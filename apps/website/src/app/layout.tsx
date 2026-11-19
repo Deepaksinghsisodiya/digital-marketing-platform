@@ -1,16 +1,18 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans, Inter } from "next/font/google";
+import { Sora, Inter } from "next/font/google";
 import "./globals.css";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, getLocale } from "next-intl/server";
 import { CookieBanner } from "../components/layout/CookieBanner";
+import { TrackingScripts } from "../components/layout/TrackingScripts";
 import { MobileStickyBar } from "../components/layout/MobileStickyBar";
 import { FloatingWhatsApp } from "../components/layout/FloatingWhatsApp";
 import { ToastProvider } from "../components/ui/ToastProvider";
+import { ScrollProgressBar } from "../components/motion/ScrollProgressBar";
 import { getPublicSiteSettings, getPublicTheme } from "../lib/cms";
 import { resolveTheme, themeToCss } from "@nexora/design-tokens";
 
-const plusJakartaSans = Plus_Jakarta_Sans({
+const sora = Sora({
   subsets: ["latin"],
   variable: "--font-heading",
   weight: ["500", "600", "700", "800"],
@@ -27,7 +29,9 @@ const inter = Inter({
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getPublicSiteSettings();
   const company = settings?.companyName || "Nexora";
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
   return {
+    metadataBase: new URL(siteUrl),
     title: {
       default: `${company} | Enterprise Digital Marketing & Growth Platform`,
       template: `%s | ${company}`,
@@ -35,6 +39,20 @@ export async function generateMetadata(): Promise<Metadata> {
     description:
       "A unified enterprise digital marketing and growth execution platform.",
     icons: settings?.faviconUrl ? { icon: settings.faviconUrl } : undefined,
+    openGraph: {
+      title: `${company} | Enterprise Digital Marketing & Growth Platform`,
+      description:
+        "A unified enterprise digital marketing and growth execution platform.",
+      type: "website",
+      siteName: company,
+      url: siteUrl,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${company} | Enterprise Digital Marketing & Growth Platform`,
+      description:
+        "A unified enterprise digital marketing and growth execution platform.",
+    },
   };
 }
 
@@ -125,57 +143,11 @@ export default async function RootLayout({
           />
         )}
 
-        {/* Google Tag Manager (GTM) Container */}
-        {trackingCodes.gtmContainerId && (
-          <script
-            dangerouslySetInnerHTML={{
-              __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','${trackingCodes.gtmContainerId}');`,
-            }}
-          />
-        )}
-
-        {/* Google Analytics 4 (GA4) */}
-        {trackingCodes.gaMeasurementId && (
-          <>
-            <script
-              async
-              src={`https://www.googletagmanager.com/gtag/js?id=${trackingCodes.gaMeasurementId}`}
-            />
-            <script
-              dangerouslySetInnerHTML={{
-                __html: `window.dataLayer = window.dataLayer || [];
-function gtag(){dataLayer.push(arguments);}
-gtag('js', new Date());
-gtag('config', '${trackingCodes.gaMeasurementId}', { anonymize_ip: true });`,
-              }}
-            />
-          </>
-        )}
-
-        {/* Meta (Facebook) Pixel */}
-        {trackingCodes.metaPixelId && (
-          <script
-            dangerouslySetInnerHTML={{
-              __html: `!function(f,b,e,v,n,t,s)
-{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-n.queue=[];t=b.createElement(e);t.async=!0;
-t.src=v;s=b.getElementsByTagName(e)[0];
-s.parentNode.insertBefore(t,s)}(window, document,'script',
-'https://connect.facebook.net/en_US/fbevents.js');
-fbq('init', '${trackingCodes.metaPixelId}');
-fbq('track', 'PageView');`,
-            }}
-          />
-        )}
+        {/* Consent-Gated Tracking Scripts (GTM, GA4, Meta Pixel, Clarity, LinkedIn) */}
+        <TrackingScripts codes={trackingCodes} />
       </head>
       <body
-        className={`min-h-screen antialiased bg-background text-foreground font-sans selection:bg-primary selection:text-primary-foreground ${plusJakartaSans.variable} ${inter.variable}`}
+        className={`min-h-screen antialiased bg-background text-foreground font-sans selection:bg-primary selection:text-primary-foreground ${sora.variable} ${inter.variable}`}
         suppressHydrationWarning
       >
         {trackingCodes.gtmContainerId && (
@@ -197,6 +169,7 @@ fbq('track', 'PageView');`,
         ) : null}
         <NextIntlClientProvider locale={locale} messages={messages}>
           <ToastProvider />
+          <ScrollProgressBar />
           <div className="flex min-h-screen flex-col pb-20 lg:pb-0">
             {children}
           </div>

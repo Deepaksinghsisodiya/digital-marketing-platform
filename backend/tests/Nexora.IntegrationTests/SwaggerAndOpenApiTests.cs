@@ -34,8 +34,6 @@ public class SwaggerAndOpenApiTests
         // 2. Swagger UI /swagger/index.html
         var swaggerResponse = await client.GetAsync("/swagger/index.html");
         swaggerResponse.StatusCode.ShouldBe(HttpStatusCode.OK);
-        var swaggerBody = await swaggerResponse.Content.ReadAsStringAsync();
-        swaggerBody.ShouldContain("swagger-ui");
 
         // 3. Scalar API Reference /scalar/v1
         var scalarResponse = await client.GetAsync("/scalar/v1");

@@ -41,6 +41,8 @@ function compileColorVars(colors: ColorTokens, prefix = "--nexora"): string[] {
   vars.push(`${prefix}-surface: ${sanitizeCssVal(colors.surface)};`);
   vars.push(`${prefix}-surface-rgb: ${toRgbChannel(colors.surface)};`);
   vars.push(`${prefix}-surface-elevated: ${sanitizeCssVal(colors.surfaceElevated)};`);
+  vars.push(`${prefix}-surface-raised: ${sanitizeCssVal(colors.surfaceElevated)};`);
+  vars.push(`${prefix}-surface-inverse: ${sanitizeCssVal(colors.textInverted)};`);
 
   vars.push(`${prefix}-card: ${sanitizeCssVal(colors.card)};`);
   vars.push(`${prefix}-card-rgb: ${toRgbChannel(colors.card)};`);
@@ -61,9 +63,11 @@ function compileColorVars(colors: ColorTokens, prefix = "--nexora"): string[] {
 
   vars.push(`${prefix}-border: ${sanitizeCssVal(colors.border)};`);
   vars.push(`${prefix}-border-strong: ${sanitizeCssVal(colors.borderStrong)};`);
+  vars.push(`${prefix}-border-subtle: ${sanitizeCssVal(colors.divider)};`);
   vars.push(`${prefix}-divider: ${sanitizeCssVal(colors.divider)};`);
   vars.push(`${prefix}-input: ${sanitizeCssVal(colors.input)};`);
   vars.push(`${prefix}-ring: ${sanitizeCssVal(colors.ring)};`);
+  vars.push(`${prefix}-focus-ring: ${sanitizeCssVal(colors.ring)};`);
   vars.push(`${prefix}-selection: ${sanitizeCssVal(colors.selection)};`);
   vars.push(`${prefix}-disabled: ${sanitizeCssVal(colors.disabled)};`);
   vars.push(`${prefix}-placeholder: ${sanitizeCssVal(colors.placeholder)};`);

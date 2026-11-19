@@ -18,7 +18,6 @@ import {
   Inbox,
   Mail,
   Briefcase,
-  CheckSquare,
   BookOpen,
   Menu,
   X,
@@ -86,7 +85,9 @@ export const AdminLayout: React.FC = () => {
     try {
       const saved = localStorage.getItem("nexora_admin_sidebar_open_groups");
       if (saved) return JSON.parse(saved);
-    } catch {}
+    } catch {
+      // safe fallback for storage access
+    }
     return {
       "Platform Core": true,
       "Website CMS Engine": true,
@@ -103,7 +104,9 @@ export const AdminLayout: React.FC = () => {
           "nexora_admin_sidebar_open_groups",
           JSON.stringify(next),
         );
-      } catch {}
+      } catch {
+        // safe fallback for storage access
+      }
       return next;
     });
   };
@@ -118,7 +121,9 @@ export const AdminLayout: React.FC = () => {
       const next = !prev;
       try {
         localStorage.setItem("nexora_admin_sidebar_collapsed", String(next));
-      } catch {}
+      } catch {
+        // safe fallback for storage access
+      }
       return next;
     });
   };

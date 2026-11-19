@@ -128,7 +128,7 @@ public class LeadService : ILeadService
     {
         if (string.IsNullOrWhiteSpace(token))
         {
-            if (_configuration.GetValue<bool>("SkipTimeTrapVerification", false))
+            if (_environment.IsDevelopment() || _configuration.GetValue<bool>("SkipTimeTrapVerification", false))
             {
                 return (true, null, null);
             }
@@ -433,6 +433,24 @@ public class LeadService : ILeadService
         lead.SetScore(score);
 
         _context.Leads.Add(lead);
+
+        // 8b. Duplicate Detection (Email / Phone matching against historical records)
+        var cleanEmail = request.Email.Trim().ToLowerInvariant();
+        var existingRecentLead = await _context.Leads.AsNoTracking()
+            .Where(l => l.Email.ToLower() == cleanEmail ||
+                        (!string.IsNullOrEmpty(request.Phone) && l.Phone == request.Phone))
+            .OrderByDescending(l => l.CreatedAtUtc)
+            .FirstOrDefaultAsync(ct);
+
+        if (existingRecentLead != null)
+        {
+            var dupActivity = new LeadActivity(
+                lead.Id,
+                "DuplicateDetected",
+                $"Duplicate inquiry identified: matches existing lead record #{existingRecentLead.ReferenceNumber}.",
+                JsonSerializer.Serialize(new { existingLeadId = existingRecentLead.Id, existingRef = existingRecentLead.ReferenceNumber }));
+            _context.LeadActivities.Add(dupActivity);
+        }
 
         // 9. Activity Timeline Record
         var activity = new LeadActivity(
@@ -770,6 +788,7 @@ public class LeadService : ILeadService
         string? search,
         LeadStatus? status,
         string? region,
+        string? formKey = null,
         CancellationToken ct = default)
     {
         var query = _context.Leads.AsNoTracking();
@@ -779,6 +798,11 @@ public class LeadService : ILeadService
         {
             var r = region.Trim().ToLowerInvariant();
             query = query.Where(l => l.Region == r);
+        }
+        if (!string.IsNullOrWhiteSpace(formKey))
+        {
+            var fk = formKey.Trim().ToLowerInvariant();
+            query = query.Where(l => l.FormKey == fk);
         }
         if (!string.IsNullOrWhiteSpace(search))
         {

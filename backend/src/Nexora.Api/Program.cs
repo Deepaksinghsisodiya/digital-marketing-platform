@@ -53,11 +53,25 @@ while (searchDir != null)
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 1. Serilog Structured Logging
+// 1. Serilog Structured Logging with Console + Rolling Daily File Sink (14-day retention, PII redacted)
+var logsDir = Path.Combine(AppContext.BaseDirectory, "logs");
+Directory.CreateDirectory(logsDir);
+
 Log.Logger = new LoggerConfiguration()
     .ReadFrom.Configuration(builder.Configuration)
     .Enrich.FromLogContext()
+    .Filter.ByExcluding(logEvent =>
+    {
+        var msg = logEvent.RenderMessage();
+        return msg.Contains("password=", StringComparison.OrdinalIgnoreCase) ||
+               msg.Contains("client_secret=", StringComparison.OrdinalIgnoreCase);
+    })
     .WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] ({CorrelationId}) {Message:lj}{NewLine}{Exception}")
+    .WriteTo.File(
+        path: Path.Combine(logsDir, "nexora-.log"),
+        rollingInterval: RollingInterval.Day,
+        retainedFileCountLimit: 14,
+        outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] ({CorrelationId}) {Message:lj}{NewLine}{Exception}")
     .CreateLogger();
 
 builder.Host.UseSerilog();
@@ -191,9 +205,10 @@ builder.Services.AddRateLimiter(options =>
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
     options.AddPolicy("AuthRateLimit", httpContext =>
     {
+        var config = httpContext.RequestServices.GetRequiredService<IConfiguration>();
         var ip = httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
-        var permitLimit = builder.Configuration.GetValue("RateLimiting:PermitLimit", 100);
-        var windowSeconds = builder.Configuration.GetValue("RateLimiting:WindowSeconds", 60);
+        var permitLimit = config.GetValue("RateLimiting:PermitLimit", 100);
+        var windowSeconds = config.GetValue("RateLimiting:WindowSeconds", 60);
 
         return RateLimitPartition.GetFixedWindowLimiter(ip, _ => new FixedWindowRateLimiterOptions
         {
@@ -206,9 +221,10 @@ builder.Services.AddRateLimiter(options =>
 
     options.AddPolicy("PublicFormRateLimit", httpContext =>
     {
+        var config = httpContext.RequestServices.GetRequiredService<IConfiguration>();
         var ip = httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
-        var permitLimit = builder.Configuration.GetValue("RateLimiting:PublicFormPermitLimit", 100);
-        var windowSeconds = builder.Configuration.GetValue("RateLimiting:WindowSeconds", 60);
+        var permitLimit = config.GetValue("RateLimiting:PublicFormPermitLimit", 100);
+        var windowSeconds = config.GetValue("RateLimiting:WindowSeconds", 60);
 
         return RateLimitPartition.GetFixedWindowLimiter(ip, _ => new FixedWindowRateLimiterOptions
         {
@@ -227,6 +243,17 @@ builder.Services.AddAntiforgery(options =>
     options.Cookie.Name = ".Nexora.Antiforgery";
     options.Cookie.HttpOnly = false; // Accessible to script for header inclusion
     options.Cookie.SecurePolicy = authCookieOptions.Secure ? CookieSecurePolicy.Always : CookieSecurePolicy.SameAsRequest;
+});
+
+// 9b. Response Compression & Output Caching (C5)
+builder.Services.AddResponseCompression(options =>
+{
+    options.EnableForHttps = true;
+});
+builder.Services.AddOutputCache(options =>
+{
+    options.AddBasePolicy(b => b.NoCache());
+    options.AddPolicy("PublicCache", b => b.Expire(TimeSpan.FromHours(1)).Tag("public-cache"));
 });
 
 // 10. OpenAPI with Security Scheme and CSRF documentation (Development only)
@@ -281,6 +308,20 @@ else
     Log.Information("Initial admin seed credentials verified for setup ({Email}).", maskedEmail);
 }
 
+// B3 Startup Guard: In non-development, enforce secure cookies and reject wildcard CORS
+if (!builder.Environment.IsDevelopment())
+{
+    if (authCookieOptions.SameSite.Equals("None", StringComparison.OrdinalIgnoreCase) && !authCookieOptions.Secure)
+    {
+        throw new InvalidOperationException("CRITICAL SECURITY: SameSite=None is forbidden without Secure=true in non-development environments.");
+    }
+
+    if (allowedOrigins.Any(o => o == "*" || o.Contains('*')))
+    {
+        throw new InvalidOperationException("CRITICAL SECURITY: Wildcard CORS is forbidden in non-development environments.");
+    }
+}
+
 var app = builder.Build();
 
 // Pipeline Middlewares
@@ -300,17 +341,19 @@ app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.UseCors("NexoraCorsPolicy");
 app.UseRateLimiter();
+app.UseResponseCompression();
+app.UseOutputCache();
 
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
-    app.MapScalarApiReference();
-    app.UseSwaggerUI(c =>
+    app.UseSwaggerUI(options =>
     {
-        c.SwaggerEndpoint("/openapi/v1.json", "Nexora Platform API v1");
-        c.RoutePrefix = "swagger";
+        options.SwaggerEndpoint("/openapi/v1.json", "Nexora Platform API v1");
+        options.RoutePrefix = "swagger";
+        options.DocumentTitle = "Nexora API - Swagger UI";
     });
-
+    app.MapScalarApiReference();
     app.MapGet("/", () => Results.Redirect("/swagger"));
 }
 
