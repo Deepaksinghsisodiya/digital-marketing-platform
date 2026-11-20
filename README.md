@@ -1,377 +1,299 @@
-# Nexora Digital Marketing Platform
+# Nexora Enterprise Digital Marketing & Agency Operations Platform
 
-## Enterprise Master Architecture, Configuration & Operations Guide
-
-> **Document Classification:** Single Unified Master Documentation & Execution Runbook  
-> **Platform Version:** 3.0 (Production Core Multi-Tier SaaS — Phase 1 Hardened)  
+> **Classification:** Official Unified Master Platform Documentation & Engineering Runbook  
+> **Platform Version:** 3.0 Production Core (Phase 1 Hardened)  
 > **Repository:** `d:\Nexora-Digital-Marketing-Platform`  
 > **Verification Status:** **209 / 209 Automated Tests Passing (100%)**, 0 Skipped, 0 Failures  
-> **Quality Gates:** `pnpm check:all` (Typecheck, ESLint, Design Tokens Color Audit, All Tests) passing cleanly
+> **Quality Gate:** Strict TypeScript (`tsc`), ESLint, Semantic Token Color Audit, and Monorepo Tests clean (Exit Code 0)
 
 ---
 
-## 1. Executive Topology & Architecture Overview
+## 1. Executive Summary & Business Mission
 
-Nexora is an enterprise-grade multi-tier digital marketing and agency operations SaaS built inside a unified monorepo. It couples an ultra-fast Next.js 15 public marketing portal with a high-productivity React 19 visual agency administration cockpit, driven by a resilient .NET 10 asynchronous backend and SQL Server.
+**Nexora** is an enterprise-grade digital marketing agency platform and operations SaaS. It combines a hyper-fast, high-converting public marketing website with an intuitive agency administration cockpit, backed by a resilient, event-driven .NET 10 backend engine and SQL Server.
+
+### Core Business Objectives
+- **Inbound Lead Generation:** Enterprise prospects discover services, calculate projected ROI, book discovery consultations, and submit briefs.
+- **Agency Operations & CRM:** Inbound inquiries land in a real-time Kanban pipeline with automated corporate lead scoring (0–100), duplicate detection, and one-click conversion to active Client Accounts.
+- **Dynamic Content & Theme Engine (Zero-Static Policy):** 100% of the website content—hero banners, capability features, reviews, case studies, pricing, navigation menus, and design tokens—is stored in the database and managed via the Admin Portal.
+- **Multi-Country Support:** Native multi-region capabilities supporting **India (`IN`)** and the **United States (`US`)** via cookie-based region resolution (`nexora_region`), localized currencies (INR `₹` / USD `$`), E.164 phone formatting, and regional compliance (DPDP Act 2023, GDPR, CCPA).
+
+---
+
+## 2. Monorepo System Architecture
 
 ```mermaid
 flowchart TD
     subgraph ClientTiers["Client & Presentation Tiers"]
         WebProspect["Public Visitors / Enterprise Prospects"]
-        StaffUser["Agency Operators / Platform Admins"]
+        StaffUser["Agency Operators / Sales / Admins"]
 
         Website["Next.js 15 Public Website (:3000)<br/>App Router • React Server Components • ISR Tag Revalidation"]
-        AdminSPA["React 19 Admin SPA (:5173)<br/>Vite • Redux Toolkit Query • Tailwind"]
+        AdminSPA["React 19 Admin Cockpit (:5173)<br/>Vite 6 • Redux Toolkit Query • TanStack Table v8"]
     end
 
     subgraph BackendTier[".NET 10 Enterprise Web API (:5201)"]
-        ApiLayer["Nexora.Api (Minimal APIs & Endpoints)<br/>HttpOnly Cookie Auth • Anti-CSRF • Rate Limiter • Output Caching"]
-        AppLayer["Nexora.Application (CQRS / Interfaces / DTOs)<br/>CmsService • LeadService • ClientService • IdentityService"]
-        DomainLayer["Nexora.Domain (Pure Business Logic)<br/>Entities • Concurrency Tokens • Immutable Audits"]
-        InfraLayer["Nexora.Infrastructure (Persistence & Adapters)<br/>EF Core 10 • Identity • MailKit • Outbox Background Worker"]
+        ApiLayer["Nexora.Api (Minimal APIs & Endpoints)<br/>HttpOnly Session Cookies • Anti-CSRF • Rate Limiting • Output Caching"]
+        AppLayer["Nexora.Application (CQRS / Interfaces / DTOs)<br/>LeadScoring • CmsService • EmailService • ClientService"]
+        DomainLayer["Nexora.Domain (Domain Entities)<br/>Byte Rowversion Concurrency • Immutable Audit Logs"]
+        InfraLayer["Nexora.Infrastructure (Persistence & Adapters)<br/>EF Core 10 • LocalDB • MailKit • Outbox Worker (UPDLOCK, READPAST)"]
     end
 
     subgraph DataTier["Data & Tooling Infrastructure"]
-        SQLDB[("Microsoft SQL Server LocalDB<br/>nexora_dev • Byte Rowversion Concurrency")]
-        MailpitTool["Mailpit SMTP & Webmail UI<br/>SMTP (:1025) • Web Inbox (:8025)"]
+        SQLDB[("Microsoft SQL Server LocalDB<br/>nexora_dev • Native Windows Relational DB")]
+        MailpitTool["Mailpit SMTP & Webmail Inspector<br/>SMTP (:1025) • Web Inbox (:8025)"]
     end
 
     WebProspect -->|HTTP/2 SSR / ISR| Website
-    Website -->|Public JSON APIs| ApiLayer
-    StaffUser -->|Cookie Auth + Anti-CSRF| AdminSPA
-    AdminSPA -->|Admin Endpoints| ApiLayer
+    Website -->|Public REST JSON APIs| ApiLayer
+    StaffUser -->|Session Cookie + X-XSRF-TOKEN| AdminSPA
+    AdminSPA -->|Admin REST Endpoints| ApiLayer
 
     ApiLayer --> AppLayer --> DomainLayer
     AppLayer --> InfraLayer
-    InfraLayer -->|Relational Queries| SQLDB
-    InfraLayer -->|Transactional Outbox (UPDLOCK, READPAST)| MailpitTool
+    InfraLayer -->|Relational Queries & Migrations| SQLDB
+    InfraLayer -->|Transactional Outbox Enqueue & Claim| MailpitTool
 ```
 
 ---
 
-## 2. Verified Tech Stack Matrix
+## 3. Technology Stack & Packages Matrix
 
-| Component               | Framework / Library                |  Installed Version  | Purpose & Strategic Rationale                                                                 |
-| :---------------------- | :--------------------------------- | :-----------------: | :-------------------------------------------------------------------------------------------- |
-| **Backend Runtime**     | **.NET 10 LTS SDK** (C# 13)        |     `10.0.403`      | High-throughput asynchronous Minimal APIs, type safety, low-memory footprint.                 |
-| **Database Engine**     | **Microsoft SQL Server LocalDB**   |    `2019 / 2022`    | Zero-Docker native Windows relational database with ACID guarantees (no Redis dependency).    |
-| **ORM & Migrations**    | **Entity Framework Core 10**       |      `10.0.14`      | Code-first schema migrations, Byte Rowversion Concurrency (`[Timestamp]`), query filters.     |
-| **Identity & Security** | **ASP.NET Core Identity**          |      `10.0.14`      | Encrypted HttpOnly cookies, PBKDF2 hashing, 12-char min password, anti-CSRF header defense.   |
-| **Caching & Comp.**     | **ASP.NET OutputCache + Comp.**    |      `net10.0`      | In-memory tag/endpoint output caching for public endpoints and Gzip/Brotli compression.       |
-| **Email Subsystem**     | **MailKit + Transactional Outbox** |      `4.18.2`       | Atomic email scheduling with `WITH (UPDLOCK, READPAST)` worker claiming; zero email loss.     |
-| **API Documentation**   | **Scalar UI (Dev-Only)**           |      `2.0.18`       | Interactive modern API playground at `/scalar/v1` (Swashbuckle Swagger removed).              |
-| **Backend Testing**     | **xUnit + Shouldly + NetArchTest** |  `2.9.3` / `4.3.0`  | 142 backend tests: 37 unit tests + 3 architecture tests + 102 integration tests.              |
-| **Public Website**      | **Next.js 15 (App Router)**        |      `15.5.29`      | React Server Components (RSC), 100% static pre-rendered routes (47/47) via ISR.              |
-| **Agency Admin SPA**    | **React 19 + Vite 6**              | `19.3.1` / `6.4.5`  | Lightning-fast HMR, rich state, visual CMS studio, dynamic Kanban boards, 46 Vitest tests.    |
-| **Admin State & API**   | **Redux Toolkit Query (RTK-Q)**    |      `2.14.0`       | Tag-based cache invalidation, optimistic updates, automatic `XSRF-TOKEN` header transport.   |
-| **Data Tables**         | **TanStack Table v8**              |      `8.21.3`       | Fluid, sortable, paginated enterprise tables with multi-filter support.                       |
-| **Styling & Tokens**    | **Tailwind CSS + PostCSS**         |      `3.4.19`       | Dark/Light semantic color tokens, fluid 24-inch widescreen layout scaling, audited tokens.   |
-| **Micro-Interactions**  | **Pure CSS + Native Hooks**        |      `Native`       | CSS keyframe animations + lightweight hooks (`useReducedMotion`); zero motion-library bloat.  |
-| **Monorepo Engine**     | **pnpm Workspaces**                |      `12.18.0`      | Shared TypeScript contracts (`@nexora/contracts`) and design tokens.                          |
-| **Email Dev Capture**   | **Mailpit Standalone Binary**      |      `v1.33.1`      | Local SMTP listener on port `1025` with real-time webmail inspector on port `8025`.           |
+| Tier / Workspace | Framework & Libraries | Installed Version | Strategic Purpose |
+| :--- | :--- | :---: | :--- |
+| **Backend Runtime** | **.NET 10 LTS SDK** (C# 13) | `10.0.403` | Asynchronous Minimal APIs, high throughput, low memory footprint |
+| **Database Engine** | **Microsoft SQL Server LocalDB** | `2019 / 2022` | Native zero-Docker relational engine with ACID guarantees (no Redis required) |
+| **ORM & Migrations**| **Entity Framework Core 10** | `10.0.14` | Code-first migrations, Byte Rowversion Concurrency (`[Timestamp]`), global filters |
+| **Identity & Security** | **ASP.NET Core Identity** | `10.0.14` | Encrypted HttpOnly session cookies, PBKDF2 hashing, 12-char passwords, anti-CSRF |
+| **Email Subsystem** | **MailKit + Transactional Outbox** | `4.18.2` | Atomic outbox claiming via `WITH (UPDLOCK, READPAST)`; zero email loss |
+| **API Documentation** | **Scalar UI** | `2.0.18` | Modern interactive API playground at `/scalar/v1` (locked to Development) |
+| **Public Website** | **Next.js 15 (App Router)** | `15.5.29` | Pure React Server Components (RSC), 100% static pre-rendered routes (47/47) via ISR |
+| **Website Runtime** | **React 19** | `19.3.1` | Next-gen React actions, concurrent transitions, sub-second Core Web Vitals |
+| **Admin Cockpit** | **React 19 + Vite 6** | `19.3.1` / `6.4.5` | Instant HMR development server, lightning-fast production Rollup builds |
+| **Admin State & API**| **Redux Toolkit Query (RTK-Q)** | `2.14.0` | Cached queries, optimistic updates, automated `X-XSRF-TOKEN` cookie/header transport |
+| **Data Tables** | **TanStack Table v8** | `8.21.3` | Fluid, sortable, paginated enterprise tables for leads and forensic audit logs |
+| **Forms & Validation** | **Formik & Yup** | `2.4.6` / `1.7.1` | Strict client schemas, anti-bot honeypot, cryptographic time-trap tokens |
+| **Internal Package** | `@nexora/design-tokens` | `workspace:*` | Semantic CSS variables compiler, WCAG 2.2 AA contrast checker, theme generator |
+| **Internal Package** | `@nexora/contracts` | `workspace:*` | Shared TypeScript schemas and DTOs synchronized with C# models |
+| **Dev Email Capture** | **Mailpit Standalone Binary** | `v1.33.1` | Local SMTP listener on port `1025` with real-time webmail inspector on port `8025` |
 
 ---
 
-## 3. End-to-End Architectural Flows
+## 4. Key Platform Features & Modules
 
-### 3.1 Inbound Lead Capture & Transactional Outbox Flow
+### 4.1 Inbound Lead Intake & Scoring Engine
+Every inbound submission on `/contact`, `/book-a-call`, or modal triggers an automated pipeline:
+1. **Anti-Bot Defense:** Invisible honeypot field (`website_hp`) silently drops automated scrapers; a cryptographic 3-second time-trap token prevents rapid robotic submissions.
+2. **Automated Lead Scoring (`0–100 pts`):**
+   - Business/Corporate Email (non-Gmail/Yahoo): `+25 pts`
+   - Enterprise Budget Tier ($25k+ / ₹20L+): `+30 pts`
+   - Growth Budget Tier ($10k–$25k / ₹8L–₹20L): `+20 pts`
+   - Immediate Timeline (< 1 month): `+15 pts`
+   - Valid Regional E.164 Phone Number: `+10 pts`
+   - Detailed Project Scope (> 50 words): `+10 pts`
+   - *Scores ≥ 60 are automatically flagged as High-Priority SQL (Sales Qualified Leads).*
+3. **Transactional Outbox Emailing:** The database transaction simultaneously saves the lead and enqueues two outbox records:
+   - Visitor auto-reply (`lead-auto-reply`) with personalized confirmation.
+   - Internal sales alert (`lead-internal-notification`) dispatched to agency administrators.
 
-```mermaid
-sequenceDiagram
-    autonumber
-    actor Visitor as Enterprise Prospect
-    participant Web as Next.js Website (:3000)
-    participant API as .NET 10 API (:5201)
-    participant DB as SQL Server (LocalDB)
-    participant Worker as Outbox Background Processor
-    participant Mail as Mailpit SMTP (:1025)
+### 4.2 Agency Administration Cockpit (`apps/admin`)
+- **Dashboard:** Real-time KPI counters (Enterprise Accounts, Agency Staff, Inbound Inquiries, System Health Probes).
+- **Leads Inbox (`/leads`):** Fluid 5-column Kanban board (`New Inquiry`, `Under Evaluation`, `Contacted`, `Qualified SQL`, `Converted / Closed`) + TanStack Table switcher, formula-injection escaped CSV export, and one-click "Convert to Client Account".
+- **Clients & CRM (`/clients`):** Enterprise account management, corporate primary contacts, activity timeline notes, and task assignments.
+- **Theme Studio (`/settings/theme-studio`):** Real-time interactive theme customizer with WCAG AA/AAA contrast telemetry and instant palette switching across 7 presets.
+- **CMS Visual Page Builder (`/cms/pages` & `/cms/pages/:id/edit`):** Block manager supporting reordering, tone configuration (`light`, `alt`, `dark`, `brand-gradient`), animation levels, draft saving, live iframe preview, and atomic publishing.
+- **Dedicated CMS Section Managers:** Granular control over `/cms/hero-banners`, `/cms/announcements`, `/cms/services`, `/cms/case-studies`, `/cms/testimonials`, and `/cms/faqs`.
+- **Media Library (`/media`):** Central asset repository with magic-byte MIME validation, WebP conversion, and safe public media resolvers.
+- **Navigation Menus (`/menus`):** Multi-level header and footer menu hierarchy editor.
+- **Transactional Email Studio (`/emails`):** Template editor with merge variables (`{{lead.name}}`, `{{platform.companyName}}`), live HTML preview, test send triggers, and outbox delivery logs.
+- **RBAC & Staff Governance (`/users`, `/roles`, `/audit-logs`):** Granular permission management across 4 core system roles (`Owner`, `Admin`, `Editor`, `Sales`) backed by an immutable SQL Server append-only audit trigger.
 
-    Visitor->>Web: Fills Contact Form (/contact)
-    Web->>Web: Verifies Honeypot & 3-sec Time-Trap Token
-    Web->>API: POST /api/v1/public/forms/{formKey}/submissions (Anonymous, JSON)
-    activate API
-    API->>API: Validate Payload (FluentValidation)
-    API->>DB: BEGIN TRANSACTION
-    API->>DB: INSERT INTO Leads (Status: NewInquiry, Deduplication Check)
-    API->>DB: INSERT INTO OutboxMessages (Event: LeadWelcomeEmail, Status: Pending)
-    API->>DB: INSERT INTO OutboxMessages (Event: LeadInternalNotification, Status: Pending)
-    API->>DB: COMMIT TRANSACTION
-    API-->>Web: HTTP 201 Created { leadId, referenceNumber }
-    deactivate API
-    Web-->>Visitor: Displays Success Card with Reference ID
+### 4.3 Public Marketing Portal (`apps/website`)
+- **Zero-Static Policy:** CMS blocks (`StatsBlock`, `LogoStripBlock`, `TestimonialsBlock`, `CaseStudiesBlock`) render strictly from database content, returning `null` cleanly when empty to avoid synthetic placeholders.
+- **12 World-Class Block Types in `BlockRenderer.tsx`:**
+  1. `HeroBlock`: Embla carousel, dual CTA buttons, theme-aware gradient overlays.
+  2. `LogoStripBlock`: Infinite marquee of verified technologies and partner badges.
+  3. `StatsBlock`: Commercial metric badges (+340% velocity, $120M+ revenue, 99.8% attribution).
+  4. `FeatureGridBlock` & `BentoGridBlock`: High-intent growth capabilities with spotlight radial glow.
+  5. `ChannelsGrowthDiagram`: Interactive omnichannel telemetry map linking channels to Nexora Engine.
+  6. `TechEcosystemBlock`: Bidirectional scrolling enterprise marketing technology marquee.
+  7. `ProcessSteps`: 4-phase execution framework (*Audit, Creatives & CRO, Launch, Scale*).
+  8. `TestimonialsBlock`: 5-star verified client reviews with metric badges.
+  9. `CaseStudiesBlock`: Commercial case studies filtered by sector (B2B SaaS, E-Commerce, FinTech).
+  10. `ComparisonTable`: Matrix comparing Nexora Engine vs Traditional Agencies vs Freelancers.
+  11. `RoiCalculator`: Interactive budget and conversion slider simulating projected pipeline.
+  12. `FaqBlock`: Accessible accordion with automated Google Rich Snippet `FAQPage` JSON-LD schema.
+- **Pre-Seeded Routes:** Full dedicated pages for 12 Growth Services (`/services/seo`, `/services/paid-ads`, etc.), 8 Industry Sectors (`/industries/saas`, `/industries/ecommerce`, etc.), Blog Hub (`/blog/[slug]`), Legal Pages (`/privacy`, `/terms`, `/cookies`, `/accessibility`), and Consultation Booking (`/book-a-call`, `/free-audit`).
 
-    loop Every 5 Seconds (Background Outbox Loop)
-        Worker->>DB: BEGIN TRAN; SELECT TOP 10 * FROM Outbox WITH (UPDLOCK, READPAST); UPDATE SET Status = InProgress; COMMIT TRAN
-        DB-->>Worker: Return Pending Messages
-        Worker->>Worker: Render Razor/HTML Email Template with Merge Variables
-        Worker->>Mail: SMTP Connect & Send (localhost:1025)
-        Mail-->>Worker: 250 Message Accepted
-        Worker->>DB: UPDATE OutboxMessages SET Status = 2 (Sent), ProcessedAtUtc = GETUTCDATE()
-    end
+---
+
+## 5. Theme & Design Tokens Library (`@nexora/design-tokens`)
+
+The theme is an enterprise design token engine compiled into semantic CSS variables:
+
+### The 7 System Presets
+1. **Cyber Emerald & Deep Onyx (`cyber-emerald` - Default)**: Emerald `#10b981` | Cyan `#06b6d4` | Backdrop `#080c14` (Developer-first Linear/Cursor aesthetic).
+2. **Modern Growth & Electric Violet (`modern-growth`)**: Violet `#8b5cf6` | Indigo `#6366f1` | Backdrop `#090714` (Modern generative aurora).
+3. **Champagne Gold & Executive Obsidian (`champagne-gold`)**: Gold `#d4af37` | Champagne `#e5c158` | Backdrop `#0b0f17` (Luxury B2B, Private Equity).
+4. **Silicon Valley Electric (`silicon-valley`)**: Electric Blue `#3b82f6` | Indigo `#6366f1` | Backdrop `#060b13` (Fintech Stripe/Ramp architecture).
+5. **Monochrome Stealth & Laser Cobalt (`monochrome-stealth`)**: Pure White `#ffffff` | Sky `#38bdf8` | Backdrop `#000000` (Apple Pro OLED dark stealth).
+6. **Sapphire Ocean & Cyber Cyan (`sapphire-ocean`)**: Ocean Blue `#0284c7` | Teal `#14b8a6` | Backdrop `#040d1a` (Cloud infrastructure aesthetic).
+7. **Midnight Violet & Sunset Coral (`midnight-violet`)**: Violet `#7c3aed` | Coral `#f97316` | Backdrop `#07060f` (High-contrast creative).
+
+---
+
+## 6. RBAC Role & Permission Matrix
+
+Permissions are evaluated per request against the user's role bindings:
+
+| Permission Key | Owner | Admin | Editor | Sales | Scope & Description |
+| :--- | :---: | :---: | :---: | :---: | :--- |
+| `settings.view` / `settings.manage` | ✅ | ✅ | — | — | Enterprise branding, SMTP, regional configurations |
+| `audit.view` | ✅ | ✅ | — | — | Append-only forensic security audit log |
+| `users.view` | ✅ | ✅ | — | — | Inspect team member accounts and activity |
+| `users.manage` | ✅ | — | — | — | Invite operators, suspend accounts, bind roles |
+| `roles.view` | ✅ | ✅ | — | — | Read-only RBAC matrix inspection |
+| `pages.view` / `pages.edit` | ✅ | ✅ | ✅ | — | Browse and modify CMS draft block schemas |
+| `pages.publish` | ✅ | ✅ | — | — | Publish page drafts live to database & website |
+| `leads.view` / `leads.manage` / `leads.export` | ✅ | ✅ | — | ✅ | Full Kanban pipeline, scoring, notes & CSV export |
+| `clients.view` | ✅ | ✅ | — | ✅ | Access client accounts and CRM directory |
+| `themes.view` / `themes.manage` | ✅ | ✅ | — | — | Modify design tokens, palettes, and active theme |
+
+---
+
+## 7. Step-by-Step Local Setup & Execution Guide
+
+### 7.1 Prerequisites
+- **Operating System:** Windows 10/11 (PowerShell 7+ recommended)
+- **.NET SDK:** .NET 10.0 LTS installed (`dotnet --version`)
+- **Node.js & Package Manager:** Node.js v20+ and pnpm v9+ (`npm i -g pnpm`)
+- **SQL Server:** Native Microsoft SQL Server LocalDB (`(localdb)\MSSQLLocalDB`)
+
+### 7.2 Service Port Reference
+| Service | Local URL | Port | Default Credentials / Notes |
+| :--- | :--- | :---: | :--- |
+| **Public Website** | [http://localhost:3000](http://localhost:3000) | `3000` | Next.js 15 App Router |
+| **Agency Admin** | [http://localhost:5173](http://localhost:5173) | `5173` | React 19 Agency Cockpit |
+| **Backend Web API**| [http://localhost:5201](http://localhost:5201) | `5201` | ASP.NET Core 10 Web API |
+| **Scalar API Docs** | [http://localhost:5201/scalar/v1](http://localhost:5201/scalar/v1) | `5201` | Interactive OpenAPI Playground |
+| **Health Probes** | [http://localhost:5201/health/ready](http://localhost:5201/health/ready) | `5201` | Returns `HTTP 200 {"status":"Healthy"}` |
+| **Mailpit Web UI** | [http://localhost:8025](http://localhost:8025) | `8025` | Real-time Webmail Inbox |
+| **Mailpit SMTP** | `localhost:1025` | `1025` | Local SMTP listener for outbox worker |
+
+### 7.3 One-Click Quickstart
+```powershell
+# 1. Install all monorepo dependencies
+pnpm install
+
+# 2. Launch Mailpit, Backend API, Website, and Admin simultaneously
+./scripts/start-all.ps1
 ```
 
-### 3.2 Staff Authentication, Anti-CSRF & Immutable Audit Flow
+### 7.4 Manual Startup (Individual Terminals)
+```powershell
+# Terminal 1: Mailpit (Local SMTP)
+./infra/tools/mailpit.exe
 
-```mermaid
-sequenceDiagram
-    autonumber
-    actor Admin as Staff / Owner
-    participant SPA as Admin SPA (:5173)
-    participant API as .NET 10 API (:5201)
-    participant DB as SQL Server (LocalDB)
+# Terminal 2: Backend API (.NET 10)
+cd backend/src/Nexora.Api
+dotnet run
 
-    Admin->>SPA: Enters Email & Password (/login)
-    SPA->>API: POST /api/v1/auth/login { email, password }
-    activate API
-    API->>DB: Verify Credentials (ASP.NET Identity PBKDF2)
-    API-->>SPA: HTTP 200 OK<br/>Set-Cookie: .Nexora.Session (HttpOnly, SameSite=Lax)<br/>Set-Cookie: XSRF-TOKEN (Readable by JS)
-    deactivate API
+# Terminal 3: Agency Admin (Vite SPA)
+pnpm --filter @nexora/admin dev
 
-    Admin->>SPA: Modifies Lead Stage or Updates CMS Block
-    SPA->>SPA: RTK-Q reads 'XSRF-TOKEN' cookie value
-    SPA->>API: PUT /api/v1/admin/...<br/>Cookie: .Nexora.Session<br/>Header: X-XSRF-TOKEN: <token>
-    activate API
-    API->>API: Validate Anti-CSRF Header against Cookie
-    API->>API: Validate Security Stamp (Ensures not revoked)
-    API->>DB: Apply Entity Mutation
-    API->>DB: INSERT INTO AuditLogs (UserId, Action, PayloadJson, IpAddress)
-    Note over DB: SQL Trigger trg_AuditLogs_AppendOnly prevents UPDATE or DELETE
-    API-->>SPA: HTTP 200 OK (Updated DTO)
-    deactivate API
+# Terminal 4: Public Website (Next.js)
+pnpm --filter @nexora/website dev
 ```
 
----
-
-## 4. Comprehensive Configuration Guide
-
-### 4.1 Backend Configuration (.NET 10)
-
-All backend configuration lives in `backend/src/Nexora.Api/appsettings.json` and can be overridden via environment variables:
-
-```json
-{
-  "ConnectionStrings": {
-    "DefaultConnection": "Server=(localdb)\\MSSQLLocalDB;Database=nexora_dev;Trusted_Connection=True;TrustServerCertificate=True"
-  },
-  "Cors": {
-    "AllowedOrigins": ["http://localhost:5173", "http://localhost:3000"]
-  },
-  "Security": {
-    "LockoutMaxFailedAccessAttempts": 5,
-    "LockoutDefaultLockoutTimeSpanMinutes": 15,
-    "RequireDigit": true,
-    "RequireLowercase": true,
-    "RequireUppercase": true,
-    "RequireNonAlphanumeric": true,
-    "RequiredLength": 12
-  }
-}
-```
-
-- **Cookie Auth Setup (`Program.cs`):**
-  - Cookie Name: `.Nexora.Session` (configured via `AuthCookie:CookieName`)
-  - `HttpOnly = true`, `SameSite = SameSiteMode.Lax`
-  - Non-dev guard: Enforces `Secure = true` when `SameSite = None` and rejects wildcard CORS in production.
-  - Returns `401 Unauthorized` / `403 Forbidden` JSON directly to SPA instead of redirecting.
-- **Database Startup Seeder (`StartupSeeder.cs`):**
-  - Executes EF Core migrations when `Database:ApplyMigrationsOnStartup` is true or running in `Development`.
-  - Seeds primary `Owner` administrator strictly from `SEED_ADMIN_EMAIL` and `SEED_ADMIN_PASSWORD` env variables.
-  - Seeds 4 System Roles: `Owner`, `Admin`, `Editor`, `Sales` with 16 granular permissions.
-  - Seeds Dynamic Lookups: Pipeline stages (`Lead`, `Client`, `Deal`) and ISO Country Regions (`IN`, `US`, `AE`, `GB`, `SG`).
-  - Purged of all synthetic/fabricated marketing claims ($240M+, 340%, fake client logos, fake reviews).
-- **SQL Server Immutable Audit Trigger:**
-  - Installs `trg_AuditLogs_AppendOnly` append-only database trigger (prohibits UPDATE and DELETE operations).
-- **XSS Sanitization Helper (`HtmlSanitizerHelper.cs`):**
-  - Server-side sanitizer strips `<script>`, `<iframe>`, `<object>`, `<embed>`, `<applet>`, inline JavaScript handlers (`on\w+=`), `javascript:`, and `data:text/html` from all incoming rich content before persisting.
+### 7.5 Seed Admin Access
+Initial administrator access is seeded upon backend startup from environment variables:
+- **URL:** `http://localhost:5173/login`
+- **Email:** Value configured in `SEED_ADMIN_EMAIL` (`.env`)
+- **Password:** Value configured in `SEED_ADMIN_PASSWORD` (`.env`, min 12 characters)
+- **Role:** `Owner` (Full permissions)
 
 ---
 
-### 4.2 Agency Admin SPA Configuration (React 19 + Vite)
+## 8. Quality Gates & Monorepo Testing Suite
 
-Configured via `apps/admin/.env`:
-
-```bash
-VITE_API_URL=http://localhost:5201
-VITE_WEBSITE_URL=http://localhost:3000
-```
-
-- **RTK Query Base API (`baseApi.ts`):**
-  - Configured with `credentials: "include"` for transparent HttpOnly cookie transport.
-  - Automatically extracts `XSRF-TOKEN` cookie and injects `X-XSRF-TOKEN` header on all mutation calls.
-  - Provides tag-based cache invalidation (`Leads`, `Clients`, `Pages`, `Templates`, `Roles`, `Settings`).
-- **Visual CMS Studio (`/cms/pages` & `/cms/pages/:id/edit`):**
-  - Drag-and-drop block tree, component palette (`Hero`, `Stats`, `FeatureGrid`, `Testimonials`, `CTA`, `FAQ`), headline/content editors, and direct visibility toggles.
-  - Live interactive `<iframe>` emulator with instant device viewport switching (`Desktop 1920px`, `Tablet 768px`, `Mobile 375px`).
-- **Inbound Pipeline Kanban (`/leads`):**
-  - 5 fluid columns: `New Inquiries`, `Under Evaluation`, `Contacted`, `Qualified SQL`, `Converted Client`.
-  - One-click `Advance ➔` progression button on cards.
-  - View switcher to TanStack paginated table mode.
-  - Authenticated CSV export with formula injection escaping (sanitizes `=, +, -, @` prefixes).
-  - Automatic deduplication detection against existing lead records.
-  - One-click institutional conversion ("Promote to Client Account") creating client dossier, contacts, and initial records.
-- **Phase 1 Exclusions:**
-  - Tasks/project management, complex automation builders, and invoicing are out of scope for Phase 1. The legacy `/tasks` route cleanly redirects to `/clients`.
-- **Transactional Email Studio (`/emails`):**
-  - Split-screen HTML code editor and live sandbox preview envelope.
-  - Click-to-insert variable merge pills (`{{lead.name}}`, `{{lead.company}}`, `{{platform.companyName}}`).
-  - Real-time test dispatch button directly to Mailpit.
-- **Roles & Permissions Matrix (`/roles`):**
-  - Full CRUD for custom roles across 7 security domains with protected system roles (`Owner`, `Admin`).
-
----
-
-### 4.3 Public Website Configuration (Next.js 15 App Router)
-
-Configured in `apps/website`:
-
-- **Static Pre-Rendering (ISR):**
-  - All 47 public routes are statically pre-rendered at build time with tag-based revalidation (`next: { revalidate: 3600, tags: [...] }`).
-  - Server components are pure RSC without blocking cookies/headers calls.
-- **Honesty & Conditional Rendering:**
-  - Empty CMS blocks (`StatsBlock`, `LogoStripBlock`, `TestimonialsBlock`, `CaseStudiesBlock`) cleanly return `null` when no published DB records exist. No empty shell or synthetic mock data is rendered.
-- **Real 404 Pages:**
-  - Unknown routes trigger real 404 HTTP status (`notFound()`), eliminating the legacy static fallback behavior.
-- **Anti-Bot Defense (`ContactForm.tsx` & `BookingEmbed.tsx`):**
-  - Invisible honeypot field (`website_hp`) silently drops automated scrapers.
-  - Cryptographic 3-second time-trap token prevents rapid robotic submissions.
-  - Explicit DPDP/GDPR consent capture with audit timestamp metadata.
-- **Consent-Gated Analytics & Tracking (`TrackingScripts.tsx`):**
-  - Third-party tracking scripts (GTM, GA4, Meta Pixel, Microsoft Clarity, LinkedIn Insight Tag) are loaded strictly AFTER explicit user consent in the `CookieBanner`.
-  - Fires consent-checked events (`nexora_lead_submit`, `nexora_cta_click`, `nexora_contact_click`) to `window.dataLayer`.
-- **Security Headers (`next.config.ts`):**
-  - Strict-Transport-Security (HSTS), X-Content-Type-Options: `nosniff`, Referrer-Policy: `strict-origin-when-cross-origin`, Permissions-Policy, and configurable `frame-ancestors` allowing Admin preview while blocking clickjacking.
-
----
-
-## 5. Theme & Motion System
-
-### 5.1 Color Tokens & Design System
-
-- **Strategy:** Semantic CSS custom variables driven by `packages/design-tokens` with Tailwind integration.
-- **Theme Palette:** 6 curated presets (Cyber Emerald, Silicon Valley Electric, Tokyo Neon, Nordic Minimal, Copper Heritage, Obsidian Luxury).
-- **Audit Gate:** Verified via `pnpm check:colors` — 0 violations across all scanned components.
-
-### 5.2 Motion & Animation Principles
-
-- **Performance-First:** Animations animate exclusively `transform` and `opacity` (plus `clip-path` for image reveals). No layout shifts (CLS ≈ 0).
-- **Reduced Motion:** Global `@media (prefers-reduced-motion: reduce)` and `[data-animation-mode="off"]` overrides disable movement/marquee/parallax; keep instant opacity changes.
-- **Consistent Tokens:** Durations 150/250/500/700ms, easing `cubic-bezier(0.22, 1, 0.36, 1)`.
-
----
-
-## 6. How to Run & Operate the Platform
-
-### 6.1 Service Port Map
-
-| Service             | Local URL                                                                |  Port  | Purpose                                   |
-| :------------------ | :----------------------------------------------------------------------- | :----: | :---------------------------------------- |
-| **Public Website**  | [http://localhost:3000](http://localhost:3000)                           | `3000` | Next.js 15 Marketing Portal (Prod/Dev)    |
-| **Agency Admin**    | [http://localhost:5173](http://localhost:5173)                           | `5173` | React 19 Agency Operations Cockpit (Vite) |
-| **Backend API**     | [http://localhost:5201](http://localhost:5201)                           | `5201` | ASP.NET Core 10 Web API                   |
-| **Scalar API Docs** | [http://localhost:5201/scalar/v1](http://localhost:5201/scalar/v1)       | `5201` | Interactive API Playground (Dev Only)     |
-| **Health Probes**   | [http://localhost:5201/health/ready](http://localhost:5201/health/ready) | `5201` | Database Readiness Check                  |
-| **Mailpit Web UI**  | [http://localhost:8025](http://localhost:8025)                           | `8025` | Real-time Email Inspector & Webmail       |
-| **Mailpit SMTP**    | `localhost:1025`                                                         | `1025` | Local SMTP Mail Capture                   |
-| **SQL Server**      | `(localdb)\MSSQLLocalDB`                                                 | Native | LocalDB Instance (`nexora_dev`)           |
-
----
-
-### 6.2 Administrator Credentials Configuration
-
-Initial platform owner credentials are read strictly from environment variables or `.env`:
-
-| Field              | Configuration Key             | Notes                                            |
-| :----------------- | :---------------------------- | :----------------------------------------------- |
-| **Admin Portal**   | `http://localhost:5173/login` | Agency Admin Login Page                          |
-| **Admin Email**    | `SEED_ADMIN_EMAIL`            | Set in `.env` / user-secrets                     |
-| **Admin Password** | `SEED_ADMIN_PASSWORD`         | Set in `.env` (min 12 chars per policy)          |
-| **Assigned Role**  | `Owner`                       | Unrestricted 16/16 administrative permissions    |
-| **First Login**    | `MustChangePassword`          | Forced password rotation required on first login |
-
----
-
-### 6.3 Monorepo Command Suite
+The repository is governed by strict automated quality gates. All **209 tests** run with **0 failures and 0 skipped**:
 
 ```powershell
-# Run the complete test & quality gate across all workspaces:
-pnpm check:all       # Runs typecheck + lint + check:colors + all vitest & dotnet tests
-
-# Individual quality gates:
-pnpm run typecheck   # Strict TypeScript check across contracts, admin, and website
-pnpm run lint        # ESLint check
-pnpm check:colors    # Design token compliance audit
-pnpm run test        # Runs frontend Vitest and backend dotnet test suites
-
-# Build commands:
-pnpm --filter @nexora/admin build     # Production Vite build
-pnpm --filter @nexora/website build   # Production Next.js 15 static ISR build
-dotnet build backend/Nexora.sln       # Backend .NET 10 compilation
+# Run all quality checks across the entire monorepo:
+pnpm check:all
+# Executes:
+# 1. pnpm run typecheck    (Strict TypeScript across contracts, admin, website)
+# 2. pnpm run lint         (ESLint check across all frontend workspaces)
+# 3. pnpm check:colors     (Semantic token audit scanner: 0 raw hex violations)
+# 4. pnpm run test         (209 Unit, Architecture, and Integration tests)
 ```
+
+### Test Suite Distribution
+- **Backend Tests (xUnit + Shouldly + NetArchTest):** **142 passed**
+  - `Nexora.UnitTests`: 37 passed (Domain rules, scoring engine, formatters)
+  - `Nexora.ArchitectureTests`: 3 passed (Hexagonal boundaries and dependency rules)
+  - `Nexora.IntegrationTests`: 102 passed (Identity, CSRF, Outbox, Cms, Leads, RBAC)
+- **Admin Vitest Suite (React 19):** **46 passed** (Theme Studio, guards, navigation, formatters)
+- **Website Vitest Suite (Next.js 15):** **21 passed** (BlockRenderer, UTM, A11y, Region, Primitives)
 
 ---
 
-### 6.4 Automated Test Suite Breakdown
-
-All **209 automated tests** pass with **0 failures** and **0 skipped**:
-
-```powershell
-# 1. Backend Tests (.NET 10 xUnit + Shouldly + NetArchTest)
-dotnet test backend/Nexora.sln
-# Nexora.UnitTests:        37 passed (Domain entities, validation, services)
-# Nexora.ArchitectureTests: 3 passed (Hexagonal boundaries, dependency rules)
-# Nexora.IntegrationTests: 102 passed (API endpoints, Auth, CSRF, Outbox, Cms, Leads)
-# Subtotal: 142 passed
-
-# 2. Agency Admin Vitest Suite (React 19)
-pnpm --filter @nexora/admin test
-# Subtotal: 46 passed (Theme studio, navigation, auth guards, utility formatters)
-
-# 3. Public Website Vitest Suite (Next.js 15)
-pnpm --filter @nexora/website test
-# Subtotal: 21 passed (BlockRenderer, Navigation, A11y, Primitives, UTM, Region)
-
-# GRAND TOTAL: 209 PASSED (100%)
-```
-
----
-
-## 7. Monorepo Directory Structure
+## 9. Monorepo Directory Organization
 
 ```
 d:\Nexora-Digital-Marketing-Platform\
 ├── apps/
-│   ├── admin/                    # React 19 + Vite Agency Admin Cockpit
+│   ├── admin/                    # React 19 + Vite 6 Agency Admin Cockpit
 │   │   ├── src/
-│   │   │   ├── components/       # UI primitives, Kanban boards, layouts
-│   │   │   ├── pages/            # Leads, CMS Studio, Clients, Emails, Roles, Settings
-│   │   │   └── store/            # Redux Toolkit Query API clients
+│   │   │   ├── components/       # Command palette, drawer, confirm dialogs
+│   │   │   ├── layouts/          # Responsive admin shell with collapsible sidebar
+│   │   │   ├── pages/            # Leads, CMS Pages, Clients, Emails, Roles, Settings
+│   │   │   └── store/            # Redux Toolkit Query API slices
 │   │   └── package.json
-│   └── website/                  # Next.js 15 (App Router) Public Marketing Portal
+│   └── website/                  # Next.js 15 App Router Public Marketing Portal
 │       ├── src/
-│       │   ├── app/              # RSC routes (/, /services, /industries, /blog, /contact)
-│       │   ├── components/       # Dynamic block renderer & block components
-│       │   └── lib/              # CMS API clients, tracking, region config
+│       │   ├── app/              # SSR/ISR pages (/, /services, /industries, /blog, /contact)
+│       │   ├── components/       # BlockRenderer & 12 World-Class Marketing Block components
+│       │   └── lib/              # CMS API fetchers, tracking scripts, region cookies
 │       └── package.json
-├── backend/                      # .NET 10 Solution (Hexagonal Clean Architecture)
+├── backend/                      # .NET 10 Solution (Hexagonal Architecture)
 │   ├── src/
 │   │   ├── Nexora.Api/           # Minimal APIs, Auth Cookies, Anti-CSRF, Caching, Endpoints
 │   │   ├── Nexora.Application/   # CQRS, Domain Services, DTOs, FluentValidation
-│   │   ├── Nexora.Domain/        # Pure Domain Entities, Byte Rowversion Concurrency
-│   │   ├── Nexora.Infrastructure/# EF Core 10, SQL Server, MailKit, Outbox Processor, Sanitizer
-│   │   └── Nexora.Worker/        # Standalone Background Service Host
+│   │   ├── Nexora.Domain/        # Domain Entities, Byte Rowversion Concurrency
+│   │   ├── Nexora.Infrastructure/# EF Core 10, SQL Server LocalDB, MailKit, Outbox Processor
+│   │   └── Nexora.Worker/        # Background processing worker host
 │   └── tests/
 │       ├── Nexora.UnitTests/     # 37 Unit Tests
-│       ├── Nexora.ArchitectureTests/ # 3 Strict Hexagonal Architecture Tests
+│       ├── Nexora.ArchitectureTests/ # 3 Clean Architecture Enforcement Tests
 │       └── Nexora.IntegrationTests/  # 102 Database Integration Tests
 ├── packages/
 │   ├── contracts/                # Shared TypeScript contracts synced with C# DTOs
-│   ├── design-tokens/            # Semantic CSS design variables & Tailwind tokens
-│   ├── eslint-config/            # Shared ESLint configuration
-│   └── typescript-config/        # Shared tsconfig definitions
+│   ├── design-tokens/            # Semantic CSS variables & 7 Theme Presets
+│   ├── eslint-config/            # Shared monorepo ESLint rules
+│   └── typescript-config/        # Strict shared tsconfig definitions
 ├── scripts/
-│   ├── check-colors.mjs          # Semantic token audit scanner
-│   └── start-all.ps1             # One-click PowerShell orchestrator for all services
+│   ├── check-colors.mjs          # AST token scanner prohibiting raw hex colors
+│   └── start-all.ps1             # PowerShell script launching all platform services
 └── infra/
     └── tools/
-        └── mailpit.exe           # Standalone local SMTP binary (ports 1025 / 8025)
+        └── mailpit.exe           # Standalone local SMTP server & web inspector
 ```
+
+---
+
+## 10. Production Readiness & Known Roadmap Gaps
+
+### P0 Launch Blockers (Go-Live Checklist)
+1. **Real Content Population:** Replace remaining empty states with authenticated client testimonials, brand partner logos, and case studies.
+2. **Backend Revalidation Webhook Trigger:** Wire backend publish event in `PageService` / `OutboxProcessor` to automatically dispatch `POST /api/revalidate?secret=...` to Next.js for instant cache invalidation upon publishing.
+3. **Production Mailer Setup:** Switch SMTP configuration from local Mailpit to production transactional provider (AWS SES / Resend) with verified SPF, DKIM, and DMARC DNS records.
+4. **HTML Sanitizer Hardening:** Upgrade regex-based `HtmlSanitizerHelper.cs` to robust AST library (`Ganss.Xss.HtmlSanitizer`) to prevent any potential mXSS bypasses.
+5. **Admin Inserter Block Templates:** Expose `ChannelsGrowth` and `TechEcosystem` blocks inside Admin `PageEditorPage.tsx`'s `BLOCK_TEMPLATES` so operators can insert them into custom landing pages.
+6. **Credential Rotation:** Rotate `SEED_ADMIN_PASSWORD` in `.env` and load production credentials via cloud key vaults or environment variables.
+
+### P1/P2 Operations Enhancements
+- **Admin Form Builder UI:** Add visual drag-and-drop web form builder in Admin to allow non-technical marketers to assemble custom inquiry forms.
+- **Dedicated Tasks Kanban:** Expand the `/tasks` route into a standalone sales task manager with overdue date alerts and follow-up calendars.
+- **Direct Lead Emailing:** Add quick-action modal in Leads Inbox to trigger templated outbound emails directly to prospective clients.
+- **Outbound Webhooks:** Provide settings UI to dispatch webhook alerts (Slack, WhatsApp, CRM) upon lead intake.
