@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { toast } from "sonner";
+import { toast } from "../../utils/toast";
 import {
   useGetRolesQuery,
   useGetPermissionsQuery,
@@ -8,6 +8,7 @@ import {
   useDeleteRoleMutation,
 } from "../../store/api/adminApi";
 import type { RoleDto } from "../../types";
+import { CardSkeleton, TableSkeleton, PageHeaderSkeleton } from "../../components/ui/Skeleton";
 import {
   ShieldCheck,
   Check,
@@ -158,9 +159,12 @@ export const RolesPage: React.FC = () => {
 
   if (rolesLoading || permsLoading) {
     return (
-      <div className="py-20 text-center text-xs text-slate-500 flex items-center justify-center gap-2">
-        <div className="w-4 h-4 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
-        <span>Loading Role-Based Access Control matrix...</span>
+      <div className="space-y-6">
+        <PageHeaderSkeleton />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <CardSkeleton count={4} />
+        </div>
+        <TableSkeleton rows={8} columns={5} hasControls={false} />
       </div>
     );
   }
@@ -271,7 +275,7 @@ export const RolesPage: React.FC = () => {
             <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
               Roles & Permissions Matrix (RBAC)
             </h1>
-            <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800/40">
+            <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-primary/10 text-primary border border-primary/20">
               {roleList.length} Roles Defined
             </span>
           </div>
@@ -288,7 +292,7 @@ export const RolesPage: React.FC = () => {
               refetchRoles();
               refetchPerms();
             }}
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-300 transition"
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-300 transition cursor-pointer"
           >
             <RefreshCw className="w-3.5 h-3.5" />
             <span>Reload</span>
@@ -297,7 +301,7 @@ export const RolesPage: React.FC = () => {
           <button
             type="button"
             onClick={openCreateModal}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-md shadow-indigo-600/30 transition"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-primary hover:bg-primary-hover text-primary-foreground text-xs font-bold shadow-xs shadow-primary/25 transition cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span>Create Custom Role</span>
@@ -331,12 +335,12 @@ export const RolesPage: React.FC = () => {
           return (
             <div
               key={r.name}
-              className="p-5 rounded-2xl bg-white dark:bg-[#0c1222] border border-slate-200/80 dark:border-slate-800/80 shadow-sm flex flex-col justify-between space-y-4 hover:border-indigo-400/50 transition-colors"
+              className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 shadow-xs flex flex-col justify-between space-y-4 hover:border-primary/50 transition-colors"
             >
               <div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <ShieldCheck className="w-4 h-4 text-indigo-500" />
+                    <ShieldCheck className="w-4 h-4 text-primary" />
                     <h3 className="font-bold text-sm text-slate-900 dark:text-white">
                       {r.name}
                     </h3>
@@ -345,7 +349,7 @@ export const RolesPage: React.FC = () => {
                     className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
                       isSys
                         ? "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400"
-                        : "bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800/40"
+                        : "bg-primary/10 text-primary border border-primary/20"
                     }`}
                   >
                     {isSys ? "System" : "Custom"}
@@ -358,7 +362,7 @@ export const RolesPage: React.FC = () => {
 
               <div className="pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between">
                 <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">
-                  <strong className="text-indigo-600 dark:text-indigo-400 font-bold">
+                  <strong className="text-primary font-bold">
                     {permCount}
                   </strong>{" "}
                   of {permList.length} perms
@@ -369,7 +373,7 @@ export const RolesPage: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => openEditModal(r)}
-                      className="p-1.5 rounded-lg text-slate-500 hover:text-indigo-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+                      className="p-1.5 rounded-lg text-slate-500 hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
                       title="Configure Permissions"
                     >
                       <Edit2 className="w-3.5 h-3.5" />
@@ -394,15 +398,15 @@ export const RolesPage: React.FC = () => {
       </div>
 
       {/* Main Granular Permissions Matrix */}
-      <div className="bg-white dark:bg-[#0c1222] border border-slate-200/80 dark:border-slate-800/80 rounded-2xl overflow-hidden shadow-sm">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 rounded-2xl overflow-hidden shadow-xs">
         <div className="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <SlidersHorizontal className="w-4 h-4 text-indigo-500" />
+            <SlidersHorizontal className="w-4 h-4 text-primary" />
             <h3 className="font-bold text-sm text-slate-900 dark:text-white">
               Complete Granular Authorization Matrix
             </h3>
           </div>
-          <span className="text-xs text-slate-400">
+          <span className="text-xs text-slate-500 dark:text-slate-400">
             Click edit on any custom role card above to adjust individual
             permissions.
           </span>
@@ -410,7 +414,7 @@ export const RolesPage: React.FC = () => {
 
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs text-slate-700 dark:text-slate-300">
-            <thead className="bg-slate-50/80 dark:bg-slate-900/60 border-b border-slate-200/80 dark:border-slate-800 text-[11px] uppercase font-bold tracking-wider text-slate-400">
+            <thead className="bg-slate-50/80 dark:bg-slate-900/60 border-b border-slate-200/80 dark:border-slate-800 text-[11px] uppercase font-bold tracking-wider text-slate-500 dark:text-slate-400">
               <tr>
                 <th className="px-6 py-3.5 w-1/3">Capability & Description</th>
                 {roleList.map((r) => (
@@ -429,7 +433,7 @@ export const RolesPage: React.FC = () => {
                   <tr className="bg-slate-100/50 dark:bg-slate-800/30">
                     <td
                       colSpan={roleList.length + 1}
-                      className="px-6 py-2 text-[11px] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400"
+                      className="px-6 py-2 text-[11px] font-bold uppercase tracking-wider text-primary"
                     >
                       {category}
                     </td>
@@ -486,20 +490,20 @@ export const RolesPage: React.FC = () => {
       {/* Create Custom Role Modal */}
       {createModalOpen && (
         <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-[#0c1222] rounded-2xl border border-slate-200/80 dark:border-slate-800/80 p-6 max-w-2xl w-full shadow-2xl space-y-4 max-h-[90vh] flex flex-col justify-between">
-            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 max-w-2xl w-full shadow-2xl max-h-[90vh] flex flex-col overflow-hidden">
+            <div className="flex items-center justify-between p-5 sm:p-6 border-b border-slate-100 dark:border-slate-800 shrink-0">
               <div>
                 <h3 className="font-bold text-base text-slate-900 dark:text-white">
                   Create New Custom Role
                 </h3>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-slate-500 dark:text-slate-400">
                   Assign tailored granular permissions to suit your agency
                   organizational chart.
                 </p>
               </div>
               <button
                 onClick={() => setCreateModalOpen(false)}
-                className="p-1 rounded-lg text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-900 dark:hover:text-white transition cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -507,54 +511,180 @@ export const RolesPage: React.FC = () => {
 
             <form
               onSubmit={handleCreateSubmit}
-              className="space-y-4 overflow-y-auto pr-1"
+              className="flex flex-col flex-1 overflow-hidden min-h-0"
             >
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                    Role Name *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={newRoleName}
-                    onChange={(e) => setNewRoleName(e.target.value)}
-                    placeholder="e.g. Marketing Manager, Content Auditor"
-                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  />
+              <div className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                      Role Name *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={newRoleName}
+                      onChange={(e) => setNewRoleName(e.target.value)}
+                      placeholder="e.g. Marketing Manager, Content Auditor"
+                      className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-primary"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                      Role Description
+                    </label>
+                    <input
+                      type="text"
+                      value={newRoleDescription}
+                      onChange={(e) => setNewRoleDescription(e.target.value)}
+                      placeholder="e.g. Can draft content and inspect leads"
+                      className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-primary"
+                    />
+                  </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                    Role Description
-                  </label>
-                  <input
-                    type="text"
-                    value={newRoleDescription}
-                    onChange={(e) => setNewRoleDescription(e.target.value)}
-                    placeholder="e.g. Can draft content and inspect leads"
-                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  />
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-500">
+                      Granted Permissions ({newRolePermissions.length} selected)
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setNewRolePermissions(
+                          newRolePermissions.length === permList.length
+                            ? []
+                            : [...permList],
+                        )
+                      }
+                      className="text-xs font-bold text-primary hover:underline cursor-pointer"
+                    >
+                      {newRolePermissions.length === permList.length
+                        ? "Deselect All"
+                        : "Select All Capabilities"}
+                    </button>
+                  </div>
+
+                  <div className="space-y-4 border border-slate-200 dark:border-slate-800 rounded-xl p-4 bg-slate-50/50 dark:bg-slate-900/30">
+                    {Object.entries(groupedPerms).map(([category, items]) => (
+                      <div key={category} className="space-y-2">
+                        <div className="text-xs font-bold text-primary">
+                          {category}
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                          {items.map((perm) => {
+                            const checked = newRolePermissions.includes(perm.key);
+                            return (
+                              <label
+                                key={perm.key}
+                                className={`flex items-start gap-2.5 p-2 rounded-lg border cursor-pointer text-xs transition ${
+                                  checked
+                                    ? "bg-primary/5 dark:bg-primary/10 border-primary/30"
+                                    : "bg-white dark:bg-slate-900 border-slate-200/80 dark:border-slate-800"
+                                }`}
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={checked}
+                                  onChange={(e) => {
+                                    if (e.target.checked) {
+                                      setNewRolePermissions([
+                                        ...newRolePermissions,
+                                        perm.key,
+                                      ]);
+                                    } else {
+                                      setNewRolePermissions(
+                                        newRolePermissions.filter(
+                                          (k) => k !== perm.key,
+                                        ),
+                                      );
+                                    }
+                                  }}
+                                  className="mt-0.5 rounded border-slate-300 text-primary focus:ring-primary"
+                                />
+                                <div>
+                                  <span className="font-semibold text-slate-900 dark:text-white block">
+                                    {perm.label}
+                                  </span>
+                                  <span className="text-[10px] text-slate-400 block font-mono">
+                                    {perm.key}
+                                  </span>
+                                </div>
+                              </label>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
 
+              <div className="p-4 sm:px-6 flex justify-end gap-2 border-t border-slate-100 dark:border-slate-800 shrink-0 bg-slate-50/50 dark:bg-slate-900/50">
+                <button
+                  type="button"
+                  onClick={() => setCreateModalOpen(false)}
+                  className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isCreating}
+                  className="px-5 py-2 rounded-xl bg-primary hover:bg-primary-hover text-primary-foreground text-xs font-bold shadow-xs shadow-primary/25 transition disabled:opacity-50 cursor-pointer"
+                >
+                  {isCreating ? "Creating..." : "Save Custom Role"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Role Permissions Modal */}
+      {editRoleModalOpen && editingRole && (
+        <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 max-w-2xl w-full shadow-2xl max-h-[90vh] flex flex-col overflow-hidden">
+            <div className="flex items-center justify-between p-5 sm:p-6 border-b border-slate-100 dark:border-slate-800 shrink-0">
               <div>
-                <div className="flex items-center justify-between mb-2">
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-500">
-                    Granted Permissions ({newRolePermissions.length} selected)
-                  </label>
+                <h3 className="font-bold text-base text-slate-900 dark:text-white">
+                  Configure Permissions: {editingRole.name}
+                </h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  Update permissions for this role. Active users with this role
+                  will immediately inherit these capabilities.
+                </p>
+              </div>
+              <button
+                onClick={() => setEditRoleModalOpen(false)}
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-900 dark:hover:text-white transition cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form
+              onSubmit={handleSavePermissions}
+              className="flex flex-col flex-1 overflow-hidden min-h-0"
+            >
+              <div className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-4">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                    Select Capabilities ({selectedPermissions.length} /{" "}
+                    {permList.length})
+                  </span>
                   <button
                     type="button"
                     onClick={() =>
-                      setNewRolePermissions(
-                        newRolePermissions.length === permList.length
+                      setSelectedPermissions(
+                        selectedPermissions.length === permList.length
                           ? []
                           : [...permList],
                       )
                     }
-                    className="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline"
+                    className="text-xs font-bold text-primary hover:underline cursor-pointer"
                   >
-                    {newRolePermissions.length === permList.length
+                    {selectedPermissions.length === permList.length
                       ? "Deselect All"
                       : "Select All Capabilities"}
                   </button>
@@ -563,18 +693,18 @@ export const RolesPage: React.FC = () => {
                 <div className="space-y-4 border border-slate-200 dark:border-slate-800 rounded-xl p-4 bg-slate-50/50 dark:bg-slate-900/30">
                   {Object.entries(groupedPerms).map(([category, items]) => (
                     <div key={category} className="space-y-2">
-                      <div className="text-xs font-bold text-indigo-600 dark:text-indigo-400">
+                      <div className="text-xs font-bold text-primary">
                         {category}
                       </div>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                         {items.map((perm) => {
-                          const checked = newRolePermissions.includes(perm.key);
+                          const checked = selectedPermissions.includes(perm.key);
                           return (
                             <label
                               key={perm.key}
                               className={`flex items-start gap-2.5 p-2 rounded-lg border cursor-pointer text-xs transition ${
                                 checked
-                                  ? "bg-indigo-50/60 dark:bg-indigo-950/30 border-indigo-200 dark:border-indigo-800/60"
+                                  ? "bg-primary/5 dark:bg-primary/10 border-primary/30"
                                   : "bg-white dark:bg-slate-900 border-slate-200/80 dark:border-slate-800"
                               }`}
                             >
@@ -583,19 +713,19 @@ export const RolesPage: React.FC = () => {
                                 checked={checked}
                                 onChange={(e) => {
                                   if (e.target.checked) {
-                                    setNewRolePermissions([
-                                      ...newRolePermissions,
+                                    setSelectedPermissions([
+                                      ...selectedPermissions,
                                       perm.key,
                                     ]);
                                   } else {
-                                    setNewRolePermissions(
-                                      newRolePermissions.filter(
+                                    setSelectedPermissions(
+                                      selectedPermissions.filter(
                                         (k) => k !== perm.key,
                                       ),
                                     );
                                   }
                                 }}
-                                className="mt-0.5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                                className="mt-0.5 rounded border-slate-300 text-primary focus:ring-primary"
                               />
                               <div>
                                 <span className="font-semibold text-slate-900 dark:text-white block">
@@ -614,140 +744,18 @@ export const RolesPage: React.FC = () => {
                 </div>
               </div>
 
-              <div className="flex justify-end gap-2 pt-3 border-t border-slate-100 dark:border-slate-800">
-                <button
-                  type="button"
-                  onClick={() => setCreateModalOpen(false)}
-                  className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-300"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isCreating}
-                  className="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-md shadow-indigo-600/30 transition disabled:opacity-50"
-                >
-                  {isCreating ? "Creating..." : "Save Custom Role"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Edit Role Permissions Modal */}
-      {editRoleModalOpen && editingRole && (
-        <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-[#0c1222] rounded-2xl border border-slate-200/80 dark:border-slate-800/80 p-6 max-w-2xl w-full shadow-2xl space-y-4 max-h-[90vh] flex flex-col justify-between">
-            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
-              <div>
-                <h3 className="font-bold text-base text-slate-900 dark:text-white">
-                  Configure Permissions: {editingRole.name}
-                </h3>
-                <p className="text-xs text-slate-500">
-                  Update permissions for this role. Active users with this role
-                  will immediately inherit these capabilities.
-                </p>
-              </div>
-              <button
-                onClick={() => setEditRoleModalOpen(false)}
-                className="p-1 rounded-lg text-slate-400 hover:text-slate-900 dark:hover:text-white"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            <form
-              onSubmit={handleSavePermissions}
-              className="space-y-4 overflow-y-auto pr-1"
-            >
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                  Select Capabilities ({selectedPermissions.length} /{" "}
-                  {permList.length})
-                </span>
-                <button
-                  type="button"
-                  onClick={() =>
-                    setSelectedPermissions(
-                      selectedPermissions.length === permList.length
-                        ? []
-                        : [...permList],
-                    )
-                  }
-                  className="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline"
-                >
-                  {selectedPermissions.length === permList.length
-                    ? "Deselect All"
-                    : "Select All Capabilities"}
-                </button>
-              </div>
-
-              <div className="space-y-4 border border-slate-200 dark:border-slate-800 rounded-xl p-4 bg-slate-50/50 dark:bg-slate-900/30">
-                {Object.entries(groupedPerms).map(([category, items]) => (
-                  <div key={category} className="space-y-2">
-                    <div className="text-xs font-bold text-indigo-600 dark:text-indigo-400">
-                      {category}
-                    </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                      {items.map((perm) => {
-                        const checked = selectedPermissions.includes(perm.key);
-                        return (
-                          <label
-                            key={perm.key}
-                            className={`flex items-start gap-2.5 p-2 rounded-lg border cursor-pointer text-xs transition ${
-                              checked
-                                ? "bg-indigo-50/60 dark:bg-indigo-950/30 border-indigo-200 dark:border-indigo-800/60"
-                                : "bg-white dark:bg-slate-900 border-slate-200/80 dark:border-slate-800"
-                            }`}
-                          >
-                            <input
-                              type="checkbox"
-                              checked={checked}
-                              onChange={(e) => {
-                                if (e.target.checked) {
-                                  setSelectedPermissions([
-                                    ...selectedPermissions,
-                                    perm.key,
-                                  ]);
-                                } else {
-                                  setSelectedPermissions(
-                                    selectedPermissions.filter(
-                                      (k) => k !== perm.key,
-                                    ),
-                                  );
-                                }
-                              }}
-                              className="mt-0.5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
-                            />
-                            <div>
-                              <span className="font-semibold text-slate-900 dark:text-white block">
-                                {perm.label}
-                              </span>
-                              <span className="text-[10px] text-slate-400 block font-mono">
-                                {perm.key}
-                              </span>
-                            </div>
-                          </label>
-                        );
-                      })}
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="flex justify-end gap-2 pt-3 border-t border-slate-100 dark:border-slate-800">
+              <div className="p-4 sm:px-6 flex justify-end gap-2 border-t border-slate-100 dark:border-slate-800 shrink-0 bg-slate-50/50 dark:bg-slate-900/50">
                 <button
                   type="button"
                   onClick={() => setEditRoleModalOpen(false)}
-                  className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-300"
+                  className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isUpdating}
-                  className="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-md shadow-indigo-600/30 transition disabled:opacity-50"
+                  className="px-5 py-2 rounded-xl bg-primary hover:bg-primary-hover text-primary-foreground text-xs font-bold shadow-xs shadow-primary/25 transition disabled:opacity-50 cursor-pointer"
                 >
                   {isUpdating ? "Updating..." : "Save Role Permissions"}
                 </button>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import * as yup from "yup";
-import { toast } from "sonner";
+import { toast } from "../../utils/toast";
 import { ConfirmDialog } from "../../components/ConfirmDialog";
 import {
   Sparkles,
@@ -588,14 +588,14 @@ export const HeroBannersPage: React.FC = () => {
       {/* 1. Header Toolbar (Full Width) */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-500 text-white flex items-center justify-center shadow-md shadow-emerald-500/20">
+          <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary border border-primary/20 flex items-center justify-center">
             <Sparkles className="w-5 h-5" />
           </div>
           <div>
             <h1 className="text-xl font-black text-slate-900 dark:text-white">
               Hero Banners Management
             </h1>
-            <p className="text-xs text-slate-500 mt-0.5">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
               Full-width table management for home page hero banners. All
               changes persist directly to backend APIs.
             </p>
@@ -699,7 +699,7 @@ export const HeroBannersPage: React.FC = () => {
       </div>
 
       {/* 2. FULL-WIDTH DATA TABLE CONTAINER */}
-      <div className="bg-white dark:bg-[#0c1222] rounded-2xl border border-slate-200/80 dark:border-slate-800/80 shadow-xs overflow-hidden w-full">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 shadow-xs overflow-hidden w-full">
         {/* Table Top Filter Bar */}
         <div className="p-4 border-b border-slate-100 dark:border-slate-800/70 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="relative w-full sm:w-80">
@@ -763,9 +763,9 @@ export const HeroBannersPage: React.FC = () => {
           </div>
         ) : (
           /* Full Width Clean Table */
-          <div className="overflow-x-auto w-full">
+          <div className="overflow-x-auto w-full max-h-[calc(100vh-280px)] overflow-y-auto">
             <table className="min-w-full divide-y divide-slate-100 dark:divide-slate-800 text-xs">
-              <thead className="bg-slate-50/80 dark:bg-slate-900/60 text-slate-400 font-bold uppercase tracking-wider text-[11px]">
+              <thead className="sticky top-0 z-10 bg-slate-50/95 dark:bg-slate-900/95 backdrop-blur-md text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider text-[11px] border-b border-slate-200/80 dark:border-slate-800/80">
                 <tr>
                   <th className="px-4 py-3.5 text-center w-16"># Order</th>
                   <th className="px-4 py-3.5 text-left w-40">Banner Visual</th>

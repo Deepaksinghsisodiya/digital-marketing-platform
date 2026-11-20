@@ -700,6 +700,54 @@ public class LeadService : ILeadService
         return (true, null);
     }
 
+    public async Task<(bool Success, string? Error)> AssignLeadAsync(
+        Guid id,
+        Guid? assignedToUserId,
+        Guid? actorUserId,
+        CancellationToken ct = default)
+    {
+        var lead = await _context.Leads.FirstOrDefaultAsync(l => l.Id == id, ct);
+        if (lead == null) return (false, "Lead not found.");
+
+        string assigneeName = "Unassigned";
+        if (assignedToUserId.HasValue)
+        {
+            var user = await _context.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == assignedToUserId.Value, ct);
+            if (user == null) return (false, "Target staff member not found.");
+            assigneeName = user.FullName ?? user.Email ?? "Staff Member";
+        }
+
+        lead.AssignTo(assignedToUserId);
+
+        var activity = new LeadActivity(
+            lead.Id,
+            "LeadAssigned",
+            $"Lead assigned to {assigneeName}.",
+            JsonSerializer.Serialize(new { assignedToUserId = assignedToUserId?.ToString(), assigneeName }),
+            actorUserId);
+        _context.LeadActivities.Add(activity);
+
+        await _context.SaveChangesAsync(ct);
+
+        await _auditLogService.LogAsync(
+            action: "Lead.Assigned",
+            resourceType: "Lead",
+            resourceId: lead.Id.ToString(),
+            outcome: "Success",
+            metadata: new Dictionary<string, object?>
+            {
+                ["assignedToUserId"] = assignedToUserId?.ToString(),
+                ["assigneeName"] = assigneeName
+            },
+            actorUserId: actorUserId,
+            actorEmail: null,
+            ipAddress: null,
+            userAgent: null,
+            correlationId: Guid.NewGuid().ToString("N"));
+
+        return (true, null);
+    }
+
     public async Task<(bool Success, string? Error)> AddLeadNoteAsync(
         Guid id,
         string note,
@@ -1042,5 +1090,73 @@ public class LeadService : ILeadService
                 form.CreatedAtUtc,
                 form.UpdatedAtUtc));
         }
+    }
+
+    public async Task<(bool Success, string? Error)> AnonymizeLeadAsync(
+        Guid id,
+        Guid? actorUserId,
+        CancellationToken ct = default)
+    {
+        var lead = await _context.Leads.FindAsync([id], ct);
+        if (lead is null)
+        {
+            return (false, "Lead not found.");
+        }
+
+        lead.Anonymize();
+        await _context.SaveChangesAsync(ct);
+
+        await _auditLogService.LogAsync(
+            action: "Lead.Anonymized",
+            resourceType: "Lead",
+            resourceId: lead.Id.ToString(),
+            outcome: "Success",
+            actorUserId: actorUserId,
+            actorEmail: null,
+            ipAddress: null,
+            userAgent: null,
+            correlationId: Guid.NewGuid().ToString("N"),
+            metadata: new Dictionary<string, object?>
+            {
+                ["action"] = "PII Anonymized under DPDP/GDPR",
+                ["leadId"] = lead.Id.ToString()
+            },
+            cancellationToken: ct);
+
+        return (true, null);
+    }
+
+    public async Task<(bool Success, string? Error)> DeleteLeadAsync(
+        Guid id,
+        Guid? actorUserId,
+        CancellationToken ct = default)
+    {
+        var lead = await _context.Leads.FindAsync([id], ct);
+        if (lead is null)
+        {
+            return (false, "Lead not found.");
+        }
+
+        _context.Leads.Remove(lead);
+        await _context.SaveChangesAsync(ct);
+
+        await _auditLogService.LogAsync(
+            action: "Lead.Deleted",
+            resourceType: "Lead",
+            resourceId: id.ToString(),
+            outcome: "Success",
+            actorUserId: actorUserId,
+            actorEmail: null,
+            ipAddress: null,
+            userAgent: null,
+            correlationId: Guid.NewGuid().ToString("N"),
+            metadata: new Dictionary<string, object?>
+            {
+                ["action"] = "Permanent Delete under statutory compliance",
+                ["leadId"] = id.ToString()
+            },
+            cancellationToken: ct);
+
+        return (true, null);
     }
 }

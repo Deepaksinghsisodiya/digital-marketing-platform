@@ -23,6 +23,7 @@ public sealed class Page : BaseEntity
     public string? MetaTitle { get; set; }
     public string? MetaDescription { get; set; }
     public string? CanonicalUrl { get; set; }
+    public string? OgImageUrl { get; set; }
     public bool NoIndex { get; set; } = false;
 
     // Concurrency Token for optimistic locking (409 conflict detection)

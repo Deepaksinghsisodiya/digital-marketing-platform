@@ -183,6 +183,99 @@ public static class LeadEndpoints
         .WithName("AddLeadNote")
         .WithSummary("Append internal follow-up note to lead timeline.");
 
+        adminGroup.MapPatch("/{id:guid}/assign", async (
+            Guid id,
+            [FromBody] AssignLeadRequest request,
+            ILeadService leadService,
+            ICurrentUserService currentUser,
+            CancellationToken ct) =>
+        {
+            var (success, error) = await leadService.AssignLeadAsync(
+                id,
+                request.AssignedToUserId,
+                currentUser.UserId,
+                ct);
+
+            if (!success) return Results.BadRequest(new { error });
+            return Results.Ok(new { success = true });
+        })
+        .RequireAuthorization(Permissions.LeadsManage)
+        .WithName("AssignLead")
+        .WithSummary("Assign lead to an agency team member.");
+
+        adminGroup.MapPost("/{id:guid}/send-email", async (
+            Guid id,
+            [FromBody] SendLeadEmailRequest request,
+            ILeadService leadService,
+            IEmailTemplateService templateService,
+            ICurrentUserService currentUser,
+            CancellationToken ct) =>
+        {
+            var lead = await leadService.GetLeadByIdAsync(id, ct);
+            if (lead == null) return Results.NotFound(new { error = "Lead not found." });
+
+            var vars = request.Variables ?? new Dictionary<string, string>();
+            vars["lead.name"] = lead.FullName;
+            vars["lead.email"] = lead.Email;
+            vars["lead.company"] = lead.Company ?? "";
+            vars["lead.phone"] = lead.Phone ?? "";
+
+            var (success, error) = await templateService.SendTestEmailAsync(
+                lead.Email,
+                request.TemplateKey,
+                vars,
+                ct);
+
+            if (!success) return Results.BadRequest(new { error });
+
+            await leadService.AddLeadNoteAsync(
+                id,
+                $"Outbound email sent using template '{request.TemplateKey}' to {lead.Email}.",
+                currentUser.UserId,
+                ct);
+
+            return Results.Ok(new { message = $"Email successfully sent to {lead.Email}." });
+        })
+        .RequireAuthorization(Permissions.LeadsManage)
+        .WithName("SendLeadEmail")
+        .WithSummary("Send a templated email directly to a lead.");
+
+        adminGroup.MapPost("/{id:guid}/anonymize", async (
+            Guid id,
+            ILeadService leadService,
+            ICurrentUserService currentUser,
+            CancellationToken ct) =>
+        {
+            var (success, error) = await leadService.AnonymizeLeadAsync(
+                id,
+                currentUser.UserId,
+                ct);
+
+            if (!success) return Results.BadRequest(new { error });
+            return Results.Ok(new { success = true, message = "Lead personal data successfully anonymized." });
+        })
+        .RequireAuthorization(Permissions.LeadsManage)
+        .WithName("AnonymizeLead")
+        .WithSummary("Anonymize lead PII under DPDP/GDPR compliance.");
+
+        adminGroup.MapDelete("/{id:guid}", async (
+            Guid id,
+            ILeadService leadService,
+            ICurrentUserService currentUser,
+            CancellationToken ct) =>
+        {
+            var (success, error) = await leadService.DeleteLeadAsync(
+                id,
+                currentUser.UserId,
+                ct);
+
+            if (!success) return Results.BadRequest(new { error });
+            return Results.Ok(new { success = true, message = "Lead permanently deleted." });
+        })
+        .RequireAuthorization(Permissions.LeadsManage)
+        .WithName("DeleteLead")
+        .WithSummary("Permanently delete lead under DPDP/GDPR statutory compliance.");
+
         // 3. Admin Form Definitions
         var adminFormsGroup = app.MapGroup("/api/v1/admin/forms")
             .WithTags("Form Definitions (Admin)")

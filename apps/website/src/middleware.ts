@@ -3,6 +3,21 @@ import type { NextRequest } from "next/server";
 import { REGION_CONFIG } from "./config/region";
 
 export function middleware(request: NextRequest) {
+  const pathname = request.nextUrl.pathname;
+  const STATIC_REDIRECTS: Record<string, string> = {
+    "/portfolio": "/case-studies",
+    "/work": "/case-studies",
+    "/contact-us": "/contact",
+    "/terms-and-conditions": "/terms",
+    "/privacy-policy": "/privacy",
+  };
+  if (STATIC_REDIRECTS[pathname]) {
+    return NextResponse.redirect(
+      new URL(STATIC_REDIRECTS[pathname], request.url),
+      301,
+    );
+  }
+
   const response = NextResponse.next();
 
   // If cookie is not present, resolve from Accept-Language and set cookie

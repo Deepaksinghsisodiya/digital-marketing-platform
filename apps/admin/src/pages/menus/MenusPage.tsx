@@ -326,12 +326,13 @@ export const MenusPage: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-2.5">
-            <FolderTree className="w-6 h-6 text-indigo-600" />
+            <span className="p-2 rounded-xl bg-primary/10 text-primary border border-primary/20">
+              <FolderTree className="w-5 h-5" />
+            </span>
             <span>Navigation Menus</span>
           </h2>
           <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-            Control dynamic header navigation, footer link groups, and regional
-            menus
+            Control dynamic header navigation, footer link groups, and regional menus
           </p>
         </div>
 
@@ -342,7 +343,7 @@ export const MenusPage: React.FC = () => {
             setNewMenuRegion("");
             setIsCreateMenuModalOpen(true);
           }}
-          className="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-semibold shadow-sm flex items-center gap-2 transition"
+          className="px-4 py-2.5 bg-primary hover:bg-primary-hover text-primary-foreground rounded-xl text-sm font-semibold shadow-xs flex items-center gap-2 transition"
         >
           <Plus className="w-4 h-4" />
           <span>New Menu Group</span>
@@ -390,7 +391,7 @@ export const MenusPage: React.FC = () => {
                   onClick={() => handleSelectMenu(m)}
                   className={`w-full text-left px-3.5 py-3 rounded-xl transition flex items-center justify-between group ${
                     isSelected
-                      ? "bg-indigo-600 text-white shadow-sm font-semibold"
+                      ? "bg-primary text-primary-foreground shadow-xs font-semibold"
                       : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
                   }`}
                 >
@@ -398,7 +399,7 @@ export const MenusPage: React.FC = () => {
                     <span className="block text-sm truncate">{m.title}</span>
                     <span
                       className={`text-[10px] font-mono ${
-                        isSelected ? "text-indigo-200" : "text-slate-400"
+                        isSelected ? "text-primary-foreground/80" : "text-slate-500 dark:text-slate-400"
                       }`}
                     >
                       key: {m.key}{" "}
@@ -406,10 +407,10 @@ export const MenusPage: React.FC = () => {
                     </span>
                   </div>
                   <span
-                    className={`text-[11px] px-2 py-0.5 rounded-full ${
+                    className={`text-[11px] px-2 py-0.5 rounded-full font-bold ${
                       isSelected
-                        ? "bg-indigo-500/50 text-white"
-                        : "bg-slate-100 dark:bg-slate-800 text-slate-500"
+                        ? "bg-white/20 text-primary-foreground"
+                        : "bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400"
                     }`}
                   >
                     {m.items?.length || 0}
@@ -439,7 +440,7 @@ export const MenusPage: React.FC = () => {
                     value={activeMenuTitle}
                     onChange={(e) => setActiveMenuTitle(e.target.value)}
                     placeholder="e.g. Main Header"
-                    className="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
                   />
                 </div>
 
@@ -454,7 +455,7 @@ export const MenusPage: React.FC = () => {
                       setActiveMenuKey(e.target.value.toLowerCase())
                     }
                     placeholder="e.g. header"
-                    className="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-mono text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-mono text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
                   />
                 </div>
 
@@ -469,7 +470,7 @@ export const MenusPage: React.FC = () => {
                       setActiveMenuRegion(e.target.value.toUpperCase())
                     }
                     placeholder="e.g. IN, US (leave blank for Global)"
-                    className="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-mono text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-mono text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
                   />
                 </div>
               </div>
@@ -550,7 +551,7 @@ export const MenusPage: React.FC = () => {
 
                           <button
                             onClick={() => handleOpenEditItem(item)}
-                            className="p-1.5 text-slate-400 hover:text-indigo-600 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+                            className="p-1.5 text-slate-400 hover:text-primary rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition"
                             title="Edit Link"
                           >
                             <Edit2 className="w-3.5 h-3.5" />
@@ -582,7 +583,7 @@ export const MenusPage: React.FC = () => {
                 <button
                   onClick={handleSaveMenu}
                   disabled={isSaving}
-                  className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold shadow-sm flex items-center gap-2 transition disabled:opacity-50"
+                  className="px-5 py-2.5 bg-primary hover:bg-primary-hover text-primary-foreground rounded-xl text-xs font-semibold shadow-xs flex items-center gap-2 transition disabled:opacity-50"
                 >
                   <Save className="w-4 h-4" />
                   <span>
@@ -622,7 +623,7 @@ export const MenusPage: React.FC = () => {
                   value={itemLabel}
                   onChange={(e) => setItemLabel(e.target.value)}
                   placeholder="e.g. Services or Contact"
-                  className="w-full px-3.5 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-3.5 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
                 />
               </div>
 
@@ -636,7 +637,7 @@ export const MenusPage: React.FC = () => {
                   value={itemUrl}
                   onChange={(e) => setItemUrl(e.target.value)}
                   placeholder="e.g. /services or https://..."
-                  className="w-full px-3.5 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-mono text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-3.5 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-mono text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
                 />
               </div>
 
@@ -647,7 +648,7 @@ export const MenusPage: React.FC = () => {
                 <select
                   value={itemParentId}
                   onChange={(e) => setItemParentId(e.target.value)}
-                  className="w-full px-3.5 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-3.5 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
                 >
                   <option value="">None (Top-Level Item)</option>
                   {items
@@ -670,7 +671,7 @@ export const MenusPage: React.FC = () => {
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-sm transition"
+                  className="px-4 py-2 text-xs font-semibold bg-primary hover:bg-primary-hover text-primary-foreground rounded-xl shadow-xs transition"
                 >
                   {editingItemId ? "Apply Changes" : "Add Link"}
                 </button>
@@ -707,7 +708,7 @@ export const MenusPage: React.FC = () => {
                   value={newMenuTitle}
                   onChange={(e) => setNewMenuTitle(e.target.value)}
                   placeholder="e.g. Header Navigation"
-                  className="w-full px-3.5 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-3.5 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
                 />
               </div>
 
@@ -721,7 +722,7 @@ export const MenusPage: React.FC = () => {
                   value={newMenuKey}
                   onChange={(e) => setNewMenuKey(e.target.value.toLowerCase())}
                   placeholder="e.g. header or footer"
-                  className="w-full px-3.5 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-mono text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-3.5 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-mono text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
                 />
               </div>
 
@@ -736,7 +737,7 @@ export const MenusPage: React.FC = () => {
                     setNewMenuRegion(e.target.value.toUpperCase())
                   }
                   placeholder="e.g. IN, US (leave blank for Global)"
-                  className="w-full px-3.5 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-mono text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-3.5 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-mono text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
                 />
               </div>
 
@@ -751,7 +752,7 @@ export const MenusPage: React.FC = () => {
                 <button
                   type="submit"
                   disabled={isSaving}
-                  className="px-4 py-2 text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-sm transition disabled:opacity-50"
+                  className="px-4 py-2 text-xs font-semibold bg-primary hover:bg-primary-hover text-primary-foreground rounded-xl shadow-xs transition disabled:opacity-50"
                 >
                   {isSaving ? "Creating..." : "Create Menu"}
                 </button>

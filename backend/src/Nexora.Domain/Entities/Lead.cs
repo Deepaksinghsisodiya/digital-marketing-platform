@@ -150,5 +150,22 @@ public class Lead : BaseEntity<Guid>
         Score = Math.Clamp(score, 0, 100);
         MarkUpdated();
     }
+
+    public void Anonymize()
+    {
+        FullName = "Anonymized Lead";
+        Email = $"anonymized-{Id:N}@redacted.local";
+        Phone = null;
+        Company = "Redacted (DPDP)";
+        State = null;
+        PostalCode = null;
+        IpAddress = "0.0.0.0";
+        UserAgent = null;
+        CustomFieldsJson = "{}";
+        InternalNotesJson = "[]";
+        ConsentGiven = false;
+        Status = LeadStatus.Closed;
+        MarkUpdated();
+    }
 }
 

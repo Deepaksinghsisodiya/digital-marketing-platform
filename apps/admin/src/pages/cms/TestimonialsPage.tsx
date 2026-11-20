@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import * as yup from "yup";
-import { toast } from "sonner";
+import { toast } from "../../utils/toast";
 import { ConfirmDialog } from "../../components/ConfirmDialog";
 import {
   Sparkles,
@@ -537,7 +537,7 @@ export const TestimonialsPage: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <span className="p-2 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400">
+            <span className="p-2 rounded-xl bg-primary/10 text-primary border border-primary/20">
               <MessageSquareQuote className="w-5 h-5" />
             </span>
             <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
@@ -696,10 +696,10 @@ export const TestimonialsPage: React.FC = () => {
 
       {/* 5. Table Listing */}
       <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto max-h-[calc(100vh-280px)] overflow-y-auto">
           <table className="w-full text-left text-xs border-collapse">
             <thead>
-              <tr className="bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-800 text-slate-500 font-bold uppercase tracking-wider">
+              <tr className="sticky top-0 z-10 bg-slate-50/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider text-[11px]">
                 <th className="px-4 py-3.5 w-12 text-center">Order</th>
                 <th className="px-4 py-3.5">Client & Company</th>
                 <th className="px-4 py-3.5">Rating & Metric</th>
@@ -765,7 +765,7 @@ export const TestimonialsPage: React.FC = () => {
                               className="w-10 h-10 rounded-full object-cover border border-slate-200"
                             />
                           ) : (
-                            <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-amber-500 to-indigo-600 text-white font-bold flex items-center justify-center text-xs">
+                            <div className="w-10 h-10 rounded-full bg-primary text-primary-foreground font-bold flex items-center justify-center text-xs shadow-xs">
                               {item.author
                                 .split(" ")
                                 .map((n) => n[0])
@@ -907,7 +907,7 @@ export const TestimonialsPage: React.FC = () => {
               {/* Row 1: Author Name & Job Title */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">
+                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
                     Client Full Name *
                   </label>
                   <div className="relative">
@@ -917,7 +917,7 @@ export const TestimonialsPage: React.FC = () => {
                       value={formAuthor}
                       onChange={(e) => setFormAuthor(e.target.value)}
                       placeholder="e.g. Aditi Rao"
-                      className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-200 focus:outline-hidden focus:border-indigo-500"
+                      className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-hidden focus:ring-1 focus:ring-primary focus:border-primary"
                     />
                   </div>
                   {formErrors.author && (
@@ -928,7 +928,7 @@ export const TestimonialsPage: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">
+                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
                     Job Title / Role *
                   </label>
                   <div className="relative">
@@ -938,7 +938,7 @@ export const TestimonialsPage: React.FC = () => {
                       value={formRole}
                       onChange={(e) => setFormRole(e.target.value)}
                       placeholder="e.g. VP of Global Marketing"
-                      className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-200 focus:outline-hidden focus:border-indigo-500"
+                      className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-hidden focus:ring-1 focus:ring-primary focus:border-primary"
                     />
                   </div>
                   {formErrors.role && (
@@ -952,7 +952,7 @@ export const TestimonialsPage: React.FC = () => {
               {/* Row 2: Company Name & Key Metric */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">
+                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
                     Company / Organization *
                   </label>
                   <div className="relative">
@@ -962,7 +962,7 @@ export const TestimonialsPage: React.FC = () => {
                       value={formCompany}
                       onChange={(e) => setFormCompany(e.target.value)}
                       placeholder="e.g. Apex Cloud Enterprise"
-                      className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-200 focus:outline-hidden focus:border-indigo-500"
+                      className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-hidden focus:ring-1 focus:ring-primary focus:border-primary"
                     />
                   </div>
                   {formErrors.company && (
@@ -973,7 +973,7 @@ export const TestimonialsPage: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">
+                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
                     Key Metric Badge (Optional)
                   </label>
                   <input
@@ -981,7 +981,7 @@ export const TestimonialsPage: React.FC = () => {
                     value={formMetricBadge}
                     onChange={(e) => setFormMetricBadge(e.target.value)}
                     placeholder="e.g. +340% ROAS, $1.8M ARR"
-                    className="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-hidden focus:border-indigo-500 font-mono"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-hidden focus:ring-1 focus:ring-primary focus:border-primary font-mono"
                   />
                   {formErrors.metricBadge && (
                     <p className="text-red-500 text-[10px] mt-1 font-semibold">
@@ -993,7 +993,7 @@ export const TestimonialsPage: React.FC = () => {
 
               {/* Row 3: Rating (1-5 Stars) */}
               <div>
-                <label className="block font-bold text-slate-700 mb-1">
+                <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
                   Star Rating (1 - 5)
                 </label>
                 <div className="flex items-center gap-2">
@@ -1002,18 +1002,18 @@ export const TestimonialsPage: React.FC = () => {
                       key={star}
                       type="button"
                       onClick={() => setFormRating(star)}
-                      className="p-1 hover:scale-110 transition"
+                      className="p-1 hover:scale-110 transition cursor-pointer"
                     >
                       <Star
                         className={`w-6 h-6 ${
                           star <= formRating
                             ? "fill-amber-400 text-amber-400"
-                            : "text-slate-300"
+                            : "text-slate-300 dark:text-slate-600"
                         }`}
                       />
                     </button>
                   ))}
-                  <span className="text-xs font-bold text-amber-600 ml-2">
+                  <span className="text-xs font-bold text-amber-600 dark:text-amber-400 ml-2">
                     {formRating} Star Review
                   </span>
                 </div>
@@ -1021,7 +1021,7 @@ export const TestimonialsPage: React.FC = () => {
 
               {/* Row 4: Testimonial Quote */}
               <div>
-                <label className="block font-bold text-slate-700 mb-1">
+                <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
                   Review / Testimonial Quote *
                 </label>
                 <div className="relative">
@@ -1031,7 +1031,7 @@ export const TestimonialsPage: React.FC = () => {
                     value={formQuote}
                     onChange={(e) => setFormQuote(e.target.value)}
                     placeholder="Describe their experience, key deliverables, and ROI outcome..."
-                    className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-200 focus:outline-hidden focus:border-indigo-500"
+                    className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-hidden focus:ring-1 focus:ring-primary focus:border-primary"
                   />
                 </div>
                 {formErrors.quote && (
@@ -1043,7 +1043,7 @@ export const TestimonialsPage: React.FC = () => {
 
               {/* Row 5: Avatar Image (Upload or URL) */}
               <div>
-                <label className="block font-bold text-slate-700 mb-1">
+                <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
                   Client Avatar Image (Optional)
                 </label>
                 <div className="flex items-center gap-3">
@@ -1052,9 +1052,9 @@ export const TestimonialsPage: React.FC = () => {
                     value={formAvatarUrl}
                     onChange={(e) => setFormAvatarUrl(e.target.value)}
                     placeholder="/api/v1/public/media/... or https://..."
-                    className="flex-1 px-3 py-2 rounded-xl border border-slate-200 focus:outline-hidden focus:border-indigo-500 text-xs"
+                    className="flex-1 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-hidden focus:ring-1 focus:ring-primary focus:border-primary text-xs"
                   />
-                  <label className="inline-flex items-center gap-1.5 px-3 py-2 bg-slate-100 hover:bg-slate-200 rounded-xl cursor-pointer text-slate-700 font-bold transition">
+                  <label className="inline-flex items-center gap-1.5 px-3 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl cursor-pointer text-slate-700 dark:text-slate-300 font-bold transition">
                     <Upload className="w-3.5 h-3.5" />
                     <span>Upload</span>
                     <input
@@ -1069,7 +1069,7 @@ export const TestimonialsPage: React.FC = () => {
               </div>
 
               {/* Row 6: Toggles inside Modal */}
-              <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100">
+              <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700">
                 <div className="flex items-center gap-4">
                   {/* Verified Badge Toggle */}
                   <label className="flex items-center gap-2 cursor-pointer">
@@ -1077,9 +1077,9 @@ export const TestimonialsPage: React.FC = () => {
                       type="checkbox"
                       checked={formVerified}
                       onChange={(e) => setFormVerified(e.target.checked)}
-                      className="rounded text-indigo-600 focus:ring-indigo-500"
+                      className="rounded text-primary focus:ring-primary"
                     />
-                    <span className="font-bold text-slate-700">Verified Client Badge</span>
+                    <span className="font-bold text-slate-700 dark:text-slate-300">Verified Client Badge</span>
                   </label>
 
                   {/* Active Toggle */}
@@ -1090,23 +1090,23 @@ export const TestimonialsPage: React.FC = () => {
                       onChange={(e) => setFormEnabled(e.target.checked)}
                       className="rounded text-emerald-600 focus:ring-emerald-500"
                     />
-                    <span className="font-bold text-emerald-700">Display as Live / Active</span>
+                    <span className="font-bold text-emerald-700 dark:text-emerald-400">Display as Live / Active</span>
                   </label>
                 </div>
               </div>
 
               {/* Modal Actions */}
-              <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
                 <button
                   type="button"
                   onClick={() => setIsFormOpen(false)}
-                  className="px-4 py-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 font-bold transition"
+                  className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 font-bold transition cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold transition shadow-sm"
+                  className="px-5 py-2 rounded-xl bg-primary hover:bg-primary-hover text-primary-foreground font-bold transition shadow-xs cursor-pointer"
                 >
                   {editingId ? "Update Review" : "Add Review"}
                 </button>

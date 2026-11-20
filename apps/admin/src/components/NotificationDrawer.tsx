@@ -43,18 +43,18 @@ export const NotificationDrawer: React.FC<NotificationDrawerProps> = ({
       />
 
       <div className="fixed inset-y-0 right-0 max-w-full flex pl-10">
-        <div className="w-screen max-w-md bg-white dark:bg-ink border-l border-slate-200 dark:border-slate-800 shadow-2xl flex flex-col animate-in slide-in-from-right duration-200">
+        <div className="w-screen max-w-md bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-slate-800 shadow-2xl flex flex-col animate-in slide-in-from-right duration-200">
           {/* Header */}
           <div className="p-5 border-b border-slate-200/80 dark:border-slate-800/80 flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <div className="p-2 bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 rounded-xl">
+              <div className="p-2 bg-primary/10 text-primary border border-primary/20 rounded-xl">
                 <Bell className="w-4 h-4" />
               </div>
               <div>
                 <h3 className="font-extrabold text-sm text-slate-900 dark:text-white">
                   Notifications & Telemetry
                 </h3>
-                <p className="text-[11px] text-slate-400">
+                <p className="text-[11px] text-slate-500 dark:text-slate-400">
                   Live operational audit feed & inbound alerts
                 </p>
               </div>
@@ -73,7 +73,7 @@ export const NotificationDrawer: React.FC<NotificationDrawerProps> = ({
               onClick={() => setTab("activity")}
               className={`flex-1 py-3 px-4 text-center border-b-2 flex items-center justify-center gap-2 transition ${
                 tab === "activity"
-                  ? "border-indigo-600 text-indigo-600 dark:text-indigo-400 bg-indigo-50/30 dark:bg-indigo-950/20"
+                  ? "border-primary text-primary bg-primary/5"
                   : "border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"
               }`}
             >
@@ -90,14 +90,14 @@ export const NotificationDrawer: React.FC<NotificationDrawerProps> = ({
               onClick={() => setTab("leads")}
               className={`flex-1 py-3 px-4 text-center border-b-2 flex items-center justify-center gap-2 transition ${
                 tab === "leads"
-                  ? "border-indigo-600 text-indigo-600 dark:text-indigo-400 bg-indigo-50/30 dark:bg-indigo-950/20"
+                  ? "border-primary text-primary bg-primary/5"
                   : "border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"
               }`}
             >
               <Inbox className="w-3.5 h-3.5" />
               <span>Inbound Leads</span>
               {leadsData?.totalCount ? (
-                <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-indigo-100 dark:bg-indigo-900/60 text-indigo-600 dark:text-indigo-400 font-bold">
+                <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-primary/10 text-primary border border-primary/20 font-bold">
                   {leadsData.totalCount}
                 </span>
               ) : null}
@@ -186,13 +186,13 @@ export const NotificationDrawer: React.FC<NotificationDrawerProps> = ({
                     return (
                       <div
                         key={lead.id}
-                        className="p-3 bg-slate-50 dark:bg-slate-900/50 border border-slate-200/80 dark:border-slate-800/80 rounded-xl space-y-1 hover:border-indigo-500/40 transition"
+                        className="p-3 bg-slate-50 dark:bg-slate-900/50 border border-slate-200/80 dark:border-slate-800/80 rounded-xl space-y-1 hover:border-primary/40 transition"
                       >
                         <div className="flex items-center justify-between text-xs">
                           <span className="font-bold text-slate-900 dark:text-white truncate max-w-[180px]">
                             {lead.fullName}
                           </span>
-                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800">
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-primary/10 text-primary border border-primary/20">
                             {statusLabel}
                           </span>
                         </div>
@@ -213,9 +213,9 @@ export const NotificationDrawer: React.FC<NotificationDrawerProps> = ({
           {/* Footer actions */}
           <div className="p-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40 flex items-center justify-between">
             <Link
-              to={tab === "activity" ? "/audit" : "/leads"}
+              to={tab === "activity" ? "/audit-logs" : "/leads"}
               onClick={onClose}
-              className="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1.5"
+              className="text-xs font-bold text-primary hover:underline flex items-center gap-1.5"
             >
               <span>
                 {tab === "activity"

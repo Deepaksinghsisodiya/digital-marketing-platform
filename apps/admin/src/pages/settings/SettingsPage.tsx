@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { toast } from "sonner";
+import { toast } from "../../utils/toast";
 import {
   useGetSettingsQuery,
   useUpdateSettingsMutation,
@@ -393,7 +393,7 @@ export const SettingsPage: React.FC = () => {
 
   const handleRemoveRegion = (codeToRemove: string) => {
     if (codeToRemove.toUpperCase() === defaultRegion.toUpperCase()) {
-      alert(
+      toast.error(
         `Cannot remove ${codeToRemove} because it is the current Default Platform Home Region. Switch the default region first.`,
       );
       return;
@@ -661,7 +661,7 @@ export const SettingsPage: React.FC = () => {
 
   const handleTestSmtp = async () => {
     if (!testRecipientEmail) {
-      alert(
+      toast.error(
         "Please enter a recipient email address to test the SMTP connection.",
       );
       return;
@@ -801,9 +801,10 @@ export const SettingsPage: React.FC = () => {
       }
       setStageModalOpen(false);
       refetchStages();
+      toast.success(editingStage ? "Pipeline stage updated!" : "Pipeline stage created!");
     } catch (err: unknown) {
       const errorObj = err as { data?: { error?: string } };
-      alert(errorObj?.data?.error || "Failed to save pipeline stage.");
+      toast.error(errorObj?.data?.error || "Failed to save pipeline stage.");
     }
   };
 
@@ -819,8 +820,9 @@ export const SettingsPage: React.FC = () => {
         },
       }).unwrap();
       refetchStages();
+      toast.success(`Stage ${stage.isActive ? "disabled" : "enabled"}.`);
     } catch {
-      alert("Failed to toggle stage state.");
+      toast.error("Failed to toggle stage state.");
     }
   };
 
@@ -884,9 +886,10 @@ export const SettingsPage: React.FC = () => {
       }
       setRegionModalOpen(false);
       refetchRegions();
+      toast.success(editingRegion ? "Country region updated!" : "Country region created!");
     } catch (err: unknown) {
       const errorObj = err as { data?: { error?: string } };
-      alert(errorObj?.data?.error || "Failed to save country region.");
+      toast.error(errorObj?.data?.error || "Failed to save country region.");
     }
   };
 
@@ -907,8 +910,9 @@ export const SettingsPage: React.FC = () => {
         },
       }).unwrap();
       refetchRegions();
+      toast.success(`Region ${region.isEnabled ? "disabled" : "enabled"}.`);
     } catch {
-      alert("Failed to toggle region state.");
+      toast.error("Failed to toggle region state.");
     }
   };
 
@@ -954,72 +958,74 @@ export const SettingsPage: React.FC = () => {
         </button>
       </div>
 
-      {/* Tabs */}
-      <div className="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-2 overflow-x-auto">
-        <button
-          type="button"
-          onClick={() => setActiveTab("identity")}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
-            activeTab === "identity"
-              ? "bg-primary text-primary-foreground shadow-md shadow-primary/30"
-              : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60"
-          }`}
-        >
-          <Building2 className="w-4 h-4" />
-          <span>Platform Identity</span>
-        </button>
+      {/* Sticky Settings Sub-Navigation Tabs */}
+      <div className="sticky top-0 z-20 bg-slate-50/95 dark:bg-slate-950/95 backdrop-blur-md py-2 border-b border-slate-200/80 dark:border-slate-800/80">
+        <div className="flex items-center gap-1.5 p-1 rounded-xl bg-slate-200/60 dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 overflow-x-auto">
+          <button
+            type="button"
+            onClick={() => setActiveTab("identity")}
+            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap ${
+              activeTab === "identity"
+                ? "bg-white dark:bg-slate-800 text-primary shadow-xs"
+                : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+            }`}
+          >
+            <Building2 className="w-4 h-4" />
+            <span>Platform Identity</span>
+          </button>
 
-        <button
-          type="button"
-          onClick={() => setActiveTab("pipelines")}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
-            activeTab === "pipelines"
-              ? "bg-primary text-primary-foreground shadow-md shadow-primary/30"
-              : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60"
-          }`}
-        >
-          <Layers className="w-4 h-4" />
-          <span>Pipeline Stages ({pipelineStages?.length ?? 0})</span>
-        </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab("pipelines")}
+            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap ${
+              activeTab === "pipelines"
+                ? "bg-white dark:bg-slate-800 text-primary shadow-xs"
+                : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+            }`}
+          >
+            <Layers className="w-4 h-4" />
+            <span>Pipeline Stages ({pipelineStages?.length ?? 0})</span>
+          </button>
 
-        <button
-          type="button"
-          onClick={() => setActiveTab("regions")}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
-            activeTab === "regions"
-              ? "bg-primary text-primary-foreground shadow-md shadow-primary/30"
-              : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60"
-          }`}
-        >
-          <Globe className="w-4 h-4" />
-          <span>Global Regions ({countryRegions?.length ?? 0})</span>
-        </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab("regions")}
+            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap ${
+              activeTab === "regions"
+                ? "bg-white dark:bg-slate-800 text-primary shadow-xs"
+                : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+            }`}
+          >
+            <Globe className="w-4 h-4" />
+            <span>Global Regions ({countryRegions?.length ?? 0})</span>
+          </button>
 
-        <button
-          type="button"
-          onClick={() => setActiveTab("smtp")}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
-            activeTab === "smtp"
-              ? "bg-primary text-primary-foreground shadow-md shadow-primary/30"
-              : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60"
-          }`}
-        >
-          <Mail className="w-4 h-4" />
-          <span>Email & SMTP Gateway</span>
-        </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab("smtp")}
+            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap ${
+              activeTab === "smtp"
+                ? "bg-white dark:bg-slate-800 text-primary shadow-xs"
+                : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+            }`}
+          >
+            <Mail className="w-4 h-4" />
+            <span>Email & SMTP Gateway</span>
+          </button>
 
-        <button
-          type="button"
-          onClick={() => setActiveTab("tracking")}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
-            activeTab === "tracking"
-              ? "bg-primary text-primary-foreground shadow-md shadow-primary/30"
-              : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60"
-          }`}
-        >
-          <BarChart3 className="w-4 h-4" />
-          <span>Marketing Pixels & Analytics</span>
-        </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab("tracking")}
+            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap ${
+              activeTab === "tracking"
+                ? "bg-white dark:bg-slate-800 text-primary shadow-xs"
+                : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+            }`}
+          >
+            <BarChart3 className="w-4 h-4" />
+            <span>Marketing Pixels & Analytics</span>
+          </button>
+        </div>
       </div>
 
       {feedback && (
@@ -1059,7 +1065,7 @@ export const SettingsPage: React.FC = () => {
       {/* Tab 1: Platform Identity & Defaults */}
       {activeTab === "identity" && (
         <form onSubmit={handleIdentitySubmit} className="space-y-6">
-          <div className="p-6 rounded-2xl bg-white dark:bg-[#0c1222] border border-slate-200/80 dark:border-slate-800/80 space-y-4 shadow-sm">
+          <div className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 space-y-4 shadow-sm">
             <h3 className="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
               Enterprise Identity & Contacts
             </h3>
@@ -1239,7 +1245,7 @@ export const SettingsPage: React.FC = () => {
             </div>
           </div>
 
-          <div className="p-6 rounded-2xl bg-white dark:bg-[#0c1222] border border-slate-200/80 dark:border-slate-800/80 space-y-6 shadow-sm">
+          <div className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 space-y-6 shadow-sm">
             <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/80 pb-3">
               <div>
                 <h3 className="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
@@ -1509,10 +1515,10 @@ export const SettingsPage: React.FC = () => {
           </div>
 
           {/* Stages Table */}
-          <div className="bg-white dark:bg-[#0c1222] rounded-2xl border border-slate-200/80 dark:border-slate-800/80 shadow-sm overflow-hidden">
-            <div className="overflow-x-auto">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 shadow-sm overflow-hidden">
+            <div className="overflow-x-auto max-h-[500px] overflow-y-auto">
               <table className="min-w-full divide-y divide-slate-100 dark:divide-slate-800/70 text-xs">
-                <thead className="bg-slate-50/80 dark:bg-slate-900/60 text-slate-400 font-bold uppercase tracking-wider text-[11px]">
+                <thead className="sticky top-0 z-10 bg-slate-50/95 dark:bg-slate-900/95 backdrop-blur-md text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider text-[11px] border-b border-slate-200/80 dark:border-slate-800/80 shadow-2xs">
                   <tr>
                     <th className="px-5 py-3.5 text-left">
                       Order & Visual Badge
@@ -1634,10 +1640,10 @@ export const SettingsPage: React.FC = () => {
           </div>
 
           {/* Regions Table */}
-          <div className="bg-white dark:bg-[#0c1222] rounded-2xl border border-slate-200/80 dark:border-slate-800/80 shadow-sm overflow-hidden">
-            <div className="overflow-x-auto">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 shadow-sm overflow-hidden">
+            <div className="overflow-x-auto max-h-[500px] overflow-y-auto">
               <table className="min-w-full divide-y divide-slate-100 dark:divide-slate-800/70 text-xs">
-                <thead className="bg-slate-50/80 dark:bg-slate-900/60 text-slate-400 font-bold uppercase tracking-wider text-[11px]">
+                <thead className="sticky top-0 z-10 bg-slate-50/95 dark:bg-slate-900/95 backdrop-blur-md text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider text-[11px] border-b border-slate-200/80 dark:border-slate-800/80 shadow-2xs">
                   <tr>
                     <th className="px-5 py-3.5 text-left">Country & Code</th>
                     <th className="px-4 py-3.5 text-left">Currency</th>
@@ -1736,7 +1742,7 @@ export const SettingsPage: React.FC = () => {
       {/* Tab 4: SMTP Email Gateway */}
       {activeTab === "smtp" && (
         <div className="space-y-6">
-          <div className="p-6 rounded-2xl bg-white dark:bg-[#0c1222] border border-slate-200/80 dark:border-slate-800/80 shadow-sm space-y-6">
+          <div className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 shadow-sm space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-100 dark:border-slate-800/80 pb-5">
               <div>
                 <div className="flex items-center gap-2">
@@ -1935,7 +1941,7 @@ export const SettingsPage: React.FC = () => {
           </div>
 
           {/* Real-time SMTP Diagnostics Card */}
-          <div className="p-6 rounded-2xl bg-white dark:bg-[#0c1222] border border-slate-200/80 dark:border-slate-800/80 shadow-sm space-y-4">
+          <div className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 shadow-sm space-y-4">
             <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400">
               <Server className="w-5 h-5" />
               <h4 className="text-sm font-bold text-slate-900 dark:text-white">
@@ -1999,7 +2005,7 @@ export const SettingsPage: React.FC = () => {
       {/* Tab 5: Marketing Pixels & Analytics (GTM, GA4, Meta Pixel) */}
       {activeTab === "tracking" && (
         <form onSubmit={handleTrackingSubmit} className="space-y-6">
-          <div className="p-6 rounded-2xl bg-white dark:bg-[#0c1222] border border-slate-200/80 dark:border-slate-800/80 shadow-sm space-y-6">
+          <div className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 shadow-sm space-y-6">
             <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/80 pb-3">
               <div>
                 <h3 className="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 flex items-center gap-2">
@@ -2116,7 +2122,7 @@ export const SettingsPage: React.FC = () => {
       {/* Stage Create/Edit Modal */}
       {stageModalOpen && (
         <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-[#0c1222] rounded-2xl border border-slate-200/80 dark:border-slate-800/80 p-6 max-w-md w-full shadow-2xl space-y-4">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 p-6 max-w-md w-full shadow-2xl space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="font-bold text-base text-slate-900 dark:text-white">
                 {editingStage
@@ -2224,7 +2230,7 @@ export const SettingsPage: React.FC = () => {
       {/* Region Create/Edit Modal */}
       {regionModalOpen && (
         <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-[#0c1222] rounded-2xl border border-slate-200/80 dark:border-slate-800/80 p-6 max-w-md w-full shadow-2xl space-y-4">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 p-6 max-w-md w-full shadow-2xl space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="font-bold text-base text-slate-900 dark:text-white">
                 {editingRegion

@@ -95,6 +95,13 @@ public record LeadDetailDto(
 public record UpdateLeadStatusRequest(
     LeadStatus Status);
 
+public record AssignLeadRequest(
+    Guid? AssignedToUserId);
+
+public record SendLeadEmailRequest(
+    string TemplateKey,
+    Dictionary<string, string>? Variables = null);
+
 public record AddLeadNoteRequest(
     string Note);
 

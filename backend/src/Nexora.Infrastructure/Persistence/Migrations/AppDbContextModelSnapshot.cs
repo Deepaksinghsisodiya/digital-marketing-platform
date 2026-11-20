@@ -1106,6 +1106,9 @@ namespace Nexora.Infrastructure.Persistence.Migrations
                     b.Property<bool>("NoIndex")
                         .HasColumnType("bit");
 
+                    b.Property<string>("OgImageUrl")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<Guid?>("PublishedVersionId")
                         .HasColumnType("uniqueidentifier");
 
@@ -1358,6 +1361,10 @@ namespace Nexora.Infrastructure.Persistence.Migrations
 
                     b.Property<Guid?>("LogoMediaId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("RedirectRulesJson")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("SectionVisibilityJson")
                         .IsRequired()

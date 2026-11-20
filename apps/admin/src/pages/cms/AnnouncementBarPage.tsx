@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import * as yup from "yup";
-import { toast } from "sonner";
+import { toast } from "../../utils/toast";
 import { ConfirmDialog } from "../../components/ConfirmDialog";
 import {
   Sparkles,
@@ -424,14 +424,14 @@ export const AnnouncementBarPage: React.FC = () => {
       {/* 1. Header Toolbar (Full Width) */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-500 text-white flex items-center justify-center shadow-md shadow-emerald-500/20">
+          <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary border border-primary/20 flex items-center justify-center">
             <Megaphone className="w-5 h-5" />
           </div>
           <div>
             <h1 className="text-xl font-black text-slate-900 dark:text-white">
               Announcement Bar Management
             </h1>
-            <p className="text-xs text-slate-500 mt-0.5">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
               Control website top announcement messages, live rotation, and action links.
             </p>
           </div>
@@ -534,7 +534,7 @@ export const AnnouncementBarPage: React.FC = () => {
       </div>
 
       {/* 2. Full-Width Data Table Container */}
-      <div className="bg-white dark:bg-[#0c1222] rounded-2xl border border-slate-200/80 dark:border-slate-800/80 shadow-xs overflow-hidden w-full">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 shadow-xs overflow-hidden w-full">
         {/* Table Top Filter Bar */}
         <div className="p-4 border-b border-slate-100 dark:border-slate-800/70 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="relative w-full sm:w-80">
@@ -596,10 +596,10 @@ export const AnnouncementBarPage: React.FC = () => {
           </div>
         ) : (
           /* Full Width Clean Table */
-          <div className="overflow-x-auto w-full">
+          <div className="overflow-x-auto w-full max-h-[calc(100vh-280px)] overflow-y-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="border-b border-slate-100 dark:border-slate-800 bg-slate-50/75 dark:bg-slate-900/40 text-[11px] font-extrabold uppercase tracking-wider text-slate-400">
+                <tr className="sticky top-0 z-10 bg-slate-50/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800/80 text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                   <th className="py-3.5 px-4 w-20 text-center"># Order</th>
                   <th className="py-3.5 px-4 w-44">Badge / Pill</th>
                   <th className="py-3.5 px-4">Announcement Message</th>

@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import { toast } from "sonner";
+import { toast } from "../../utils/toast";
 import {
   useGetMediaAssetsQuery,
   useUploadMediaMutation,
@@ -7,6 +7,8 @@ import {
 } from "../../store/api/adminApi";
 import { API_BASE_URL } from "../../store/api/baseApi";
 import type { MediaAssetDto } from "../../types";
+import { CardSkeleton } from "../../components/ui/Skeleton";
+import { EmptyState } from "../../components/ui/EmptyState";
 import {
   UploadCloud,
   Search,
@@ -19,6 +21,10 @@ import {
   ExternalLink,
   Filter,
   Image as ImageIcon,
+  Folder,
+  FolderOpen,
+  Info,
+  AlertTriangle,
 } from "lucide-react";
 
 export function resolveMediaUrl(url: string | null | undefined): string {
@@ -167,7 +173,7 @@ export const MediaPickerModal: React.FC<MediaPickerModalProps> = ({
                 setPage(1);
               }}
               placeholder="Search assets..."
-              className="w-full pl-9 pr-3 py-1.5 text-sm bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full pl-9 pr-3 py-1.5 text-sm bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary"
             />
           </div>
 
@@ -200,13 +206,14 @@ export const MediaPickerModal: React.FC<MediaPickerModalProps> = ({
         {/* Grid Area */}
         <div className="p-6 overflow-y-auto flex-1">
           {isLoading ? (
-            <div className="py-16 text-center text-slate-400 text-sm">
-              Loading media library...
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+              <CardSkeleton count={12} />
             </div>
           ) : !data || data.items.length === 0 ? (
-            <div className="py-16 text-center text-slate-400 text-sm">
-              No media assets found. Upload one to get started!
-            </div>
+            <EmptyState
+              title="No media assets found"
+              description="Upload images, graphics, or PDFs to attach to your content."
+            />
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
               {data.items.map((asset) => {
@@ -226,7 +233,7 @@ export const MediaPickerModal: React.FC<MediaPickerModalProps> = ({
                     }}
                     className={`group relative rounded-xl border p-2 cursor-pointer transition flex flex-col items-center text-center ${
                       isSelected
-                        ? "border-indigo-600 bg-indigo-50/50 dark:bg-indigo-950/40 ring-2 ring-indigo-500"
+                        ? "border-primary bg-primary/10 ring-2 ring-primary"
                         : "border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-slate-300 dark:hover:border-slate-700"
                     }`}
                   >
@@ -246,8 +253,8 @@ export const MediaPickerModal: React.FC<MediaPickerModalProps> = ({
                         />
                       ) : isImage ? (
                         <div className="flex flex-col items-center gap-1 text-slate-400">
-                          <ImageIcon className="w-7 h-7 text-indigo-400" />
-                          <span className="text-[9px] font-mono uppercase font-bold text-slate-400">
+                          <ImageIcon className="w-7 h-7 text-primary" />
+                          <span className="text-[9px] font-mono uppercase font-bold text-slate-500 dark:text-slate-400">
                             {asset.mimeType.split("/")[1] || "IMG"}
                           </span>
                         </div>
@@ -258,7 +265,7 @@ export const MediaPickerModal: React.FC<MediaPickerModalProps> = ({
                     <span className="mt-2 text-xs font-medium text-slate-800 dark:text-slate-200 truncate w-full">
                       {asset.fileName}
                     </span>
-                    <span className="text-[10px] text-slate-400">
+                    <span className="text-[10px] text-slate-500 dark:text-slate-400">
                       {formatBytes(asset.sizeBytes)}
                     </span>
                   </div>
@@ -302,7 +309,7 @@ export const MediaPickerModal: React.FC<MediaPickerModalProps> = ({
                 }
               }}
               disabled={!selectedAsset}
-              className="px-4 py-2 text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-sm transition disabled:opacity-40"
+              className="px-4 py-2 text-xs font-semibold bg-primary hover:bg-primary-hover text-primary-foreground rounded-xl shadow-xs transition disabled:opacity-40"
             >
               Insert Selected Asset
             </button>
@@ -318,11 +325,22 @@ export const MediaLibraryPage: React.FC = () => {
   const [search, setSearch] = useState("");
   const [mimeFilter, setMimeFilter] = useState("");
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [selectedFolder, setSelectedFolder] = useState<string>("all");
+  const [inspectedAsset, setInspectedAsset] = useState<MediaAssetDto | null>(null);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [assetToDelete, setAssetToDelete] = useState<MediaAssetDto | null>(
     null,
   );
   const [failedImages, setFailedImages] = useState<Record<string, boolean>>({});
+
+  const FOLDERS = [
+    { id: "all", name: "All Assets" },
+    { id: "banners", name: "Hero Banners", term: "banner" },
+    { id: "blog", name: "Blog & Editorial", term: "post" },
+    { id: "brand", name: "Brand & Logos", term: "logo" },
+    { id: "testimonials", name: "Avatars & Clients", term: "avatar" },
+    { id: "docs", name: "Documents (PDF)", mime: "application/pdf" },
+  ];
 
   // Upload Form State
   const [uploadFile, setUploadFile] = useState<File | null>(null);
@@ -415,11 +433,50 @@ export const MediaLibraryPage: React.FC = () => {
             setUploadError(null);
             setIsUploadModalOpen(true);
           }}
-          className="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-semibold shadow-sm flex items-center gap-2 transition"
+          className="px-4 py-2.5 bg-primary hover:bg-primary-hover text-primary-foreground rounded-xl text-sm font-semibold shadow-xs flex items-center gap-2 transition"
         >
           <UploadCloud className="w-4 h-4" />
           <span>Upload Media Asset</span>
         </button>
+      </div>
+
+      {/* Media Category Folders Strip */}
+      <div className="flex items-center gap-2 overflow-x-auto pb-1">
+        {FOLDERS.map((f) => {
+          const isSelected = selectedFolder === f.id;
+          return (
+            <button
+              key={f.id}
+              type="button"
+              onClick={() => {
+                setSelectedFolder(f.id);
+                setPage(1);
+                if (f.id === "all") {
+                  setSearch("");
+                  setMimeFilter("");
+                } else if (f.mime) {
+                  setMimeFilter(f.mime);
+                  setSearch("");
+                } else if (f.term) {
+                  setSearch(f.term);
+                  setMimeFilter("");
+                }
+              }}
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap border ${
+                isSelected
+                  ? "bg-primary text-primary-foreground border-primary shadow-xs"
+                  : "bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200/80 dark:border-slate-800 hover:border-primary/40"
+              }`}
+            >
+              {isSelected ? (
+                <FolderOpen className="w-3.5 h-3.5" />
+              ) : (
+                <Folder className="w-3.5 h-3.5 text-slate-400" />
+              )}
+              <span>{f.name}</span>
+            </button>
+          );
+        })}
       </div>
 
       {/* Filter and Search Bar */}
@@ -434,7 +491,7 @@ export const MediaLibraryPage: React.FC = () => {
               setPage(1);
             }}
             placeholder="Search by file name or alt text..."
-            className="w-full pl-10 pr-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full pl-10 pr-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary"
           />
         </div>
 
@@ -446,7 +503,7 @@ export const MediaLibraryPage: React.FC = () => {
               setMimeFilter(e.target.value);
               setPage(1);
             }}
-            className="px-3.5 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="px-3.5 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
           >
             <option value="">All Formats</option>
             <option value="image/jpeg">JPEG Images</option>
@@ -461,28 +518,18 @@ export const MediaLibraryPage: React.FC = () => {
       {/* Gallery Grid */}
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm">
         {isLoading ? (
-          <div className="py-20 text-center text-slate-400 dark:text-slate-500 text-sm">
-            Loading digital assets...
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            <CardSkeleton count={12} />
           </div>
         ) : !data || data.items.length === 0 ? (
-          <div className="py-20 text-center">
-            <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-slate-100 dark:bg-slate-800/60 flex items-center justify-center text-slate-400">
-              <UploadCloud className="w-8 h-8" />
-            </div>
-            <h3 className="text-base font-bold text-slate-800 dark:text-white">
-              No media assets found
-            </h3>
-            <p className="mt-1 text-sm text-slate-400 dark:text-slate-500 max-w-sm mx-auto">
-              Upload images, graphics, or PDFs to use across your website pages,
-              blogs, and marketing campaigns.
-            </p>
-            <button
-              onClick={() => setIsUploadModalOpen(true)}
-              className="mt-4 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold shadow-sm transition"
-            >
-              Upload First Asset
-            </button>
-          </div>
+          <EmptyState
+            title="No media assets found"
+            description="Upload images, graphics, or PDFs to use across your website pages, blogs, and marketing campaigns."
+            action={{
+              label: "Upload First Asset",
+              onClick: () => setIsUploadModalOpen(true),
+            }}
+          />
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3.5 sm:gap-4">
             {data.items.map((asset) => {
@@ -490,7 +537,7 @@ export const MediaLibraryPage: React.FC = () => {
               return (
                 <div
                   key={asset.id}
-                  className="group relative bg-slate-50/50 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden hover:border-indigo-500/50 transition flex flex-col"
+                  className="group relative bg-slate-50/50 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden hover:border-primary/50 transition flex flex-col"
                 >
                   {/* Thumbnail */}
                   <div className="relative w-full h-36 bg-slate-100 dark:bg-slate-900 flex items-center justify-center overflow-hidden">
@@ -509,8 +556,8 @@ export const MediaLibraryPage: React.FC = () => {
                       />
                     ) : isImage ? (
                       <div className="flex flex-col items-center gap-1.5 text-slate-400">
-                        <ImageIcon className="w-9 h-9 text-indigo-400" />
-                        <span className="text-[10px] font-mono uppercase font-bold text-slate-400">
+                        <ImageIcon className="w-9 h-9 text-primary" />
+                        <span className="text-[10px] font-mono uppercase font-bold text-slate-500 dark:text-slate-400">
                           {asset.mimeType.split("/")[1] || "IMG"}
                         </span>
                       </div>
@@ -525,6 +572,13 @@ export const MediaLibraryPage: React.FC = () => {
 
                     {/* Quick actions hover overlay */}
                     <div className="absolute inset-0 bg-slate-950/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 p-2">
+                      <button
+                        onClick={() => setInspectedAsset(asset)}
+                        title="Inspect Asset Details & Usage"
+                        className="p-2 rounded-lg bg-white/90 text-slate-800 hover:bg-white transition"
+                      >
+                        <Info className="w-4 h-4 text-primary" />
+                      </button>
                       <button
                         onClick={() => handleCopyUrl(asset)}
                         title="Copy Public URL"
@@ -642,7 +696,7 @@ export const MediaLibraryPage: React.FC = () => {
             <form onSubmit={handleUploadSubmit} className="space-y-4">
               <div
                 onClick={() => fileInputRef.current?.click()}
-                className="border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-indigo-500 rounded-xl p-8 text-center cursor-pointer transition bg-slate-50/50 dark:bg-slate-950/40"
+                className="border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-primary rounded-xl p-8 text-center cursor-pointer transition bg-slate-50/50 dark:bg-slate-950/40"
               >
                 <input
                   type="file"
@@ -683,7 +737,7 @@ export const MediaLibraryPage: React.FC = () => {
                   value={uploadAltText}
                   onChange={(e) => setUploadAltText(e.target.value)}
                   placeholder="e.g. Modern agency dashboard interface showcase"
-                  className="w-full px-3.5 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-3.5 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary"
                 />
               </div>
 
@@ -698,7 +752,7 @@ export const MediaLibraryPage: React.FC = () => {
                 <button
                   type="submit"
                   disabled={!uploadFile || isUploading}
-                  className="px-4 py-2 text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-sm transition disabled:opacity-50 flex items-center gap-1.5"
+                  className="px-4 py-2 text-xs font-semibold bg-primary hover:bg-primary-hover text-primary-foreground rounded-xl shadow-xs transition disabled:opacity-50 flex items-center gap-1.5"
                 >
                   <UploadCloud className="w-3.5 h-3.5" />
                   {isUploading ? "Uploading & Validating..." : "Upload Asset"}
@@ -738,6 +792,101 @@ export const MediaLibraryPage: React.FC = () => {
               >
                 {isDeleting ? "Deleting..." : "Delete Permanently"}
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Asset Usage & Metadata Inspector Modal */}
+      {inspectedAsset && (
+        <div className="fixed inset-0 z-50 overflow-hidden bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="w-full max-w-lg bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 p-6 space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+              <div>
+                <h3 className="text-base font-black text-slate-900 dark:text-white">
+                  Media Asset Dossier
+                </h3>
+                <p className="text-xs text-slate-400 mt-0.5 truncate max-w-sm">
+                  {inspectedAsset.fileName}
+                </p>
+              </div>
+              <button
+                onClick={() => setInspectedAsset(null)}
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Asset Preview */}
+            <div className="w-full h-48 bg-slate-100 dark:bg-slate-950 rounded-xl overflow-hidden flex items-center justify-center border border-slate-200/80 dark:border-slate-800">
+              {inspectedAsset.mimeType.startsWith("image/") ? (
+                <img
+                  src={resolveMediaUrl(inspectedAsset.url)}
+                  alt={inspectedAsset.altText || inspectedAsset.fileName}
+                  className="max-h-full max-w-full object-contain"
+                />
+              ) : (
+                <div className="text-center text-slate-400 space-y-2">
+                  <FileText className="w-12 h-12 mx-auto" />
+                  <span className="text-xs font-mono uppercase font-bold">{inspectedAsset.mimeType}</span>
+                </div>
+              )}
+            </div>
+
+            {/* Asset Metadata Grid */}
+            <div className="grid grid-cols-2 gap-2.5 text-xs">
+              <div className="p-2.5 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-800">
+                <span className="text-slate-400 block text-[10px] uppercase font-bold">File Size</span>
+                <span className="font-bold text-slate-900 dark:text-white">{formatBytes(inspectedAsset.sizeBytes)}</span>
+              </div>
+              <div className="p-2.5 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-800">
+                <span className="text-slate-400 block text-[10px] uppercase font-bold">MIME Format</span>
+                <span className="font-mono text-slate-900 dark:text-white truncate block">{inspectedAsset.mimeType}</span>
+              </div>
+              <div className="p-2.5 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-800 col-span-2">
+                <span className="text-slate-500 dark:text-slate-400 block text-[10px] uppercase font-bold">Public CDN Link</span>
+                <span className="font-mono text-[11px] text-primary truncate block">
+                  {resolveAbsoluteMediaUrl(inspectedAsset.url)}
+                </span>
+              </div>
+            </div>
+
+            {/* Usage Alert Reference Box */}
+            <div className="p-3.5 rounded-xl border border-amber-200 dark:border-amber-800/60 bg-amber-50/50 dark:bg-amber-950/20 text-xs space-y-1.5">
+              <div className="flex items-center gap-1.5 font-bold text-amber-800 dark:text-amber-300">
+                <AlertTriangle className="w-4 h-4 text-amber-600 flex-shrink-0" />
+                <span>Usage Reference &amp; Safe Deletion Check</span>
+              </div>
+              <p className="text-[11px] text-amber-700 dark:text-amber-400/90 leading-relaxed">
+                This asset may be embedded across CMS Landing Pages, Hero Carousel Slides, or Editorial Blog Posts. Deleting it will permanently break public image rendering where referenced.
+              </p>
+            </div>
+
+            {/* Actions */}
+            <div className="flex items-center justify-between pt-2 border-t border-slate-200 dark:border-slate-800">
+              <button
+                type="button"
+                onClick={() => {
+                  setAssetToDelete(inspectedAsset);
+                  setInspectedAsset(null);
+                }}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-rose-200 dark:border-rose-800/60 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-xs font-bold transition"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>Delete Asset</span>
+              </button>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => handleCopyUrl(inspectedAsset)}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-primary hover:bg-primary-hover text-primary-foreground text-xs font-bold shadow-xs transition"
+                >
+                  <Copy className="w-3.5 h-3.5" />
+                  <span>Copy CDN URL</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>

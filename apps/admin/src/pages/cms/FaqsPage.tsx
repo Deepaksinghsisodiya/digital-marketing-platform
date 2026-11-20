@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import * as yup from "yup";
-import { toast } from "sonner";
+import { toast } from "../../utils/toast";
 import { ConfirmDialog } from "../../components/ConfirmDialog";
 import {
   Sparkles,
@@ -405,7 +405,7 @@ export const FaqsPage: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <span className="p-2 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400">
+            <span className="p-2 rounded-xl bg-primary/10 text-primary border border-primary/20">
               <HelpCircle className="w-5 h-5" />
             </span>
             <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
@@ -563,10 +563,10 @@ export const FaqsPage: React.FC = () => {
 
       {/* 5. Table Listing */}
       <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto max-h-[calc(100vh-280px)] overflow-y-auto">
           <table className="w-full text-left text-xs border-collapse">
             <thead>
-              <tr className="bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-800 text-slate-500 font-bold uppercase tracking-wider">
+              <tr className="sticky top-0 z-10 bg-slate-50/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider text-[11px]">
                 <th className="px-4 py-3.5 w-12 text-center">Order</th>
                 <th className="px-4 py-3.5">Question &amp; Category</th>
                 <th className="px-4 py-3.5">Answer Summary</th>
@@ -709,8 +709,7 @@ export const FaqsPage: React.FC = () => {
       {isFormOpen && (
         <div className="fixed inset-x-0 bottom-0 top-14 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
           <div
-            className="w-full max-w-xl max-h-[90vh] overflow-y-auto rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl p-6 space-y-5"
-            style={{ backgroundColor: "#ffffff" }}
+            className="w-full max-w-xl max-h-[90vh] overflow-y-auto rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xl p-6 space-y-5"
           >
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div className="flex items-center gap-2">

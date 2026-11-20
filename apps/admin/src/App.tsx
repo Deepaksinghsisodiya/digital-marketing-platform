@@ -35,6 +35,7 @@ import { ClientsPage } from "./pages/clients/ClientsPage";
 import { PostsPage } from "./pages/content/PostsPage";
 import { MediaLibraryPage } from "./pages/media/MediaLibraryPage";
 import { MenusPage } from "./pages/menus/MenusPage";
+import { RedirectsPage } from "./pages/redirects/RedirectsPage";
 
 import { ThemeProvider } from "./context/ThemeContext";
 import { Toaster } from "sonner";
@@ -151,6 +152,7 @@ export function App() {
                 <Route path="/posts" element={<PostsPage />} />
                 <Route path="/media" element={<MediaLibraryPage />} />
                 <Route path="/menus" element={<MenusPage />} />
+                <Route path="/redirects" element={<RedirectsPage />} />
               </Route>
 
               {/* Leads & Inquiries - Guarded by leads.view */}
@@ -185,7 +187,14 @@ export function App() {
           {/* Fallback */}
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
-        <Toaster position="top-right" richColors closeButton />
+        <Toaster
+          position="top-right"
+          richColors
+          closeButton
+          toastOptions={{
+            className: "rounded-xl border border-slate-200/90 dark:border-slate-800/90 text-xs font-medium shadow-lg backdrop-blur-md",
+          }}
+        />
       </BrowserRouter>
     </ThemeProvider>
   );

@@ -11,7 +11,9 @@ import {
   ArrowRight,
   Eye,
   EyeOff,
+  Sparkles,
 } from "lucide-react";
+import { Button } from "../../components/ui/button";
 
 export const LoginPage: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -41,7 +43,7 @@ export const LoginPage: React.FC = () => {
     try {
       const res = await login({ email, password, rememberMe }).unwrap();
 
-      // Ensure user profile is populated in Redux before navigating so ProtectedRoute doesn't bounce back
+      // Ensure user profile is populated in Redux before navigating
       try {
         const profile = await dispatch(
           adminApi.endpoints.getCurrentUser.initiate(undefined, {
@@ -66,45 +68,48 @@ export const LoginPage: React.FC = () => {
       const detail =
         apiErr?.data?.error ||
         apiErr?.data?.detail ||
-        "Invalid email or password. Please check credentials and try again.";
+        "Invalid email or password. Please check your credentials.";
       setErrorMsg(detail);
     }
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
-        <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 mb-4">
-          <ShieldCheck className="w-8 h-8" />
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 font-sans transition-colors relative overflow-hidden">
+      {/* Subtle ambient lighting */}
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
+
+      <div className="sm:mx-auto sm:w-full sm:max-w-md text-center relative z-10">
+        <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-primary text-primary-foreground shadow-sm shadow-primary/30 mb-3.5">
+          <ShieldCheck className="w-6 h-6" />
         </div>
-        <h2 className="text-3xl font-extrabold tracking-tight text-white">
-          Nexora Admin
-        </h2>
-        <p className="mt-2 text-sm text-slate-400">
-          Sign in to access your digital growth platform
+        <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+          Nexora Admin Platform
+        </h1>
+        <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+          Sign in to manage your digital marketing platform
         </p>
       </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-slate-800 py-8 px-6 shadow-xl border border-slate-700/60 sm:rounded-2xl sm:px-10">
+      <div className="mt-6 sm:mx-auto sm:w-full sm:max-w-md relative z-10">
+        <div className="bg-white dark:bg-slate-900 py-8 px-6 sm:px-8 shadow-xs border border-slate-200/90 dark:border-slate-800/90 rounded-2xl">
           {errorMsg && (
-            <div className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/30 flex items-start gap-3 text-red-400 text-sm">
-              <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
+            <div className="mb-5 p-3.5 rounded-xl bg-red-500/10 border border-red-500/20 flex items-start gap-2.5 text-red-600 dark:text-red-400 text-xs">
+              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
               <span>{errorMsg}</span>
             </div>
           )}
 
-          <form className="space-y-6" onSubmit={handleSubmit}>
+          <form className="space-y-4" onSubmit={handleSubmit}>
             <div>
               <label
                 htmlFor="email"
-                className="block text-xs font-semibold uppercase tracking-wider text-slate-300"
+                className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1"
               >
-                Email address
+                Work Email
               </label>
-              <div className="mt-2 relative rounded-xl shadow-sm">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                  <Mail className="h-5 w-5" />
+              <div className="relative rounded-xl">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                  <Mail className="h-4 w-4" />
                 </div>
                 <input
                   id="email"
@@ -114,7 +119,7 @@ export const LoginPage: React.FC = () => {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="block w-full pl-11 pr-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent sm:text-sm"
+                  className="block w-full pl-9 pr-3.5 py-2.5 bg-slate-50/70 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 rounded-xl text-slate-900 dark:text-white placeholder:text-slate-400 text-xs focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all"
                   placeholder="admin@nexora.local"
                 />
               </div>
@@ -123,13 +128,13 @@ export const LoginPage: React.FC = () => {
             <div>
               <label
                 htmlFor="password"
-                className="block text-xs font-semibold uppercase tracking-wider text-slate-300"
+                className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1"
               >
                 Password
               </label>
-              <div className="mt-2 relative rounded-xl shadow-sm">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                  <Lock className="h-5 w-5" />
+              <div className="relative rounded-xl">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                  <Lock className="h-4 w-4" />
                 </div>
                 <input
                   id="password"
@@ -139,69 +144,65 @@ export const LoginPage: React.FC = () => {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="block w-full pl-11 pr-11 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent sm:text-sm"
+                  className="block w-full pl-9 pr-10 py-2.5 bg-slate-50/70 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 rounded-xl text-slate-900 dark:text-white placeholder:text-slate-400 text-xs focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all"
                   placeholder="••••••••••••"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-200 focus:outline-none"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 focus:outline-none cursor-pointer"
                   aria-label={showPassword ? "Hide password" : "Show password"}
                 >
                   {showPassword ? (
-                    <EyeOff className="h-4 w-4" />
+                    <EyeOff className="h-3.5 w-3.5" />
                   ) : (
-                    <Eye className="h-4 w-4" />
+                    <Eye className="h-3.5 w-3.5" />
                   )}
                 </button>
               </div>
             </div>
 
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
+            <div className="flex items-center justify-between text-xs pt-1">
+              <label className="flex items-center gap-2 cursor-pointer select-none">
                 <input
                   id="remember-me"
                   name="remember-me"
                   type="checkbox"
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
-                  className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-slate-700 rounded bg-slate-900"
+                  className="h-3.5 w-3.5 text-primary rounded border-slate-300 dark:border-slate-700 focus:ring-primary"
                 />
-                <label
-                  htmlFor="remember-me"
-                  className="ml-2 block text-sm text-slate-300"
-                >
+                <span className="text-slate-600 dark:text-slate-400">
                   Remember me
-                </label>
-              </div>
+                </span>
+              </label>
 
-              <div className="text-sm">
-                <Link
-                  to="/auth/forgot-password"
-                  className="font-medium text-indigo-400 hover:text-indigo-300"
-                >
-                  Forgot password?
-                </Link>
-              </div>
+              <Link
+                to="/auth/forgot-password"
+                className="font-medium text-primary hover:underline"
+              >
+                Forgot password?
+              </Link>
             </div>
 
-            <div>
-              <button
+            <div className="pt-2">
+              <Button
                 type="submit"
-                disabled={isLoading}
-                className="w-full flex justify-center items-center gap-2 py-3 px-4 border border-transparent rounded-xl shadow-md text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 transition-colors"
+                isLoading={isLoading}
+                className="w-full h-10 text-xs"
               >
-                {isLoading ? (
-                  "Signing in..."
-                ) : (
-                  <>
-                    Sign In
-                    <ArrowRight className="w-4 h-4" />
-                  </>
-                )}
-              </button>
+                Sign In <ArrowRight className="w-3.5 h-3.5 ml-1" />
+              </Button>
             </div>
           </form>
+        </div>
+
+        {/* Security badge at bottom */}
+        <div className="mt-4 text-center">
+          <p className="text-[11px] text-slate-400 inline-flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" />
+            256-Bit SSL Encrypted &bull; RBAC Protected
+          </p>
         </div>
       </div>
     </div>

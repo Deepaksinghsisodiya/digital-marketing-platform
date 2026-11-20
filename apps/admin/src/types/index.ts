@@ -93,6 +93,7 @@ export interface SiteSettingsDto {
   trackingCodesJson?: string | null;
   bookingUrl?: string | null;
   announcementBarJson?: string | null;
+  redirectRulesJson?: string | null;
 }
 
 export interface UpdateSiteSettingsRequest {
@@ -122,6 +123,17 @@ export interface UpdateSiteSettingsRequest {
   trackingCodesJson?: string | null;
   bookingUrl?: string | null;
   announcementBarJson?: string | null;
+  redirectRulesJson?: string | null;
+}
+
+export interface RedirectRule {
+  id: string;
+  sourcePath: string;
+  destinationPath: string;
+  statusCode: number;
+  isActive: boolean;
+  description?: string;
+  createdAtUtc?: string;
 }
 
 export interface TestSmtpConnectionRequest {
@@ -211,6 +223,7 @@ export interface PageDetail {
   metaTitle?: string | null;
   metaDescription?: string | null;
   canonicalUrl?: string | null;
+  ogImageUrl?: string | null;
   noIndex: boolean;
   currentDraftVersionId?: string | null;
   publishedVersionId?: string | null;
@@ -229,6 +242,7 @@ export interface CreatePageRequest {
   metaTitle?: string | null;
   metaDescription?: string | null;
   canonicalUrl?: string | null;
+  ogImageUrl?: string | null;
   noIndex?: boolean;
 }
 
@@ -237,6 +251,7 @@ export interface UpdatePageRequest {
   metaTitle?: string | null;
   metaDescription?: string | null;
   canonicalUrl?: string | null;
+  ogImageUrl?: string | null;
   noIndex?: boolean;
   blocks: CmsBlock[];
   note?: string;
@@ -247,6 +262,7 @@ export interface SaveDraftRequest {
   metaTitle?: string | null;
   metaDescription?: string | null;
   canonicalUrl?: string | null;
+  ogImageUrl?: string | null;
   noIndex?: boolean;
   blocks: CmsBlock[];
   versionToken?: string;
@@ -282,6 +298,8 @@ export interface LeadSummary {
   company?: string | null;
   region: string;
   status: LeadStatus;
+  assignedToUserId?: string | null;
+  score?: number;
   utmSource?: string | null;
   utmCampaign?: string | null;
   createdAtUtc: string;
@@ -298,6 +316,8 @@ export interface LeadDetail {
   state?: string | null;
   postalCode?: string | null;
   status: LeadStatus;
+  assignedToUserId?: string | null;
+  score?: number;
   utmSource?: string | null;
   utmMedium?: string | null;
   utmCampaign?: string | null;
@@ -312,6 +332,15 @@ export interface LeadDetail {
   updatedAtUtc?: string | null;
   convertedToClientId?: string | null;
   activities: LeadActivityDto[];
+}
+
+export interface AssignLeadRequest {
+  assignedToUserId?: string | null;
+}
+
+export interface SendLeadEmailRequest {
+  templateKey: string;
+  variables?: Record<string, string>;
 }
 
 export interface LeadActivityDto {

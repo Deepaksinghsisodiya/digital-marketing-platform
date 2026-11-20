@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { Button } from "../ui/button";
 import { Reveal } from "../motion/Reveal";
+import { SystemStatusIndicator } from "./SystemStatusIndicator";
 
 export const Footer: React.FC<{ settings?: PublicSiteSettings | null }> = ({
   settings,
@@ -170,10 +171,7 @@ export const Footer: React.FC<{ settings?: PublicSiteSettings | null }> = ({
           </div>
 
           {/* System Uptime Indicator */}
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-800/80 border border-slate-700 text-[11px] text-slate-300">
-            <span className="w-2 h-2 rounded-full bg-primary animate-pulse shrink-0" />
-            <span>All Systems Operational</span>
-          </div>
+          <SystemStatusIndicator />
         </div>
 
         {/* Column 2: Digital Growth Services */}

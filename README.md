@@ -84,14 +84,14 @@ flowchart TD
 ### 4.1 Inbound Lead Intake & Scoring Engine
 Every inbound submission on `/contact`, `/book-a-call`, or modal triggers an automated pipeline:
 1. **Anti-Bot Defense:** Invisible honeypot field (`website_hp`) silently drops automated scrapers; a cryptographic 3-second time-trap token prevents rapid robotic submissions.
-2. **Automated Lead Scoring (`0–100 pts`):**
-   - Business/Corporate Email (non-Gmail/Yahoo): `+25 pts`
-   - Enterprise Budget Tier ($25k+ / ₹20L+): `+30 pts`
-   - Growth Budget Tier ($10k–$25k / ₹8L–₹20L): `+20 pts`
-   - Immediate Timeline (< 1 month): `+15 pts`
-   - Valid Regional E.164 Phone Number: `+10 pts`
-   - Detailed Project Scope (> 50 words): `+10 pts`
-   - *Scores ≥ 60 are automatically flagged as High-Priority SQL (Sales Qualified Leads).*
+2. **Automated Lead Scoring (`0–100 pts` evaluated in `LeadScoringService.cs`):**
+   - Business/Corporate Domain Email (non-Gmail/Yahoo/Hotmail): `+25 pts`
+   - Company Name Provided: `+15 pts`
+   - Valid Regional Phone Number (length >= 7): `+15 pts`
+   - Budget Tier Evaluation: up to `+25 pts` (Enterprise/25k+/50k: +25; Medium/10k: +15; Other: +5)
+   - Urgency / Timeline Evaluation: up to `+20 pts` (Immediate/Urgent/< 1 month: +20; 1-3 months: +10; Other: +5)
+   - *Total: Math.Clamp(score, 0, 100). Leads with score >= 60 are flagged as High-Priority SQL.*
+   - Automated Duplicate Detection: Identifies recurring inquiries matching historical email/phone records.
 3. **Transactional Outbox Emailing:** The database transaction simultaneously saves the lead and enqueues two outbox records:
    - Visitor auto-reply (`lead-auto-reply`) with personalized confirmation.
    - Internal sales alert (`lead-internal-notification`) dispatched to agency administrators.
@@ -110,19 +110,20 @@ Every inbound submission on `/contact`, `/book-a-call`, or modal triggers an aut
 
 ### 4.3 Public Marketing Portal (`apps/website`)
 - **Zero-Static Policy:** CMS blocks (`StatsBlock`, `LogoStripBlock`, `TestimonialsBlock`, `CaseStudiesBlock`) render strictly from database content, returning `null` cleanly when empty to avoid synthetic placeholders.
-- **12 World-Class Block Types in `BlockRenderer.tsx`:**
+- **Core Registered Block Types in `BlockRenderer.tsx`:**
   1. `HeroBlock`: Embla carousel, dual CTA buttons, theme-aware gradient overlays.
-  2. `LogoStripBlock`: Infinite marquee of verified technologies and partner badges.
-  3. `StatsBlock`: Commercial metric badges (+340% velocity, $120M+ revenue, 99.8% attribution).
+  2. `LogoStripBlock`: Infinite marquee of verified technologies and partner badges (renders null when empty).
+  3. `StatsBlock`: Metric cards configured in database (renders null when empty).
   4. `FeatureGridBlock` & `BentoGridBlock`: High-intent growth capabilities with spotlight radial glow.
   5. `ChannelsGrowthDiagram`: Interactive omnichannel telemetry map linking channels to Nexora Engine.
   6. `TechEcosystemBlock`: Bidirectional scrolling enterprise marketing technology marquee.
   7. `ProcessSteps`: 4-phase execution framework (*Audit, Creatives & CRO, Launch, Scale*).
-  8. `TestimonialsBlock`: 5-star verified client reviews with metric badges.
-  9. `CaseStudiesBlock`: Commercial case studies filtered by sector (B2B SaaS, E-Commerce, FinTech).
-  10. `ComparisonTable`: Matrix comparing Nexora Engine vs Traditional Agencies vs Freelancers.
-  11. `RoiCalculator`: Interactive budget and conversion slider simulating projected pipeline.
-  12. `FaqBlock`: Accessible accordion with automated Google Rich Snippet `FAQPage` JSON-LD schema.
+  8. `TestimonialsBlock`: 5-star verified client reviews with metric badges (renders null when empty).
+  9. `CaseStudiesBlock`: Commercial case studies filtered by sector (renders null when empty).
+  10. `BookingEmbed`: Strategic growth consultation calendar scheduling interface.
+  11. `FaqBlock`: Accessible accordion with automated Google Rich Snippet `FAQPage` JSON-LD schema.
+  12. `CtaBlock`: High-contrast conversion banner with primary diagnostic CTA.
+  13. `RichTextBlock`: Long-form prose and editorial guidelines.
 - **Pre-Seeded Routes:** Full dedicated pages for 12 Growth Services (`/services/seo`, `/services/paid-ads`, etc.), 8 Industry Sectors (`/industries/saas`, `/industries/ecommerce`, etc.), Blog Hub (`/blog/[slug]`), Legal Pages (`/privacy`, `/terms`, `/cookies`, `/accessibility`), and Consultation Booking (`/book-a-call`, `/free-audit`).
 
 ---

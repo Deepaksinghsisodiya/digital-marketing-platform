@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { toast } from "sonner";
+import { toast } from "../../utils/toast";
 import { ConfirmDialog } from "../../components/ConfirmDialog";
 import {
   useGetPageByIdQuery,
@@ -10,6 +10,7 @@ import {
 } from "../../store/api/adminApi";
 import { useAuth } from "../../hooks/useAuth";
 import type { CmsBlock, SaveDraftRequest } from "../../types";
+import { MediaPickerModal, resolveMediaUrl } from "../media/MediaLibraryPage";
 import {
   Globe,
   ArrowLeft,
@@ -31,6 +32,7 @@ import {
   Upload,
   Image as ImageIcon,
   ArrowLeftRight,
+  Share2,
 } from "lucide-react";
 
 type EditableHeroSlide = {
@@ -292,6 +294,26 @@ const BLOCK_TEMPLATES: Record<
     },
     defaultSettings: {},
   },
+  ChannelsGrowth: {
+    label: "Omnichannel Growth Engine Diagram",
+    defaultContent: {
+      eyebrow: "Full-Funnel Synergy",
+      title: "Connected Growth Engine",
+      description:
+        "Every customer touchpoint synchronised into a unified, high-converting revenue platform.",
+    },
+    defaultSettings: {},
+  },
+  TechEcosystem: {
+    label: "Enterprise Technology Ecosystem Marquee",
+    defaultContent: {
+      eyebrow: "Modern Tech Stack",
+      title: "Integrated Technology Ecosystem",
+      description:
+        "Built upon industry-standard enterprise marketing, measurement, and engineering infrastructure.",
+    },
+    defaultSettings: {},
+  },
 };
 
 export const PageEditorPage: React.FC = () => {
@@ -321,6 +343,8 @@ export const PageEditorPage: React.FC = () => {
   const [metaTitle, setMetaTitle] = useState("");
   const [metaDescription, setMetaDescription] = useState("");
   const [canonicalUrl, setCanonicalUrl] = useState("");
+  const [ogImageUrl, setOgImageUrl] = useState("");
+  const [isOgMediaPickerOpen, setIsOgMediaPickerOpen] = useState(false);
   const [noIndex, setNoIndex] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
   const [publishConfirmOpen, setPublishConfirmOpen] = useState(false);
@@ -366,6 +390,7 @@ export const PageEditorPage: React.FC = () => {
       setMetaTitle(page.metaTitle || "");
       setMetaDescription(page.metaDescription || "");
       setCanonicalUrl(page.canonicalUrl || "");
+      setOgImageUrl(page.ogImageUrl || "");
       setNoIndex(page.noIndex);
       setIsDirty(false);
       setSelectedBlockIndex((prev) =>
@@ -442,6 +467,7 @@ export const PageEditorPage: React.FC = () => {
         metaTitle: metaTitle || null,
         metaDescription: metaDescription || null,
         canonicalUrl: canonicalUrl || null,
+        ogImageUrl: ogImageUrl || null,
         noIndex,
       };
 
@@ -516,7 +542,7 @@ export const PageEditorPage: React.FC = () => {
   if (isLoading) {
     return (
       <div className="flex h-96 items-center justify-center text-slate-400 gap-2">
-        <RefreshCw className="w-5 h-5 animate-spin text-indigo-500" />
+        <RefreshCw className="w-5 h-5 animate-spin text-primary" />
         <span className="text-sm font-semibold">
           Loading Visual Page Studio...
         </span>
@@ -530,7 +556,7 @@ export const PageEditorPage: React.FC = () => {
         Page not found.{" "}
         <button
           onClick={() => navigate("/cms/pages")}
-          className="text-indigo-600 underline font-semibold"
+          className="text-primary underline font-semibold cursor-pointer"
         >
           Return to Pages
         </button>
@@ -565,7 +591,7 @@ export const PageEditorPage: React.FC = () => {
                   setTitle(e.target.value);
                   setIsDirty(true);
                 }}
-                className="font-extrabold text-slate-900 dark:text-white text-base bg-transparent border-b border-transparent hover:border-slate-300 dark:hover:border-slate-700 focus:border-indigo-500 focus:outline-none px-1"
+                className="font-extrabold text-slate-900 dark:text-white text-base bg-transparent border-b border-transparent hover:border-slate-300 dark:hover:border-slate-700 focus:border-primary focus:outline-none px-1"
               />
               <span className="font-mono text-[11px] px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
                 /{page.slug}
@@ -604,9 +630,9 @@ export const PageEditorPage: React.FC = () => {
 
           <button
             onClick={handlePreviewExternal}
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition"
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer"
           >
-            <Eye className="w-3.5 h-3.5 text-indigo-500" />
+            <Eye className="w-3.5 h-3.5 text-primary" />
             <span>Token Preview</span>
             <ExternalLink className="w-3 h-3 text-slate-400" />
           </button>
@@ -615,7 +641,7 @@ export const PageEditorPage: React.FC = () => {
             <button
               onClick={handleSaveDraft}
               disabled={isSaving}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-700 transition disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-700 transition disabled:opacity-50 cursor-pointer"
             >
               {isSaving ? (
                 <RefreshCw className="w-3.5 h-3.5 animate-spin" />
@@ -630,7 +656,7 @@ export const PageEditorPage: React.FC = () => {
             <button
               onClick={handlePublish}
               disabled={isPublishing}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-500 shadow-md shadow-emerald-600/30 transition disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-500 shadow-xs transition disabled:opacity-50 cursor-pointer"
             >
               {isPublishing ? (
                 <RefreshCw className="w-3.5 h-3.5 animate-spin" />
@@ -651,9 +677,9 @@ export const PageEditorPage: React.FC = () => {
           <div className="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-2">
             <button
               onClick={() => setActiveTab("sections")}
-              className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-bold transition ${
+              className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${
                 activeTab === "sections"
-                  ? "bg-indigo-600 text-white shadow-sm"
+                  ? "bg-primary text-primary-foreground shadow-xs"
                   : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
               }`}
             >
@@ -662,9 +688,9 @@ export const PageEditorPage: React.FC = () => {
             </button>
             <button
               onClick={() => setActiveTab("seo")}
-              className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-bold transition ${
+              className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${
                 activeTab === "seo"
-                  ? "bg-indigo-600 text-white shadow-sm"
+                  ? "bg-primary text-primary-foreground shadow-xs"
                   : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
               }`}
             >
@@ -691,9 +717,9 @@ export const PageEditorPage: React.FC = () => {
                       key={type}
                       type="button"
                       onClick={() => handleAddBlock(type)}
-                      className="flex flex-col items-start p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-950/60 hover:border-indigo-500 dark:hover:border-indigo-500 hover:bg-indigo-50/40 dark:hover:bg-indigo-950/30 transition text-left group"
+                      className="flex flex-col items-start p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-950/60 hover:border-primary hover:bg-primary/5 transition text-left group cursor-pointer"
                     >
-                      <span className="text-xs font-bold text-slate-800 dark:text-slate-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400">
+                      <span className="text-xs font-bold text-slate-800 dark:text-slate-200 group-hover:text-primary">
                         {template.label}
                       </span>
                       <span className="text-[10px] text-slate-400 font-mono mt-0.5">
@@ -729,7 +755,7 @@ export const PageEditorPage: React.FC = () => {
                         key={b.id}
                         className={`rounded-xl border transition-all ${
                           isSelected
-                            ? "border-indigo-500 bg-indigo-50/40 dark:bg-indigo-950/30 ring-1 ring-indigo-500/30"
+                            ? "border-primary bg-primary/5 dark:bg-primary/10 ring-1 ring-primary/30"
                             : "border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-white dark:bg-slate-900"
                         }`}
                       >
@@ -745,7 +771,7 @@ export const PageEditorPage: React.FC = () => {
                                 e.stopPropagation();
                                 handleToggleBlock(idx);
                               }}
-                              className={`w-8 h-4 rounded-full transition-colors flex items-center px-0.5 flex-shrink-0 ${
+                              className={`w-8 h-4 rounded-full transition-colors flex items-center px-0.5 flex-shrink-0 cursor-pointer ${
                                 isEnabled
                                   ? "bg-emerald-500 justify-end"
                                   : "bg-slate-300 dark:bg-slate-700 justify-start"
@@ -765,7 +791,7 @@ export const PageEditorPage: React.FC = () => {
                             <span
                               className={`text-xs font-bold truncate ${
                                 isSelected
-                                  ? "text-indigo-600 dark:text-indigo-400"
+                                  ? "text-primary"
                                   : isEnabled
                                     ? "text-slate-800 dark:text-slate-200"
                                     : "text-slate-400 line-through"
@@ -848,7 +874,7 @@ export const PageEditorPage: React.FC = () => {
 
                         {/* Inline Content Editor when Selected */}
                         {isSelected && (
-                          <div className="p-4 border-t border-indigo-100 dark:border-indigo-950/60 bg-white/70 dark:bg-slate-950/70 space-y-3 text-xs">
+                          <div className="p-4 border-t border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-slate-950/70 space-y-3 text-xs">
                             {/* Universal Block Tone & Animation Controls */}
                             <div className="p-2.5 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 grid grid-cols-2 gap-3 mb-3">
                               <div>
@@ -872,7 +898,7 @@ export const PageEditorPage: React.FC = () => {
                                       setIsDirty(true);
                                     }
                                   }}
-                                  className="w-full text-xs rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white px-2 py-1.5 focus:ring-1 focus:ring-indigo-500"
+                                  className="w-full text-xs rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white px-2 py-1.5 focus:ring-1 focus:ring-primary"
                                 >
                                   <option value="light">Light (Clean White)</option>
                                   <option value="alt">Alt (Subtle Surface)</option>
@@ -901,7 +927,7 @@ export const PageEditorPage: React.FC = () => {
                                       setIsDirty(true);
                                     }
                                   }}
-                                  className="w-full text-xs rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white px-2 py-1.5 focus:ring-1 focus:ring-indigo-500"
+                                  className="w-full text-xs rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white px-2 py-1.5 focus:ring-1 focus:ring-primary"
                                 >
                                   <option value="subtle">Subtle Reveal (Default)</option>
                                   <option value="rich">Rich Motion (Spotlight & Tilt)</option>
@@ -1219,7 +1245,7 @@ export const PageEditorPage: React.FC = () => {
                                   {/* 2. Mode Switcher: Single Hero vs Hero Slider / Carousel */}
                                   <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
                                     <div className="flex items-center gap-1.5">
-                                      <SlidersHorizontal className="w-4 h-4 text-indigo-500" />
+                                      <SlidersHorizontal className="w-4 h-4 text-primary" />
                                       <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
                                         Hero Presentation Mode
                                       </span>
@@ -1235,7 +1261,7 @@ export const PageEditorPage: React.FC = () => {
                                         }}
                                         className={`px-3 py-1 rounded-lg text-xs font-bold transition ${
                                           !isSliderMode
-                                            ? "bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 shadow-sm"
+                                            ? "bg-white dark:bg-slate-800 text-primary shadow-sm"
                                             : "text-slate-500 hover:text-slate-800 dark:hover:text-white"
                                         }`}
                                       >
@@ -1257,7 +1283,7 @@ export const PageEditorPage: React.FC = () => {
                                         }}
                                         className={`px-3 py-1 rounded-lg text-xs font-bold transition ${
                                           isSliderMode
-                                            ? "bg-indigo-600 text-white shadow-sm"
+                                            ? "bg-primary text-primary-foreground shadow-xs"
                                             : "text-slate-500 hover:text-slate-800 dark:hover:text-white"
                                         }`}
                                       >
@@ -1268,15 +1294,15 @@ export const PageEditorPage: React.FC = () => {
 
                                   {/* 3. Multi-Slide Carousel Manager Bar */}
                                   {isSliderMode && (
-                                    <div className="p-3.5 rounded-xl bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-200/80 dark:border-indigo-800/60 space-y-3">
+                                    <div className="p-3.5 rounded-xl bg-primary/5 dark:bg-primary/10 border border-primary/20 space-y-3">
                                       <div className="flex items-center justify-between flex-wrap gap-2">
-                                        <span className="text-[11px] font-extrabold uppercase tracking-wider text-indigo-700 dark:text-indigo-300">
+                                        <span className="text-[11px] font-extrabold uppercase tracking-wider text-primary">
                                           Hero Banner Slides ({rawSlides.length})
                                         </span>
                                         <button
                                           type="button"
                                           onClick={handleAddSlide}
-                                          className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-[11px] font-bold shadow-xs transition"
+                                          className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-primary hover:bg-primary-hover text-primary-foreground text-[11px] font-bold shadow-xs transition"
                                         >
                                           <Plus className="w-3.5 h-3.5" />
                                           <span>Add Slide</span>
@@ -1290,7 +1316,7 @@ export const PageEditorPage: React.FC = () => {
                                             key={s.id || sIdx}
                                             className={`inline-flex items-center rounded-lg border text-xs font-semibold overflow-hidden transition ${
                                               sIdx === curIdx
-                                                ? "bg-white dark:bg-slate-900 border-indigo-500 text-indigo-700 dark:text-indigo-300 shadow-xs ring-2 ring-indigo-500/20"
+                                                ? "bg-white dark:bg-slate-900 border-primary text-primary shadow-xs ring-2 ring-primary/20"
                                                 : "bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-slate-300"
                                             }`}
                                           >
@@ -1313,7 +1339,7 @@ export const PageEditorPage: React.FC = () => {
                                                   onClick={() =>
                                                     handleMoveSlide(sIdx, "left")
                                                   }
-                                                  className="p-1 hover:text-indigo-600 disabled:opacity-20"
+                                                  className="p-1 hover:text-primary disabled:opacity-20"
                                                   title="Move slide left"
                                                 >
                                                   &larr;
@@ -1326,7 +1352,7 @@ export const PageEditorPage: React.FC = () => {
                                                   onClick={() =>
                                                     handleMoveSlide(sIdx, "right")
                                                   }
-                                                  className="p-1 hover:text-indigo-600 disabled:opacity-20"
+                                                  className="p-1 hover:text-primary disabled:opacity-20"
                                                   title="Move slide right"
                                                 >
                                                   &rarr;
@@ -1352,7 +1378,7 @@ export const PageEditorPage: React.FC = () => {
                                       </div>
 
                                       {/* Autoplay & Rotation Timing */}
-                                      <div className="flex items-center justify-between text-[11px] pt-2 border-t border-indigo-100 dark:border-indigo-900/60">
+                                      <div className="flex items-center justify-between text-[11px] pt-2 border-t border-slate-200 dark:border-slate-800">
                                         <label className="flex items-center gap-1.5 cursor-pointer text-slate-600 dark:text-slate-400 font-medium">
                                           <input
                                             type="checkbox"
@@ -1363,7 +1389,7 @@ export const PageEditorPage: React.FC = () => {
                                                 e.target.checked,
                                               )
                                             }
-                                            className="rounded text-indigo-600 focus:ring-indigo-500"
+                                            className="rounded text-primary focus:ring-primary"
                                           />
                                           <span>Auto-Play Rotation</span>
                                         </label>
@@ -1401,7 +1427,7 @@ export const PageEditorPage: React.FC = () => {
                                           : "Hero Banner Content & Media"}
                                       </span>
                                       {isSliderMode && (
-                                        <span className="text-[10px] text-indigo-600 dark:text-indigo-400 font-mono font-semibold">
+                                        <span className="text-[10px] text-primary font-mono font-semibold">
                                           Slide {curIdx + 1} of {rawSlides.length}
                                         </span>
                                       )}
@@ -1429,7 +1455,7 @@ export const PageEditorPage: React.FC = () => {
                                             updateSelectedBlockContent("eyebrow", e.target.value);
                                           }
                                         }}
-                                        className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2 text-xs font-semibold text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                                        className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2 text-xs font-semibold text-slate-900 dark:text-white focus:ring-1 focus:ring-primary focus:outline-none"
                                       />
                                     </div>
 
@@ -1460,7 +1486,7 @@ export const PageEditorPage: React.FC = () => {
                                             );
                                           }
                                         }}
-                                        className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2 text-xs font-semibold text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                                        className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2 text-xs font-semibold text-slate-900 dark:text-white focus:ring-1 focus:ring-primary focus:outline-none"
                                       />
                                     </div>
 
@@ -1491,7 +1517,7 @@ export const PageEditorPage: React.FC = () => {
                                             );
                                           }
                                         }}
-                                        className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2 text-xs text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                                        className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2 text-xs text-slate-900 dark:text-white focus:ring-1 focus:ring-primary focus:outline-none"
                                       />
                                     </div>
 
@@ -1621,7 +1647,7 @@ export const PageEditorPage: React.FC = () => {
                                     {/* 5. Banner Image Upload & Preview Card */}
                                     <div className="mt-3 p-3.5 rounded-xl bg-slate-50 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 space-y-3">
                                       <div className="flex items-center justify-between">
-                                        <span className="text-[11px] font-extrabold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
+                                        <span className="text-[11px] font-extrabold uppercase tracking-wider text-primary">
                                           {isSliderMode
                                             ? `Slide ${curIdx + 1} Banner Image`
                                             : "Hero Banner Image"}
@@ -1630,7 +1656,7 @@ export const PageEditorPage: React.FC = () => {
 
                                       {/* Image File Upload Button */}
                                       <div className="flex items-center gap-2">
-                                        <label className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-xs transition">
+                                        <label className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary hover:bg-primary-hover text-primary-foreground text-xs font-bold shadow-xs transition">
                                           <Upload className="w-3.5 h-3.5" />
                                           <span>Upload Image File</span>
                                           <input
@@ -1672,7 +1698,7 @@ export const PageEditorPage: React.FC = () => {
                                               );
                                             }
                                           }}
-                                          className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2 text-xs font-mono text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                                          className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2 text-xs font-mono text-slate-900 dark:text-white focus:ring-1 focus:ring-primary focus:outline-none"
                                         />
                                       </div>
 
@@ -1725,7 +1751,7 @@ export const PageEditorPage: React.FC = () => {
                                                   );
                                                 }
                                               }}
-                                              className="text-[10px] px-2 py-1 rounded-md bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-indigo-400 hover:text-indigo-600 dark:hover:text-indigo-400 text-slate-600 dark:text-slate-300 font-semibold transition"
+                                              className="text-[10px] px-2 py-1 rounded-md bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-primary hover:text-primary text-slate-600 dark:text-slate-300 font-semibold transition"
                                             >
                                               + {preset.name}
                                             </button>
@@ -1777,7 +1803,7 @@ export const PageEditorPage: React.FC = () => {
                                     {/* 6. Theme & Dynamic Colors / Lighting Controls */}
                                     <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 space-y-3">
                                       <div className="flex items-center justify-between">
-                                        <span className="text-[11px] font-extrabold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
+                                        <span className="text-[11px] font-extrabold uppercase tracking-wider text-primary">
                                           Colors &amp; Lighting (Dynamic)
                                         </span>
                                         <span className="text-[10px] text-slate-400">
@@ -1915,7 +1941,7 @@ export const PageEditorPage: React.FC = () => {
                                               updateSelectedBlockContent("overlayOpacity", val);
                                             }
                                           }}
-                                          className="w-full accent-indigo-600 cursor-pointer"
+                                          className="w-full accent-primary cursor-pointer"
                                         />
                                       </div>
                                     </div>
@@ -2077,7 +2103,7 @@ export const PageEditorPage: React.FC = () => {
                   type="text"
                   value={metaTitle}
                   onChange={(e) => setMetaTitle(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-3.5 py-2 text-xs text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                  className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-3.5 py-2 text-xs text-slate-900 dark:text-white focus:ring-1 focus:ring-primary focus:outline-none"
                   placeholder="e.g. Enterprise Digital Growth Marketing | Nexora"
                 />
               </div>
@@ -2090,7 +2116,7 @@ export const PageEditorPage: React.FC = () => {
                   rows={3}
                   value={metaDescription}
                   onChange={(e) => setMetaDescription(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-3.5 py-2 text-xs text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                  className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-3.5 py-2 text-xs text-slate-900 dark:text-white focus:ring-1 focus:ring-primary focus:outline-none"
                   placeholder="Comprehensive description for Google Search engines..."
                 />
               </div>
@@ -2103,7 +2129,7 @@ export const PageEditorPage: React.FC = () => {
                   type="text"
                   value={canonicalUrl}
                   onChange={(e) => setCanonicalUrl(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-3.5 py-2 text-xs font-mono text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                  className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-3.5 py-2 text-xs font-mono text-slate-900 dark:text-white focus:ring-1 focus:ring-primary focus:outline-none"
                   placeholder="https://nexora.com/..."
                 />
               </div>
@@ -2114,12 +2140,115 @@ export const PageEditorPage: React.FC = () => {
                     type="checkbox"
                     checked={noIndex}
                     onChange={(e) => setNoIndex(e.target.checked)}
-                    className="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500"
+                    className="w-4 h-4 rounded text-primary focus:ring-primary"
                   />
                   <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                     Discourage search engines from indexing this page (noindex)
                   </span>
                 </label>
+              </div>
+
+              {/* Per-Page OG Image Picker */}
+              <div className="pt-3 border-t border-slate-200 dark:border-slate-800 space-y-3">
+                <div className="flex items-center justify-between">
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                    <Share2 className="w-3.5 h-3.5 text-primary" />
+                    <span>Open Graph (OG) Social Share Banner</span>
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setIsOgMediaPickerOpen(true)}
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary font-bold text-xs transition"
+                  >
+                    <ImageIcon className="w-3.5 h-3.5" />
+                    <span>Media Library</span>
+                  </button>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={ogImageUrl}
+                    onChange={(e) => {
+                      setOgImageUrl(e.target.value);
+                      setIsDirty(true);
+                    }}
+                    placeholder="https://... or select image from media library"
+                    className="flex-1 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-3.5 py-2 text-xs font-mono text-slate-900 dark:text-white focus:ring-1 focus:ring-primary focus:outline-none"
+                  />
+                  {ogImageUrl && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setOgImageUrl("");
+                        setIsDirty(true);
+                      }}
+                      className="px-2.5 py-2 rounded-xl text-xs font-bold text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition"
+                      title="Clear OG Image"
+                    >
+                      Clear
+                    </button>
+                  )}
+                </div>
+
+                {/* Quick Presets */}
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <span className="text-[10px] text-slate-400 font-medium">Quick Presets:</span>
+                  {[
+                    { label: "Cyber Modern", url: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=1200&q=80" },
+                    { label: "Data Pipeline", url: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1200&q=80" },
+                    { label: "AI Tech Grid", url: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80" },
+                  ].map((p) => (
+                    <button
+                      key={p.label}
+                      type="button"
+                      onClick={() => {
+                        setOgImageUrl(p.url);
+                        setIsDirty(true);
+                      }}
+                      className="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 hover:bg-primary/10 text-[10px] text-slate-700 dark:text-slate-300 font-medium transition"
+                    >
+                      {p.label}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Social Share Card Live Preview */}
+                <div className="mt-3 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/50 space-y-2">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+                    Social Card Live Preview (LinkedIn, Twitter / X, Slack)
+                  </span>
+                  <div className="rounded-xl overflow-hidden border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm max-w-sm">
+                    {ogImageUrl ? (
+                      <div className="w-full h-36 bg-slate-100 dark:bg-slate-800 overflow-hidden relative">
+                        <img
+                          src={resolveMediaUrl(ogImageUrl)}
+                          alt="OG Preview"
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).style.display = "none";
+                          }}
+                        />
+                      </div>
+                    ) : (
+                      <div className="w-full h-28 bg-slate-100 dark:bg-slate-800 flex flex-col items-center justify-center text-slate-400 gap-1.5 p-3 text-center">
+                        <ImageIcon className="w-6 h-6 opacity-40" />
+                        <span className="text-[11px]">No custom OG image set (default brand banner will be used)</span>
+                      </div>
+                    )}
+                    <div className="p-3 space-y-1">
+                      <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
+                        nexora.digital
+                      </div>
+                      <div className="text-xs font-black text-slate-900 dark:text-white line-clamp-1">
+                        {metaTitle || title || "Nexora Growth Platform"}
+                      </div>
+                      <div className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed">
+                        {metaDescription || "Enterprise Growth & Scalable Digital Architecture for Modern Global Brands."}
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           )}
@@ -2134,7 +2263,7 @@ export const PageEditorPage: React.FC = () => {
               <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
                 Live Embedded Website
               </span>
-              <span className="text-[11px] font-mono text-indigo-600 dark:text-indigo-400">
+              <span className="text-[11px] font-mono text-primary">
                 :{liveWebsiteBase.split(":").pop()}/{previewPagePath}
               </span>
             </div>
@@ -2147,7 +2276,7 @@ export const PageEditorPage: React.FC = () => {
                   onClick={() => setPreviewDevice("desktop")}
                   className={`p-1.5 rounded-lg text-xs font-semibold transition ${
                     previewDevice === "desktop"
-                      ? "bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-xs"
+                      ? "bg-white dark:bg-slate-900 text-primary shadow-xs"
                       : "text-slate-500 hover:text-slate-900 dark:hover:text-white"
                   }`}
                   title="Desktop 1920px Fullscreen"
@@ -2159,7 +2288,7 @@ export const PageEditorPage: React.FC = () => {
                   onClick={() => setPreviewDevice("tablet")}
                   className={`p-1.5 rounded-lg text-xs font-semibold transition ${
                     previewDevice === "tablet"
-                      ? "bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-xs"
+                      ? "bg-white dark:bg-slate-900 text-primary shadow-xs"
                       : "text-slate-500 hover:text-slate-900 dark:hover:text-white"
                   }`}
                   title="Tablet 768px"
@@ -2171,7 +2300,7 @@ export const PageEditorPage: React.FC = () => {
                   onClick={() => setPreviewDevice("mobile")}
                   className={`p-1.5 rounded-lg text-xs font-semibold transition ${
                     previewDevice === "mobile"
-                      ? "bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-xs"
+                      ? "bg-white dark:bg-slate-900 text-primary shadow-xs"
                       : "text-slate-500 hover:text-slate-900 dark:hover:text-white"
                   }`}
                   title="Mobile 375px"
@@ -2273,6 +2402,18 @@ export const PageEditorPage: React.FC = () => {
         variant="primary"
         onConfirm={confirmPublishAction}
         onClose={() => setPublishConfirmOpen(false)}
+      />
+
+      {/* OG Image Media Picker Modal */}
+      <MediaPickerModal
+        isOpen={isOgMediaPickerOpen}
+        onClose={() => setIsOgMediaPickerOpen(false)}
+        onSelect={(url) => {
+          setOgImageUrl(url);
+          setIsDirty(true);
+          setIsOgMediaPickerOpen(false);
+          toast.success("OG Image selected from Media Library.");
+        }}
       />
     </div>
   );

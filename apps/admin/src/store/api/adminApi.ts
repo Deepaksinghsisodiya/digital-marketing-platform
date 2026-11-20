@@ -21,6 +21,8 @@ import type {
   LeadDetail,
   LeadStats,
   LeadStatus,
+  AssignLeadRequest,
+  SendLeadEmailRequest,
   EmailTemplateDto,
   UpdateEmailTemplateRequest,
   SendTestEmailRequest,
@@ -440,6 +442,60 @@ export const adminApi = apiSlice.injectEndpoints({
         "Lead",
         "AuditLog",
       ],
+    }),
+    assignLead: builder.mutation<
+      { success: boolean },
+      { id: string; assignedToUserId: string | null }
+    >({
+      query: ({ id, assignedToUserId }) => ({
+        url: `/api/v1/admin/leads/${id}/assign`,
+        method: "PATCH",
+        body: { assignedToUserId },
+      }),
+      invalidatesTags: (_res, _err, { id }) => [
+        { type: "Lead", id },
+        "Lead",
+        "AuditLog",
+      ],
+    }),
+    sendLeadEmail: builder.mutation<
+      { success: boolean; message: string },
+      { id: string; templateKey: string; variables?: Record<string, string> }
+    >({
+      query: ({ id, ...body }) => ({
+        url: `/api/v1/admin/leads/${id}/send-email`,
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: (_res, _err, { id }) => [
+        { type: "Lead", id },
+        "Lead",
+        "EmailLog",
+      ],
+    }),
+    anonymizeLead: builder.mutation<
+      { success: boolean; message: string },
+      string
+    >({
+      query: (id) => ({
+        url: `/api/v1/admin/leads/${id}/anonymize`,
+        method: "POST",
+      }),
+      invalidatesTags: (_res, _err, id) => [
+        { type: "Lead", id },
+        "Lead",
+        "AuditLog",
+      ],
+    }),
+    deleteLead: builder.mutation<
+      { success: boolean; message: string },
+      string
+    >({
+      query: (id) => ({
+        url: `/api/v1/admin/leads/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Lead", "AuditLog"],
     }),
 
     // Email Templates & Outbox Endpoints
@@ -1018,6 +1074,10 @@ export const {
   useGetLeadByIdQuery,
   useGetLeadStatsQuery,
   useUpdateLeadStatusMutation,
+  useAssignLeadMutation,
+  useSendLeadEmailMutation,
+  useAnonymizeLeadMutation,
+  useDeleteLeadMutation,
   useAddLeadNoteMutation,
   useGetEmailTemplatesQuery,
   useGetEmailTemplateByKeyQuery,

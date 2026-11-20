@@ -63,7 +63,8 @@ public class SiteSettingsService : ISiteSettingsService
             SocialLinksJson: string.IsNullOrWhiteSpace(settings.SocialLinksJson) ? "{}" : settings.SocialLinksJson,
             TrackingCodesJson: string.IsNullOrWhiteSpace(settings.TrackingCodesJson) ? "{}" : settings.TrackingCodesJson,
             BookingUrl: settings.BookingUrl,
-            AnnouncementBarJson: string.IsNullOrWhiteSpace(settings.AnnouncementBarJson) ? "{}" : settings.AnnouncementBarJson);
+            AnnouncementBarJson: string.IsNullOrWhiteSpace(settings.AnnouncementBarJson) ? "{}" : settings.AnnouncementBarJson,
+            RedirectRulesJson: string.IsNullOrWhiteSpace(settings.RedirectRulesJson) ? "[]" : settings.RedirectRulesJson);
     }
 
     public async Task<(bool Success, string? Error, bool Conflict, SiteSettingsDto? Settings)> UpdateSettingsAsync(
@@ -131,6 +132,7 @@ public class SiteSettingsService : ISiteSettingsService
         if (dto.TrackingCodesJson != null) settings.TrackingCodesJson = dto.TrackingCodesJson;
         if (dto.BookingUrl != null) settings.BookingUrl = dto.BookingUrl;
         if (dto.AnnouncementBarJson != null) settings.AnnouncementBarJson = dto.AnnouncementBarJson;
+        if (dto.RedirectRulesJson != null) settings.RedirectRulesJson = dto.RedirectRulesJson;
 
         settings.UpdatedByUserId = actingUserId;
         settings.MarkUpdated();
@@ -218,6 +220,7 @@ public class SiteSettingsService : ISiteSettingsService
             TrackingCodesJson: string.IsNullOrWhiteSpace(entity.TrackingCodesJson) ? "{}" : entity.TrackingCodesJson,
             BookingUrl: entity.BookingUrl,
             AnnouncementBarJson: string.IsNullOrWhiteSpace(entity.AnnouncementBarJson) ? "{}" : entity.AnnouncementBarJson,
+            RedirectRulesJson: string.IsNullOrWhiteSpace(entity.RedirectRulesJson) ? "[]" : entity.RedirectRulesJson,
             VersionToken: Convert.ToBase64String(entity.Version),
             CreatedAtUtc: entity.CreatedAtUtc,
             UpdatedAtUtc: entity.UpdatedAtUtc);

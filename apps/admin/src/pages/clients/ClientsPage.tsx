@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import * as yup from "yup";
-import { toast } from "sonner";
+import { toast } from "../../utils/toast";
 import {
   useGetClientsQuery,
   useGetClientByIdQuery,
@@ -34,6 +34,11 @@ import {
   Edit3,
   Download,
 } from "lucide-react";
+import { Button } from "../../components/ui/button";
+import { Badge } from "../../components/ui/Badge";
+import { TableSkeleton } from "../../components/ui/Skeleton";
+import { SearchInput } from "../../components/ui/SearchInput";
+import { EmptyState } from "../../components/ui/EmptyState";
 
 const STATUS_CONFIG: Record<
   ClientStatus,
@@ -494,7 +499,7 @@ export const ClientsPage: React.FC = () => {
           <button
             type="button"
             onClick={handleExportClientsCsv}
-            className="inline-flex items-center gap-2 rounded-xl bg-white dark:bg-[#0c1222] border border-slate-200/80 dark:border-slate-800/80 px-3.5 py-2.5 text-xs font-bold text-slate-700 dark:text-slate-200 shadow-xs hover:bg-slate-50 dark:hover:bg-slate-800/60 transition"
+            className="inline-flex items-center gap-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 px-3.5 py-2.5 text-xs font-bold text-slate-700 dark:text-slate-200 shadow-xs hover:bg-slate-50 dark:hover:bg-slate-800/60 transition"
             title="Export CSV"
           >
             <Download className="w-4 h-4 text-indigo-500" />
@@ -514,7 +519,7 @@ export const ClientsPage: React.FC = () => {
 
       {/* MNC Executive KPI Metrics Strip */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        <div className="p-4 rounded-2xl bg-white dark:bg-[#0c1222] border border-slate-200/80 dark:border-slate-800/80 shadow-sm">
+        <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 shadow-sm">
           <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
             <span className="text-[11px] font-bold uppercase tracking-wider">
               Total Portfolio
@@ -532,7 +537,7 @@ export const ClientsPage: React.FC = () => {
           </div>
         </div>
 
-        <div className="p-4 rounded-2xl bg-white dark:bg-[#0c1222] border border-slate-200/80 dark:border-slate-800/80 shadow-sm">
+        <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 shadow-sm">
           <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
             <span className="text-[11px] font-bold uppercase tracking-wider">
               Active Pipeline
@@ -549,7 +554,7 @@ export const ClientsPage: React.FC = () => {
           </div>
         </div>
 
-        <div className="p-4 rounded-2xl bg-white dark:bg-[#0c1222] border border-slate-200/80 dark:border-slate-800/80 shadow-sm">
+        <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 shadow-sm">
           <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
             <span className="text-[11px] font-bold uppercase tracking-wider">
               Global Reach
@@ -566,7 +571,7 @@ export const ClientsPage: React.FC = () => {
           </div>
         </div>
 
-        <div className="p-4 rounded-2xl bg-white dark:bg-[#0c1222] border border-slate-200/80 dark:border-slate-800/80 shadow-sm">
+        <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 shadow-sm">
           <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
             <span className="text-[11px] font-bold uppercase tracking-wider">
               Conversion Lifecycle
@@ -585,15 +590,12 @@ export const ClientsPage: React.FC = () => {
       </div>
 
       {/* Advanced Filter & Search Bar */}
-      <div className="flex flex-col sm:flex-row gap-3 bg-white dark:bg-[#0c1222] p-3 sm:p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 shadow-sm">
-        <div className="relative flex-1">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-          <input
-            type="text"
+      <div className="flex flex-col sm:flex-row gap-3 bg-white dark:bg-slate-900 p-3 sm:p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 shadow-sm">
+        <div className="flex-1">
+          <SearchInput
             placeholder="Search accounts by company, contact, or industry..."
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 pl-10 pr-4 py-2 text-xs text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+            onChange={setSearch}
           />
         </div>
 
@@ -633,16 +635,13 @@ export const ClientsPage: React.FC = () => {
       </div>
 
       {/* MNC Data Table */}
-      <div className="bg-white dark:bg-[#0c1222] rounded-2xl border border-slate-200/80 dark:border-slate-800/80 shadow-sm overflow-hidden">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 shadow-sm overflow-hidden">
         {isLoading ? (
-          <div className="py-16 text-center text-xs text-slate-500 dark:text-slate-400 flex items-center justify-center gap-2">
-            <div className="w-4 h-4 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
-            <span>Loading enterprise client portfolio...</span>
-          </div>
+          <TableSkeleton rows={6} columns={7} hasControls={false} />
         ) : (
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto max-h-[calc(100vh-280px)] overflow-y-auto">
             <table className="min-w-full divide-y divide-slate-100 dark:divide-slate-800/70 text-xs">
-              <thead className="bg-slate-50/80 dark:bg-slate-900/60 text-slate-400 dark:text-slate-400 font-bold uppercase tracking-wider text-[11px]">
+              <thead className="sticky top-0 z-10 bg-slate-50/95 dark:bg-slate-900/95 backdrop-blur-md text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider text-[11px] border-b border-slate-200/80 dark:border-slate-800/80 shadow-2xs">
                 <tr>
                   <th className="px-5 py-3.5 text-left">Company & Brand</th>
                   <th className="px-4 py-3.5 text-left">Primary Stakeholder</th>
@@ -818,12 +817,15 @@ export const ClientsPage: React.FC = () => {
                 })}
                 {clientsData?.items.length === 0 && (
                   <tr>
-                    <td
-                      colSpan={7}
-                      className="px-6 py-12 text-center text-slate-400"
-                    >
-                      No client accounts matching current search query or
-                      filter.
+                    <td colSpan={7} className="p-0">
+                      <EmptyState
+                        title="No client accounts found"
+                        description="No client accounts match your current search query or filter."
+                        action={{
+                          label: "Add New Account",
+                          onClick: () => setCreateModalOpen(true),
+                        }}
+                      />
                     </td>
                   </tr>
                 )}
@@ -862,7 +864,7 @@ export const ClientsPage: React.FC = () => {
       {/* Client Detail Slide-Over Drawer */}
       {selectedClientId && (
         <div className="fixed inset-0 z-50 overflow-hidden bg-slate-950/60 backdrop-blur-sm flex justify-end">
-          <div className="bg-white dark:bg-[#0c1222] text-slate-900 dark:text-slate-100 w-full max-w-2xl h-full shadow-2xl flex flex-col overflow-y-auto border-l border-slate-200/80 dark:border-slate-800/80">
+          <div className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 w-full max-w-2xl h-full shadow-2xl flex flex-col overflow-y-auto border-l border-slate-200/80 dark:border-slate-800/80">
             {loadingDetail || !clientDetail ? (
               <div className="p-12 text-center text-xs text-slate-400 flex items-center justify-center gap-2">
                 <div className="w-4 h-4 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
@@ -946,7 +948,7 @@ export const ClientsPage: React.FC = () => {
                     clientDetail.contacts?.find((c) => c.isPrimary) ||
                     clientDetail.contacts?.[0];
                   return (
-                    <div className="grid grid-cols-2 gap-3 text-xs bg-slate-50 dark:bg-slate-900/60 p-4 rounded-xl border border-slate-200/80 dark:border-slate-800/80">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs bg-slate-50 dark:bg-slate-900/60 p-4 rounded-xl border border-slate-200/80 dark:border-slate-800/80">
                       <div>
                         <span className="text-slate-400 font-medium block text-[11px]">
                           Primary Stakeholder
@@ -1195,8 +1197,8 @@ export const ClientsPage: React.FC = () => {
       {/* Create Client Modal */}
       {createModalOpen && (
         <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-[#0c1222] text-slate-900 dark:text-slate-100 border border-slate-200/80 dark:border-slate-800/80 rounded-2xl shadow-2xl max-w-2xl w-full p-6 space-y-5">
-            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/80 pb-3">
+          <div className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 border border-slate-200/80 dark:border-slate-800/80 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden">
+            <div className="p-6 pb-4 border-b border-slate-100 dark:border-slate-800/80 flex items-center justify-between shrink-0">
               <div>
                 <h2 className="text-base font-black text-slate-900 dark:text-white flex items-center gap-2">
                   <Building2 className="w-5 h-5 text-indigo-600" />
@@ -1216,14 +1218,15 @@ export const ClientsPage: React.FC = () => {
             </div>
 
             {createError && (
-              <div className="p-3 bg-red-500/10 text-red-600 text-xs rounded-xl border border-red-500/20 font-semibold flex items-center gap-2">
+              <div className="mx-6 mt-4 p-3 bg-red-500/10 text-red-600 text-xs rounded-xl border border-red-500/20 font-semibold flex items-center gap-2 shrink-0">
                 <AlertCircle className="w-4 h-4 shrink-0" />
                 <span>{createError}</span>
               </div>
             )}
 
-            <form onSubmit={handleCreateClient} className="space-y-4 text-xs">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <form onSubmit={handleCreateClient} className="flex-1 flex flex-col overflow-hidden text-xs">
+              <div className="p-6 overflow-y-auto flex-1 space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Column 1: Institutional & Corporate Details */}
                 <div className="space-y-3 p-3.5 bg-slate-50/70 dark:bg-slate-900/50 rounded-xl border border-slate-200/60 dark:border-slate-800/60">
                   <span className="text-[11px] font-black uppercase tracking-wider text-indigo-600 dark:text-indigo-400 flex items-center gap-1.5">
@@ -1271,7 +1274,7 @@ export const ClientsPage: React.FC = () => {
                     />
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <div>
                       <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
                         Operating Region
@@ -1395,11 +1398,13 @@ export const ClientsPage: React.FC = () => {
                 </div>
               </div>
 
-              <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100 dark:border-slate-800">
+              </div>
+
+              <div className="p-4 px-6 bg-slate-50 dark:bg-slate-900/80 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end gap-2 shrink-0">
                 <button
                   type="button"
                   onClick={() => setCreateModalOpen(false)}
-                  className="px-4 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 transition"
+                  className="px-4 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 transition"
                 >
                   Cancel
                 </button>
@@ -1419,7 +1424,7 @@ export const ClientsPage: React.FC = () => {
       {/* Add Contact Modal */}
       {contactModalOpen && selectedClientId && (
         <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-[#0c1222] text-slate-900 dark:text-slate-100 border border-slate-200/80 dark:border-slate-800/80 rounded-2xl shadow-2xl max-w-md w-full p-6 space-y-4">
+          <div className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 border border-slate-200/80 dark:border-slate-800/80 rounded-2xl shadow-2xl max-w-md w-full p-6 space-y-4">
             <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/80 pb-3">
               <h3 className="font-black text-slate-900 dark:text-white text-sm flex items-center gap-2">
                 <UserCheck className="w-4 h-4 text-indigo-600" />
@@ -1524,7 +1529,7 @@ export const ClientsPage: React.FC = () => {
       {/* Edit Client Modal */}
       {editModalOpen && selectedClientId && (
         <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-[#0c1222] text-slate-900 dark:text-slate-100 border border-slate-200/80 dark:border-slate-800/80 rounded-2xl shadow-2xl max-w-lg w-full p-6 space-y-4">
+          <div className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 border border-slate-200/80 dark:border-slate-800/80 rounded-2xl shadow-2xl max-w-lg w-full p-6 space-y-4">
             <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/80 pb-3">
               <h3 className="font-black text-slate-900 dark:text-white text-base flex items-center gap-2">
                 <Edit3 className="w-4 h-4 text-indigo-600" />
@@ -1540,8 +1545,8 @@ export const ClientsPage: React.FC = () => {
             </div>
 
             <form onSubmit={handleUpdateClient} className="space-y-3.5 text-xs">
-              <div className="grid grid-cols-2 gap-3">
-                <div className="col-span-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="sm:col-span-2">
                   <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
                     Company / Organization Name <span className="text-red-500">*</span>
                   </label>
@@ -1669,7 +1674,7 @@ export const ClientsPage: React.FC = () => {
       {/* Add Task Modal */}
       {taskModalOpen && selectedClientId && (
         <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-[#0c1222] text-slate-900 dark:text-slate-100 border border-slate-200/80 dark:border-slate-800/80 rounded-2xl shadow-2xl max-w-sm w-full p-6 space-y-4">
+          <div className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 border border-slate-200/80 dark:border-slate-800/80 rounded-2xl shadow-2xl max-w-sm w-full p-6 space-y-4">
             <h3 className="font-black text-slate-900 dark:text-white text-sm">
               Schedule SLA Task
             </h3>

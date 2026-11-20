@@ -1,6 +1,9 @@
 import React, { useState, useMemo } from "react";
-import { toast } from "sonner";
+import { toast } from "../../utils/toast";
 import { ConfirmDialog } from "../../components/ConfirmDialog";
+import { TableSkeleton } from "../../components/ui/Skeleton";
+import { EmptyState } from "../../components/ui/EmptyState";
+import { SearchInput } from "../../components/ui/SearchInput";
 import {
   useGetLeadsQuery,
   useGetLeadByIdQuery,
@@ -10,6 +13,12 @@ import {
   useConvertLeadToClientMutation,
   useGetPipelineStagesQuery,
   useGetCountryRegionsQuery,
+  useGetUsersQuery,
+  useGetEmailTemplatesQuery,
+  useAssignLeadMutation,
+  useSendLeadEmailMutation,
+  useAnonymizeLeadMutation,
+  useDeleteLeadMutation,
 } from "../../store/api/adminApi";
 import { useAuth } from "../../hooks/useAuth";
 import type { LeadStatus } from "../../types";
@@ -26,6 +35,10 @@ import {
   Table as TableIcon,
   ChevronRight,
   ExternalLink,
+  UserCheck,
+  Send,
+  UserX,
+  Trash2,
 } from "lucide-react";
 
 interface StatusBadge {
@@ -120,7 +133,14 @@ export const LeadsPage: React.FC = () => {
   const [regionFilter, setRegionFilter] = useState<string>("");
   const [formKeyFilter, setFormKeyFilter] = useState<string>("");
   const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null);
+  const [selectedLeadIds, setSelectedLeadIds] = useState<string[]>([]);
   const [isConvertConfirmOpen, setIsConvertConfirmOpen] = useState(false);
+  const [isAnonymizeConfirmOpen, setIsAnonymizeConfirmOpen] = useState(false);
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
+  const [selectedTemplateKey, setSelectedTemplateKey] =
+    useState("lead-auto-reply");
+  const [customEmailMessage, setCustomEmailMessage] = useState("");
   const [newNote, setNewNote] = useState("");
   const [isExporting, setIsExporting] = useState(false);
 
@@ -128,6 +148,8 @@ export const LeadsPage: React.FC = () => {
     category: "Lead",
   });
   const { data: dynamicRegions } = useGetCountryRegionsQuery();
+  const { data: usersData } = useGetUsersQuery({ pageSize: 100 });
+  const { data: emailTemplates } = useGetEmailTemplatesQuery();
 
   const {
     data: leadsData,
@@ -151,8 +173,82 @@ export const LeadsPage: React.FC = () => {
   const [updateStatus, { isLoading: isUpdatingStatus }] =
     useUpdateLeadStatusMutation();
   const [addNote, { isLoading: isAddingNote }] = useAddLeadNoteMutation();
+  const [assignLead, { isLoading: isAssigningLead }] = useAssignLeadMutation();
+  const [sendLeadEmail, { isLoading: isSendingEmailAction }] =
+    useSendLeadEmailMutation();
+  const [anonymizeLead, { isLoading: isAnonymizing }] =
+    useAnonymizeLeadMutation();
+  const [deleteLead, { isLoading: isDeletingLead }] = useDeleteLeadMutation();
   const [convertLead, { isLoading: isConverting }] =
     useConvertLeadToClientMutation();
+
+  const handleAnonymizeLead = async () => {
+    if (!selectedLead) return;
+    try {
+      const res = await anonymizeLead(selectedLead.id).unwrap();
+      toast.success(res.message || "Lead personal data anonymized.");
+      setIsAnonymizeConfirmOpen(false);
+      refetchLead();
+      refetch();
+    } catch {
+      toast.error("Failed to anonymize lead.");
+    }
+  };
+
+  const handleDeleteLead = async () => {
+    if (!selectedLead) return;
+    try {
+      const res = await deleteLead(selectedLead.id).unwrap();
+      toast.success(res.message || "Lead permanently deleted.");
+      setIsDeleteConfirmOpen(false);
+      setSelectedLeadId(null);
+      refetch();
+    } catch {
+      toast.error("Failed to delete lead.");
+    }
+  };
+
+  const handleAssignChange = async (
+    leadId: string,
+    assignedUserId: string | null,
+  ) => {
+    try {
+      await assignLead({
+        id: leadId,
+        assignedToUserId: assignedUserId,
+      }).unwrap();
+      refetchLead();
+      refetch();
+      const assignedUser = usersData?.items.find((u) => u.id === assignedUserId);
+      toast.success(
+        assignedUserId
+          ? `Lead assigned to ${assignedUser?.fullName || "specialist"}.`
+          : "Lead unassigned.",
+      );
+    } catch {
+      toast.error("Failed to update lead assignment.");
+    }
+  };
+
+  const handleSendLeadEmail = async () => {
+    if (!selectedLead) return;
+    try {
+      const res = await sendLeadEmail({
+        id: selectedLead.id,
+        templateKey: selectedTemplateKey,
+        variables: customEmailMessage.trim()
+          ? { CustomNote: customEmailMessage.trim() }
+          : undefined,
+      }).unwrap();
+      toast.success(res.message || "Outbound email queued successfully.");
+      setIsEmailModalOpen(false);
+      setCustomEmailMessage("");
+      refetchLead();
+    } catch (err: unknown) {
+      const error = err as { data?: { error?: string } };
+      toast.error(error?.data?.error ?? "Failed to send outreach email.");
+    }
+  };
 
   const handleConfirmConvert = async () => {
     if (!selectedLead) return;
@@ -273,7 +369,7 @@ export const LeadsPage: React.FC = () => {
 
         <div className="flex items-center gap-3">
           {/* View Mode Toggle */}
-          <div className="flex items-center p-1 rounded-xl bg-slate-100 dark:bg-[#0c1222] border border-slate-200 dark:border-slate-800">
+          <div className="flex items-center p-1 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
             <button
               onClick={() => setViewMode("kanban")}
               className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition ${
@@ -302,7 +398,7 @@ export const LeadsPage: React.FC = () => {
             <button
               onClick={handleExportCsv}
               disabled={isExporting}
-              className="inline-flex items-center gap-2 rounded-xl bg-white dark:bg-[#0c1222] border border-slate-200/80 dark:border-slate-800/80 px-4 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800/60 transition disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 px-4 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800/60 transition disabled:opacity-50"
             >
               <Download
                 className={`w-3.5 h-3.5 text-indigo-500 ${isExporting ? "animate-bounce" : ""}`}
@@ -318,7 +414,7 @@ export const LeadsPage: React.FC = () => {
       {/* KPI Funnel Strip */}
       {statsData && (
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-          <div className="rounded-2xl border border-slate-200/80 dark:border-slate-800/80 bg-white dark:bg-[#0c1222] p-4 shadow-sm">
+          <div className="rounded-2xl border border-slate-200/80 dark:border-slate-800/80 bg-white dark:bg-slate-900 p-4 shadow-sm">
             <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
               Total Capture
             </div>
@@ -362,18 +458,15 @@ export const LeadsPage: React.FC = () => {
       )}
 
       {/* Filter and Search Bar */}
-      <div className="flex flex-col sm:flex-row gap-3 bg-white dark:bg-[#0c1222] p-3 sm:p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 shadow-sm">
-        <div className="relative flex-1">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-          <input
-            type="text"
+      <div className="flex flex-col sm:flex-row gap-3 bg-white dark:bg-slate-900 p-3 sm:p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 shadow-sm">
+        <div className="flex-1">
+          <SearchInput
             placeholder="Search leads by name, email, company, or message..."
             value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
+            onChange={(val) => {
+              setSearch(val);
               setPage(1);
             }}
-            className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 pl-10 pr-4 py-2 text-xs text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
           />
         </div>
 
@@ -476,7 +569,7 @@ export const LeadsPage: React.FC = () => {
                     <div
                       key={lead.id}
                       onClick={() => setSelectedLeadId(lead.id)}
-                      className="group p-3.5 rounded-xl border border-slate-200 dark:border-slate-800/90 bg-white dark:bg-[#0c1222] hover:border-indigo-500/50 hover:shadow-md transition-all cursor-pointer space-y-2.5"
+                      className="group p-3.5 rounded-xl border border-slate-200 dark:border-slate-800/90 bg-white dark:bg-slate-900 hover:border-indigo-500/50 hover:shadow-md transition-all cursor-pointer space-y-2.5"
                     >
                       <div className="flex items-start justify-between gap-2">
                         <div>
@@ -508,9 +601,23 @@ export const LeadsPage: React.FC = () => {
                       </div>
 
                       <div className="border-t border-slate-100 dark:border-slate-800/80 pt-2 flex items-center justify-between text-[10px] text-slate-400">
-                        <span>
-                          {new Date(lead.createdAtUtc).toLocaleDateString()}
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <span>
+                            {new Date(lead.createdAtUtc).toLocaleDateString()}
+                          </span>
+                          {lead.assignedToUserId ? (
+                            <span className="inline-flex items-center gap-1 text-[10px] text-indigo-600 dark:text-indigo-400 font-medium">
+                              <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
+                              <span>
+                                {usersData?.items.find((u) => u.id === lead.assignedToUserId)?.fullName.split(" ")[0] || "Assigned"}
+                              </span>
+                            </span>
+                          ) : (
+                            <span className="text-[10px] text-slate-400 italic">
+                              Unassigned
+                            </span>
+                          )}
+                        </div>
 
                         {col.nextAction && hasPermission("leads.manage") && (
                           <button
@@ -545,23 +652,48 @@ export const LeadsPage: React.FC = () => {
         </div>
       ) : (
         /* TABLE DIRECTORY VIEW */
-        <div className="bg-white dark:bg-[#0c1222] rounded-2xl border border-slate-200/80 dark:border-slate-800/80 shadow-sm overflow-hidden">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 shadow-sm overflow-hidden">
           {isLoading ? (
-            <div className="py-16 text-center text-xs text-slate-500 dark:text-slate-400 flex items-center justify-center gap-2">
-              <div className="w-4 h-4 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
-              <span>Retrieving inbound lead stream...</span>
+            <div className="p-4">
+              <TableSkeleton rows={5} columns={7} hasControls={false} />
             </div>
           ) : (
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto max-h-[calc(100vh-280px)] overflow-y-auto">
               <table className="min-w-full divide-y divide-slate-100 dark:divide-slate-800/70 text-xs">
-                <thead className="bg-slate-50/80 dark:bg-slate-900/60 text-slate-400 dark:text-slate-400 font-bold uppercase tracking-wider text-[11px]">
+                <thead className="sticky top-0 z-10 bg-slate-50/95 dark:bg-slate-900/95 backdrop-blur-md text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider text-[11px] border-b border-slate-200/80 dark:border-slate-800/80 shadow-2xs">
                   <tr>
+                    <th className="px-3 py-3.5 w-10 text-center">
+                      <input
+                        type="checkbox"
+                        checked={
+                          Boolean(
+                            leadsData?.items &&
+                              leadsData.items.length > 0 &&
+                              leadsData.items.every((l) =>
+                                selectedLeadIds.includes(l.id),
+                              ),
+                          )
+                        }
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setSelectedLeadIds(
+                              leadsData?.items?.map((l) => l.id) || [],
+                            );
+                          } else {
+                            setSelectedLeadIds([]);
+                          }
+                        }}
+                        className="rounded border-slate-300 dark:border-slate-700 text-primary focus:ring-primary cursor-pointer w-3.5 h-3.5"
+                        aria-label="Select all leads on current page"
+                      />
+                    </th>
                     <th className="px-5 py-3.5 text-left">
                       Prospect / Contact
                     </th>
                     <th className="px-4 py-3.5 text-left">Organization</th>
                     <th className="px-4 py-3.5 text-left">Territory</th>
                     <th className="px-4 py-3.5 text-left">Lifecycle Stage</th>
+                    <th className="px-4 py-3.5 text-left">Assignee</th>
                     <th className="px-4 py-3.5 text-left">Capture Date</th>
                     <th className="px-5 py-3.5 text-right">Actions</th>
                   </tr>
@@ -585,12 +717,33 @@ export const LeadsPage: React.FC = () => {
                           flag: "🌐",
                           label: lead.region.toUpperCase(),
                         };
+                    const isSelected = selectedLeadIds.includes(lead.id);
                     return (
                       <tr
                         key={lead.id}
                         onClick={() => setSelectedLeadId(lead.id)}
-                        className="hover:bg-indigo-50/40 dark:hover:bg-slate-800/40 cursor-pointer transition-colors group"
+                        className={`hover:bg-indigo-50/40 dark:hover:bg-slate-800/40 cursor-pointer transition-colors group ${
+                          isSelected ? "bg-primary/5 dark:bg-primary/10" : ""
+                        }`}
                       >
+                        <td
+                          className="px-3 py-3.5 text-center"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={isSelected}
+                            onChange={() => {
+                              setSelectedLeadIds((prev) =>
+                                prev.includes(lead.id)
+                                  ? prev.filter((id) => id !== lead.id)
+                                  : [...prev, lead.id],
+                              );
+                            }}
+                            className="rounded border-slate-300 dark:border-slate-700 text-primary focus:ring-primary cursor-pointer w-3.5 h-3.5"
+                            aria-label={`Select ${lead.fullName}`}
+                          />
+                        </td>
                         <td className="px-5 py-3.5">
                           <div className="flex items-center gap-3">
                             <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-indigo-500/10 to-blue-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 flex items-center justify-center font-black text-[11px] flex-shrink-0 group-hover:scale-105 transition-transform">
@@ -631,6 +784,23 @@ export const LeadsPage: React.FC = () => {
                           </span>
                         </td>
 
+                        <td className="px-4 py-3.5">
+                          {lead.assignedToUserId ? (
+                            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800/50 text-[11px] font-medium text-indigo-700 dark:text-indigo-300">
+                              <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
+                              <span>
+                                {usersData?.items.find(
+                                  (u) => u.id === lead.assignedToUserId,
+                                )?.fullName || "Assigned"}
+                              </span>
+                            </span>
+                          ) : (
+                            <span className="text-slate-400 text-[11px] italic">
+                              Unassigned
+                            </span>
+                          )}
+                        </td>
+
                         <td className="px-4 py-3.5 text-slate-400 font-mono text-[11px]">
                           {new Date(lead.createdAtUtc).toLocaleDateString()}
                         </td>
@@ -653,11 +823,11 @@ export const LeadsPage: React.FC = () => {
                   })}
                   {leadsData?.items?.length === 0 && (
                     <tr>
-                      <td
-                        colSpan={6}
-                        className="px-6 py-12 text-center text-slate-400"
-                      >
-                        No leads matched the search criteria.
+                      <td colSpan={7} className="p-0">
+                        <EmptyState
+                          title="No leads matched"
+                          description="No inquiries or leads matched your current search filters."
+                        />
                       </td>
                     </tr>
                   )}
@@ -697,7 +867,7 @@ export const LeadsPage: React.FC = () => {
       {/* Slide-over Detailed Lead Dossier Drawer */}
       {selectedLeadId && (
         <div className="fixed inset-0 z-50 overflow-hidden bg-slate-950/60 backdrop-blur-xs flex justify-end">
-          <div className="w-full max-w-lg bg-white dark:bg-[#0c1222] h-full shadow-2xl border-l border-slate-200/80 dark:border-slate-800/80 p-6 overflow-y-auto space-y-6">
+          <div className="w-full max-w-lg bg-white dark:bg-slate-900 h-full shadow-2xl border-l border-slate-200/80 dark:border-slate-800/80 p-6 overflow-y-auto space-y-6">
             <div className="flex items-center justify-between border-b border-slate-200/80 dark:border-slate-800/80 pb-4">
               <div>
                 <h2 className="text-lg font-black text-slate-900 dark:text-white">
@@ -762,6 +932,55 @@ export const LeadsPage: React.FC = () => {
                           ? "Promoting Account..."
                           : "Promote to Client Account"}
                       </span>
+                    </button>
+                  )}
+                </div>
+
+                {/* Staff Assignment & Direct Outreach */}
+                <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-800/80 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                      <UserCheck className="w-3.5 h-3.5 text-indigo-500" />
+                      <span>Assigned Specialist:</span>
+                    </span>
+                    {hasPermission("leads.manage") ? (
+                      <select
+                        value={selectedLead.assignedToUserId || ""}
+                        disabled={isAssigningLead}
+                        onChange={(e) =>
+                          handleAssignChange(
+                            selectedLead.id,
+                            e.target.value ? e.target.value : null,
+                          )
+                        }
+                        className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3 py-1.5 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      >
+                        <option value="">-- Unassigned --</option>
+                        {usersData?.items
+                          .filter((u) => u.status !== 2)
+                          .map((u) => (
+                            <option key={u.id} value={u.id}>
+                              {u.fullName} ({u.role})
+                            </option>
+                          ))}
+                      </select>
+                    ) : (
+                      <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                        {usersData?.items.find(
+                          (u) => u.id === selectedLead.assignedToUserId,
+                        )?.fullName || "Unassigned"}
+                      </span>
+                    )}
+                  </div>
+
+                  {hasPermission("leads.manage") && (
+                    <button
+                      type="button"
+                      onClick={() => setIsEmailModalOpen(true)}
+                      className="w-full flex items-center justify-center gap-2 py-2 rounded-xl border border-indigo-200 dark:border-indigo-800/60 bg-indigo-50/70 hover:bg-indigo-100/70 dark:bg-indigo-950/40 dark:hover:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 font-bold text-xs transition"
+                    >
+                      <Mail className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                      <span>Send Direct Outbound Email</span>
                     </button>
                   )}
                 </div>
@@ -840,6 +1059,27 @@ export const LeadsPage: React.FC = () => {
                         {selectedLead.ipAddress || "—"}
                       </span>
                     </div>
+
+                    {hasPermission("leads.manage") && (
+                      <div className="pt-2 border-t border-slate-200/60 dark:border-slate-800/60 flex items-center justify-between gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setIsAnonymizeConfirmOpen(true)}
+                          className="flex-1 inline-flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-amber-200 dark:border-amber-800/60 bg-amber-50/60 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400 font-semibold text-[11px] hover:bg-amber-100 dark:hover:bg-amber-900/40 transition"
+                        >
+                          <UserX className="w-3.5 h-3.5" />
+                          <span>Anonymize PII</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setIsDeleteConfirmOpen(true)}
+                          className="flex-1 inline-flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-rose-200 dark:border-rose-800/60 bg-rose-50/60 dark:bg-rose-950/30 text-rose-700 dark:text-rose-400 font-semibold text-[11px] hover:bg-rose-100 dark:hover:bg-rose-900/40 transition"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                          <span>Purge Record</span>
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -876,7 +1116,7 @@ export const LeadsPage: React.FC = () => {
                   <div className="space-y-2 border-l-2 border-indigo-500/30 pl-4 ml-2">
                     {selectedLead.activities?.map((act) => (
                       <div key={act.id} className="relative space-y-0.5">
-                        <div className="absolute -left-[21px] top-1 h-2.5 w-2.5 rounded-full bg-indigo-600 ring-4 ring-white dark:ring-[#0c1222]" />
+                        <div className="absolute -left-[21px] top-1 h-2.5 w-2.5 rounded-full bg-indigo-600 ring-4 ring-white dark:ring-slate-900" />
                         <div className="text-xs font-bold text-slate-900 dark:text-white">
                           {act.description}
                         </div>
@@ -908,6 +1148,168 @@ export const LeadsPage: React.FC = () => {
         onConfirm={handleConfirmConvert}
         onClose={() => setIsConvertConfirmOpen(false)}
       />
+
+      {/* Anonymize Lead Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={isAnonymizeConfirmOpen}
+        title="Anonymize Lead Record (DPDP / GDPR)"
+        description={
+          selectedLead
+            ? `Are you sure you want to anonymize all personally identifiable information (PII) for "${selectedLead.fullName}"? This action will redact contact info and mark consent as withdrawn.`
+            : ""
+        }
+        confirmText="Anonymize PII"
+        cancelText="Cancel"
+        variant="danger"
+        isLoading={isAnonymizing}
+        onConfirm={handleAnonymizeLead}
+        onClose={() => setIsAnonymizeConfirmOpen(false)}
+      />
+
+      {/* Delete Lead Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={isDeleteConfirmOpen}
+        title="Permanently Purge Lead Record"
+        description={
+          selectedLead
+            ? `Permanently delete the record for "${selectedLead.fullName}" (${selectedLead.email})? This action cannot be undone.`
+            : ""
+        }
+        confirmText="Purge Permanently"
+        cancelText="Cancel"
+        variant="danger"
+        isLoading={isDeletingLead}
+        onConfirm={handleDeleteLead}
+        onClose={() => setIsDeleteConfirmOpen(false)}
+      />
+
+      {/* Send Direct Outbound Email Modal */}
+      {isEmailModalOpen && selectedLead && (
+        <div className="fixed inset-0 z-60 overflow-hidden bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="w-full max-w-lg bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 p-6 space-y-5">
+            <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-4">
+              <div>
+                <h3 className="text-base font-black text-slate-900 dark:text-white flex items-center gap-2">
+                  <Mail className="w-4 h-4 text-indigo-500" />
+                  <span>Send Direct Email to Lead</span>
+                </h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  Dispatches via Nexora transactional SMTP outbox
+                </p>
+              </div>
+              <button
+                onClick={() => setIsEmailModalOpen(false)}
+                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="space-y-4 text-xs">
+              <div>
+                <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">
+                  Recipient
+                </label>
+                <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 font-medium text-slate-800 dark:text-slate-200">
+                  {selectedLead.fullName} &lt;{selectedLead.email}&gt;
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">
+                  Email Template
+                </label>
+                <select
+                  value={selectedTemplateKey}
+                  onChange={(e) => setSelectedTemplateKey(e.target.value)}
+                  className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 p-2.5 text-xs font-medium focus:ring-2 focus:ring-indigo-500"
+                >
+                  {emailTemplates && emailTemplates.length > 0 ? (
+                    emailTemplates.map((tpl) => (
+                      <option key={tpl.key} value={tpl.key}>
+                        {tpl.name} ({tpl.key})
+                      </option>
+                    ))
+                  ) : (
+                    <>
+                      <option value="lead-auto-reply">
+                        Inquiry Auto-Reply (lead-auto-reply)
+                      </option>
+                      <option value="client-welcome">
+                        Client Welcome &amp; Onboarding (client-welcome)
+                      </option>
+                      <option value="lead-assigned-notification">
+                        Staff Alert (lead-assigned-notification)
+                      </option>
+                    </>
+                  )}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">
+                  Custom Message / Note Variable (Optional)
+                </label>
+                <textarea
+                  rows={3}
+                  value={customEmailMessage}
+                  onChange={(e) => setCustomEmailMessage(e.target.value)}
+                  placeholder="Add custom greeting or message for the template variable..."
+                  className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 p-2.5 text-xs focus:ring-2 focus:ring-indigo-500"
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-200 dark:border-slate-800">
+              <button
+                type="button"
+                onClick={() => setIsEmailModalOpen(false)}
+                className="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={isSendingEmailAction}
+                onClick={handleSendLeadEmail}
+                className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-md shadow-indigo-600/30 transition disabled:opacity-50"
+              >
+                <Send className="w-3.5 h-3.5" />
+                <span>
+                  {isSendingEmailAction ? "Dispatching..." : "Send Email"}
+                </span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Floating Batch Actions Bar (Linear Style) */}
+      {selectedLeadIds.length > 0 && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900 px-5 py-2.5 rounded-2xl shadow-2xl flex items-center gap-3 text-xs font-semibold animate-in fade-in slide-in-from-bottom-4 duration-150 border border-slate-700/60 dark:border-slate-300/60">
+          <span className="flex items-center gap-1.5 font-bold">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            {selectedLeadIds.length} {selectedLeadIds.length === 1 ? "lead" : "leads"} selected
+          </span>
+          <div className="h-4 w-px bg-slate-700 dark:bg-slate-300" />
+          <button
+            type="button"
+            onClick={handleExportCsv}
+            disabled={isExporting}
+            className="px-3 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 dark:bg-slate-200 dark:hover:bg-slate-300 transition flex items-center gap-1.5 cursor-pointer"
+          >
+            <Download className="w-3.5 h-3.5 text-primary" />
+            <span>Export CSV</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setSelectedLeadIds([])}
+            className="text-slate-400 hover:text-white dark:hover:text-slate-900 text-xs transition cursor-pointer ml-1"
+          >
+            Clear selection
+          </button>
+        </div>
+      )}
     </div>
   );
 };

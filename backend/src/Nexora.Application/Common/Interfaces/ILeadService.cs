@@ -32,6 +32,12 @@ public interface ILeadService
         Guid? actorUserId,
         CancellationToken ct = default);
 
+    Task<(bool Success, string? Error)> AssignLeadAsync(
+        Guid id,
+        Guid? assignedToUserId,
+        Guid? actorUserId,
+        CancellationToken ct = default);
+
     Task<(bool Success, string? Error)> AddLeadNoteAsync(
         Guid id,
         string note,
@@ -45,6 +51,16 @@ public interface ILeadService
         LeadStatus? status,
         string? region,
         string? formKey = null,
+        CancellationToken ct = default);
+
+    Task<(bool Success, string? Error)> AnonymizeLeadAsync(
+        Guid id,
+        Guid? actorUserId,
+        CancellationToken ct = default);
+
+    Task<(bool Success, string? Error)> DeleteLeadAsync(
+        Guid id,
+        Guid? actorUserId,
         CancellationToken ct = default);
 
     Task<IReadOnlyList<AdminFormDefinitionDto>> GetAdminFormsAsync(CancellationToken ct = default);

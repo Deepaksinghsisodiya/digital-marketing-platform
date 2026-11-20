@@ -50,8 +50,8 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
     },
     primary: {
       icon: HelpCircle,
-      badgeClass: "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/20",
-      btnClass: "bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-600/20",
+      badgeClass: "bg-primary/10 text-primary border-primary/20",
+      btnClass: "bg-primary hover:bg-primary-hover text-primary-foreground shadow-xs",
     },
   }[variant];
 

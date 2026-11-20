@@ -9,10 +9,9 @@ import {
   useDeleteUserMutation,
 } from "../../store/api/adminApi";
 import { useAppSelector } from "../../store/hooks";
-import { toast } from "sonner";
+import { toast } from "../../utils/toast";
 import {
   UserPlus,
-  Search,
   Shield,
   Ban,
   CheckCircle,
@@ -28,6 +27,18 @@ import {
   Sparkles,
   Send,
 } from "lucide-react";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "../../components/ui/Card";
+import { Badge } from "../../components/ui/Badge";
+import { Button } from "../../components/ui/button";
+import { SearchInput } from "../../components/ui/SearchInput";
+import { EmptyState } from "../../components/ui/EmptyState";
+import { TableSkeleton } from "../../components/ui/Skeleton";
 
 export const UsersPage: React.FC = () => {
   const { user: currentUser } = useAppSelector((state) => state.auth);
@@ -44,6 +55,8 @@ export const UsersPage: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [mustChangePassword, setMustChangePassword] = useState(true);
   const [inviteError, setInviteError] = useState<string | null>(null);
+
+  // Delete User Dialog State
   const [userToDelete, setUserToDelete] = useState<{
     id: string;
     email: string;
@@ -69,12 +82,6 @@ export const UsersPage: React.FC = () => {
     setShowPassword(true);
   };
 
-  // Action feedback
-  const [actionMsg, setActionMsg] = useState<{
-    text: string;
-    type: "success" | "error";
-  } | null>(null);
-
   const { data, isLoading, refetch } = useGetUsersQuery({
     page,
     pageSize: 10,
@@ -93,7 +100,9 @@ export const UsersPage: React.FC = () => {
   const handleResendInvite = async (userId: string, email: string) => {
     try {
       const res = await resendInvitation(userId).unwrap();
-      toast.success(res.message || `Invitation resent to ${email} successfully!`);
+      toast.success(
+        res.message || `Invitation resent to ${email} successfully!`,
+      );
     } catch (err: unknown) {
       const apiErr = err as { data?: { error?: string } };
       toast.error(apiErr?.data?.error || "Failed to resend invitation.");
@@ -103,70 +112,24 @@ export const UsersPage: React.FC = () => {
   const handleSendResetPassword = async (userId: string, email: string) => {
     try {
       const res = await sendUserPasswordReset(userId).unwrap();
-      toast.success(res.message || `Password reset link sent to ${email} successfully!`);
+      toast.success(
+        res.message || `Password reset link sent to ${email} successfully!`,
+      );
     } catch (err: unknown) {
       const apiErr = err as { data?: { error?: string } };
-      toast.error(apiErr?.data?.error || "Failed to send password reset.");
+      toast.error(apiErr?.data?.error || "Failed to dispatch reset link.");
     }
   };
 
-  const isOwner = currentUser?.roles?.includes("Owner");
-  const canManageUsers =
-    isOwner || currentUser?.permissions?.includes("users.manage");
-
-  const handleInvite = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setInviteError(null);
-
-    if (invitePassword.trim() && invitePassword.trim().length < 12) {
-      setInviteError("Password must be at least 12 characters long.");
-      return;
-    }
-
+  const handleToggleSuspend = async (userId: string, isSuspended: boolean) => {
     try {
-      const res = await inviteUser({
-        email: inviteEmail.trim(),
-        fullName: inviteFullName.trim(),
-        role: inviteRole,
-        password: invitePassword.trim() || undefined,
-        mustChangePassword,
-      }).unwrap();
-
-      setIsInviteOpen(false);
-      setInviteEmail("");
-      setInviteFullName("");
-      setInvitePassword("");
+      await updateUser({ id: userId, isSuspended: !isSuspended }).unwrap();
       toast.success(
-        res.message ||
-          `Staff member added successfully! Login credentials dispatched to ${inviteEmail}.`
+        isSuspended ? "User account reactivated." : "User account suspended.",
       );
       refetch();
-    } catch (err: unknown) {
-      const apiErr = err as { data?: { error?: string } };
-      setInviteError(apiErr?.data?.error || "Failed to create staff account.");
-      toast.error(apiErr?.data?.error || "Failed to create staff account.");
-    }
-  };
-
-  const handleToggleSuspend = async (
-    targetUserId: string,
-    isCurrentlySuspended: boolean,
-  ) => {
-    try {
-      await updateUser({
-        id: targetUserId,
-        isSuspended: !isCurrentlySuspended,
-        suspensionReason: isCurrentlySuspended
-          ? undefined
-          : "Manual administrative suspension",
-      }).unwrap();
-
-      toast.success(
-        `User ${isCurrentlySuspended ? "reactivated" : "suspended"} successfully.`
-      );
-    } catch (err: unknown) {
-      const apiErr = err as { data?: { error?: string } };
-      toast.error(apiErr?.data?.error || "Failed to update user status.");
+    } catch {
+      toast.error("Failed to update user status.");
     }
   };
 
@@ -174,108 +137,146 @@ export const UsersPage: React.FC = () => {
     if (!userToDelete) return;
     try {
       await deleteUser(userToDelete.id).unwrap();
-      toast.success(`User ${userToDelete.email} removed successfully.`);
+      toast.success(
+        `User ${userToDelete.name || userToDelete.email} has been removed.`,
+      );
       setUserToDelete(null);
       refetch();
     } catch (err: unknown) {
       const apiErr = err as { data?: { error?: string } };
-      toast.error(apiErr?.data?.error || "Failed to delete user.");
+      toast.error(apiErr?.data?.error || "Failed to delete user account.");
     }
   };
 
+  const handleInvite = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setInviteError(null);
+
+    try {
+      await inviteUser({
+        email: inviteEmail.trim(),
+        fullName: inviteFullName.trim(),
+        role: inviteRole,
+        password: invitePassword || undefined,
+        mustChangePassword,
+      }).unwrap();
+
+      toast.success(`Staff user invited: ${inviteEmail}`);
+      setIsInviteOpen(false);
+      setInviteEmail("");
+      setInviteFullName("");
+      setInvitePassword("");
+      refetch();
+    } catch (err: unknown) {
+      const apiErr = err as { data?: { error?: string } };
+      setInviteError(
+        apiErr?.data?.error ||
+          "Failed to invite staff user. Please verify input.",
+      );
+    }
+  };
+
+  const canManageUsers =
+    currentUser?.permissions?.includes("users.manage") ||
+    currentUser?.roles?.includes("Owner");
+  const isOwner = currentUser?.roles?.includes("Owner");
+
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div className="space-y-6 max-w-7xl mx-auto">
+      {/* Header Bar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
-            Staff & Users
-          </h2>
-          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-            Manage agency operators, roles, and status
+          <div className="flex items-center gap-2">
+            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
+              Staff &amp; Users
+            </h1>
+            <Badge variant="primary">RBAC Governed</Badge>
+          </div>
+          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+            Manage agency team members, fine-grained system access, and session
+            credentials
           </p>
         </div>
 
         {canManageUsers && (
-          <button
+          <Button
             onClick={() => setIsInviteOpen(true)}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold shadow-md shadow-indigo-600/30 transition-colors"
+            icon={UserPlus}
+            className="self-start sm:self-auto"
           >
-            <UserPlus className="w-4 h-4" />
             Invite Staff User
-          </button>
+          </Button>
         )}
       </div>
 
-      {actionMsg && (
-        <div
-          className={`p-4 rounded-xl flex items-center justify-between text-sm ${
-            actionMsg.type === "success"
-              ? "bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400"
-              : "bg-red-500/10 border border-red-500/30 text-red-600 dark:text-red-400"
-          }`}
-        >
-          <span>{actionMsg.text}</span>
-          <button onClick={() => setActionMsg(null)}>
-            <X className="w-4 h-4" />
-          </button>
-        </div>
-      )}
-
       {/* Filter Bar */}
-      <div className="flex flex-col sm:flex-row gap-3">
-        <div className="relative flex-1">
-          <Search className="w-4 h-4 absolute left-3.5 top-3 text-slate-400" />
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by name or email..."
-            className="w-full pl-10 pr-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
+      <Card className="p-3">
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="w-full sm:flex-1">
+            <SearchInput
+              value={search}
+              onChange={(val) => {
+                setSearch(val);
+                setPage(1);
+              }}
+              placeholder="Search by name or email..."
+            />
+          </div>
+
+          <select
+            value={roleFilter}
+            onChange={(e) => {
+              setRoleFilter(e.target.value);
+              setPage(1);
+            }}
+            className="px-3 py-2 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 rounded-xl text-xs text-slate-900 dark:text-white font-medium focus:outline-none focus:ring-1 focus:ring-primary"
+          >
+            <option value="">All Roles</option>
+            <option value="Owner">Owner</option>
+            <option value="Admin">Admin</option>
+            <option value="Editor">Editor</option>
+            <option value="Sales">Sales</option>
+          </select>
         </div>
+      </Card>
 
-        <select
-          value={roleFilter}
-          onChange={(e) => setRoleFilter(e.target.value)}
-          className="px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-        >
-          <option value="">All Roles</option>
-          <option value="Owner">Owner</option>
-          <option value="Admin">Admin</option>
-          <option value="Editor">Editor</option>
-          <option value="Sales">Sales</option>
-        </select>
-      </div>
-
-      {/* Table */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm transition-colors">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm text-slate-700 dark:text-slate-300">
-            <thead className="bg-slate-50 dark:bg-slate-950/60 border-b border-slate-200 dark:border-slate-800 text-xs uppercase font-semibold text-slate-500 dark:text-slate-400">
-              <tr>
-                <th className="px-6 py-4">User</th>
-                <th className="px-6 py-4">Role</th>
-                <th className="px-6 py-4">Status</th>
-                <th className="px-6 py-4">Created</th>
-                <th className="px-6 py-4 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80">
-              {isLoading ? (
+      {/* Users Table */}
+      <Card className="overflow-hidden">
+        {isLoading ? (
+          <div className="p-4">
+            <TableSkeleton rows={5} columns={5} hasControls={false} />
+          </div>
+        ) : !data || data.items.length === 0 ? (
+          <div className="p-6">
+            <EmptyState
+              icon={User}
+              title="No Users Matching Criteria"
+              description="No staff accounts match your active search keyword or role filter."
+              action={
+                canManageUsers
+                  ? {
+                      label: "Invite New Staff Member",
+                      onClick: () => setIsInviteOpen(true),
+                      icon: UserPlus,
+                    }
+                  : undefined
+              }
+            />
+          </div>
+        ) : (
+          <div className="overflow-x-auto max-h-[calc(100vh-280px)] overflow-y-auto">
+            <table className="w-full text-left text-xs text-slate-700 dark:text-slate-300">
+              <thead className="sticky top-0 z-10 bg-slate-50/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800/80 text-[11px] uppercase font-semibold text-slate-500 dark:text-slate-400 tracking-wider shadow-2xs">
                 <tr>
-                  <td colSpan={5} className="py-8 text-center text-slate-500">
-                    Loading users...
-                  </td>
+                  <th className="px-5 py-3.5">User Profile</th>
+                  <th className="px-5 py-3.5">System Role</th>
+                  <th className="px-5 py-3.5">Account State</th>
+                  <th className="px-5 py-3.5">Created Date</th>
+                  <th className="px-5 py-3.5 text-right">Actions</th>
                 </tr>
-              ) : !data || data.items.length === 0 ? (
-                <tr>
-                  <td colSpan={5} className="py-8 text-center text-slate-500">
-                    No users matching criteria.
-                  </td>
-                </tr>
-              ) : (
-                data.items.map((u) => {
+              </thead>
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
+                {data.items.map((u) => {
                   const isSuspended = u.status === 2;
                   const isInvited = u.status === 3;
                   const isSelf = u.id === currentUser?.id;
@@ -283,43 +284,43 @@ export const UsersPage: React.FC = () => {
                   return (
                     <tr
                       key={u.id}
-                      className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors"
+                      className="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors"
                     >
-                      <td className="px-6 py-4">
+                      <td className="px-5 py-3.5">
                         <div className="font-semibold text-slate-900 dark:text-white">
                           {u.fullName}
                         </div>
-                        <div className="text-xs text-slate-500 dark:text-slate-400 font-mono">
+                        <div className="text-[11px] text-slate-400 font-mono">
                           {u.email}
                         </div>
                       </td>
-                      <td className="px-6 py-4">
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
-                          <Shield className="w-3 h-3" />
+                      <td className="px-5 py-3.5">
+                        <Badge variant="primary">
+                          <Shield className="w-3 h-3 mr-0.5" />
                           {u.role}
-                        </span>
+                        </Badge>
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-5 py-3.5">
                         {isInvited ? (
-                          <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                          <Badge variant="warning" dot>
                             Invited
-                          </span>
+                          </Badge>
                         ) : isSuspended ? (
-                          <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-red-500/10 text-red-400 border border-red-500/20">
+                          <Badge variant="danger" dot>
                             Suspended
-                          </span>
+                          </Badge>
                         ) : (
-                          <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                          <Badge variant="success" dot>
                             Active
-                          </span>
+                          </Badge>
                         )}
                       </td>
-                      <td className="px-6 py-4 text-xs text-slate-400">
+                      <td className="px-5 py-3.5 text-slate-500 dark:text-slate-400">
                         {new Date(u.createdAtUtc).toLocaleDateString()}
                       </td>
-                      <td className="px-6 py-4 text-right">
+                      <td className="px-5 py-3.5 text-right">
                         {canManageUsers && !isSelf && (
-                          <div className="inline-flex items-center gap-2">
+                          <div className="inline-flex items-center gap-1.5 justify-end">
                             {isInvited && (
                               <button
                                 onClick={() =>
@@ -327,7 +328,7 @@ export const UsersPage: React.FC = () => {
                                 }
                                 disabled={isResending}
                                 title="Resend invitation link"
-                                className="p-1.5 rounded-lg border border-indigo-500/30 text-indigo-400 hover:bg-indigo-500/10 transition-colors disabled:opacity-40"
+                                className="p-1.5 rounded-lg text-slate-400 hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-800 transition disabled:opacity-40 cursor-pointer"
                               >
                                 <Mail className="w-3.5 h-3.5" />
                               </button>
@@ -338,7 +339,7 @@ export const UsersPage: React.FC = () => {
                               }
                               disabled={isResetting}
                               title="Send password reset link"
-                              className="p-1.5 rounded-lg border border-purple-500/30 text-purple-400 hover:bg-purple-500/10 transition-colors disabled:opacity-40"
+                              className="p-1.5 rounded-lg text-slate-400 hover:text-purple-600 dark:hover:text-purple-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition disabled:opacity-40 cursor-pointer"
                             >
                               <Key className="w-3.5 h-3.5" />
                             </button>
@@ -347,12 +348,14 @@ export const UsersPage: React.FC = () => {
                                 handleToggleSuspend(u.id, isSuspended)
                               }
                               title={
-                                isSuspended ? "Reactivate user" : "Suspend user"
-                              }
-                              className={`p-1.5 rounded-lg border text-xs transition-colors ${
                                 isSuspended
-                                  ? "border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10"
-                                  : "border-amber-500/30 text-amber-400 hover:bg-amber-500/10"
+                                  ? "Reactivate user"
+                                  : "Suspend user"
+                              }
+                              className={`p-1.5 rounded-lg transition cursor-pointer ${
+                                isSuspended
+                                  ? "text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/30"
+                                  : "text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-950/30"
                               }`}
                             >
                               {isSuspended ? (
@@ -370,212 +373,223 @@ export const UsersPage: React.FC = () => {
                                 })
                               }
                               title="Delete user"
-                              className="p-1.5 rounded-lg border border-red-500/30 text-red-400 hover:bg-red-500/10 transition-colors"
+                              className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 transition cursor-pointer"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
                             </button>
                           </div>
                         )}
                         {isSelf && (
-                          <span className="text-[11px] text-slate-500 font-medium italic">
+                          <span className="text-[11px] text-slate-500 dark:text-slate-400 italic">
                             Your account
                           </span>
                         )}
                       </td>
                     </tr>
                   );
-                })
-              )}
-            </tbody>
-          </table>
-        </div>
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
 
         {/* Pagination Footer */}
         {data && data.totalPages > 1 && (
-          <div className="p-4 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-900/60">
+          <div className="p-3.5 border-t border-slate-200/80 dark:border-slate-800/80 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 bg-slate-50/50 dark:bg-slate-900/40">
             <span>
-              Page {data.page} of {data.totalPages} ({data.totalCount} total)
+              Page {data.page} of {data.totalPages} ({data.totalCount} staff
+              members)
             </span>
-            <div className="flex gap-2">
-              <button
+            <div className="flex gap-1.5">
+              <Button
+                variant="outline"
+                size="xs"
                 disabled={page <= 1}
                 onClick={() => setPage(page - 1)}
-                className="px-3 py-1 rounded bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-white disabled:opacity-40"
               >
                 Previous
-              </button>
-              <button
+              </Button>
+              <Button
+                variant="outline"
+                size="xs"
                 disabled={page >= data.totalPages}
                 onClick={() => setPage(page + 1)}
-                className="px-3 py-1 rounded bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-white disabled:opacity-40"
               >
                 Next
-              </button>
+              </Button>
             </div>
           </div>
         )}
-      </div>
+      </Card>
 
       {/* Invite Modal */}
       {isInviteOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl w-full max-w-md p-6 shadow-2xl text-slate-900 dark:text-slate-100">
-            <div className="flex items-center justify-between mb-5">
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white">
-                Invite New Team Member
-              </h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-100">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl w-full max-w-md max-h-[90vh] flex flex-col overflow-hidden shadow-2xl animate-in zoom-in-95 duration-100">
+            <div className="flex items-center justify-between p-5 border-b border-slate-100 dark:border-slate-800 shrink-0">
+              <div className="flex items-center gap-2">
+                <div className="p-2 rounded-xl bg-primary/10 text-primary">
+                  <UserPlus className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+                    Invite Staff Member
+                  </h3>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                    Grant administrative portal credentials
+                  </p>
+                </div>
+              </div>
               <button
+                type="button"
                 onClick={() => setIsInviteOpen(false)}
-                className="text-slate-400 hover:text-slate-600 dark:hover:text-white"
+                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4" />
               </button>
             </div>
 
-            {inviteError && (
-              <div className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-600 dark:text-red-400 text-xs flex items-center gap-2">
-                <AlertCircle className="w-4 h-4 flex-shrink-0" />
-                <span>{inviteError}</span>
-              </div>
-            )}
+            <form onSubmit={handleInvite} className="flex flex-col flex-1 overflow-hidden min-h-0">
+              <div className="flex-1 overflow-y-auto p-5 space-y-4 text-xs">
+                {inviteError && (
+                  <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400 text-xs flex items-center gap-2">
+                    <AlertCircle className="w-4 h-4 shrink-0" />
+                    <span>{inviteError}</span>
+                  </div>
+                )}
 
-            <form onSubmit={handleInvite} className="space-y-4">
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
-                  Full Name
-                </label>
-                <div className="relative">
-                  <User className="w-4 h-4 absolute left-3 top-3 text-slate-400" />
-                  <input
-                    type="text"
-                    required
-                    value={inviteFullName}
-                    onChange={(e) => setInviteFullName(e.target.value)}
-                    placeholder="Jane Doe"
-                    className="w-full pl-9 pr-3 py-2 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
-                  Email Address
-                </label>
-                <div className="relative">
-                  <Mail className="w-4 h-4 absolute left-3 top-3 text-slate-400" />
-                  <input
-                    type="email"
-                    required
-                    value={inviteEmail}
-                    onChange={(e) => setInviteEmail(e.target.value)}
-                    placeholder="jane@nexora.local"
-                    className="w-full pl-9 pr-3 py-2 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
-                  Assigned Role
-                </label>
-                <select
-                  value={inviteRole}
-                  onChange={(e) => setInviteRole(e.target.value)}
-                  className="w-full px-3 py-2 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium"
-                >
-                  <option value="Admin">Admin (Full Administrative Access)</option>
-                  <option value="Editor">Editor (CMS, Pages & Blog Content)</option>
-                  <option value="Sales">Sales (CRM & Inbound Leads)</option>
-                  {isOwner && <option value="Owner">Owner (Platform Superuser)</option>}
-                </select>
-              </div>
-
-              {/* Password Field & Generator */}
-              <div>
-                <div className="flex items-center justify-between mb-1">
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-                    Initial Account Password
+                <div>
+                  <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                    Full Name *
                   </label>
-                  <button
-                    type="button"
-                    onClick={generateSecurePassword}
-                    className="text-[11px] font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 flex items-center gap-1"
-                  >
-                    <Sparkles className="w-3.5 h-3.5" />
-                    <span>Auto-generate</span>
-                  </button>
+                  <div className="relative">
+                    <User className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
+                    <input
+                      type="text"
+                      required
+                      value={inviteFullName}
+                      onChange={(e) => setInviteFullName(e.target.value)}
+                      placeholder="Jane Doe"
+                      className="w-full pl-9 pr-3 py-2 bg-slate-50/70 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 rounded-xl text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-primary"
+                    />
+                  </div>
                 </div>
-                <div className="relative">
-                  <Lock className="w-4 h-4 absolute left-3 top-3 text-slate-400" />
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    required
-                    value={invitePassword}
-                    onChange={(e) => setInvitePassword(e.target.value)}
-                    placeholder="Enter or generate initial password..."
-                    className="w-full pl-9 pr-10 py-2 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-sm font-mono text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+
+                <div>
+                  <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                    Email Address *
+                  </label>
+                  <div className="relative">
+                    <Mail className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
+                    <input
+                      type="email"
+                      required
+                      value={inviteEmail}
+                      onChange={(e) => setInviteEmail(e.target.value)}
+                      placeholder="jane@nexora.local"
+                      className="w-full pl-9 pr-3 py-2 bg-slate-50/70 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 rounded-xl text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-primary"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                    Assigned RBAC Role
+                  </label>
+                  <select
+                    value={inviteRole}
+                    onChange={(e) => setInviteRole(e.target.value)}
+                    className="w-full px-3 py-2 bg-slate-50/70 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 rounded-xl text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-primary font-medium"
                   >
-                    {showPassword ? (
-                      <EyeOff className="w-4 h-4" />
-                    ) : (
-                      <Eye className="w-4 h-4" />
+                    <option value="Admin">Admin (Full Administrative Access)</option>
+                    <option value="Editor">Editor (CMS, Pages & Blog Content)</option>
+                    <option value="Sales">Sales (CRM & Inbound Leads)</option>
+                    {isOwner && (
+                      <option value="Owner">Owner (Platform Superuser)</option>
                     )}
-                  </button>
+                  </select>
                 </div>
-                <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">
-                  This password and portal URL will be automatically emailed to the new staff member.
-                </p>
+
+                {/* Password Generator */}
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="block font-semibold text-slate-700 dark:text-slate-300">
+                      Initial Account Password
+                    </label>
+                    <button
+                      type="button"
+                      onClick={generateSecurePassword}
+                      className="text-[11px] font-semibold text-primary hover:underline flex items-center gap-1 cursor-pointer"
+                    >
+                      <Sparkles className="w-3 h-3" />
+                      <span>Auto-generate</span>
+                    </button>
+                  </div>
+                  <div className="relative">
+                    <Lock className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      required
+                      value={invitePassword}
+                      onChange={(e) => setInvitePassword(e.target.value)}
+                      placeholder="Enter or generate temporary password..."
+                      className="w-full pl-9 pr-10 py-2 bg-slate-50/70 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 rounded-xl font-mono text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-primary"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 cursor-pointer"
+                    >
+                      {showPassword ? (
+                        <EyeOff className="w-3.5 h-3.5" />
+                      ) : (
+                        <Eye className="w-3.5 h-3.5" />
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Prompt user to change password */}
+                <div className="p-3 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200/80 dark:border-slate-700/60 space-y-1.5">
+                  <label className="flex items-center gap-2 cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={mustChangePassword}
+                      onChange={(e) => setMustChangePassword(e.target.checked)}
+                      className="rounded text-primary focus:ring-primary"
+                    />
+                    <span className="font-semibold text-slate-700 dark:text-slate-200">
+                      Prompt password change on first login
+                    </span>
+                  </label>
+                  <div className="flex items-center gap-1.5 text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">
+                    <Mail className="w-3 h-3 shrink-0" />
+                    <span>Credentials will be emailed automatically</span>
+                  </div>
+                </div>
               </div>
 
-              {/* Credentials & Password Change Option */}
-              <div className="p-3 bg-slate-50 dark:bg-slate-950/60 rounded-xl border border-slate-200 dark:border-slate-800 space-y-2">
-                <label className="flex items-center gap-2 cursor-pointer text-xs text-slate-700 dark:text-slate-300 select-none">
-                  <input
-                    type="checkbox"
-                    checked={mustChangePassword}
-                    onChange={(e) => setMustChangePassword(e.target.checked)}
-                    className="w-4 h-4 text-indigo-600 rounded border-slate-300 dark:border-slate-700 focus:ring-indigo-500"
-                  />
-                  <span className="font-medium">
-                    Prompt user to change password upon first login
-                  </span>
-                </label>
-                <div className="flex items-center gap-1.5 text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold">
-                  <Mail className="w-3.5 h-3.5" />
-                  <span>Login credentials will be sent to their email automatically</span>
-                </div>
-              </div>
-
-              <div className="pt-2 flex justify-end gap-3">
-                <button
+              <div className="p-4 px-5 flex justify-end gap-2 border-t border-slate-100 dark:border-slate-800 shrink-0 bg-slate-50/50 dark:bg-slate-900/50">
+                <Button
                   type="button"
+                  variant="outline"
                   onClick={() => setIsInviteOpen(false)}
-                  className="px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
                 >
                   Cancel
-                </button>
-                <button
+                </Button>
+                <Button
                   type="submit"
-                  disabled={isInviting}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-500 shadow-md shadow-indigo-600/30 disabled:opacity-50 transition"
+                  isLoading={isInviting}
+                  icon={Send}
                 >
-                  <Send className="w-4 h-4" />
-                  <span>
-                    {isInviting
-                      ? "Creating & Sending..."
-                      : "Create Staff & Email Credentials"}
-                  </span>
-                </button>
+                  Create &amp; Email Credentials
+                </Button>
               </div>
             </form>
           </div>
         </div>
       )}
+
       {/* Delete User Confirmation Dialog */}
       <ConfirmDialog
         isOpen={Boolean(userToDelete)}

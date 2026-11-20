@@ -35,7 +35,8 @@ public record PageDetailDto(
     Guid? PublishedVersionId,
     IReadOnlyList<CmsBlockDto> Blocks,
     DateTime CreatedAtUtc,
-    DateTime? UpdatedAtUtc);
+    DateTime? UpdatedAtUtc,
+    string? OgImageUrl = null);
 
 public record CreatePageRequest(
     string Slug,
@@ -44,7 +45,8 @@ public record CreatePageRequest(
     string? MetaTitle = null,
     string? MetaDescription = null,
     string? CanonicalUrl = null,
-    bool NoIndex = false);
+    bool NoIndex = false,
+    string? OgImageUrl = null);
 
 public record SaveDraftRequest(
     string Title,
@@ -54,7 +56,8 @@ public record SaveDraftRequest(
     string? MetaDescription = null,
     string? CanonicalUrl = null,
     bool NoIndex = false,
-    string? Note = null);
+    string? Note = null,
+    string? OgImageUrl = null);
 
 public record PublishPageResponse(
     bool Success,

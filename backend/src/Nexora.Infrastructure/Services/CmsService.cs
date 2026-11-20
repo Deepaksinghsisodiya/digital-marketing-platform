@@ -1,5 +1,7 @@
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using System.Net.Http;
 using Nexora.Application.CMS.DTOs;
 using Nexora.Application.Common.Interfaces;
 using Nexora.Application.Common.Models;
@@ -13,15 +15,21 @@ public sealed class CmsService : ICmsService
     private readonly AppDbContext _context;
     private readonly IDateTimeProvider _dateTimeProvider;
     private readonly IAuditLogService _auditLogService;
+    private readonly IConfiguration? _configuration;
+    private readonly IHttpClientFactory? _httpClientFactory;
 
     public CmsService(
         AppDbContext context,
         IDateTimeProvider dateTimeProvider,
-        IAuditLogService auditLogService)
+        IAuditLogService auditLogService,
+        IConfiguration? configuration = null,
+        IHttpClientFactory? httpClientFactory = null)
     {
         _context = context;
         _dateTimeProvider = dateTimeProvider;
         _auditLogService = auditLogService;
+        _configuration = configuration;
+        _httpClientFactory = httpClientFactory;
     }
 
     public async Task<PaginatedResult<PageSummaryDto>> GetPagesAsync(
@@ -100,7 +108,8 @@ public sealed class CmsService : ICmsService
             page.PublishedVersionId,
             blocks,
             page.CreatedAtUtc,
-            page.UpdatedAtUtc);
+            page.UpdatedAtUtc,
+            page.OgImageUrl);
     }
 
     public async Task<(bool Success, string? Error, Guid? PageId)> CreatePageAsync(
@@ -129,6 +138,7 @@ public sealed class CmsService : ICmsService
             MetaTitle = request.MetaTitle,
             MetaDescription = request.MetaDescription,
             CanonicalUrl = request.CanonicalUrl,
+            OgImageUrl = request.OgImageUrl,
             NoIndex = request.NoIndex
         };
 
@@ -184,6 +194,7 @@ public sealed class CmsService : ICmsService
         page.MetaTitle = request.MetaTitle;
         page.MetaDescription = request.MetaDescription;
         page.CanonicalUrl = request.CanonicalUrl;
+        page.OgImageUrl = request.OgImageUrl;
         page.NoIndex = request.NoIndex;
         page.MarkUpdated();
 
@@ -275,6 +286,8 @@ public sealed class CmsService : ICmsService
             metadata: new() { ["versionId"] = latestVersion.Id.ToString(), ["versionNumber"] = latestVersion.VersionNumber.ToString() },
             cancellationToken: ct);
 
+        TriggerRevalidationWebhook(page.Slug);
+
         return (true, null, new PublishPageResponse(true, latestVersion.Id, latestVersion.VersionNumber, "Page published successfully."));
     }
 
@@ -314,6 +327,8 @@ public sealed class CmsService : ICmsService
             correlationId: Guid.NewGuid().ToString("N"),
             metadata: new() { ["targetVersion"] = targetVersionNumber.ToString() },
             cancellationToken: ct);
+
+        TriggerRevalidationWebhook(page.Slug);
 
         return (true, null);
     }
@@ -454,7 +469,8 @@ public sealed class CmsService : ICmsService
             page.PublishedVersionId,
             blocks,
             page.CreatedAtUtc,
-            page.UpdatedAtUtc);
+            page.UpdatedAtUtc,
+            page.OgImageUrl);
     }
 
     public async Task<PageDetailDto?> GetPageByPreviewTokenAsync(
@@ -492,7 +508,8 @@ public sealed class CmsService : ICmsService
             preview.PageVersion.Id,
             blocks,
             page.CreatedAtUtc,
-            page.UpdatedAtUtc);
+            page.UpdatedAtUtc,
+            page.OgImageUrl);
     }
 
     private static IReadOnlyList<CmsBlockDto> DeserializeBlocks(string? json)
@@ -509,5 +526,29 @@ public sealed class CmsService : ICmsService
         {
             return [];
         }
+    }
+
+    private void TriggerRevalidationWebhook(string slug)
+    {
+        if (_httpClientFactory == null || _configuration == null)
+            return;
+
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                var websiteUrl = _configuration["Website:Url"] ?? "http://localhost:3000";
+                var secret = _configuration["Website:RevalidateSecret"] ?? "nexora_revalidate_secret_dev";
+                using var client = _httpClientFactory.CreateClient();
+                client.Timeout = TimeSpan.FromSeconds(3);
+                var path = "/" + slug.Trim('/');
+                var url = $"{websiteUrl.TrimEnd('/')}/api/revalidate?secret={Uri.EscapeDataString(secret)}&tag=cms-pages&path={Uri.EscapeDataString(path)}";
+                await client.PostAsync(url, null);
+            }
+            catch
+            {
+                // Non-blocking fire-and-forget for cache revalidation
+            }
+        });
     }
 }

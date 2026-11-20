@@ -347,7 +347,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
       onClick={onClose}
     >
       <div
-        className="w-full max-w-2xl bg-white dark:bg-ink border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[80vh] animate-in fade-in zoom-in-95 duration-150"
+        className="w-full max-w-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[80vh] animate-in fade-in zoom-in-95 duration-150"
         onClick={(e) => e.stopPropagation()}
         onKeyDown={handleKeyDown}
       >
@@ -392,7 +392,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                   onMouseEnter={() => setSelectedIndex(index)}
                   className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs cursor-pointer transition ${
                     isSelected
-                      ? "bg-indigo-600 text-white font-semibold"
+                      ? "bg-primary text-primary-foreground font-semibold shadow-xs"
                       : "text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/60"
                   }`}
                 >
@@ -400,7 +400,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                     <div
                       className={`p-1.5 rounded-lg ${
                         isSelected
-                          ? "bg-indigo-700 text-white"
+                          ? "bg-primary-hover text-primary-foreground"
                           : "bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400"
                       }`}
                     >
@@ -411,8 +411,8 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                       <span
                         className={`text-[10px] ${
                           isSelected
-                            ? "text-indigo-200"
-                            : "text-slate-400 dark:text-slate-500"
+                            ? "text-primary-foreground/80"
+                            : "text-slate-500 dark:text-slate-400"
                         }`}
                       >
                         {item.category}
@@ -425,8 +425,8 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                       <span
                         className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
                           isSelected
-                            ? "bg-indigo-500/40 text-white border border-white/20"
-                            : "bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800"
+                            ? "bg-white/20 text-primary-foreground border border-white/30"
+                            : "bg-primary/10 text-primary border border-primary/20"
                         }`}
                       >
                         {item.badge}
@@ -435,8 +435,8 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                     <ArrowRight
                       className={`w-3.5 h-3.5 ${
                         isSelected
-                          ? "text-white"
-                          : "text-slate-300 dark:text-slate-600"
+                          ? "text-primary-foreground"
+                          : "text-slate-400 dark:text-slate-600"
                       }`}
                     />
                   </div>
@@ -447,7 +447,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
         </div>
 
         {/* Footer shortcuts */}
-        <div className="px-4 py-2.5 bg-slate-50 dark:bg-slate-900/80 border-t border-slate-200/80 dark:border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400 font-medium">
+        <div className="px-4 py-2.5 bg-slate-50 dark:bg-slate-900/80 border-t border-slate-200/80 dark:border-slate-800/80 flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 font-medium">
           <div className="flex items-center gap-3">
             <span>
               <kbd className="px-1.5 py-0.5 bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 font-mono text-[10px] mr-1">

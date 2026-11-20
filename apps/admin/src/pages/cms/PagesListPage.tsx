@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { toast } from "sonner";
+import { toast } from "../../utils/toast";
 import {
   useGetPagesQuery,
   useGetPageByIdQuery,
@@ -16,6 +16,10 @@ import {
 import { useAuth } from "../../hooks/useAuth";
 import type { CmsBlock } from "../../types";
 import { ConfirmDialog } from "../../components/ConfirmDialog";
+import { TableSkeleton } from "../../components/ui/Skeleton";
+import { EmptyState } from "../../components/ui/EmptyState";
+import { SearchInput } from "../../components/ui/SearchInput";
+import { Badge } from "../../components/ui/Badge";
 import {
   Globe,
   Layout,
@@ -273,7 +277,7 @@ export const PagesListPage: React.FC = () => {
   const [createError, setCreateError] = useState("");
 
   // RTK Queries
-  const { data: pagesData, refetch: refetchPages } = useGetPagesQuery({
+  const { data: pagesData, isLoading: isPagesLoading, refetch: refetchPages } = useGetPagesQuery({
     page,
     pageSize: 50,
     search: search || undefined,
@@ -609,9 +613,9 @@ export const PagesListPage: React.FC = () => {
   return (
     <div className="space-y-5 w-full max-w-[2400px] mx-auto">
       {/* Top Navigation & View Mode Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white dark:bg-[#0c1222] p-4 sm:p-5 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 shadow-sm">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 shadow-sm">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold shadow-md shadow-indigo-600/30">
+          <div className="w-10 h-10 rounded-xl bg-primary text-primary-foreground flex items-center justify-center font-bold shadow-xs">
             <Globe className="w-5 h-5" />
           </div>
           <div>
@@ -619,7 +623,7 @@ export const PagesListPage: React.FC = () => {
               <h1 className="text-xl font-black text-slate-900 dark:text-white tracking-tight">
                 Website Visual Studio & CMS
               </h1>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800/40">
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-primary/10 text-primary border border-primary/20">
                 Live Engine
               </span>
             </div>
@@ -636,9 +640,9 @@ export const PagesListPage: React.FC = () => {
             <button
               type="button"
               onClick={() => setViewMode("visual")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
                 viewMode === "visual"
-                  ? "bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-sm"
+                  ? "bg-white dark:bg-slate-900 text-primary shadow-xs"
                   : "text-slate-600 dark:text-slate-400 hover:text-slate-900"
               }`}
             >
@@ -648,9 +652,9 @@ export const PagesListPage: React.FC = () => {
             <button
               type="button"
               onClick={() => setViewMode("directory")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
                 viewMode === "directory"
-                  ? "bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-sm"
+                  ? "bg-white dark:bg-slate-900 text-primary shadow-xs"
                   : "text-slate-600 dark:text-slate-400 hover:text-slate-900"
               }`}
             >
@@ -663,7 +667,7 @@ export const PagesListPage: React.FC = () => {
             <button
               type="button"
               onClick={() => setShowCreateModal(true)}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-md shadow-indigo-600/30 transition"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary hover:bg-primary-hover text-primary-foreground text-xs font-bold shadow-xs shadow-primary/25 transition cursor-pointer"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>New Page</span>
@@ -693,7 +697,7 @@ export const PagesListPage: React.FC = () => {
       {viewMode === "visual" && (
         <div className="space-y-4">
           {/* Visual Studio Action Bar */}
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 bg-white dark:bg-[#0c1222] p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 shadow-sm">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 shadow-sm">
             {/* Page Selector Dropdown */}
             <div className="flex items-center gap-3">
               <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
@@ -705,7 +709,7 @@ export const PagesListPage: React.FC = () => {
                   setSelectedPageId(e.target.value);
                   setExpandedBlockIndex(null);
                 }}
-                className="px-3.5 py-1.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="px-3.5 py-1.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-primary"
               >
                 {(pagesData?.items || []).map((p) => (
                   <option key={p.id} value={p.id}>
@@ -730,9 +734,9 @@ export const PagesListPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setViewport("desktop")}
-                className={`p-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 ${
+                className={`p-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
                   viewport === "desktop"
-                    ? "bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-sm"
+                    ? "bg-white dark:bg-slate-900 text-primary shadow-xs"
                     : "text-slate-500 hover:text-slate-900 dark:hover:text-white"
                 }`}
                 title="Desktop View (1920px Full Width)"
@@ -743,9 +747,9 @@ export const PagesListPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setViewport("tablet")}
-                className={`p-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 ${
+                className={`p-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
                   viewport === "tablet"
-                    ? "bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-sm"
+                    ? "bg-white dark:bg-slate-900 text-primary shadow-xs"
                     : "text-slate-500 hover:text-slate-900 dark:hover:text-white"
                 }`}
                 title="Tablet View (768px)"
@@ -756,9 +760,9 @@ export const PagesListPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setViewport("mobile")}
-                className={`p-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 ${
+                className={`p-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
                   viewport === "mobile"
-                    ? "bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-sm"
+                    ? "bg-white dark:bg-slate-900 text-primary shadow-xs"
                     : "text-slate-500 hover:text-slate-900 dark:hover:text-white"
                 }`}
                 title="Mobile View (375px)"
@@ -773,7 +777,7 @@ export const PagesListPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setPreviewKey(Date.now())}
-                className="p-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-slate-600 dark:text-slate-300 hover:text-indigo-600 transition"
+                className="p-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-slate-600 dark:text-slate-300 hover:text-primary transition cursor-pointer"
                 title="Reload Live Iframe Preview"
               >
                 <RefreshCw className="w-4 h-4" />
@@ -783,7 +787,7 @@ export const PagesListPage: React.FC = () => {
                 href={previewUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:text-indigo-600 transition"
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:text-primary transition cursor-pointer"
               >
                 <ExternalLink className="w-3.5 h-3.5" />
                 <span className="hidden sm:inline">Open Live</span>
@@ -792,7 +796,7 @@ export const PagesListPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setIsSeoModalOpen(true)}
-                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:text-indigo-600 transition"
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:text-primary transition cursor-pointer"
                 title="Page SEO, Social Meta & Canonical Tags"
               >
                 <SlidersHorizontal className="w-3.5 h-3.5 text-purple-500" />
@@ -802,13 +806,13 @@ export const PagesListPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setShowVersionsModal(true)}
-                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:text-indigo-600 transition"
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:text-primary transition cursor-pointer"
                 title="Version History & 1-Click Rollback"
               >
-                <History className="w-3.5 h-3.5 text-indigo-500" />
+                <History className="w-3.5 h-3.5 text-primary" />
                 <span className="hidden sm:inline">Versions</span>
                 {pageVersions.length > 0 && (
-                  <span className="px-1.5 py-0.5 bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 rounded-md text-[10px] font-bold">
+                  <span className="px-1.5 py-0.5 bg-primary/10 text-primary rounded-md text-[10px] font-bold">
                     {pageVersions.length}
                   </span>
                 )}
@@ -819,7 +823,7 @@ export const PagesListPage: React.FC = () => {
                   type="button"
                   onClick={handleSaveDraft}
                   disabled={isSavingDraft}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 text-xs font-bold shadow-sm transition disabled:opacity-50"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 text-xs font-bold shadow-xs transition disabled:opacity-50 cursor-pointer"
                 >
                   <Save className="w-3.5 h-3.5" />
                   <span>{isSavingDraft ? "Saving..." : "Save Draft"}</span>
@@ -831,7 +835,7 @@ export const PagesListPage: React.FC = () => {
                   type="button"
                   onClick={handlePublish}
                   disabled={isPublishing}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-md shadow-indigo-600/30 transition disabled:opacity-50"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary hover:bg-primary-hover text-primary-foreground text-xs font-bold shadow-xs shadow-primary/25 transition disabled:opacity-50 cursor-pointer"
                 >
                   <Sparkles className="w-3.5 h-3.5" />
                   <span>{isPublishing ? "Publishing..." : "Publish Live"}</span>
@@ -846,9 +850,9 @@ export const PagesListPage: React.FC = () => {
             <div className="lg:col-span-5 space-y-4">
               {/* Global Section Toggles Quick Bar (for Home) */}
               {selectedPageSlug === "home" && (
-                <div className="p-4 rounded-2xl bg-white dark:bg-[#0c1222] border border-slate-200/80 dark:border-slate-800/80 shadow-sm space-y-3">
+                <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 shadow-sm space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 flex items-center gap-1.5">
+                    <span className="text-xs font-bold uppercase tracking-wider text-primary flex items-center gap-1.5">
                       <SlidersHorizontal className="w-3.5 h-3.5" />
                       Global Section Visibility Toggles
                     </span>
@@ -872,9 +876,9 @@ export const PagesListPage: React.FC = () => {
                           key={item.key}
                           type="button"
                           onClick={() => handleToggleGlobalSection(item.key)}
-                          className={`flex items-center justify-between p-2 rounded-xl border transition ${
+                          className={`flex items-center justify-between p-2 rounded-xl border transition cursor-pointer ${
                             isVisible
-                              ? "bg-indigo-50/50 dark:bg-indigo-950/30 border-indigo-200/80 dark:border-indigo-800/50 text-indigo-900 dark:text-indigo-300 font-semibold"
+                              ? "bg-primary/10 border-primary/30 text-primary font-semibold"
                               : "bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-400"
                           }`}
                         >
@@ -894,11 +898,11 @@ export const PagesListPage: React.FC = () => {
               )}
 
               {/* Sections Tree for Active Page */}
-              <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-[#0c1222] border border-slate-200/80 dark:border-slate-800/80 shadow-sm space-y-3">
+              <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 shadow-sm space-y-3">
                 <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
                   <div>
                     <h3 className="font-bold text-sm text-slate-900 dark:text-white flex items-center gap-2">
-                      <Layers className="w-4 h-4 text-indigo-500" />
+                      <Layers className="w-4 h-4 text-primary" />
                       Page Sections Tree ({pageBlocks.length})
                     </h3>
                     <p className="text-[11px] text-slate-500">
@@ -910,7 +914,7 @@ export const PagesListPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setAddBlockPaletteOpen(!addBlockPaletteOpen)}
-                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 text-xs font-bold border border-indigo-200/80 dark:border-indigo-800/60 transition"
+                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-primary/10 text-primary hover:bg-primary/20 text-xs font-bold border border-primary/20 transition cursor-pointer"
                   >
                     <Plus className="w-3.5 h-3.5" />
                     <span>Add Section</span>
@@ -919,7 +923,7 @@ export const PagesListPage: React.FC = () => {
 
                 {/* Add Section Palette Drawer */}
                 {addBlockPaletteOpen && (
-                  <div className="p-3 bg-slate-50 dark:bg-slate-900/60 rounded-xl border border-indigo-100 dark:border-indigo-900/40 space-y-2">
+                  <div className="p-3 bg-slate-50 dark:bg-slate-900/60 rounded-xl border border-primary/20 space-y-2">
                     <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
                       Choose Component To Insert:
                     </span>
@@ -932,9 +936,9 @@ export const PagesListPage: React.FC = () => {
                               key={type}
                               type="button"
                               onClick={() => handleAddBlock(type)}
-                              className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0c1222] hover:border-indigo-500 hover:shadow-sm text-left transition flex items-start gap-2.5"
+                              className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-primary hover:shadow-xs text-left transition flex items-start gap-2.5 cursor-pointer"
                             >
-                              <div className="p-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400">
+                              <div className="p-1.5 rounded-lg bg-primary/10 text-primary">
                                 <Icon className="w-3.5 h-3.5" />
                               </div>
                               <div>
@@ -983,7 +987,7 @@ export const PagesListPage: React.FC = () => {
                             <div
                               className={`p-1.5 rounded-lg ${
                                 block.enabled
-                                  ? "bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400"
+                                  ? "bg-primary/10 text-primary"
                                   : "bg-slate-200 dark:bg-slate-800 text-slate-400"
                               }`}
                             >
@@ -1348,17 +1352,17 @@ export const PagesListPage: React.FC = () => {
       {/* VIEW MODE 2: DIRECTORY TABLE (All Pages & SEO Meta) */}
       {viewMode === "directory" && (
         <div className="space-y-4">
-          <div className="flex items-center justify-between gap-4 bg-white dark:bg-[#0c1222] p-4 rounded-xl border border-slate-200/80 dark:border-slate-800/80 shadow-sm">
-            <input
-              type="text"
-              placeholder="Search pages by title or slug..."
-              value={search}
-              onChange={(e) => {
-                setSearch(e.target.value);
-                setPage(1);
-              }}
-              className="w-80 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 px-3.5 py-2 text-xs text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            />
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200/80 dark:border-slate-800/80 shadow-sm">
+            <div className="w-full sm:w-80">
+              <SearchInput
+                placeholder="Search pages by title or slug..."
+                value={search}
+                onChange={(val) => {
+                  setSearch(val);
+                  setPage(1);
+                }}
+              />
+            </div>
             <div className="text-xs text-slate-500">
               Total:{" "}
               <span className="font-bold text-slate-900 dark:text-white">
@@ -1368,94 +1372,112 @@ export const PagesListPage: React.FC = () => {
             </div>
           </div>
 
-          <div className="overflow-hidden rounded-2xl border border-slate-200/80 dark:border-slate-800/80 bg-white dark:bg-[#0c1222] shadow-sm">
-            <table className="min-w-full divide-y divide-slate-100 dark:divide-slate-800 text-xs">
-              <thead className="bg-slate-50/80 dark:bg-slate-900/60 text-slate-400 font-bold uppercase tracking-wider text-[11px]">
-                <tr>
-                  <th className="px-6 py-3.5 text-left">Page Title</th>
-                  <th className="px-6 py-3.5 text-left">Slug / Route</th>
-                  <th className="px-6 py-3.5 text-left">Locale</th>
-                  <th className="px-6 py-3.5 text-left">Status</th>
-                  <th className="px-6 py-3.5 text-left">Updated</th>
-                  <th className="px-6 py-3.5 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60 text-slate-700 dark:text-slate-300">
-                {(pagesData?.items || []).map((p) => (
-                  <tr
-                    key={p.id}
-                    className="hover:bg-slate-50/50 dark:hover:bg-slate-800/40 transition"
-                  >
-                    <td className="px-6 py-4 font-bold text-slate-900 dark:text-white">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setSelectedPageId(p.id);
-                          setViewMode("visual");
-                        }}
-                        className="hover:underline text-indigo-600 dark:text-indigo-400 text-left font-bold"
-                      >
-                        {p.title}
-                      </button>
-                    </td>
-                    <td className="px-6 py-4 font-mono text-slate-500">
-                      /{p.slug}
-                    </td>
-                    <td className="px-6 py-4 uppercase font-semibold text-slate-600 dark:text-slate-400">
-                      {p.locale}
-                    </td>
-                    <td className="px-6 py-4">
-                      {p.status === 2 ? (
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">
-                          Published
-                        </span>
-                      ) : p.status === 3 ? (
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-500/10 text-slate-500 border border-slate-500/20">
-                          Archived
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-600 border border-amber-500/20">
-                          Draft
-                        </span>
-                      )}
-                    </td>
-                    <td className="px-6 py-4 text-slate-400">
-                      {p.updatedAtUtc
-                        ? new Date(p.updatedAtUtc).toLocaleDateString()
-                        : new Date(p.createdAtUtc).toLocaleDateString()}
-                    </td>
-                    <td className="px-6 py-4 text-right space-x-2">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setSelectedPageId(p.id);
-                          setViewMode("visual");
-                        }}
-                        className="px-3 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 font-bold hover:bg-indigo-100 transition"
-                      >
-                        Open Studio
-                      </button>
-                      <Link
-                        to={`/cms/pages/${p.id}/edit`}
-                        className="px-3 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-medium hover:bg-slate-200 transition"
-                      >
-                        Edit SEO
-                      </Link>
-                      {p.status !== 3 && (
+          <div className="overflow-hidden rounded-2xl border border-slate-200/80 dark:border-slate-800/80 bg-white dark:bg-slate-900 shadow-sm">
+            {isPagesLoading ? (
+              <TableSkeleton rows={8} columns={6} hasControls={false} />
+            ) : (
+              <div className="overflow-x-auto max-h-[calc(100vh-280px)] overflow-y-auto">
+                <table className="min-w-full divide-y divide-slate-100 dark:divide-slate-800 text-xs">
+                  <thead className="sticky top-0 z-10 bg-slate-50/95 dark:bg-slate-900/95 backdrop-blur-md text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider text-[11px] border-b border-slate-200/80 dark:border-slate-800/80 shadow-2xs">
+                  <tr>
+                    <th className="px-6 py-3.5 text-left">Page Title</th>
+                    <th className="px-6 py-3.5 text-left">Slug / Route</th>
+                    <th className="px-6 py-3.5 text-left">Locale</th>
+                    <th className="px-6 py-3.5 text-left">Status</th>
+                    <th className="px-6 py-3.5 text-left">Updated</th>
+                    <th className="px-6 py-3.5 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60 text-slate-700 dark:text-slate-300">
+                  {(pagesData?.items || []).map((p) => (
+                    <tr
+                      key={p.id}
+                      className="hover:bg-slate-50/50 dark:hover:bg-slate-800/40 transition"
+                    >
+                      <td className="px-6 py-4 font-bold text-slate-900 dark:text-white">
                         <button
                           type="button"
-                          onClick={() => handleArchive(p.id, p.title)}
-                          disabled={isArchiving}
-                          className="px-3 py-1 rounded-lg bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 font-medium hover:bg-rose-100 transition"
+                          onClick={() => {
+                            setSelectedPageId(p.id);
+                            setViewMode("visual");
+                          }}
+                          className="hover:underline text-primary text-left font-bold cursor-pointer"
                         >
-                          Archive
+                          {p.title}
                         </button>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                      </td>
+                      <td className="px-6 py-4 font-mono text-slate-500">
+                        /{p.slug}
+                      </td>
+                      <td className="px-6 py-4 uppercase font-semibold text-slate-600 dark:text-slate-400">
+                        {p.locale}
+                      </td>
+                      <td className="px-6 py-4">
+                        {p.status === 2 ? (
+                          <Badge variant="success" dot>
+                            Published
+                          </Badge>
+                        ) : p.status === 3 ? (
+                          <Badge variant="secondary">Archived</Badge>
+                        ) : (
+                          <Badge variant="warning" dot>
+                            Draft
+                          </Badge>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 text-slate-500 dark:text-slate-400">
+                        {p.updatedAtUtc
+                          ? new Date(p.updatedAtUtc).toLocaleDateString()
+                          : new Date(p.createdAtUtc).toLocaleDateString()}
+                      </td>
+                      <td className="px-6 py-4 text-right space-x-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedPageId(p.id);
+                            setViewMode("visual");
+                          }}
+                          className="px-3 py-1 rounded-lg bg-primary/10 text-primary font-bold hover:bg-primary/20 transition cursor-pointer"
+                        >
+                          Open Studio
+                        </button>
+                        <Link
+                          to={`/cms/pages/${p.id}/edit`}
+                          className="px-3 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-medium hover:bg-slate-200 transition"
+                        >
+                          Edit SEO
+                        </Link>
+                        {p.status !== 3 && (
+                          <button
+                            type="button"
+                            onClick={() => handleArchive(p.id, p.title)}
+                            disabled={isArchiving}
+                            className="px-3 py-1 rounded-lg bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 font-medium hover:bg-rose-100 transition"
+                          >
+                            Archive
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                  {pagesData?.items.length === 0 && (
+                    <tr>
+                      <td colSpan={6} className="p-0">
+                        <EmptyState
+                          title="No pages found"
+                          description="No CMS pages match your search query."
+                          action={{
+                            label: "Create New Page",
+                            onClick: () => setShowCreateModal(true),
+                          }}
+                        />
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -1463,7 +1485,7 @@ export const PagesListPage: React.FC = () => {
       {/* Create New Page Modal */}
       {showCreateModal && (
         <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-[#0c1222] rounded-2xl border border-slate-200/80 dark:border-slate-800/80 p-6 max-w-md w-full shadow-2xl space-y-4">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 p-6 max-w-md w-full shadow-2xl space-y-4">
             <h3 className="font-bold text-base text-slate-900 dark:text-white">
               Create New Website Page
             </h3>
@@ -1529,7 +1551,7 @@ export const PagesListPage: React.FC = () => {
                 <button
                   type="submit"
                   disabled={isCreating}
-                  className="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-md shadow-indigo-600/30"
+                  className="px-5 py-2 rounded-xl bg-primary hover:bg-primary-hover text-primary-foreground text-xs font-bold shadow-xs shadow-primary/25 transition cursor-pointer"
                 >
                   {isCreating ? "Creating..." : "Create & Open Studio"}
                 </button>
@@ -1546,7 +1568,7 @@ export const PagesListPage: React.FC = () => {
             <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
               <div>
                 <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                  <History className="w-4 h-4 text-indigo-600" />
+                  <History className="w-4 h-4 text-primary" />
                   <span>Version History & Rollback</span>
                 </h3>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
@@ -1556,7 +1578,7 @@ export const PagesListPage: React.FC = () => {
               </div>
               <button
                 onClick={() => setShowVersionsModal(false)}
-                className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+                className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
               >
                 <Trash2 className="hidden" /> {/* Keep icon tree clean */}
                 <span className="text-sm font-bold">✕</span>
@@ -1582,7 +1604,7 @@ export const PagesListPage: React.FC = () => {
                     >
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
-                          <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/60">
+                          <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-primary/10 text-primary border border-primary/20">
                             Version {v.versionNumber}
                           </span>
                           {v.isPublished && (
@@ -1595,7 +1617,7 @@ export const PagesListPage: React.FC = () => {
                           {v.note || "Automated draft snapshot"}
                         </p>
                         <div className="flex items-center gap-2 text-[11px] text-slate-400">
-                          <Clock className="w-3 h-3" />
+                          <Clock className="w-3 dot h-3" />
                           <span>
                             {new Date(v.createdAtUtc).toLocaleString()}
                           </span>
@@ -1606,9 +1628,9 @@ export const PagesListPage: React.FC = () => {
                         type="button"
                         onClick={() => handleRollback(v.versionNumber)}
                         disabled={isRollingBack}
-                        className="px-3.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-indigo-500 bg-white dark:bg-slate-900 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:text-indigo-600 flex items-center gap-1.5 shadow-sm transition disabled:opacity-50"
+                        className="px-3.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-primary bg-white dark:bg-slate-900 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:text-primary flex items-center gap-1.5 shadow-xs transition disabled:opacity-50 cursor-pointer"
                       >
-                        <RotateCcw className="w-3.5 h-3.5 text-indigo-500" />
+                        <RotateCcw className="w-3.5 h-3.5 text-primary" />
                         <span>Rollback</span>
                       </button>
                     </div>
@@ -1633,7 +1655,7 @@ export const PagesListPage: React.FC = () => {
       {/* SEO & Social Metadata Modal */}
       {isSeoModalOpen && (
         <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-[#0c1222] text-slate-900 dark:text-slate-100 border border-slate-200/80 dark:border-slate-800/80 rounded-2xl shadow-2xl max-w-xl w-full p-6 space-y-5 animate-in fade-in zoom-in-95 duration-150">
+          <div className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 border border-slate-200/80 dark:border-slate-800/80 rounded-2xl shadow-2xl max-w-xl w-full p-6 space-y-5 animate-in fade-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/80 pb-3">
               <div>
                 <h3 className="text-base font-black text-slate-900 dark:text-white flex items-center gap-2">
@@ -1691,7 +1713,7 @@ export const PagesListPage: React.FC = () => {
                   value={metaTitle}
                   onChange={(e) => setMetaTitle(e.target.value)}
                   placeholder="e.g. Enterprise Digital Marketing & Performance Engineering"
-                  className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500"
+                  className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-primary"
                 />
               </div>
 
@@ -1715,7 +1737,7 @@ export const PagesListPage: React.FC = () => {
                   value={metaDescription}
                   onChange={(e) => setMetaDescription(e.target.value)}
                   placeholder="Summarize the core commercial value, client offerings, and target keywords for search engines..."
-                  className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500"
+                  className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-primary"
                 />
               </div>
 
@@ -1728,7 +1750,7 @@ export const PagesListPage: React.FC = () => {
                   value={canonicalUrl}
                   onChange={(e) => setCanonicalUrl(e.target.value)}
                   placeholder="https://nexora.com/canonical-source"
-                  className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500"
+                  className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-primary"
                 />
               </div>
 
@@ -1738,7 +1760,7 @@ export const PagesListPage: React.FC = () => {
                   id="page-noindex-toggle"
                   checked={noIndex}
                   onChange={(e) => setNoIndex(e.target.checked)}
-                  className="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 border-slate-300"
+                  className="w-4 h-4 rounded text-primary focus:ring-primary border-slate-300 cursor-pointer"
                 />
                 <label
                   htmlFor="page-noindex-toggle"
@@ -1753,7 +1775,7 @@ export const PagesListPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setIsSeoModalOpen(false)}
-                className="px-4 py-2 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition"
+                className="px-4 py-2 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition cursor-pointer"
               >
                 Cancel
               </button>
@@ -1763,7 +1785,7 @@ export const PagesListPage: React.FC = () => {
                   setIsSeoModalOpen(false);
                   toast.success("SEO metadata updated in draft. Click 'Save Draft' or 'Publish' to persist.");
                 }}
-                className="px-4 py-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-500 rounded-xl shadow-md shadow-indigo-600/30 transition"
+                className="px-4 py-2 text-xs font-bold text-primary-foreground bg-primary hover:bg-primary-hover rounded-xl shadow-xs shadow-primary/25 transition cursor-pointer"
               >
                 Apply SEO Metadata
               </button>

@@ -27,6 +27,7 @@ public record SiteSettingsDto(
     string TrackingCodesJson,
     string? BookingUrl,
     string AnnouncementBarJson,
+    string RedirectRulesJson,
     string VersionToken,
     DateTime CreatedAtUtc,
     DateTime? UpdatedAtUtc);
@@ -47,7 +48,8 @@ public record PublicSiteSettingsDto(
     string SocialLinksJson,
     string TrackingCodesJson,
     string? BookingUrl,
-    string AnnouncementBarJson);
+    string AnnouncementBarJson,
+    string RedirectRulesJson = "[]");
 
 public record UpdateSiteSettingsDto(
     string CompanyName,
@@ -73,7 +75,17 @@ public record UpdateSiteSettingsDto(
     string? TrackingCodesJson = null,
     string? BookingUrl = null,
     string? AnnouncementBarJson = null,
+    string? RedirectRulesJson = null,
     string VersionToken = "");
+
+public record RedirectRuleDto(
+    string Id,
+    string SourcePath,
+    string DestinationPath,
+    int StatusCode,
+    bool IsActive = true,
+    string? Description = null,
+    DateTime? CreatedAtUtc = null);
 
 public record TestSmtpConnectionDto(
     string Host,
