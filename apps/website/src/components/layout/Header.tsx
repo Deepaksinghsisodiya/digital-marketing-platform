@@ -751,13 +751,13 @@ export const Header: React.FC<HeaderProps> = ({
               <span>Book a Call</span>
             </Link>
 
-            {/* Primary CTA Button: "Let's Talk" */}
+            {/* Primary CTA Button: "Get Free Audit" in Coral #FB7185 with Dark #0B1F2A text */}
             <Link
-              href="/contact"
-              className="inline-flex items-center gap-1 sm:gap-1.5 rounded-lg bg-primary hover:bg-primary-hover px-2 sm:px-3.5 py-1 sm:py-1.5 text-[10px] sm:text-xs font-bold text-primary-foreground shadow-md shadow-primary/25 hover:shadow-primary/40 hover:scale-[1.02] active:scale-[0.98] transition-all whitespace-nowrap shrink-0"
+              href="/free-audit"
+              className="inline-flex items-center gap-1 sm:gap-1.5 rounded-lg bg-[#FB7185] hover:bg-[#f43f5e] px-2.5 sm:px-3.5 py-1 sm:py-1.5 text-[10px] sm:text-xs font-black text-[#0B1F2A] shadow-md shadow-[#FB7185]/30 hover:scale-[1.02] active:scale-[0.98] transition-all whitespace-nowrap shrink-0"
             >
-              <span>Let&apos;s Talk</span>
-              <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+              <span>Get Free Audit</span>
+              <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#0B1F2A]" />
             </Link>
 
             {/* Mobile/Tablet Hamburger Drawer Trigger */}
@@ -944,12 +944,12 @@ export const Header: React.FC<HeaderProps> = ({
             {/* Drawer Bottom CTAs: Primary & Book a Call */}
             <div className="pt-6 border-t border-slate-100 space-y-2.5">
               <Link
-                href="/contact"
+                href="/free-audit"
                 onClick={() => setMobileMenuOpen(false)}
-                className="w-full flex items-center justify-center gap-2 rounded-xl bg-primary hover:bg-primary-hover py-3 text-xs font-bold text-primary-foreground shadow-md shadow-primary/25 transition"
+                className="w-full flex items-center justify-center gap-2 rounded-xl bg-[#FB7185] hover:bg-[#f43f5e] py-3 text-xs font-black text-[#0B1F2A] shadow-md shadow-[#FB7185]/30 transition"
               >
-                <span>Let&apos;s Talk</span>
-                <ArrowRight className="w-4 h-4" />
+                <span>Get Free Audit</span>
+                <ArrowRight className="w-4 h-4 text-[#0B1F2A]" />
               </Link>
 
               <Link

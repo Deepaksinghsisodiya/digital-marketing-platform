@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Sora, Inter } from "next/font/google";
+import { Plus_Jakarta_Sans, Inter } from "next/font/google";
 import "./globals.css";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, getLocale } from "next-intl/server";
@@ -12,7 +12,7 @@ import { ScrollProgressBar } from "../components/motion/ScrollProgressBar";
 import { getPublicSiteSettings, getPublicTheme } from "../lib/cms";
 import { resolveTheme, themeToCss } from "@nexora/design-tokens";
 
-const sora = Sora({
+const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ["latin"],
   variable: "--font-heading",
   weight: ["500", "600", "700", "800"],
@@ -71,7 +71,7 @@ export default async function RootLayout({
   const resolvedTheme = resolveTheme(
     (publicTheme?.config as Parameters<typeof resolveTheme>[0]) ?? null,
   );
-  const activeTheme = resolvedTheme.slug || publicTheme?.themeId || "cyber-emerald";
+  const activeTheme = resolvedTheme.slug || publicTheme?.themeId || "teal-coral";
   const themeCss = themeToCss(resolvedTheme, { mode: "both" });
 
   let trackingCodes: {
@@ -147,7 +147,7 @@ export default async function RootLayout({
         <TrackingScripts codes={trackingCodes} />
       </head>
       <body
-        className={`min-h-screen antialiased bg-background text-foreground font-sans selection:bg-primary selection:text-primary-foreground ${sora.variable} ${inter.variable}`}
+        className={`min-h-screen antialiased bg-background text-foreground font-sans selection:bg-primary selection:text-primary-foreground ${plusJakartaSans.variable} ${inter.variable}`}
         suppressHydrationWarning
       >
         {trackingCodes.gtmContainerId && (

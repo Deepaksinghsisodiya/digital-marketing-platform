@@ -4,21 +4,23 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none active:scale-[0.98]",
+  "inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none active:scale-[0.98]",
   {
     variants: {
       variant: {
         default:
-          "bg-indigo-600 text-white shadow-md shadow-indigo-600/25 hover:bg-indigo-700 hover:shadow-indigo-600/40",
+          "bg-primary text-primary-foreground shadow-md shadow-primary/25 hover:bg-primary-hover hover:shadow-primary/40",
+        cta:
+          "bg-accent text-[#0B1F2A] font-extrabold shadow-lg shadow-accent/30 hover:bg-[#f43f5e] hover:shadow-accent/50",
+        accent:
+          "bg-accent text-[#0B1F2A] font-extrabold shadow-md shadow-accent/25 hover:bg-[#f43f5e]",
         gradient:
-          "bg-gradient-to-r from-indigo-600 via-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-600/30 hover:shadow-indigo-600/50 hover:opacity-95 hover:brightness-105",
+          "bg-gradient-to-r from-primary via-teal-500 to-accent text-white shadow-lg shadow-primary/30 hover:opacity-95",
         outline:
           "border border-slate-200 bg-white text-slate-800 hover:bg-slate-50 hover:text-slate-900 shadow-xs",
         secondary: "bg-slate-100 text-slate-800 hover:bg-slate-200 shadow-xs",
         ghost: "text-slate-600 hover:bg-slate-100 hover:text-slate-900",
-        link: "text-indigo-600 underline-offset-4 hover:underline hover:text-indigo-700 p-0 h-auto",
-        accent:
-          "bg-indigo-50 text-indigo-700 font-bold border border-indigo-200 shadow-xs hover:bg-indigo-100",
+        link: "text-primary underline-offset-4 hover:underline hover:text-primary-hover p-0 h-auto",
       },
       size: {
         default: "h-11 px-5 py-2.5",

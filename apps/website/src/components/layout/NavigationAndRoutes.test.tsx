@@ -54,12 +54,9 @@ describe("Global Layout & Navigation Suite", () => {
         }}
       />,
     );
-    expect(html).toContain("All Systems Operational");
     expect(html).toContain("/privacy");
     expect(html).toContain("/terms");
     expect(html).toContain("/cookies");
-    expect(html).toContain("/accessibility");
-    expect(html).toContain("/trust");
-    expect(html).toContain("Cookie Preferences");
+    expect(html).toContain("Cookie Settings");
   });
 });

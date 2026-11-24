@@ -22,11 +22,11 @@ export const CtaBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
 
   return (
     <section className="py-10 sm:py-14 lg:py-18 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full relative overflow-hidden">
-      {/* Executive Card Container */}
-      <div className="relative rounded-3xl sm:rounded-4xl border border-primary/25 bg-gradient-to-br from-slate-900 via-slate-950 to-slate-950 text-white p-6 sm:p-10 lg:p-12 xl:p-14 overflow-hidden shadow-2xl">
+      {/* Executive Card Container with Deep Navy #0B1F2A */}
+      <div className="relative rounded-3xl sm:rounded-4xl border border-[#0D9488]/30 bg-[#0B1F2A] text-white p-6 sm:p-10 lg:p-12 xl:p-14 overflow-hidden shadow-2xl">
         {/* Ambient Gradient Glows (CSS-only, GPU accelerated) */}
-        <div className="pointer-events-none absolute -top-24 -right-24 w-96 h-96 bg-primary/20 rounded-full blur-[120px] animate-gradient-drift" />
-        <div className="pointer-events-none absolute -bottom-24 -left-24 w-96 h-96 bg-cyan-500/15 rounded-full blur-[120px] animate-gradient-drift" />
+        <div className="pointer-events-none absolute -top-24 -right-24 w-96 h-96 bg-[#0D9488]/20 rounded-full blur-[120px] animate-gradient-drift" />
+        <div className="pointer-events-none absolute -bottom-24 -left-24 w-96 h-96 bg-[#FB7185]/15 rounded-full blur-[120px] animate-gradient-drift" />
 
         {/* 2-Column Responsive Grid: Stacks gracefully on mobile/tablet, 2-col on desktop */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center relative z-10">
@@ -122,10 +122,10 @@ export const CtaBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
               <div className="pt-2 space-y-3">
                 <Link
                   href={buttonLink}
-                  className="w-full inline-flex items-center justify-center gap-2.5 rounded-xl sm:rounded-2xl bg-primary hover:bg-primary-hover px-6 sm:px-8 py-3.5 sm:py-4 text-xs sm:text-sm font-bold text-primary-foreground shadow-xl shadow-primary/25 hover:shadow-primary/40 hover:scale-[1.02] active:scale-[0.98] transition-all group cursor-pointer animate-pulse-ring"
+                  className="w-full inline-flex items-center justify-center gap-2.5 rounded-xl sm:rounded-2xl bg-[#FB7185] hover:bg-[#f43f5e] px-6 sm:px-8 py-3.5 sm:py-4 text-xs sm:text-sm font-black text-[#0B1F2A] shadow-xl shadow-[#FB7185]/30 hover:scale-[1.02] active:scale-[0.98] transition-all group cursor-pointer"
                 >
                   <span>{buttonText}</span>
-                  <ArrowRight className="w-4 h-4 shrink-0 group-hover:translate-x-1 transition-transform" />
+                  <ArrowRight className="w-4 h-4 shrink-0 group-hover:translate-x-1 transition-transform text-[#0B1F2A]" />
                 </Link>
 
                 <Link

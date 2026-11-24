@@ -187,11 +187,11 @@ export const HeroBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
                       <MagneticButton>
                         <Link
                           href={slide.primaryCtaLink || "/contact"}
-                          className="group relative overflow-hidden inline-flex items-center justify-center gap-2.5 rounded-xl bg-primary hover:bg-primary-hover px-5 sm:px-8 py-3 sm:py-4 text-xs sm:text-sm md:text-base font-black text-primary-foreground shadow-2xl shadow-primary/30 hover:shadow-primary/50 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 w-full sm:w-auto text-center cursor-pointer"
+                          className="group relative overflow-hidden inline-flex items-center justify-center gap-2.5 rounded-xl bg-[#FB7185] hover:bg-[#f43f5e] px-5 sm:px-8 py-3 sm:py-4 text-xs sm:text-sm md:text-base font-black text-[#0B1F2A] shadow-2xl shadow-[#FB7185]/40 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 w-full sm:w-auto text-center cursor-pointer"
                         >
                           <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full bg-gradient-to-r from-transparent via-white/30 to-transparent transition-transform duration-1000 ease-out pointer-events-none" />
                           <span>{slide.primaryCtaText}</span>
-                          <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1 shrink-0" />
+                          <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1 shrink-0 text-[#0B1F2A]" />
                         </Link>
                       </MagneticButton>
                     )}

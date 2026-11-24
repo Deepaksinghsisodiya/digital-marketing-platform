@@ -13,21 +13,21 @@ export const nexoraTailwindPreset = {
       colors: {
         // Semantic Token Set
         primary: {
-          DEFAULT: withOpacity("--nexora-primary-rgb", "16 185 129"),
+          DEFAULT: withOpacity("--nexora-primary-rgb", "13 148 136"),
           foreground: "var(--nexora-primary-foreground, #ffffff)",
-          hover: "var(--nexora-primary-hover, #059669)",
-          active: "var(--nexora-primary-active, #047857)",
+          hover: "var(--nexora-primary-hover, #0F766E)",
+          active: "var(--nexora-primary-active, #115E59)",
         },
         secondary: {
-          DEFAULT: withOpacity("--nexora-secondary-rgb", "15 23 42"),
+          DEFAULT: withOpacity("--nexora-secondary-rgb", "11 31 42"),
           foreground: "var(--nexora-secondary-foreground, #ffffff)",
         },
         accent: {
-          DEFAULT: withOpacity("--nexora-accent-rgb", "6 182 212"),
-          foreground: "var(--nexora-accent-foreground, #ffffff)",
+          DEFAULT: withOpacity("--nexora-accent-rgb", "251 113 133"),
+          foreground: "var(--nexora-accent-foreground, #0B1F2A)",
         },
         background: withOpacity("--nexora-background-rgb", "255 255 255"),
-        foreground: withOpacity("--nexora-foreground-rgb", "15 23 42"),
+        foreground: withOpacity("--nexora-foreground-rgb", "11 31 42"),
         surface: {
           DEFAULT: withOpacity("--nexora-surface-rgb", "248 250 252"),
           elevated: "var(--nexora-surface-elevated, #ffffff)",

@@ -237,110 +237,110 @@ export default async function HomePage() {
                 >
                   <section className="py-10 sm:py-14 lg:py-18 bg-slate-50/70 border-t border-slate-200/80 w-full relative overflow-hidden">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-                    <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 sm:gap-6 mb-8 sm:mb-12">
-                      <div className="space-y-2">
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-widest bg-primary/10 text-primary border border-primary/20 shadow-2xs">
-                          <Sparkles className="w-3.5 h-3.5 text-primary shrink-0" />
-                          <span>Strategic Knowledge Base</span>
-                        </span>
-                        <h2 className="text-2xl xs:text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight">
-                          Latest Insights &amp; Market Intelligence
-                        </h2>
-                        <p className="text-xs sm:text-sm md:text-base text-slate-600 max-w-xl font-normal leading-relaxed">
-                          Actionable analysis on customer acquisition, conversion optimization, and predictable pipeline growth.
-                        </p>
+                      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 sm:gap-6 mb-8 sm:mb-12">
+                        <div className="space-y-2">
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-widest bg-primary/10 text-primary border border-primary/20 shadow-2xs">
+                            <Sparkles className="w-3.5 h-3.5 text-primary shrink-0" />
+                            <span>Strategic Knowledge Base</span>
+                          </span>
+                          <h2 className="text-2xl xs:text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight">
+                            Latest Insights &amp; Market Intelligence
+                          </h2>
+                          <p className="text-xs sm:text-sm md:text-base text-slate-600 max-w-xl font-normal leading-relaxed">
+                            Actionable analysis on customer acquisition, conversion optimization, and predictable pipeline growth.
+                          </p>
+                        </div>
+                        <Link
+                          href="/blog"
+                          className="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-slate-800 hover:text-primary bg-white hover:bg-slate-50 border border-slate-200/90 hover:border-primary/40 px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl shadow-xs hover:shadow-md transition-all group shrink-0 self-start sm:self-auto cursor-pointer"
+                        >
+                          <span>Explore all articles</span>
+                          <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                        </Link>
                       </div>
-                      <Link
-                        href="/blog"
-                        className="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-slate-800 hover:text-primary bg-white hover:bg-slate-50 border border-slate-200/90 hover:border-primary/40 px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl shadow-xs hover:shadow-md transition-all group shrink-0 self-start sm:self-auto cursor-pointer"
-                      >
-                        <span>Explore all articles</span>
-                        <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-                      </Link>
-                    </div>
 
-                    <Stagger className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 items-stretch w-full">
-                      {latestPosts.map((post, idx) => {
-                        const fallbackImages = [
-                          "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80",
-                          "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=800&q=80",
-                          "https://images.unsplash.com/photo-1557804506-669a67965ba0?auto=format&fit=crop&w=800&q=80",
-                        ];
-                        const coverImg =
-                          post.coverImageUrl || fallbackImages[idx % fallbackImages.length];
-                        const author = post.authorName || "Chief Growth Strategist";
-                        const initials = author
-                          .split(" ")
-                          .map((n) => n[0])
-                          .join("")
-                          .slice(0, 2)
-                          .toUpperCase();
+                      <Stagger className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 items-stretch w-full">
+                        {latestPosts.map((post, idx) => {
+                          const fallbackImages = [
+                            "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80",
+                            "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=800&q=80",
+                            "https://images.unsplash.com/photo-1557804506-669a67965ba0?auto=format&fit=crop&w=800&q=80",
+                          ];
+                          const coverImg =
+                            post.coverImageUrl || fallbackImages[idx % fallbackImages.length];
+                          const author = post.authorName || "Chief Growth Strategist";
+                          const initials = author
+                            .split(" ")
+                            .map((n) => n[0])
+                            .join("")
+                            .slice(0, 2)
+                            .toUpperCase();
 
-                        return (
-                          <StaggerItem key={post.id} index={idx} className="h-full">
-                            <article
-                              className="rounded-2xl sm:rounded-3xl bg-white border border-slate-200/90 shadow-xs hover:shadow-xl hover:border-primary/40 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between overflow-hidden group h-full"
-                            >
-                              {/* Card Image Banner */}
-                              <div className="relative aspect-16/10 w-full overflow-hidden bg-slate-100">
-                                <img
-                                  src={coverImg}
-                                  alt={post.title}
-                                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                                  loading="lazy"
-                                />
-                                <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                                <span className="absolute top-3 left-3 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-900/85 backdrop-blur-md text-white border border-white/20">
-                                  {post.category || "Growth Strategy"}
-                                </span>
-                                <span className="absolute bottom-3 right-3 px-2 py-0.5 rounded-md text-[10px] font-semibold bg-black/60 backdrop-blur-md text-white">
-                                  4 min read
-                                </span>
-                              </div>
-
-                              {/* Card Content Body */}
-                              <div className="p-5 sm:p-6 flex-1 flex flex-col justify-between space-y-4">
-                                <div className="space-y-2.5">
-                                  <h3 className="text-base sm:text-lg lg:text-xl font-bold text-slate-900 line-clamp-2 group-hover:text-primary transition-colors leading-snug">
-                                    <Link href={`/blog/${post.slug}`}>
-                                      {post.title}
-                                    </Link>
-                                  </h3>
-                                  {post.excerpt && (
-                                    <p className="text-xs sm:text-sm text-slate-600 line-clamp-2 sm:line-clamp-3 leading-relaxed font-normal">
-                                      {post.excerpt}
-                                    </p>
-                                  )}
+                          return (
+                            <StaggerItem key={post.id} index={idx} className="h-full">
+                              <article
+                                className="rounded-2xl sm:rounded-3xl bg-white border border-slate-200/90 shadow-xs hover:shadow-xl hover:border-primary/40 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between overflow-hidden group h-full"
+                              >
+                                {/* Card Image Banner */}
+                                <div className="relative aspect-16/10 w-full overflow-hidden bg-slate-100">
+                                  <img
+                                    src={coverImg}
+                                    alt={post.title}
+                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                    loading="lazy"
+                                  />
+                                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                                  <span className="absolute top-3 left-3 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-900/85 backdrop-blur-md text-white border border-white/20">
+                                    {post.category || "Growth Strategy"}
+                                  </span>
+                                  <span className="absolute bottom-3 right-3 px-2 py-0.5 rounded-md text-[10px] font-semibold bg-black/60 backdrop-blur-md text-white">
+                                    4 min read
+                                  </span>
                                 </div>
 
-                                {/* Card Author & CTA Footer */}
-                                <div className="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-                                  <div className="flex items-center gap-2">
-                                    <div className="w-7 h-7 rounded-full bg-primary/10 text-primary border border-primary/20 flex items-center justify-center font-bold text-[10px] shrink-0">
-                                      {initials}
-                                    </div>
-                                    <span className="font-medium text-slate-700 truncate max-w-[120px] sm:max-w-none">
-                                      {author}
-                                    </span>
+                                {/* Card Content Body */}
+                                <div className="p-5 sm:p-6 flex-1 flex flex-col justify-between space-y-4">
+                                  <div className="space-y-2.5">
+                                    <h3 className="text-base sm:text-lg lg:text-xl font-bold text-slate-900 line-clamp-2 group-hover:text-primary transition-colors leading-snug">
+                                      <Link href={`/blog/${post.slug}`}>
+                                        {post.title}
+                                      </Link>
+                                    </h3>
+                                    {post.excerpt && (
+                                      <p className="text-xs sm:text-sm text-slate-600 line-clamp-2 sm:line-clamp-3 leading-relaxed font-normal">
+                                        {post.excerpt}
+                                      </p>
+                                    )}
                                   </div>
-                                  <Link
-                                    href={`/blog/${post.slug}`}
-                                    className="font-bold text-primary group-hover:translate-x-1 transition-transform flex items-center gap-1 cursor-pointer"
-                                  >
-                                    <span>Read Analysis</span>
-                                    <ArrowRight className="w-3.5 h-3.5" />
-                                  </Link>
+
+                                  {/* Card Author & CTA Footer */}
+                                  <div className="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+                                    <div className="flex items-center gap-2">
+                                      <div className="w-7 h-7 rounded-full bg-primary/10 text-primary border border-primary/20 flex items-center justify-center font-bold text-[10px] shrink-0">
+                                        {initials}
+                                      </div>
+                                      <span className="font-medium text-slate-700 truncate max-w-[120px] sm:max-w-none">
+                                        {author}
+                                      </span>
+                                    </div>
+                                    <Link
+                                      href={`/blog/${post.slug}`}
+                                      className="font-bold text-primary group-hover:translate-x-1 transition-transform flex items-center gap-1 cursor-pointer"
+                                    >
+                                      <span>Read Analysis</span>
+                                      <ArrowRight className="w-3.5 h-3.5" />
+                                    </Link>
+                                  </div>
                                 </div>
-                              </div>
-                            </article>
-                          </StaggerItem>
-                        );
-                      })}
-                    </Stagger>
-                  </div>
-                </section>
-              </Reveal>
-            )}
+                              </article>
+                            </StaggerItem>
+                          );
+                        })}
+                      </Stagger>
+                    </div>
+                  </section>
+                </Reveal>
+              )}
           </div>
         ) : (
           <HeroBlock block={FALLBACK_HERO_SLIDER_BLOCK} />

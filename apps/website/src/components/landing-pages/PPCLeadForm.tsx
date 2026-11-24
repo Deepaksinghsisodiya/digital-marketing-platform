@@ -198,7 +198,7 @@ export function PPCLeadForm({
       className="w-full rounded-3xl border border-slate-200/90 bg-white p-6 sm:p-8 md:p-9 shadow-2xl relative scroll-mt-28"
     >
       {/* Visual top indicator */}
-      <div className="absolute top-0 left-8 right-8 h-1.5 rounded-b bg-gradient-to-r from-emerald-500 via-teal-500 to-blue-500" />
+      <div className="absolute top-0 left-8 right-8 h-1.5 rounded-b bg-gradient-to-r from-[#0D9488] via-teal-500 to-[#FB7185]" />
 
       <div className="mb-6 space-y-1 text-left">
         <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 border border-emerald-200/60 text-emerald-800 text-[11px] font-bold uppercase tracking-wider">
