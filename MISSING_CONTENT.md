@@ -1,115 +1,59 @@
-# 📋 Missing Content — What You Need to Provide
+# Nexora: Missing Content & Real Business Data Register
 
-Everything needed to make the Nexora website production-ready.
-Check off items as you provide them, then run `pnpm check:content`.
-
----
-
-## 🔴 Critical — Site Looks Incomplete Without These
-
-- [ ] **Legal company name** → `site.config.ts → company.legalName`
-  - Full registered entity name, e.g. "Nexora Digital Marketing LLP"
-
-- [ ] **Year founded** → `site.config.ts → company.yearFounded`
-  - e.g. 2019
-
-- [ ] **Phone number** → `site.config.ts → contact.phone`
-  - With country code, e.g. "+91 98765 43210"
-
-- [ ] **WhatsApp number** → `site.config.ts → contact.whatsapp`
-  - No spaces, e.g. "+919876543210"
-
-- [ ] **Business email** → `site.config.ts → contact.email`
-  - e.g. "hello@nexora.in"
-
-- [ ] **Office address** → `site.config.ts → contact.address`
-  - Street, city, state, PIN code
-
-- [ ] **Founder name & title** → `site.config.ts → founder.name, founder.title`
-  - e.g. "Rahul Sharma", "Founder & CEO"
-
-- [ ] **Founder short bio** → `site.config.ts → founder.shortBio`
-  - 2–3 sentences about your journey and why you started Nexora
-
-- [ ] **Founder photo** → `/public/images/founder/portrait.jpg`
-  - Professional portrait, 4:5 ratio, min 1200×1500px
-
-- [ ] **Brand logo** → `/public/images/brand/logo.svg`
-  - Horizontal SVG (+ icon-only version + white version)
-
-- [ ] **At least 3 real client logos** → `/public/images/clients/logos/`
-  - SVG preferred, transparent PNG OK. Update `site.config.ts → clients`
-
-- [ ] **At least 3 real testimonials** → `site.config.ts → testimonials`
-  - Quote, person's name, their role, company name. Photo is a bonus.
-
-- [ ] **Business stats** → `site.config.ts → stats`
-  - e.g. clients served, years of experience, projects completed
+This register documents all typed placeholders and pending business information required before full public launch. In accordance with Ground Rule #2, **no synthetic or invented business identity data** is committed to the codebase. When rendered, the front-end gracefully hides unpopulated optional sections or uses strictly typed placeholders.
 
 ---
 
-## 🟡 Important — Builds Trust & Professionalism
+## 1. Identity & Contact Information (`apps/website/src/content/site.config.ts`)
 
-- [ ] **Team members** → `site.config.ts → team`
-  - Name, role, short bio, square headshot per member
-
-- [ ] **At least 1 case study** → `site.config.ts → caseStudies`
-  - Client, challenge, what you did, measurable result, cover image
-
-- [ ] **Certification badges** → `site.config.ts → certifications`
-  - Google Partner, Meta Partner, HubSpot, etc. with logo files
-
-- [ ] **Social media URLs** → `site.config.ts → social`
-  - Only active, real profiles. Remove/leave empty any that don't exist.
-
-- [ ] **Google Maps embed URL** → `site.config.ts → contact.mapEmbedUrl`
-  - Go to Google Maps → Share → Embed → copy the iframe src URL
-
-- [ ] **OG/social share image** → `/public/images/og/default.jpg`
-  - Branded image, 1200×630px, shown when links are shared
-
-- [ ] **Founder full bio** → `site.config.ts → founder.fullBio`
-  - 3–5 sentences for the About page
+| Key / Path | Current Placeholder Value | Description / Required Real Information |
+| :--- | :--- | :--- |
+| `company.phone` | `TODO_REAL_VALUE` | Official corporate phone number with country code (e.g., `+91 98765 43210`) |
+| `company.whatsapp` | `TODO_REAL_VALUE` | Dedicated WhatsApp Business phone number |
+| `company.supportEmail` | `TODO_REAL_VALUE` | Support desk inbox (e.g., `support@nexora.digital`) |
+| `company.salesEmail` | `TODO_REAL_VALUE` | High-intent sales inbox (e.g., `growth@nexora.digital`) |
+| `company.billingEmail` | `TODO_REAL_VALUE` | Accounts / Finance inbox (e.g., `billing@nexora.digital`) |
+| `company.legalName` | `TODO_REAL_VALUE` | Registered legal entity name (e.g., *Nexora Digital Technologies Private Limited*) |
+| `company.taxId` | `TODO_REAL_VALUE` | Corporate GSTIN (India) / EIN (US) / VAT ID |
+| `company.registrationNumber` | `TODO_REAL_VALUE` | Corporate Identification Number (CIN) or state filing number |
+| `company.address` | `TODO_REAL_VALUE` | Physical office address, building, suite, city, state, postal code |
 
 ---
 
-## 🔵 Nice to Have — Extra Polish
+## 2. Social Media & External Profiles (`site.config.ts`)
 
-- [ ] **Office photos** → `/public/images/office/`
-  - 3–5 workspace / team photos, 16:9 ratio
-
-- [ ] **Testimonial headshots** → `/public/images/testimonials/`
-  - 1:1 square, 200×200px min
-
-- [ ] **Case study screenshots** → `/public/images/case-studies/<slug>/`
-  - Dashboard screenshots, before/after comparisons
-
-- [ ] **Video testimonials** → YouTube/Vimeo links
-  - Add URL to each testimonial entry in config
-
-- [ ] **Awards** → `site.config.ts → awards`
-  - Name, year, issuer, link
-
-- [ ] **Blog posts** → At least 3 initial articles (titles + content)
-
-- [ ] **Lead magnet PDF** → Downloadable checklist or guide
-
-- [ ] **Custom OG images** → Per-page branded images (home, services, about)
+| Key | Current Placeholder Value | Required Real Information |
+| :--- | :--- | :--- |
+| `socialLinks.linkedin` | `TODO_REAL_VALUE` | Official LinkedIn Company Page URL |
+| `socialLinks.twitter` | `TODO_REAL_VALUE` | Official X / Twitter handle URL |
+| `socialLinks.youtube` | `TODO_REAL_VALUE` | Official YouTube channel URL |
+| `socialLinks.instagram` | `TODO_REAL_VALUE` | Official Instagram profile URL |
+| `socialLinks.github` | `TODO_REAL_VALUE` | Official GitHub organization URL |
+| `socialLinks.facebook` | `TODO_REAL_VALUE` | Official Facebook business page URL |
 
 ---
 
-## How to Update
+## 3. Leadership & Testimonials
 
-1. Edit `apps/website/src/content/site.config.ts`
-2. Place images in `apps/website/public/images/` following the paths above
-3. Run `pnpm check:content` to verify all fields are filled
-4. Run `pnpm check:links` to verify no dead links
-5. Rebuild and test: `pnpm build && pnpm start`
+| Section | Current Status | Required Real Information |
+| :--- | :--- | :--- |
+| **Client Testimonials** | Hidden / Placeholders banned | Authentic client quotes, client full names, verified designations, verified company names, high-res portrait headshots, and signed permission to publish. |
+| **Case Study Metrics** | Verified client attribution needed | Verified revenue metrics, signed case study releases for named logos. |
+| **Leadership Team** | Real headshots needed | Actual leadership roster, real LinkedIn profiles, bios, and photography. |
 
-## File Reference
+---
 
-| File | Purpose |
-|------|---------|
-| `src/content/site.config.ts` | All business data (single source of truth) |
-| `IMAGE_CHECKLIST.md` | Full image spec list with sizes and priorities |
-| `CHANGELOG.md` | What changed in the rebuild |
+## 4. Third-Party Integrations & Marketing Tracking Keys
+
+| Service | Environment Variable | Required Real Key |
+| :--- | :--- | :--- |
+| **Google Tag Manager** | `NEXT_PUBLIC_GTM_ID` | Real Container ID (`GTM-XXXXXXX`) |
+| **Google Analytics 4** | `NEXT_PUBLIC_GA_MEASUREMENT_ID` | Real Measurement ID (`G-XXXXXXXXXX`) |
+| **Meta Pixel** | `NEXT_PUBLIC_META_PIXEL_ID` | Real Pixel ID (`123456789012345`) |
+| **Cloudflare Turnstile** | `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | Production Turnstile site key |
+| **Cloudflare Turnstile Secret** | `TURNSTILE_SECRET_KEY` | Production Turnstile backend secret |
+
+---
+
+## Build Enforcement Notice
+Running `pnpm --filter @nexora/website build` in `NODE_ENV=production` automatically invokes `apps/website/scripts/check-placeholders.mjs`. If any `TODO_REAL_VALUE` or dummy markers remain, the build will purposefully fail with exit code 1 to guard against launching unverified placeholder data. For staging deployments, pass `ALLOW_PLACEHOLDERS=1`.
