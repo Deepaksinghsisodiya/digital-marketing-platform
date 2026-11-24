@@ -269,6 +269,18 @@ export const Footer: React.FC<{ settings?: PublicSiteSettings | null }> = () => 
             <Link href="/cookies" className="hover:text-slate-300 transition">
               Cookie Policy
             </Link>
+            <span>&bull;</span>
+            <button
+              type="button"
+              onClick={() => {
+                if (typeof window !== "undefined") {
+                  window.dispatchEvent(new Event("nexora_open_cookie_preferences"));
+                }
+              }}
+              className="hover:text-slate-300 transition cursor-pointer text-[11px] underline underline-offset-2"
+            >
+              Cookie Settings
+            </button>
           </div>
 
           <button
