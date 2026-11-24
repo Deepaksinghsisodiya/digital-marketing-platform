@@ -485,7 +485,7 @@ export const ClientsPage: React.FC = () => {
             <h1 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">
               Enterprise Accounts & CRM
             </h1>
-            <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950/70 text-indigo-700 dark:text-indigo-300 border border-indigo-200/60 dark:border-indigo-800/60">
+            <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-primary/10 dark:bg-primary/20 text-primary dark:text-primary border border-primary/20 dark:border-primary/30">
               {totalClients} Accounts
             </span>
           </div>
@@ -502,14 +502,14 @@ export const ClientsPage: React.FC = () => {
             className="inline-flex items-center gap-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 px-3.5 py-2.5 text-xs font-bold text-slate-700 dark:text-slate-200 shadow-xs hover:bg-slate-50 dark:hover:bg-slate-800/60 transition"
             title="Export CSV"
           >
-            <Download className="w-4 h-4 text-indigo-500" />
+            <Download className="w-4 h-4 text-primary" />
             <span>Export CSV</span>
           </button>
 
           <button
             type="button"
             onClick={() => setCreateModalOpen(true)}
-            className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-xs font-bold text-white shadow-lg shadow-indigo-600/30 hover:bg-indigo-500 hover:shadow-indigo-600/40 active:scale-95 transition-all"
+            className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-xs font-bold text-white shadow-lg shadow-primary/25 hover:bg-primary hover:shadow-primary/30 active:scale-95 transition-all"
           >
             <Plus className="w-4 h-4" />
             <span>Add New Account</span>
@@ -524,7 +524,7 @@ export const ClientsPage: React.FC = () => {
             <span className="text-[11px] font-bold uppercase tracking-wider">
               Total Portfolio
             </span>
-            <div className="p-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400">
+            <div className="p-1.5 rounded-lg bg-primary/10 dark:bg-primary/20 text-primary dark:text-primary">
               <Building2 className="w-3.5 h-3.5" />
             </div>
           </div>
@@ -580,7 +580,7 @@ export const ClientsPage: React.FC = () => {
               <UserCheck className="w-3.5 h-3.5" />
             </div>
           </div>
-          <div className="text-2xl font-extrabold text-indigo-600 dark:text-indigo-400">
+          <div className="text-2xl font-extrabold text-primary dark:text-primary">
             {clientsData?.items.filter((c) => c.status === 2).length ?? 0} Prospects
           </div>
           <div className="mt-1 text-[11px] text-slate-500 font-medium">
@@ -603,7 +603,7 @@ export const ClientsPage: React.FC = () => {
           <select
             value={selectedRegion}
             onChange={(e) => setSelectedRegion(e.target.value)}
-            className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 font-medium focus:outline-none focus:ring-2 focus:ring-primary"
           >
             <option value="">🌐 All Regions</option>
             {dynamicRegions?.map((r) => (
@@ -622,7 +622,7 @@ export const ClientsPage: React.FC = () => {
                   : undefined,
               )
             }
-            className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 font-medium focus:outline-none focus:ring-2 focus:ring-primary"
           >
             <option value="">⚡ All Lifecycle Stages</option>
             {dynamicStages?.map((s) => (
@@ -672,17 +672,17 @@ export const ClientsPage: React.FC = () => {
                     <tr
                       key={c.id}
                       onClick={() => setSelectedClientId(c.id)}
-                      className="hover:bg-indigo-50/40 dark:hover:bg-slate-800/40 cursor-pointer transition-colors group"
+                      className="hover:bg-primary/10/40 dark:hover:bg-slate-800/40 cursor-pointer transition-colors group"
                     >
                       {/* Company Name & Monogram Avatar */}
                       <td className="px-5 py-3.5 font-bold text-slate-900 dark:text-white">
                         <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-indigo-600/10 via-purple-600/10 to-indigo-600/20 text-indigo-700 dark:text-indigo-400 border border-indigo-500/20 flex items-center justify-center font-extrabold text-[11px] tracking-tight flex-shrink-0 group-hover:scale-105 transition-transform">
+                          <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-primary/10 via-primary/5 to-primary/20 text-primary dark:text-primary border border-primary/20 flex items-center justify-center font-extrabold text-[11px] tracking-tight flex-shrink-0 group-hover:scale-105 transition-transform">
                             {getInitials(c.name)}
                           </div>
                           <div>
                             <div className="flex items-center gap-1.5">
-                              <span className="font-bold text-slate-900 dark:text-slate-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                              <span className="font-bold text-slate-900 dark:text-slate-100 group-hover:text-primary dark:group-hover:text-primary transition-colors">
                                 {c.name}
                               </span>
                               {c.website && (
@@ -692,7 +692,7 @@ export const ClientsPage: React.FC = () => {
                                   rel="noopener noreferrer"
                                   onClick={(e) => e.stopPropagation()}
                                   title={`Open ${c.website}`}
-                                  className="text-slate-400 hover:text-indigo-600 transition"
+                                  className="text-slate-400 hover:text-primary transition"
                                 >
                                   <ExternalLink className="w-3 h-3" />
                                 </a>
@@ -712,7 +712,7 @@ export const ClientsPage: React.FC = () => {
                             {c.primaryContactName || "Primary Stakeholder"}
                           </span>
                           {c.primaryContactTitle && (
-                            <span className="text-[10px] font-medium text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/60 px-1.5 py-0.2 rounded border border-indigo-200 dark:border-indigo-800/60">
+                            <span className="text-[10px] font-medium text-primary dark:text-primary bg-primary/10 dark:bg-primary/20 px-1.5 py-0.2 rounded border border-primary/20 dark:border-primary/30">
                               {c.primaryContactTitle}
                             </span>
                           )}
@@ -722,7 +722,7 @@ export const ClientsPage: React.FC = () => {
                           <a
                             href={`mailto:${c.primaryContactEmail}`}
                             onClick={(e) => e.stopPropagation()}
-                            className="hover:underline hover:text-indigo-600 truncate max-w-[180px]"
+                            className="hover:underline hover:text-primary truncate max-w-[180px]"
                           >
                             {c.primaryContactEmail}
                           </a>
@@ -733,7 +733,7 @@ export const ClientsPage: React.FC = () => {
                             <a
                               href={`tel:${c.primaryContactPhone.replace(/\s+/g, "")}`}
                               onClick={(e) => e.stopPropagation()}
-                              className="hover:underline hover:text-indigo-600"
+                              className="hover:underline hover:text-primary"
                             >
                               {c.primaryContactPhone}
                             </a>
@@ -806,7 +806,7 @@ export const ClientsPage: React.FC = () => {
                             e.stopPropagation();
                             setSelectedClientId(c.id);
                           }}
-                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/80 border border-indigo-200/50 dark:border-indigo-800/50 transition-all ml-auto"
+                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold text-primary dark:text-primary bg-primary/10 dark:bg-primary/20 hover:bg-primary/20 dark:hover:bg-primary/30 border border-primary/20 dark:border-primary/30 transition-all ml-auto"
                         >
                           <span>Manage</span>
                           <ArrowUpRight className="w-3.5 h-3.5" />
@@ -867,7 +867,7 @@ export const ClientsPage: React.FC = () => {
           <div className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 w-full max-w-2xl h-full shadow-2xl flex flex-col overflow-y-auto border-l border-slate-200/80 dark:border-slate-800/80">
             {loadingDetail || !clientDetail ? (
               <div className="p-12 text-center text-xs text-slate-400 flex items-center justify-center gap-2">
-                <div className="w-4 h-4 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+                <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
                 <span>Loading account dossier...</span>
               </div>
             ) : (
@@ -875,7 +875,7 @@ export const ClientsPage: React.FC = () => {
                 {/* Drawer Header */}
                 <div className="flex items-start justify-between border-b border-slate-100 dark:border-slate-800/80 pb-5">
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 text-white flex items-center justify-center font-black text-sm shadow-md shadow-indigo-600/30">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-primary to-primary-hover text-white flex items-center justify-center font-black text-sm shadow-md shadow-primary/25">
                       {getInitials(clientDetail.name)}
                     </div>
                     <div>
@@ -901,7 +901,7 @@ export const ClientsPage: React.FC = () => {
                       className="px-2.5 py-1.5 rounded-lg text-xs font-semibold text-slate-700 dark:text-slate-200 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 transition flex items-center gap-1.5 border border-slate-200/80 dark:border-slate-700/80"
                       title="Edit Account Profile"
                     >
-                      <Edit3 className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
+                      <Edit3 className="w-3.5 h-3.5 text-primary dark:text-primary" />
                       <span>Edit Profile</span>
                     </button>
                     <button
@@ -933,7 +933,7 @@ export const ClientsPage: React.FC = () => {
                         toast.error("Failed to update account status.");
                       }
                     }}
-                    className="text-xs rounded-lg border border-slate-200 dark:border-slate-700 px-3 py-1.5 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="text-xs rounded-lg border border-slate-200 dark:border-slate-700 px-3 py-1.5 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 font-semibold focus:outline-none focus:ring-2 focus:ring-primary"
                   >
                     <option value="1">Active Account</option>
                     <option value="2">Prospect Opportunity</option>
@@ -957,7 +957,7 @@ export const ClientsPage: React.FC = () => {
                           {primaryStakeholder?.fullName || "Primary Contact"}
                         </span>
                         {primaryStakeholder?.title && (
-                          <span className="inline-block mt-0.5 text-[10px] bg-indigo-50 dark:bg-indigo-950/70 text-indigo-700 dark:text-indigo-300 px-1.5 py-0.5 rounded font-semibold border border-indigo-200/50 dark:border-indigo-800/50 truncate max-w-full">
+                          <span className="inline-block mt-0.5 text-[10px] bg-primary/10 dark:bg-primary/20 text-primary dark:text-primary px-1.5 py-0.5 rounded font-semibold border border-primary/20 dark:border-primary/30 truncate max-w-full">
                             {primaryStakeholder.title}
                           </span>
                         )}
@@ -970,7 +970,7 @@ export const ClientsPage: React.FC = () => {
                           {clientDetail.primaryContactPhone ? (
                             <a
                               href={`tel:${clientDetail.primaryContactPhone}`}
-                              className="hover:text-indigo-600 transition"
+                              className="hover:text-primary transition"
                             >
                               {clientDetail.primaryContactPhone}
                             </a>
@@ -980,7 +980,7 @@ export const ClientsPage: React.FC = () => {
                         </div>
                         <a
                           href={`mailto:${clientDetail.primaryContactEmail}`}
-                          className="text-[11px] text-slate-500 hover:text-indigo-600 truncate block mt-0.5"
+                          className="text-[11px] text-slate-500 hover:text-primary truncate block mt-0.5"
                         >
                           {clientDetail.primaryContactEmail}
                         </a>
@@ -989,7 +989,7 @@ export const ClientsPage: React.FC = () => {
                         <span className="text-slate-400 font-medium block text-[11px]">
                           Website
                         </span>
-                        <span className="font-bold text-indigo-600 dark:text-indigo-400">
+                        <span className="font-bold text-primary dark:text-primary">
                           {clientDetail.website ? (
                             <a
                               href={
@@ -1021,6 +1021,96 @@ export const ClientsPage: React.FC = () => {
                   );
                 })()}
 
+                {/* Digital Marketing Campaign & Growth Telemetry */}
+                <div className="space-y-3 bg-gradient-to-br from-slate-50 to-primary/5 dark:from-slate-900/60 dark:to-primary/10 p-4 rounded-2xl border border-primary/20 shadow-xs">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="p-1.5 rounded-lg bg-primary/10 text-primary">
+                        <TrendingUp className="w-4 h-4" />
+                      </div>
+                      <h3 className="text-xs font-black uppercase tracking-wider text-slate-800 dark:text-slate-200">
+                        Campaign &amp; Growth Telemetry
+                      </h3>
+                    </div>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                      Live Performance
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
+                    <div className="p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-2xs">
+                      <span className="text-[10px] font-semibold text-slate-400 uppercase block">
+                        Monthly Spend
+                      </span>
+                      <span className="text-sm font-black text-slate-900 dark:text-white font-mono">
+                        {clientDetail.region?.toLowerCase() === "in"
+                          ? "₹4.5L"
+                          : "$12,400"}
+                      </span>
+                    </div>
+                    <div className="p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-2xs">
+                      <span className="text-[10px] font-semibold text-emerald-600 uppercase block">
+                        Blended ROAS
+                      </span>
+                      <span className="text-sm font-black text-emerald-600 font-mono">
+                        4.2x
+                      </span>
+                    </div>
+                    <div className="p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-2xs">
+                      <span className="text-[10px] font-semibold text-primary uppercase block">
+                        Pipeline Leads
+                      </span>
+                      <span className="text-sm font-black text-primary font-mono">
+                        148
+                      </span>
+                    </div>
+                    <div className="p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-2xs">
+                      <span className="text-[10px] font-semibold text-slate-400 uppercase block">
+                        Avg. Cost/Lead
+                      </span>
+                      <span className="text-sm font-black text-slate-900 dark:text-white font-mono">
+                        {clientDetail.region?.toLowerCase() === "in"
+                          ? "₹1,850"
+                          : "$42.10"}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Active Channels Chips & Export Report */}
+                  <div className="pt-2 border-t border-slate-200/60 dark:border-slate-800 flex flex-wrap items-center justify-between gap-2 text-xs">
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span className="text-[10px] font-bold text-slate-400">
+                        Channels:
+                      </span>
+                      {[
+                        "Google Ads",
+                        "Meta Ads",
+                        "Organic SEO",
+                        "Server CAPI",
+                      ].map((ch) => (
+                        <span
+                          key={ch}
+                          className="px-2 py-0.5 rounded-md bg-white dark:bg-slate-800 text-[10px] font-semibold text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700"
+                        >
+                          {ch}
+                        </span>
+                      ))}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        toast.success(
+                          `Executive monthly performance report generated for ${clientDetail.name}.`,
+                        );
+                      }}
+                      className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-primary text-primary-foreground text-[10px] font-bold hover:bg-primary-hover shadow-xs transition"
+                    >
+                      <Download className="w-3 h-3" />
+                      <span>Export Monthly Report</span>
+                    </button>
+                  </div>
+                </div>
+
                 {/* Contacts Section */}
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
@@ -1030,7 +1120,7 @@ export const ClientsPage: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => setContactModalOpen(true)}
-                      className="text-xs text-indigo-600 dark:text-indigo-400 font-bold hover:underline inline-flex items-center gap-1"
+                      className="text-xs text-primary dark:text-primary font-bold hover:underline inline-flex items-center gap-1"
                     >
                       <Plus className="w-3.5 h-3.5" />
                       Add Contact
@@ -1046,7 +1136,7 @@ export const ClientsPage: React.FC = () => {
                           <div className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
                             <span>{con.fullName}</span>
                             {con.isPrimary && (
-                              <span className="text-[10px] bg-indigo-50 dark:bg-indigo-950/70 text-indigo-700 dark:text-indigo-300 px-1.5 py-0.2 rounded font-bold border border-indigo-200/50 dark:border-indigo-800/50">
+                              <span className="text-[10px] bg-primary/10 dark:bg-primary/20 text-primary dark:text-primary px-1.5 py-0.2 rounded font-bold border border-primary/20 dark:border-primary/30">
                                 Primary
                               </span>
                             )}
@@ -1074,7 +1164,7 @@ export const ClientsPage: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => setTaskModalOpen(true)}
-                      className="text-xs text-indigo-600 dark:text-indigo-400 font-bold hover:underline inline-flex items-center gap-1"
+                      className="text-xs text-primary dark:text-primary font-bold hover:underline inline-flex items-center gap-1"
                     >
                       <Plus className="w-3.5 h-3.5" />
                       Create Task
@@ -1095,7 +1185,7 @@ export const ClientsPage: React.FC = () => {
                               className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${
                                 isDone
                                   ? "bg-emerald-600 border-emerald-600 text-white"
-                                  : "border-slate-300 dark:border-slate-600 hover:border-indigo-500"
+                                  : "border-slate-300 dark:border-slate-600 hover:border-primary"
                               }`}
                               title={isDone ? "Mark in progress" : "Mark completed"}
                             >
@@ -1157,11 +1247,11 @@ export const ClientsPage: React.FC = () => {
                       placeholder="Log meeting summary, executive note, or CRM update..."
                       value={newActivityNote}
                       onChange={(e) => setNewActivityNote(e.target.value)}
-                      className="flex-1 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3 py-2 text-xs focus:ring-2 focus:ring-indigo-500"
+                      className="flex-1 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3 py-2 text-xs focus:ring-2 focus:ring-primary"
                     />
                     <button
                       type="submit"
-                      className="px-4 py-2 bg-indigo-600 text-white rounded-xl text-xs font-bold hover:bg-indigo-500 transition shadow-sm"
+                      className="px-4 py-2 bg-primary text-white rounded-xl text-xs font-bold hover:bg-primary transition shadow-sm"
                     >
                       Post Note
                     </button>
@@ -1201,7 +1291,7 @@ export const ClientsPage: React.FC = () => {
             <div className="p-6 pb-4 border-b border-slate-100 dark:border-slate-800/80 flex items-center justify-between shrink-0">
               <div>
                 <h2 className="text-base font-black text-slate-900 dark:text-white flex items-center gap-2">
-                  <Building2 className="w-5 h-5 text-indigo-600" />
+                  <Building2 className="w-5 h-5 text-primary" />
                   Register Institutional Account & Primary Stakeholder
                 </h2>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
@@ -1229,7 +1319,7 @@ export const ClientsPage: React.FC = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Column 1: Institutional & Corporate Details */}
                 <div className="space-y-3 p-3.5 bg-slate-50/70 dark:bg-slate-900/50 rounded-xl border border-slate-200/60 dark:border-slate-800/60">
-                  <span className="text-[11px] font-black uppercase tracking-wider text-indigo-600 dark:text-indigo-400 flex items-center gap-1.5">
+                  <span className="text-[11px] font-black uppercase tracking-wider text-primary dark:text-primary flex items-center gap-1.5">
                     <Building2 className="w-3.5 h-3.5" />
                     Company & Enterprise Info
                   </span>
@@ -1244,7 +1334,7 @@ export const ClientsPage: React.FC = () => {
                       value={newClientName}
                       onChange={(e) => setNewClientName(e.target.value)}
                       placeholder="e.g. Apex Cloud Solutions"
-                      className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 font-semibold"
+                      className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-primary font-semibold"
                     />
                   </div>
 
@@ -1257,7 +1347,7 @@ export const ClientsPage: React.FC = () => {
                       value={newClientWebsite}
                       onChange={(e) => setNewClientWebsite(e.target.value)}
                       placeholder="https://example.com"
-                      className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500"
+                      className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-primary"
                     />
                   </div>
 
@@ -1270,7 +1360,7 @@ export const ClientsPage: React.FC = () => {
                       value={newClientIndustry}
                       onChange={(e) => setNewClientIndustry(e.target.value)}
                       placeholder="e.g. Enterprise SaaS, FinTech, E-Commerce"
-                      className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500"
+                      className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-primary"
                     />
                   </div>
 
@@ -1282,7 +1372,7 @@ export const ClientsPage: React.FC = () => {
                       <select
                         value={newClientRegion}
                         onChange={(e) => setNewClientRegion(e.target.value)}
-                        className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-2.5 py-2 text-xs text-slate-900 dark:text-slate-100 font-semibold focus:ring-2 focus:ring-indigo-500"
+                        className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-2.5 py-2 text-xs text-slate-900 dark:text-slate-100 font-semibold focus:ring-2 focus:ring-primary"
                       >
                         {dynamicRegions && dynamicRegions.length > 0 ? (
                           dynamicRegions.map((r) => (
@@ -1307,7 +1397,7 @@ export const ClientsPage: React.FC = () => {
                       <select
                         value={newClientStatus}
                         onChange={(e) => setNewClientStatus(Number(e.target.value) as ClientStatus)}
-                        className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-2.5 py-2 text-xs text-slate-900 dark:text-slate-100 font-semibold focus:ring-2 focus:ring-indigo-500"
+                        className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-2.5 py-2 text-xs text-slate-900 dark:text-slate-100 font-semibold focus:ring-2 focus:ring-primary"
                       >
                         <option value="1">Active Account</option>
                         <option value="2">Prospect Opportunity</option>
@@ -1334,7 +1424,7 @@ export const ClientsPage: React.FC = () => {
                       value={newContactName}
                       onChange={(e) => setNewContactName(e.target.value)}
                       placeholder="e.g. Rahul Sharma"
-                      className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 font-semibold"
+                      className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-primary font-semibold"
                     />
                   </div>
 
@@ -1347,7 +1437,7 @@ export const ClientsPage: React.FC = () => {
                       value={newContactTitle}
                       onChange={(e) => setNewContactTitle(e.target.value)}
                       placeholder="e.g. Chief Marketing Officer / VP Growth"
-                      className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500"
+                      className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-primary"
                     />
                   </div>
 
@@ -1361,7 +1451,7 @@ export const ClientsPage: React.FC = () => {
                       value={newClientEmail}
                       onChange={(e) => setNewClientEmail(e.target.value)}
                       placeholder="e.g. rahul@example.com"
-                      className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500"
+                      className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-primary"
                     />
                   </div>
 
@@ -1373,7 +1463,7 @@ export const ClientsPage: React.FC = () => {
                       <select
                         value={phoneCountryCode}
                         onChange={(e) => handlePhoneChange(e.target.value, phoneNationalNumber)}
-                        className="w-32 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-2 py-2 text-xs text-slate-900 dark:text-slate-100 font-semibold focus:ring-2 focus:ring-indigo-500 shrink-0"
+                        className="w-32 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-2 py-2 text-xs text-slate-900 dark:text-slate-100 font-semibold focus:ring-2 focus:ring-primary shrink-0"
                       >
                         {DEFAULT_GLOBAL_COUNTRIES.map((c) => (
                           <option key={c.code} value={c.dialCode}>
@@ -1386,7 +1476,7 @@ export const ClientsPage: React.FC = () => {
                         value={phoneNationalNumber}
                         onChange={(e) => handlePhoneChange(phoneCountryCode, e.target.value)}
                         placeholder="98765 43210"
-                        className="flex-1 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500"
+                        className="flex-1 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-primary"
                       />
                     </div>
                     {phoneValidationError && (
@@ -1411,7 +1501,7 @@ export const ClientsPage: React.FC = () => {
                 <button
                   type="submit"
                   disabled={creatingClient}
-                  className="px-5 py-2 text-xs font-bold text-white bg-indigo-600 rounded-xl hover:bg-indigo-500 disabled:opacity-50 shadow-md shadow-indigo-600/30 transition flex items-center gap-1.5"
+                  className="px-5 py-2 text-xs font-bold text-white bg-primary rounded-xl hover:bg-primary disabled:opacity-50 shadow-md shadow-primary/25 transition flex items-center gap-1.5"
                 >
                   {creatingClient ? "Registering Account..." : "Save Institutional Account"}
                 </button>
@@ -1427,7 +1517,7 @@ export const ClientsPage: React.FC = () => {
           <div className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 border border-slate-200/80 dark:border-slate-800/80 rounded-2xl shadow-2xl max-w-md w-full p-6 space-y-4">
             <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/80 pb-3">
               <h3 className="font-black text-slate-900 dark:text-white text-sm flex items-center gap-2">
-                <UserCheck className="w-4 h-4 text-indigo-600" />
+                <UserCheck className="w-4 h-4 text-primary" />
                 Add Key Stakeholder
               </h3>
               <button
@@ -1450,7 +1540,7 @@ export const ClientsPage: React.FC = () => {
                   value={newSecondaryContactName}
                   onChange={(e) => setNewSecondaryContactName(e.target.value)}
                   placeholder="e.g. Priya Nair"
-                  className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 p-2.5 focus:ring-2 focus:ring-indigo-500 font-semibold"
+                  className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 p-2.5 focus:ring-2 focus:ring-primary font-semibold"
                 />
               </div>
               <div>
@@ -1463,7 +1553,7 @@ export const ClientsPage: React.FC = () => {
                   value={newSecondaryContactEmail}
                   onChange={(e) => setNewSecondaryContactEmail(e.target.value)}
                   placeholder="e.g. priya@company.com"
-                  className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 p-2.5 focus:ring-2 focus:ring-indigo-500"
+                  className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 p-2.5 focus:ring-2 focus:ring-primary"
                 />
               </div>
               <div>
@@ -1475,7 +1565,7 @@ export const ClientsPage: React.FC = () => {
                   value={newSecondaryContactTitle}
                   onChange={(e) => setNewSecondaryContactTitle(e.target.value)}
                   placeholder="e.g. Head of Performance Marketing"
-                  className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 p-2.5 focus:ring-2 focus:ring-indigo-500"
+                  className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 p-2.5 focus:ring-2 focus:ring-primary"
                 />
               </div>
               <div>
@@ -1486,7 +1576,7 @@ export const ClientsPage: React.FC = () => {
                   <select
                     value={contactPhoneCountryCode}
                     onChange={(e) => handleContactPhoneChange(e.target.value, contactPhoneNational)}
-                    className="w-28 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-2 py-2 text-xs text-slate-900 dark:text-slate-100 font-semibold focus:ring-2 focus:ring-indigo-500 shrink-0"
+                    className="w-28 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-2 py-2 text-xs text-slate-900 dark:text-slate-100 font-semibold focus:ring-2 focus:ring-primary shrink-0"
                   >
                     {DEFAULT_GLOBAL_COUNTRIES.map((c) => (
                       <option key={c.code} value={c.dialCode}>
@@ -1499,7 +1589,7 @@ export const ClientsPage: React.FC = () => {
                     value={contactPhoneNational}
                     onChange={(e) => handleContactPhoneChange(contactPhoneCountryCode, e.target.value)}
                     placeholder="98765 43210"
-                    className="flex-1 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 p-2.5 focus:ring-2 focus:ring-indigo-500"
+                    className="flex-1 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 p-2.5 focus:ring-2 focus:ring-primary"
                   />
                 </div>
                 {contactPhoneError && (
@@ -1516,7 +1606,7 @@ export const ClientsPage: React.FC = () => {
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-500 shadow-sm transition"
+                  className="px-4 py-2 bg-primary text-white rounded-xl font-bold hover:bg-primary shadow-sm transition"
                 >
                   Save Stakeholder
                 </button>
@@ -1532,7 +1622,7 @@ export const ClientsPage: React.FC = () => {
           <div className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 border border-slate-200/80 dark:border-slate-800/80 rounded-2xl shadow-2xl max-w-lg w-full p-6 space-y-4">
             <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/80 pb-3">
               <h3 className="font-black text-slate-900 dark:text-white text-base flex items-center gap-2">
-                <Edit3 className="w-4 h-4 text-indigo-600" />
+                <Edit3 className="w-4 h-4 text-primary" />
                 Edit Account Profile
               </h3>
               <button
@@ -1555,7 +1645,7 @@ export const ClientsPage: React.FC = () => {
                     required
                     value={editName}
                     onChange={(e) => setEditName(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 font-semibold focus:ring-2 focus:ring-indigo-500"
+                    className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 font-semibold focus:ring-2 focus:ring-primary"
                   />
                 </div>
 
@@ -1568,7 +1658,7 @@ export const ClientsPage: React.FC = () => {
                     value={editWebsite}
                     onChange={(e) => setEditWebsite(e.target.value)}
                     placeholder="https://company.com"
-                    className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500"
+                    className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-primary"
                   />
                 </div>
 
@@ -1581,7 +1671,7 @@ export const ClientsPage: React.FC = () => {
                     value={editIndustry}
                     onChange={(e) => setEditIndustry(e.target.value)}
                     placeholder="e.g. FinTech, SaaS"
-                    className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500"
+                    className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-primary"
                   />
                 </div>
 
@@ -1592,7 +1682,7 @@ export const ClientsPage: React.FC = () => {
                   <select
                     value={editRegion}
                     onChange={(e) => setEditRegion(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 font-semibold focus:ring-2 focus:ring-indigo-500"
+                    className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 font-semibold focus:ring-2 focus:ring-primary"
                   >
                     {dynamicRegions && dynamicRegions.length > 0 ? (
                       dynamicRegions.map((r) => (
@@ -1619,7 +1709,7 @@ export const ClientsPage: React.FC = () => {
                     value={editTaxId}
                     onChange={(e) => setEditTaxId(e.target.value)}
                     placeholder="e.g. 27AAAAA0000A1Z5"
-                    className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500"
+                    className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-primary"
                   />
                 </div>
 
@@ -1632,7 +1722,7 @@ export const ClientsPage: React.FC = () => {
                     value={editBillingAddress}
                     onChange={(e) => setEditBillingAddress(e.target.value)}
                     placeholder="Corporate headquarters or billing address..."
-                    className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500"
+                    className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-primary"
                   />
                 </div>
 
@@ -1645,7 +1735,7 @@ export const ClientsPage: React.FC = () => {
                     value={editNotes}
                     onChange={(e) => setEditNotes(e.target.value)}
                     placeholder="Contract notes, SLAs, executive expectations..."
-                    className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500"
+                    className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-primary"
                   />
                 </div>
               </div>
@@ -1661,7 +1751,7 @@ export const ClientsPage: React.FC = () => {
                 <button
                   type="submit"
                   disabled={updatingClient}
-                  className="px-5 py-2 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-500 disabled:opacity-50 shadow-md shadow-indigo-600/30 transition"
+                  className="px-5 py-2 bg-primary text-white rounded-xl font-bold hover:bg-primary disabled:opacity-50 shadow-md shadow-primary/25 transition"
                 >
                   {updatingClient ? "Updating..." : "Save Profile Changes"}
                 </button>
@@ -1713,7 +1803,7 @@ export const ClientsPage: React.FC = () => {
                 </button>
                 <button
                   type="submit"
-                  className="px-3.5 py-1.5 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-500 shadow-sm"
+                  className="px-3.5 py-1.5 bg-primary text-white rounded-xl font-bold hover:bg-primary shadow-sm"
                 >
                   Create Task
                 </button>

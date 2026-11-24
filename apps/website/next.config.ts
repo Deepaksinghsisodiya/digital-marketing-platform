@@ -11,6 +11,9 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   devIndicators: false,
   transpilePackages: ["@nexora/design-tokens"],
+  experimental: {
+    optimizePackageImports: ["lucide-react"],
+  },
   webpack: (config) => {
     config.resolve.extensionAlias = {
       ".js": [".js", ".ts", ".tsx"],

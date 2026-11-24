@@ -1,5 +1,5 @@
 import { resolveRegion } from "@/config/region";
-import { getPublicSiteSettings, getPublicMenu } from "@/lib/cms";
+import { getPublicSiteSettings, getPublicMenu, getPublicPage, CmsBlock } from "@/lib/cms";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Badge } from "@/components/ui/badge";
@@ -20,10 +20,38 @@ export const metadata: Metadata = {
 export default async function CaseStudiesPage() {
   const region = resolveRegion();
 
-  const [siteSettings, headerMenu] = await Promise.all([
+  const [siteSettings, headerMenu, pageData, homePageData] = await Promise.all([
     getPublicSiteSettings(),
     getPublicMenu("header", region.code),
+    getPublicPage("case-studies", region.code),
+    getPublicPage("home", region.code),
   ]);
+
+  // Find CMS block saved from Admin CaseStudiesPage
+  const candidateBlocks = [
+    ...(pageData?.blocks || []),
+    ...(homePageData?.blocks || []),
+  ];
+
+  const cmsCaseStudyBlock = candidateBlocks.find(
+    (b) =>
+      b.type.toLowerCase() === "casestudies" ||
+      b.type.toLowerCase() === "bentogrid" ||
+      b.type.toLowerCase() === "portfolio",
+  );
+
+  const activeBlock: CmsBlock = cmsCaseStudyBlock || {
+    id: "dedicated-case-studies",
+    type: "CaseStudies",
+    schemaVersion: 1,
+    enabled: true,
+    settings: {},
+    content: {
+      sectionTitle: "Enterprise Growth Case Studies",
+      sectionSubtitle:
+        "Filter by vertical to inspect how we architect conversion funnels, search authority, and paid acquisition.",
+    },
+  };
 
   return (
     <div className="min-h-screen flex flex-col justify-between bg-white text-slate-900">
@@ -52,24 +80,7 @@ export default async function CaseStudiesPage() {
         </section>
 
         {/* Case Studies Container */}
-        <section className="py-16 bg-white">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <CaseStudiesBlock
-              block={{
-                id: "dedicated-case-studies",
-                type: "CaseStudies",
-                schemaVersion: 1,
-                enabled: true,
-                settings: {},
-                content: {
-                  title: "Commercial Case Studies",
-                  subtitle:
-                    "Filter by vertical to inspect how we architect conversion funnels, search authority, and paid acquisition.",
-                },
-              }}
-            />
-          </div>
-        </section>
+        <CaseStudiesBlock block={activeBlock} />
 
         {/* CTA Banner */}
         <section className="py-16 bg-slate-900 text-white text-center border-t border-slate-800">

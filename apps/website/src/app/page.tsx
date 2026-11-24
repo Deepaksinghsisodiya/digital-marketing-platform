@@ -190,12 +190,20 @@ export default async function HomePage() {
     if (type === "testimonials" && (sectionVisibility as Record<string, boolean>).showTestimonials === false) return false;
     if ((type === "casestudies" || type === "portfolio") && (sectionVisibility as Record<string, boolean>).showCaseStudies === false) return false;
     if (
-      type === "roicalculator" ||
-      type === "roi" ||
-      type === "comparisontable" ||
-      type === "comparison" ||
-      type === "pricing" ||
-      type === "pricingblock"
+      (type === "pricing" || type === "pricingblock") &&
+      (sectionVisibility as Record<string, boolean>).showPricing === false
+    ) {
+      return false;
+    }
+    if (
+      (type === "roicalculator" || type === "roi") &&
+      (sectionVisibility as Record<string, boolean>).showRoiCalculator === false
+    ) {
+      return false;
+    }
+    if (
+      (type === "comparisontable" || type === "comparison") &&
+      (sectionVisibility as Record<string, boolean>).showComparison === false
     ) {
       return false;
     }

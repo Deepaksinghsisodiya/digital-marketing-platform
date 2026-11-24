@@ -2053,37 +2053,667 @@ export const PageEditorPage: React.FC = () => {
                               </>
                             )}
 
-                            {/* FAQ & RichText Editor Fields */}
-                            {(b.type === "FAQ" ||
-                              b.type === "RichText" ||
-                              b.type === "Stats") && (
-                              <div>
-                                <label className="block text-[11px] font-bold text-slate-500 mb-1">
-                                  Raw Content JSON
-                                </label>
-                                <textarea
-                                  rows={4}
-                                  value={JSON.stringify(b.content, null, 2)}
-                                  onChange={(e) => {
-                                    try {
-                                      const parsed = JSON.parse(e.target.value);
-                                      const updated = [...blocks];
-                                      const cur = updated[idx];
-                                      if (cur) {
-                                        updated[idx] = {
-                                          ...cur,
-                                          content: parsed,
-                                        };
-                                        setBlocks(updated);
-                                      }
-                                    } catch {
-                                      // ignore invalid JSON while typing
+                            {/* FAQ Visual Editor */}
+                            {b.type === "FAQ" && (
+                              <div className="space-y-4">
+                                <div>
+                                  <label className="block text-[11px] font-bold text-slate-500 mb-1">
+                                    Section Title
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={
+                                      (b.content.title as string) ||
+                                      (b.content.sectionTitle as string) ||
+                                      ""
                                     }
-                                  }}
-                                  className="w-full font-mono text-[11px] rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-2.5 text-slate-900 dark:text-white"
-                                />
+                                    onChange={(e) =>
+                                      updateSelectedBlockContent(
+                                        "title",
+                                        e.target.value,
+                                      )
+                                    }
+                                    className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2 text-xs font-semibold text-slate-900 dark:text-white"
+                                  />
+                                </div>
+                                <div className="space-y-3 pt-2">
+                                  <div className="flex items-center justify-between">
+                                    <span className="text-xs font-bold text-slate-700 dark:text-slate-200">
+                                      Questions &amp; Answers
+                                    </span>
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        const currentItems = Array.isArray(
+                                          b.content.items,
+                                        )
+                                          ? [...b.content.items]
+                                          : [];
+                                        currentItems.push({
+                                          question:
+                                            "What is your typical turnaround time?",
+                                          answer:
+                                            "We deploy initial campaigns within 48 to 72 hours of onboarding.",
+                                        });
+                                        updateSelectedBlockContent(
+                                          "items",
+                                          currentItems,
+                                        );
+                                      }}
+                                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary text-[11px] font-bold transition"
+                                    >
+                                      <Plus className="w-3.5 h-3.5" />
+                                      <span>Add FAQ Item</span>
+                                    </button>
+                                  </div>
+
+                                  {(Array.isArray(b.content.items)
+                                    ? b.content.items
+                                    : []
+                                  ).map((faqItem: any, fIdx: number) => (
+                                    <div
+                                      key={fIdx}
+                                      className="p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 space-y-2"
+                                    >
+                                      <div className="flex items-center justify-between">
+                                        <span className="text-[10px] font-bold uppercase text-slate-500">
+                                          Question {fIdx + 1}
+                                        </span>
+                                        <button
+                                          type="button"
+                                          onClick={() => {
+                                            const currentItems = Array.isArray(
+                                              b.content.items,
+                                            )
+                                              ? [...b.content.items]
+                                              : [];
+                                            currentItems.splice(fIdx, 1);
+                                            updateSelectedBlockContent(
+                                              "items",
+                                              currentItems,
+                                            );
+                                          }}
+                                          className="text-rose-500 hover:text-rose-700 p-1 rounded"
+                                        >
+                                          <Trash2 className="w-3.5 h-3.5" />
+                                        </button>
+                                      </div>
+                                      <input
+                                        type="text"
+                                        value={faqItem.question || ""}
+                                        onChange={(e) => {
+                                          const currentItems = [
+                                            ...(Array.isArray(b.content.items)
+                                              ? b.content.items
+                                              : []),
+                                          ];
+                                          currentItems[fIdx] = {
+                                            ...currentItems[fIdx],
+                                            question: e.target.value,
+                                          };
+                                          updateSelectedBlockContent(
+                                            "items",
+                                            currentItems,
+                                          );
+                                        }}
+                                        placeholder="Question"
+                                        className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-2.5 py-1.5 text-xs font-semibold text-slate-900 dark:text-white"
+                                      />
+                                      <textarea
+                                        rows={2}
+                                        value={faqItem.answer || ""}
+                                        onChange={(e) => {
+                                          const currentItems = [
+                                            ...(Array.isArray(b.content.items)
+                                              ? b.content.items
+                                              : []),
+                                          ];
+                                          currentItems[fIdx] = {
+                                            ...currentItems[fIdx],
+                                            answer: e.target.value,
+                                          };
+                                          updateSelectedBlockContent(
+                                            "items",
+                                            currentItems,
+                                          );
+                                        }}
+                                        placeholder="Answer"
+                                        className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-2.5 py-1.5 text-xs text-slate-900 dark:text-white"
+                                      />
+                                    </div>
+                                  ))}
+                                </div>
                               </div>
                             )}
+
+                            {/* Pricing Block Editor */}
+                            {(b.type === "Pricing" ||
+                              b.type === "PricingBlock" ||
+                              b.type === "PricingTiers") && (
+                              <div className="space-y-4">
+                                <div>
+                                  <label className="block text-[11px] font-bold text-slate-500 mb-1">
+                                    Section Title
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={
+                                      (b.content.sectionTitle as string) ||
+                                      (b.content.title as string) ||
+                                      ""
+                                    }
+                                    onChange={(e) =>
+                                      updateSelectedBlockContent(
+                                        "sectionTitle",
+                                        e.target.value,
+                                      )
+                                    }
+                                    className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2 text-xs font-semibold text-slate-900 dark:text-white"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="block text-[11px] font-bold text-slate-500 mb-1">
+                                    Section Subtitle / Description
+                                  </label>
+                                  <textarea
+                                    rows={2}
+                                    value={
+                                      (b.content.sectionSubtitle as string) ||
+                                      (b.content.subtitle as string) ||
+                                      ""
+                                    }
+                                    onChange={(e) =>
+                                      updateSelectedBlockContent(
+                                        "sectionSubtitle",
+                                        e.target.value,
+                                      )
+                                    }
+                                    className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2 text-xs text-slate-900 dark:text-white"
+                                  />
+                                </div>
+
+                                <div className="space-y-3 pt-2">
+                                  <div className="flex items-center justify-between">
+                                    <span className="text-xs font-bold text-slate-700 dark:text-slate-200">
+                                      Pricing Tiers &amp; Plans
+                                    </span>
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        const currentPlans = Array.isArray(
+                                          b.content.plans,
+                                        )
+                                          ? [...b.content.plans]
+                                          : [];
+                                        currentPlans.push({
+                                          name: "Growth Plan",
+                                          description:
+                                            "Full-funnel execution for scaling brands.",
+                                          monthlyPrice: "$2,490",
+                                          annualPrice: "$1,990",
+                                          features: [
+                                            "Multi-Touch Attribution Engine",
+                                            "Deterministic Lead Scoring",
+                                            "Weekly Strategy Review",
+                                          ],
+                                          ctaText: "Launch Plan",
+                                          ctaLink: "/contact",
+                                          isPopular: false,
+                                        });
+                                        updateSelectedBlockContent(
+                                          "plans",
+                                          currentPlans,
+                                        );
+                                      }}
+                                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary text-[11px] font-bold transition"
+                                    >
+                                      <Plus className="w-3.5 h-3.5" />
+                                      <span>Add Tier</span>
+                                    </button>
+                                  </div>
+
+                                  {(Array.isArray(b.content.plans)
+                                    ? b.content.plans
+                                    : []
+                                  ).map((plan: any, pIdx: number) => (
+                                    <div
+                                      key={pIdx}
+                                      className="p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 space-y-3"
+                                    >
+                                      <div className="flex items-center justify-between">
+                                        <span className="text-[11px] font-extrabold uppercase text-primary">
+                                          Tier {pIdx + 1}:{" "}
+                                          {plan.name || "Untitled"}
+                                        </span>
+                                        <button
+                                          type="button"
+                                          onClick={() => {
+                                            const currentPlans = Array.isArray(
+                                              b.content.plans,
+                                            )
+                                              ? [...b.content.plans]
+                                              : [];
+                                            currentPlans.splice(pIdx, 1);
+                                            updateSelectedBlockContent(
+                                              "plans",
+                                              currentPlans,
+                                            );
+                                          }}
+                                          className="text-rose-500 hover:text-rose-700 p-1 rounded"
+                                        >
+                                          <Trash2 className="w-3.5 h-3.5" />
+                                        </button>
+                                      </div>
+                                      <div className="grid grid-cols-2 gap-2">
+                                        <div>
+                                          <label className="block text-[10px] font-bold text-slate-500 mb-0.5">
+                                            Plan Name
+                                          </label>
+                                          <input
+                                            type="text"
+                                            value={plan.name || ""}
+                                            onChange={(e) => {
+                                              const currentPlans = [
+                                                ...(Array.isArray(
+                                                  b.content.plans,
+                                                )
+                                                  ? b.content.plans
+                                                  : []),
+                                              ];
+                                              currentPlans[pIdx] = {
+                                                ...currentPlans[pIdx],
+                                                name: e.target.value,
+                                              };
+                                              updateSelectedBlockContent(
+                                                "plans",
+                                                currentPlans,
+                                              );
+                                            }}
+                                            className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-2.5 py-1.5 text-xs font-semibold text-slate-900 dark:text-white"
+                                          />
+                                        </div>
+                                        <div>
+                                          <label className="block text-[10px] font-bold text-slate-500 mb-0.5">
+                                            Badge (e.g. Most Popular)
+                                          </label>
+                                          <input
+                                            type="text"
+                                            value={plan.badge || ""}
+                                            onChange={(e) => {
+                                              const currentPlans = [
+                                                ...(Array.isArray(
+                                                  b.content.plans,
+                                                )
+                                                  ? b.content.plans
+                                                  : []),
+                                              ];
+                                              currentPlans[pIdx] = {
+                                                ...currentPlans[pIdx],
+                                                badge: e.target.value,
+                                              };
+                                              updateSelectedBlockContent(
+                                                "plans",
+                                                currentPlans,
+                                              );
+                                            }}
+                                            className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-2.5 py-1.5 text-xs text-slate-900 dark:text-white"
+                                          />
+                                        </div>
+                                      </div>
+                                      <div className="grid grid-cols-2 gap-2">
+                                        <div>
+                                          <label className="block text-[10px] font-bold text-slate-500 mb-0.5">
+                                            Monthly Price
+                                          </label>
+                                          <input
+                                            type="text"
+                                            value={plan.monthlyPrice || ""}
+                                            onChange={(e) => {
+                                              const currentPlans = [
+                                                ...(Array.isArray(
+                                                  b.content.plans,
+                                                )
+                                                  ? b.content.plans
+                                                  : []),
+                                              ];
+                                              currentPlans[pIdx] = {
+                                                ...currentPlans[pIdx],
+                                                monthlyPrice: e.target.value,
+                                              };
+                                              updateSelectedBlockContent(
+                                                "plans",
+                                                currentPlans,
+                                              );
+                                            }}
+                                            className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-2.5 py-1.5 text-xs font-mono text-slate-900 dark:text-white"
+                                          />
+                                        </div>
+                                        <div>
+                                          <label className="block text-[10px] font-bold text-slate-500 mb-0.5">
+                                            Annual Price
+                                          </label>
+                                          <input
+                                            type="text"
+                                            value={plan.annualPrice || ""}
+                                            onChange={(e) => {
+                                              const currentPlans = [
+                                                ...(Array.isArray(
+                                                  b.content.plans,
+                                                )
+                                                  ? b.content.plans
+                                                  : []),
+                                              ];
+                                              currentPlans[pIdx] = {
+                                                ...currentPlans[pIdx],
+                                                annualPrice: e.target.value,
+                                              };
+                                              updateSelectedBlockContent(
+                                                "plans",
+                                                currentPlans,
+                                              );
+                                            }}
+                                            className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-2.5 py-1.5 text-xs font-mono text-slate-900 dark:text-white"
+                                          />
+                                        </div>
+                                      </div>
+                                      <div>
+                                        <label className="block text-[10px] font-bold text-slate-500 mb-0.5">
+                                          Features (1 per line)
+                                        </label>
+                                        <textarea
+                                          rows={3}
+                                          value={
+                                            Array.isArray(plan.features)
+                                              ? plan.features.join("\n")
+                                              : plan.features || ""
+                                          }
+                                          onChange={(e) => {
+                                            const currentPlans = [
+                                              ...(Array.isArray(b.content.plans)
+                                                ? b.content.plans
+                                                : []),
+                                            ];
+                                            currentPlans[pIdx] = {
+                                              ...currentPlans[pIdx],
+                                              features: e.target.value
+                                                .split("\n")
+                                                .map((f) => f.trim())
+                                                .filter(Boolean),
+                                            };
+                                            updateSelectedBlockContent(
+                                              "plans",
+                                              currentPlans,
+                                            );
+                                          }}
+                                          className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-2.5 py-1.5 text-xs text-slate-900 dark:text-white"
+                                        />
+                                      </div>
+                                      <div className="grid grid-cols-2 gap-2">
+                                        <div>
+                                          <label className="block text-[10px] font-bold text-slate-500 mb-0.5">
+                                            Button Text
+                                          </label>
+                                          <input
+                                            type="text"
+                                            value={
+                                              plan.ctaText || "Get Started"
+                                            }
+                                            onChange={(e) => {
+                                              const currentPlans = [
+                                                ...(Array.isArray(
+                                                  b.content.plans,
+                                                )
+                                                  ? b.content.plans
+                                                  : []),
+                                              ];
+                                              currentPlans[pIdx] = {
+                                                ...currentPlans[pIdx],
+                                                ctaText: e.target.value,
+                                              };
+                                              updateSelectedBlockContent(
+                                                "plans",
+                                                currentPlans,
+                                              );
+                                            }}
+                                            className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-2.5 py-1.5 text-xs text-slate-900 dark:text-white"
+                                          />
+                                        </div>
+                                        <div>
+                                          <label className="block text-[10px] font-bold text-slate-500 mb-0.5">
+                                            Button Link
+                                          </label>
+                                          <input
+                                            type="text"
+                                            value={plan.ctaLink || "/contact"}
+                                            onChange={(e) => {
+                                              const currentPlans = [
+                                                ...(Array.isArray(
+                                                  b.content.plans,
+                                                )
+                                                  ? b.content.plans
+                                                  : []),
+                                              ];
+                                              currentPlans[pIdx] = {
+                                                ...currentPlans[pIdx],
+                                                ctaLink: e.target.value,
+                                              };
+                                              updateSelectedBlockContent(
+                                                "plans",
+                                                currentPlans,
+                                              );
+                                            }}
+                                            className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-2.5 py-1.5 text-xs text-slate-900 dark:text-white"
+                                          />
+                                        </div>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
+                            {/* ROI Calculator Visual Editor */}
+                            {(b.type === "RoiCalculator" ||
+                              b.type === "ROICalculator" ||
+                              b.type === "Roi") && (
+                              <div className="space-y-3">
+                                <div>
+                                  <label className="block text-[11px] font-bold text-slate-500 mb-1">
+                                    Section Title
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={
+                                      (b.content.sectionTitle as string) ||
+                                      (b.content.title as string) ||
+                                      ""
+                                    }
+                                    onChange={(e) =>
+                                      updateSelectedBlockContent(
+                                        "sectionTitle",
+                                        e.target.value,
+                                      )
+                                    }
+                                    className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2 text-xs font-semibold text-slate-900 dark:text-white"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="block text-[11px] font-bold text-slate-500 mb-1">
+                                    Section Subtitle
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={
+                                      (b.content.sectionSubtitle as string) ||
+                                      (b.content.subtitle as string) ||
+                                      ""
+                                    }
+                                    onChange={(e) =>
+                                      updateSelectedBlockContent(
+                                        "sectionSubtitle",
+                                        e.target.value,
+                                      )
+                                    }
+                                    className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2 text-xs text-slate-900 dark:text-white"
+                                  />
+                                </div>
+                                <div className="grid grid-cols-2 gap-2">
+                                  <div>
+                                    <label className="block text-[11px] font-bold text-slate-500 mb-1">
+                                      CTA Button Text
+                                    </label>
+                                    <input
+                                      type="text"
+                                      value={
+                                        (b.content.ctaText as string) ||
+                                        "Claim Your Growth Forecast"
+                                      }
+                                      onChange={(e) =>
+                                        updateSelectedBlockContent(
+                                          "ctaText",
+                                          e.target.value,
+                                        )
+                                      }
+                                      className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2 text-xs text-slate-900 dark:text-white"
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="block text-[11px] font-bold text-slate-500 mb-1">
+                                      CTA Link
+                                    </label>
+                                    <input
+                                      type="text"
+                                      value={
+                                        (b.content.ctaLink as string) ||
+                                        "/contact"
+                                      }
+                                      onChange={(e) =>
+                                        updateSelectedBlockContent(
+                                          "ctaLink",
+                                          e.target.value,
+                                        )
+                                      }
+                                      className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2 text-xs text-slate-900 dark:text-white"
+                                    />
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Comparison Table Visual Editor */}
+                            {(b.type === "ComparisonTable" ||
+                              b.type === "Comparison") && (
+                              <div className="space-y-3">
+                                <div>
+                                  <label className="block text-[11px] font-bold text-slate-500 mb-1">
+                                    Section Title
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={
+                                      (b.content.sectionTitle as string) ||
+                                      (b.content.title as string) ||
+                                      ""
+                                    }
+                                    onChange={(e) =>
+                                      updateSelectedBlockContent(
+                                        "sectionTitle",
+                                        e.target.value,
+                                      )
+                                    }
+                                    className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2 text-xs font-semibold text-slate-900 dark:text-white"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="block text-[11px] font-bold text-slate-500 mb-1">
+                                    Section Subtitle
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={
+                                      (b.content.sectionSubtitle as string) ||
+                                      (b.content.subtitle as string) ||
+                                      ""
+                                    }
+                                    onChange={(e) =>
+                                      updateSelectedBlockContent(
+                                        "sectionSubtitle",
+                                        e.target.value,
+                                      )
+                                    }
+                                    className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2 text-xs text-slate-900 dark:text-white"
+                                  />
+                                </div>
+                                <div className="grid grid-cols-2 gap-2">
+                                  <div>
+                                    <label className="block text-[11px] font-bold text-slate-500 mb-1">
+                                      CTA Button Text
+                                    </label>
+                                    <input
+                                      type="text"
+                                      value={
+                                        (b.content.ctaText as string) ||
+                                        "Deploy Nexora"
+                                      }
+                                      onChange={(e) =>
+                                        updateSelectedBlockContent(
+                                          "ctaText",
+                                          e.target.value,
+                                        )
+                                      }
+                                      className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2 text-xs text-slate-900 dark:text-white"
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="block text-[11px] font-bold text-slate-500 mb-1">
+                                      CTA Link
+                                    </label>
+                                    <input
+                                      type="text"
+                                      value={
+                                        (b.content.ctaLink as string) ||
+                                        "/contact"
+                                      }
+                                      onChange={(e) =>
+                                        updateSelectedBlockContent(
+                                          "ctaLink",
+                                          e.target.value,
+                                        )
+                                      }
+                                      className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2 text-xs text-slate-900 dark:text-white"
+                                    />
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Raw Content JSON Editor (Available for all blocks as advanced view) */}
+                            <div>
+                              <label className="block text-[11px] font-bold text-slate-500 mb-1">
+                                Raw Content JSON (Advanced)
+                              </label>
+                              <textarea
+                                rows={4}
+                                value={JSON.stringify(b.content, null, 2)}
+                                onChange={(e) => {
+                                  try {
+                                    const parsed = JSON.parse(e.target.value);
+                                    const updated = [...blocks];
+                                    const cur = updated[idx];
+                                    if (cur) {
+                                      updated[idx] = {
+                                        ...cur,
+                                        content: parsed,
+                                      };
+                                      setBlocks(updated);
+                                    }
+                                  } catch {
+                                    // ignore invalid JSON while typing
+                                  }
+                                }}
+                                className="w-full font-mono text-[11px] rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-2.5 text-slate-900 dark:text-white"
+                              />
+                            </div>
                           </div>
                         )}
                       </div>

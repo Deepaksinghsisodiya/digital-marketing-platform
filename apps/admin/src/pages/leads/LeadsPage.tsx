@@ -39,6 +39,9 @@ import {
   Send,
   UserX,
   Trash2,
+  BarChart3,
+  Globe,
+  Tag,
 } from "lucide-react";
 
 interface StatusBadge {
@@ -374,7 +377,7 @@ export const LeadsPage: React.FC = () => {
               onClick={() => setViewMode("kanban")}
               className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition ${
                 viewMode === "kanban"
-                  ? "bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 shadow-sm"
+                  ? "bg-white dark:bg-slate-800 text-primary shadow-sm"
                   : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
               }`}
             >
@@ -385,7 +388,7 @@ export const LeadsPage: React.FC = () => {
               onClick={() => setViewMode("table")}
               className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition ${
                 viewMode === "table"
-                  ? "bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 shadow-sm"
+                  ? "bg-white dark:bg-slate-800 text-primary shadow-sm"
                   : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
               }`}
             >
@@ -401,7 +404,7 @@ export const LeadsPage: React.FC = () => {
               className="inline-flex items-center gap-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 px-4 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800/60 transition disabled:opacity-50"
             >
               <Download
-                className={`w-3.5 h-3.5 text-indigo-500 ${isExporting ? "animate-bounce" : ""}`}
+                className={`w-3.5 h-3.5 text-primary ${isExporting ? "animate-bounce" : ""}`}
               />
               <span>
                 {isExporting ? "Exporting..." : "Export Verified CSV"}
@@ -477,7 +480,7 @@ export const LeadsPage: React.FC = () => {
               setRegionFilter(e.target.value);
               setPage(1);
             }}
-            className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 font-medium focus:outline-none focus:ring-2 focus:ring-primary"
           >
             <option value="">🌐 All Regions</option>
             {dynamicRegions?.map((r) => (
@@ -494,7 +497,7 @@ export const LeadsPage: React.FC = () => {
               setFormKeyFilter(e.target.value);
               setPage(1);
             }}
-            className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 font-medium focus:outline-none focus:ring-2 focus:ring-primary"
           >
             <option value="">📂 All Lead Sources</option>
             <option value="contact">Contact Inquiry</option>
@@ -511,7 +514,7 @@ export const LeadsPage: React.FC = () => {
                 );
                 setPage(1);
               }}
-              className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 font-medium focus:outline-none focus:ring-2 focus:ring-primary"
             >
               <option value="">⚡ All Funnel Stages</option>
               {dynamicStages?.map((s) => (
@@ -569,11 +572,11 @@ export const LeadsPage: React.FC = () => {
                     <div
                       key={lead.id}
                       onClick={() => setSelectedLeadId(lead.id)}
-                      className="group p-3.5 rounded-xl border border-slate-200 dark:border-slate-800/90 bg-white dark:bg-slate-900 hover:border-indigo-500/50 hover:shadow-md transition-all cursor-pointer space-y-2.5"
+                      className="group p-3.5 rounded-xl border border-slate-200 dark:border-slate-800/90 bg-white dark:bg-slate-900 hover:border-primary/40 hover:shadow-md transition-all cursor-pointer space-y-2.5"
                     >
                       <div className="flex items-start justify-between gap-2">
                         <div>
-                          <h4 className="font-bold text-xs text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                          <h4 className="font-bold text-xs text-slate-900 dark:text-white group-hover:text-primary dark:group-hover:text-primary transition-colors">
                             {lead.company || lead.fullName}
                           </h4>
                           {lead.company && (
@@ -606,8 +609,8 @@ export const LeadsPage: React.FC = () => {
                             {new Date(lead.createdAtUtc).toLocaleDateString()}
                           </span>
                           {lead.assignedToUserId ? (
-                            <span className="inline-flex items-center gap-1 text-[10px] text-indigo-600 dark:text-indigo-400 font-medium">
-                              <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
+                            <span className="inline-flex items-center gap-1 text-[10px] text-primary font-medium">
+                              <span className="w-1.5 h-1.5 rounded-full bg-primary/100" />
                               <span>
                                 {usersData?.items.find((u) => u.id === lead.assignedToUserId)?.fullName.split(" ")[0] || "Assigned"}
                               </span>
@@ -629,7 +632,7 @@ export const LeadsPage: React.FC = () => {
                                 (lead.status + 1) as LeadStatus,
                               );
                             }}
-                            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 font-bold transition"
+                            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-primary/10 hover:bg-primary/20 text-primary font-bold transition"
                             title={`Advance to next stage`}
                           >
                             <span>{col.nextAction}</span>
@@ -722,7 +725,7 @@ export const LeadsPage: React.FC = () => {
                       <tr
                         key={lead.id}
                         onClick={() => setSelectedLeadId(lead.id)}
-                        className={`hover:bg-indigo-50/40 dark:hover:bg-slate-800/40 cursor-pointer transition-colors group ${
+                        className={`hover:bg-primary/5 dark:hover:bg-slate-800/40 cursor-pointer transition-colors group ${
                           isSelected ? "bg-primary/5 dark:bg-primary/10" : ""
                         }`}
                       >
@@ -746,11 +749,11 @@ export const LeadsPage: React.FC = () => {
                         </td>
                         <td className="px-5 py-3.5">
                           <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-indigo-500/10 to-blue-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 flex items-center justify-center font-black text-[11px] flex-shrink-0 group-hover:scale-105 transition-transform">
+                            <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-primary/10 to-primary/5 text-primary border border-primary/20 flex items-center justify-center font-black text-[11px] flex-shrink-0 group-hover:scale-105 transition-transform">
                               {getInitials(lead.fullName)}
                             </div>
                             <div>
-                              <div className="font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                              <div className="font-bold text-slate-900 dark:text-white group-hover:text-primary dark:group-hover:text-primary transition-colors">
                                 {lead.fullName}
                               </div>
                               <div className="text-[11px] text-slate-400">
@@ -786,8 +789,8 @@ export const LeadsPage: React.FC = () => {
 
                         <td className="px-4 py-3.5">
                           {lead.assignedToUserId ? (
-                            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800/50 text-[11px] font-medium text-indigo-700 dark:text-indigo-300">
-                              <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
+                            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-primary/10 border border-primary/20 text-[11px] font-medium text-primary">
+                              <span className="w-1.5 h-1.5 rounded-full bg-primary/100" />
                               <span>
                                 {usersData?.items.find(
                                   (u) => u.id === lead.assignedToUserId,
@@ -812,7 +815,7 @@ export const LeadsPage: React.FC = () => {
                               e.stopPropagation();
                               setSelectedLeadId(lead.id);
                             }}
-                            className="inline-flex items-center gap-1 text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline"
+                            className="inline-flex items-center gap-1 text-xs font-bold text-primary hover:underline"
                           >
                             <span>Dossier</span>
                             <ArrowUpRight className="w-3.5 h-3.5" />
@@ -903,7 +906,7 @@ export const LeadsPage: React.FC = () => {
                             Number(e.target.value) as LeadStatus,
                           )
                         }
-                        className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3 py-1.5 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3 py-1.5 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-primary"
                       >
                         <option value="0">New Inquiry</option>
                         <option value="1">Under Evaluation</option>
@@ -940,7 +943,7 @@ export const LeadsPage: React.FC = () => {
                 <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-800/80 space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
-                      <UserCheck className="w-3.5 h-3.5 text-indigo-500" />
+                      <UserCheck className="w-3.5 h-3.5 text-primary" />
                       <span>Assigned Specialist:</span>
                     </span>
                     {hasPermission("leads.manage") ? (
@@ -953,7 +956,7 @@ export const LeadsPage: React.FC = () => {
                             e.target.value ? e.target.value : null,
                           )
                         }
-                        className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3 py-1.5 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3 py-1.5 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-primary"
                       >
                         <option value="">-- Unassigned --</option>
                         {usersData?.items
@@ -977,9 +980,9 @@ export const LeadsPage: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => setIsEmailModalOpen(true)}
-                      className="w-full flex items-center justify-center gap-2 py-2 rounded-xl border border-indigo-200 dark:border-indigo-800/60 bg-indigo-50/70 hover:bg-indigo-100/70 dark:bg-indigo-950/40 dark:hover:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 font-bold text-xs transition"
+                      className="w-full flex items-center justify-center gap-2 py-2 rounded-xl border border-primary/20 bg-primary/10 hover:bg-primary/20 dark:bg-primary/15 dark:hover:bg-primary/20 text-primary font-bold text-xs transition"
                     >
-                      <Mail className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                      <Mail className="w-4 h-4 text-primary" />
                       <span>Send Direct Outbound Email</span>
                     </button>
                   )}
@@ -997,7 +1000,7 @@ export const LeadsPage: React.FC = () => {
                       </span>
                       <a
                         href={`mailto:${selectedLead.email}`}
-                        className="font-bold text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1"
+                        className="font-bold text-primary hover:underline flex items-center gap-1"
                       >
                         <span>{selectedLead.email}</span>
                         <ExternalLink className="w-2.5 h-2.5 opacity-60" />
@@ -1029,6 +1032,100 @@ export const LeadsPage: React.FC = () => {
                         {selectedLead.postalCode || ""}
                       </span>
                     </div>
+                  </div>
+                </div>
+
+                {/* Campaign & Multi-Touch Attribution Telemetry */}
+                <div className="p-4 rounded-xl border border-slate-200/80 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-900/40 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-xs font-black uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                      <BarChart3 className="w-3.5 h-3.5 text-primary" />
+                      <span>Campaign &amp; Multi-Touch Attribution</span>
+                    </h3>
+                    {selectedLead.score !== undefined && (
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-primary/10 text-primary border border-primary/20">
+                        Score: {selectedLead.score}/100
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="text-xs space-y-2 text-slate-700 dark:text-slate-300">
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="p-2 rounded-lg bg-white dark:bg-slate-800/80 border border-slate-200/60 dark:border-slate-700/60">
+                        <span className="text-[10px] uppercase font-bold text-slate-400 block">Acquisition Source</span>
+                        <span className="font-bold text-slate-900 dark:text-white capitalize">
+                          {selectedLead.utmSource || "Direct Inbound"}
+                        </span>
+                      </div>
+                      <div className="p-2 rounded-lg bg-white dark:bg-slate-800/80 border border-slate-200/60 dark:border-slate-700/60">
+                        <span className="text-[10px] uppercase font-bold text-slate-400 block">Campaign / Medium</span>
+                        <span className="font-bold text-slate-900 dark:text-white">
+                          {selectedLead.utmCampaign || selectedLead.utmMedium || "Organic"}
+                        </span>
+                      </div>
+                    </div>
+
+                    {(selectedLead.utmTerm || selectedLead.utmContent) && (
+                      <div className="p-2 rounded-lg bg-white dark:bg-slate-800/80 border border-slate-200/60 dark:border-slate-700/60 text-[11px]">
+                        {selectedLead.utmTerm && (
+                          <div>
+                            <span className="text-slate-400">Search Term: </span>
+                            <span className="font-semibold text-slate-800 dark:text-slate-200">{selectedLead.utmTerm}</span>
+                          </div>
+                        )}
+                        {selectedLead.utmContent && (
+                          <div>
+                            <span className="text-slate-400">Ad Creative: </span>
+                            <span className="font-semibold text-slate-800 dark:text-slate-200">{selectedLead.utmContent}</span>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {(() => {
+                      const custom = (selectedLead.customFields || {}) as Record<string, unknown>;
+                      const website = custom.websiteUrl ? String(custom.websiteUrl) : "";
+                      const serviceReq = custom.service ? String(custom.service) : "";
+                      const budgetReq = custom.budget ? String(custom.budget) : "";
+                      const inqType = custom.inquiryType ? String(custom.inquiryType) : "";
+
+                      return (
+                        <div className="space-y-1.5 pt-1 border-t border-slate-200/60 dark:border-slate-800/60">
+                          {website && (
+                            <div className="flex items-center justify-between">
+                              <span className="text-slate-400">Target Website:</span>
+                              <a
+                                href={website.startsWith("http") ? website : `https://${website}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="font-bold text-primary hover:underline inline-flex items-center gap-1"
+                              >
+                                <span>{website.replace(/^https?:\/\//, "")}</span>
+                                <ExternalLink className="w-3 h-3" />
+                              </a>
+                            </div>
+                          )}
+                          {serviceReq && (
+                            <div className="flex items-center justify-between">
+                              <span className="text-slate-400">Service Interest:</span>
+                              <span className="font-semibold text-slate-800 dark:text-slate-200">{serviceReq}</span>
+                            </div>
+                          )}
+                          {budgetReq && (
+                            <div className="flex items-center justify-between">
+                              <span className="text-slate-400">Estimated Budget:</span>
+                              <span className="font-bold text-emerald-600 dark:text-emerald-400">{budgetReq}</span>
+                            </div>
+                          )}
+                          {inqType && (
+                            <div className="flex items-center justify-between">
+                              <span className="text-slate-400">Intake Flow:</span>
+                              <span className="font-mono text-[11px] uppercase text-slate-600 dark:text-slate-400">{inqType}</span>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })()}
                   </div>
                 </div>
 
@@ -1094,13 +1191,13 @@ export const LeadsPage: React.FC = () => {
                       value={newNote}
                       onChange={(e) => setNewNote(e.target.value)}
                       placeholder="Add qualification notes, client budget, or action items..."
-                      className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 p-2.5 text-xs focus:ring-2 focus:ring-indigo-500"
+                      className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 p-2.5 text-xs focus:ring-2 focus:ring-primary"
                     />
                     <div className="flex justify-end">
                       <button
                         type="submit"
                         disabled={isAddingNote || !newNote.trim()}
-                        className="rounded-xl bg-indigo-600 px-4 py-2 text-xs font-bold text-white hover:bg-indigo-500 disabled:opacity-50 transition shadow-sm"
+                        className="rounded-xl bg-primary px-4 py-2 text-xs font-bold text-white hover:bg-primary/100 disabled:opacity-50 transition shadow-sm"
                       >
                         {isAddingNote ? "Recording..." : "Post Note"}
                       </button>
@@ -1113,10 +1210,10 @@ export const LeadsPage: React.FC = () => {
                   <h3 className="text-xs font-black uppercase tracking-wider text-slate-400">
                     Outreach Timeline
                   </h3>
-                  <div className="space-y-2 border-l-2 border-indigo-500/30 pl-4 ml-2">
+                  <div className="space-y-2 border-l-2 border-primary/30 pl-4 ml-2">
                     {selectedLead.activities?.map((act) => (
                       <div key={act.id} className="relative space-y-0.5">
-                        <div className="absolute -left-[21px] top-1 h-2.5 w-2.5 rounded-full bg-indigo-600 ring-4 ring-white dark:ring-slate-900" />
+                        <div className="absolute -left-[21px] top-1 h-2.5 w-2.5 rounded-full bg-primary ring-4 ring-white dark:ring-slate-900" />
                         <div className="text-xs font-bold text-slate-900 dark:text-white">
                           {act.description}
                         </div>
@@ -1190,7 +1287,7 @@ export const LeadsPage: React.FC = () => {
             <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-4">
               <div>
                 <h3 className="text-base font-black text-slate-900 dark:text-white flex items-center gap-2">
-                  <Mail className="w-4 h-4 text-indigo-500" />
+                  <Mail className="w-4 h-4 text-primary" />
                   <span>Send Direct Email to Lead</span>
                 </h3>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
@@ -1222,7 +1319,7 @@ export const LeadsPage: React.FC = () => {
                 <select
                   value={selectedTemplateKey}
                   onChange={(e) => setSelectedTemplateKey(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 p-2.5 text-xs font-medium focus:ring-2 focus:ring-indigo-500"
+                  className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 p-2.5 text-xs font-medium focus:ring-2 focus:ring-primary"
                 >
                   {emailTemplates && emailTemplates.length > 0 ? (
                     emailTemplates.map((tpl) => (
@@ -1255,7 +1352,7 @@ export const LeadsPage: React.FC = () => {
                   value={customEmailMessage}
                   onChange={(e) => setCustomEmailMessage(e.target.value)}
                   placeholder="Add custom greeting or message for the template variable..."
-                  className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 p-2.5 text-xs focus:ring-2 focus:ring-indigo-500"
+                  className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 p-2.5 text-xs focus:ring-2 focus:ring-primary"
                 />
               </div>
             </div>
@@ -1272,7 +1369,7 @@ export const LeadsPage: React.FC = () => {
                 type="button"
                 disabled={isSendingEmailAction}
                 onClick={handleSendLeadEmail}
-                className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-md shadow-indigo-600/30 transition disabled:opacity-50"
+                className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary hover:bg-primary/100 text-white font-bold text-xs shadow-md shadow-primary/20 transition disabled:opacity-50"
               >
                 <Send className="w-3.5 h-3.5" />
                 <span>

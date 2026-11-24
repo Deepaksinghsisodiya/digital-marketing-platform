@@ -27,14 +27,28 @@ export const contactFormSchema = yup.object().shape({
 
 interface ContactFormProps {
   initialRegion?: string;
+  inquiryType?: string;
+  defaultService?: string;
+  heading?: string;
+  subheading?: string;
+  ctaText?: string;
+  websiteUrlField?: boolean;
 }
 
-export const ContactForm: React.FC<ContactFormProps> = () => {
+export const ContactForm: React.FC<ContactFormProps> = ({
+  inquiryType = "general_inquiry",
+  defaultService,
+  heading = "Request an Executive Consultation",
+  subheading = "Tell us about your digital growth goals. Our enterprise team will respond within 1 business day.",
+  ctaText = "Submit Inquiry",
+  websiteUrlField = false,
+}) => {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [company, setCompany] = useState("");
-  const [service, setService] = useState("Search Engine Optimization (SEO)");
+  const [websiteUrl, setWebsiteUrl] = useState("");
+  const [service, setService] = useState(defaultService || "Search Engine Optimization (SEO)");
   const [budget, setBudget] = useState("");
   const [message, setMessage] = useState("");
   const [consentGiven, setConsentGiven] = useState(false);
@@ -123,8 +137,10 @@ export const ContactForm: React.FC<ContactFormProps> = () => {
         company: company.trim() || undefined,
         region: "global",
         customFields: {
+          inquiryType: inquiryType || "general_inquiry",
           service: service || "General Growth Inquiry",
           budget: budget || "Not Specified",
+          ...(websiteUrl.trim() ? { websiteUrl: websiteUrl.trim() } : {}),
           ...(message.trim() ? { notes: message.trim() } : {}),
           ...(utm.landingPageUrl ? { landingPageUrl: utm.landingPageUrl } : {}),
           ...(utm.gclid ? { gclid: utm.gclid } : {}),
@@ -199,11 +215,10 @@ export const ContactForm: React.FC<ContactFormProps> = () => {
     <div className="w-full max-w-xl mx-auto rounded-3xl border border-slate-200 bg-white p-5 sm:p-8 md:p-10 shadow-xl">
       <div className="mb-6">
         <h2 className="text-2xl font-bold tracking-tight text-slate-900">
-          Request an Executive Consultation
+          {heading}
         </h2>
         <p className="mt-1 text-sm text-slate-600">
-          Tell us about your digital growth goals. Our enterprise team will
-          respond within 1 business day.
+          {subheading}
         </p>
       </div>
 
@@ -311,6 +326,22 @@ export const ContactForm: React.FC<ContactFormProps> = () => {
             </div>
           </div>
 
+          {websiteUrlField && (
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
+                Website / Brand URL *
+              </label>
+              <input
+                type="url"
+                required
+                value={websiteUrl}
+                onChange={(e) => setWebsiteUrl(e.target.value)}
+                placeholder="https://yourbrand.com"
+                className="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none transition"
+              />
+            </div>
+          )}
+
           {/* Marketing Agency Specific Qualification Fields */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
@@ -389,10 +420,10 @@ export const ContactForm: React.FC<ContactFormProps> = () => {
               {isSubmitting ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin shrink-0" />
-                  <span>Submitting Inquiry...</span>
+                  <span>Submitting...</span>
                 </>
               ) : (
-                <span>Submit Inquiry</span>
+                <span>{ctaText}</span>
               )}
             </button>
           </div>

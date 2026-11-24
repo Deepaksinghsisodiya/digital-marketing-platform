@@ -31,6 +31,45 @@ export interface CaseStudyItem {
   enabled?: boolean;
 }
 
+const DEFAULT_CASE_STUDIES: CaseStudyItem[] = [
+  {
+    title: "Enterprise B2B Pipeline Scaled by 312% in 6 Months",
+    client: "Apex Cloud Infrastructure",
+    category: "B2B SaaS & Cloud",
+    metric: "312%",
+    metricLabel: "Qualified Inbound Pipeline Velocity",
+    summary: "Re-engineered global commercial search architecture and implemented deterministic multi-touch attribution, driving $4.2M in net new ARR.",
+    imageUrl: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=800&q=80",
+    caseStudyUrl: "/case-studies/apex-cloud",
+    featured: true,
+    enabled: true,
+  },
+  {
+    title: "Global DTC E-Commerce Revenue Tripled via Full-Funnel ABM",
+    client: "UrbanLux Apparel",
+    category: "E-Commerce & DTC",
+    metric: "3.4x",
+    metricLabel: "Blended Return on Ad Spend (ROAS)",
+    summary: "Deployed sub-second headless Next.js storefront paired with predictive Meta + TikTok audience modeling across 14 international markets.",
+    imageUrl: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80",
+    caseStudyUrl: "/case-studies/urbanlux",
+    featured: true,
+    enabled: true,
+  },
+  {
+    title: "Fintech Enterprise Qualified Lead Cost Slashed by 54%",
+    client: "Synapse Financial Networks",
+    category: "Fintech & Banking",
+    metric: "-54%",
+    metricLabel: "Cost Per Qualified Institutional Lead",
+    summary: "Automated institutional lead scoring and continuous landing page split-testing, yielding 1,800+ compliant financial advisor inquiries.",
+    imageUrl: "https://images.unsplash.com/photo-1559526324-4b87b5e36e44?auto=format&fit=crop&w=800&q=80",
+    caseStudyUrl: "/case-studies/synapse-financial",
+    featured: false,
+    enabled: true,
+  },
+];
+
 export const CaseStudiesBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
   const { content } = block;
   const sectionTitle =
@@ -44,9 +83,10 @@ export const CaseStudiesBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
     ? (content.caseStudies as CaseStudyItem[])
     : [];
 
-  const activeStudies = rawCaseStudies.filter(
+  const rawActive = rawCaseStudies.filter(
     (item) => item && item.enabled !== false && item.title && item.client,
   );
+  const activeStudies = rawActive.length > 0 ? rawActive : DEFAULT_CASE_STUDIES;
 
   const categories = [
     "All",

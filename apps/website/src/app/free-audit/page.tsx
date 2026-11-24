@@ -74,17 +74,14 @@ export default async function FreeAuditPage() {
             </div>
 
             {/* Right Column: Intake Form */}
-            <div className="lg:col-span-7 bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-xl">
-              <div className="mb-6">
-                <h2 className="text-2xl font-bold text-slate-900">
-                  Request Your Audit
-                </h2>
-                <p className="text-xs text-slate-500 mt-1">
-                  Provide your website URL and contact details to receive your customized diagnostic report.
-                </p>
-              </div>
-
-              <ContactForm />
+            <div className="lg:col-span-7">
+              <ContactForm
+                inquiryType="free_marketing_audit"
+                heading="Request Your Diagnostic Report"
+                subheading="Provide your website URL and contact details. Our senior growth architects will generate and deliver your 20-point diagnostic within 48 hours."
+                ctaText="Claim Free 20-Point Audit Report"
+                websiteUrlField={true}
+              />
             </div>
           </div>
         </div>

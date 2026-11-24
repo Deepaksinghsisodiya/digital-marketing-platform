@@ -14,6 +14,9 @@ import { BentoGridBlock } from "./BentoGridBlock";
 import { CaseStudiesBlock } from "./CaseStudiesBlock";
 import { ChannelsGrowthDiagram } from "./ChannelsGrowthDiagram";
 import { TechEcosystemBlock } from "./TechEcosystemBlock";
+import { PricingBlock } from "./PricingBlock";
+import { ROICalculatorBlock } from "./ROICalculatorBlock";
+import { ComparisonTableBlock } from "./ComparisonTableBlock";
 import { Reveal } from "../motion/Reveal";
 
 const BLOCK_REGISTRY: Record<string, React.FC<{ block: CmsBlock }>> = {
@@ -38,6 +41,14 @@ const BLOCK_REGISTRY: Record<string, React.FC<{ block: CmsBlock }>> = {
   GrowthEngine: ChannelsGrowthDiagram,
   TechEcosystem: TechEcosystemBlock,
   Ecosystem: TechEcosystemBlock,
+  Pricing: PricingBlock,
+  PricingBlock: PricingBlock,
+  PricingTiers: PricingBlock,
+  RoiCalculator: ROICalculatorBlock,
+  ROICalculator: ROICalculatorBlock,
+  Roi: ROICalculatorBlock,
+  ComparisonTable: ComparisonTableBlock,
+  Comparison: ComparisonTableBlock,
 };
 
 interface BlockRendererProps {
