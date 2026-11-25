@@ -89,9 +89,9 @@ export const MobileStickyBar: React.FC<MobileStickyBarProps> = ({
 
         <Link
           href={bookingUrl}
-          className="flex-1 inline-flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl bg-[#FB7185] hover:bg-[#f43f5e] text-[#0B1F2A] text-[11px] sm:text-xs font-black shadow-md shadow-[#FB7185]/30 active:scale-95 transition whitespace-nowrap shrink-0"
+          className="flex-1 inline-flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl bg-primary hover:bg-primary-hover text-primary-foreground text-[11px] sm:text-xs font-black shadow-md shadow-primary/30 active:scale-95 transition whitespace-nowrap shrink-0"
         >
-          <Calendar className="w-3.5 h-3.5 shrink-0 text-[#0B1F2A]" />
+          <Calendar className="w-3.5 h-3.5 shrink-0 text-primary-foreground" />
           <span>Book Call</span>
         </Link>
       </div>

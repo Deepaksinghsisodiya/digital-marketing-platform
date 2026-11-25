@@ -17,6 +17,8 @@ import { TechEcosystemBlock } from "./TechEcosystemBlock";
 import { PricingBlock } from "./PricingBlock";
 import { ROICalculatorBlock } from "./ROICalculatorBlock";
 import { ComparisonTableBlock } from "./ComparisonTableBlock";
+import { CaseStudyShowcaseBlock } from "./CaseStudyShowcaseBlock";
+import { ProcessTimelineBlock } from "./ProcessTimelineBlock";
 import { Reveal } from "../motion/Reveal";
 
 const BLOCK_REGISTRY: Record<string, React.FC<{ block: CmsBlock }>> = {
@@ -49,6 +51,10 @@ const BLOCK_REGISTRY: Record<string, React.FC<{ block: CmsBlock }>> = {
   Roi: ROICalculatorBlock,
   ComparisonTable: ComparisonTableBlock,
   Comparison: ComparisonTableBlock,
+  CaseStudyShowcase: CaseStudyShowcaseBlock,
+  CaseStudySpotlight: CaseStudyShowcaseBlock,
+  ProcessTimeline: ProcessTimelineBlock,
+  Timeline: ProcessTimelineBlock,
 };
 
 interface BlockRendererProps {

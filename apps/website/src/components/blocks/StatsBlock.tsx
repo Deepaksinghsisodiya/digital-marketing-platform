@@ -59,7 +59,7 @@ export const StatsBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
   }
 
   return (
-    <section className="py-8 sm:py-12 md:py-14 lg:py-16 bg-gradient-to-b from-white via-slate-50 to-white border-y border-slate-200/80 text-slate-900 w-full relative overflow-hidden">
+    <section className="py-8 sm:py-12 md:py-14 lg:py-16 bg-gradient-to-b from-background via-surface to-background border-y border-slate-200/80 text-slate-900 w-full relative overflow-hidden">
       {/* Subtle background ambient glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-4xl h-[280px] bg-primary/5 blur-[100px] pointer-events-none rounded-full" />
 
@@ -79,7 +79,7 @@ export const StatsBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
             return (
               <div
                 key={idx}
-                className={`w-full h-full p-4 sm:p-5 lg:p-6 rounded-2xl sm:rounded-3xl bg-white border border-slate-200/90 shadow-2xs hover:shadow-xl ${meta.hoverBorder} hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between group relative overflow-hidden`}
+                className={`w-full h-full p-4 sm:p-5 lg:p-6 rounded-2xl sm:rounded-3xl bg-card border border-slate-200/90 shadow-2xs hover:shadow-xl ${meta.hoverBorder} hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between group relative overflow-hidden`}
               >
                 {/* Subtle top accent gradient line */}
                 <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${meta.accentLine}`} />

@@ -95,7 +95,7 @@ export const ComparisonTableBlock: React.FC<ComparisonTableBlockProps> = ({ bloc
   };
 
   return (
-    <section className="py-20 sm:py-28 relative overflow-hidden bg-white border-y border-slate-200/80">
+    <section className="py-20 sm:py-28 relative overflow-hidden bg-background border-y border-slate-200/80">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <SectionHeading
           eyebrow="Market Comparison Matrix"
@@ -106,7 +106,7 @@ export const ComparisonTableBlock: React.FC<ComparisonTableBlockProps> = ({ bloc
 
         {/* Comparison Table */}
         <div className="mt-12 overflow-x-auto">
-          <div className="min-w-[680px] bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden">
+          <div className="min-w-[680px] bg-card rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden">
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="border-b border-slate-200 bg-slate-50/70">

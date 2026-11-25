@@ -14,6 +14,7 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { MagneticButton } from "../motion/MagneticButton";
+import { HeroResultsVisual } from "../home/HeroResultsVisual";
 
 export interface HeroSlide {
   id?: string;
@@ -73,12 +74,12 @@ export const HeroBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
     },
     autoplayEnabled
       ? [
-          Autoplay({
-            delay: interval,
-            stopOnInteraction: false,
-            stopOnMouseEnter: true,
-          }),
-        ]
+        Autoplay({
+          delay: interval,
+          stopOnInteraction: false,
+          stopOnMouseEnter: true,
+        }),
+      ]
       : []
   );
 
@@ -125,100 +126,110 @@ export const HeroBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
                 key={slide.id || idx}
                 className="flex-[0_0_100%] min-w-0 relative h-full w-full flex items-center justify-center overflow-hidden"
               >
-                {/* Background Banner Image with Edge-to-Edge Full-Bleed Coverage (Zero black bars) */}
-                <div className="absolute inset-0 z-0 w-full h-full">
-                  <img
-                    src={imageUrl}
-                    alt={slide.imageAlt || slide.headline}
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src =
-                        "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=2600&q=85";
-                    }}
-                    className="w-full h-full object-cover object-center filter brightness-[0.72] contrast-[1.05] transition-all duration-700 select-none pointer-events-none"
-                  />
-                  {/* Subtle Dark Gradient Scrim to ensure crisp typography without pitch-black letterbox bands */}
-                  <div
-                    className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-black/40 transition-opacity duration-300"
-                    style={{ opacity: overlayOpacity }}
-                  />
-                  {/* Dynamic Ambient Accent Light using Active Admin Theme Color */}
-                  <div className="absolute inset-0 bg-radial from-primary/20 via-transparent to-transparent pointer-events-none" />
-                  <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] pointer-events-none" />
+                {/* Background: Linear/Stripe Deep Space Ambient Mesh & Atmospheric Texture */}
+                <div className="absolute inset-0 z-0 w-full h-full bg-gradient-to-b from-[#080C14] via-[#0C1220] to-[#080C14]">
+                  {/* Atmospheric subtle background image */}
+                  {imageUrl && (
+                    <img
+                      src={imageUrl}
+                      alt=""
+                      aria-hidden="true"
+                      onError={(e) => {
+                        (e.target as HTMLElement).style.display = "none";
+                      }}
+                      className="w-full h-full object-cover object-center opacity-15 mix-blend-luminosity filter blur-xs select-none pointer-events-none"
+                    />
+                  )}
+                  {/* Aurora radial glow spots */}
+                  <div className="absolute -top-32 left-1/4 w-[600px] h-[400px] bg-primary/20 blur-[140px] rounded-full pointer-events-none" />
+                  <div className="absolute -bottom-32 right-1/4 w-[500px] h-[350px] bg-accent/15 blur-[140px] rounded-full pointer-events-none" />
+                  {/* Specular matrix grid pattern */}
+                  <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_70%_60%_at_50%_50%,#000_60%,transparent_100%)] pointer-events-none" />
                 </div>
 
-                {/* Foreground Content */}
-                <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-16 text-center flex flex-col items-center justify-center space-y-4 sm:space-y-6 md:space-y-7">
-                  {/* Category / Campaign Badge & Optional Image Badge */}
-                  <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-2.5 animate-glide-up-1">
-                    {tagText && (
-                      <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-extrabold uppercase tracking-widest bg-primary/15 text-primary border border-primary/35 backdrop-blur-md shadow-lg shadow-black/40">
-                        <span className="flex h-1.5 w-1.5 sm:h-2 sm:w-2 relative">
-                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
-                          <span className="relative inline-flex rounded-full h-1.5 w-1.5 sm:h-2 sm:w-2 bg-primary" />
-                        </span>
-                        <span>{tagText}</span>
+                {/* Foreground Content: Modern 2-Column Split Layout */}
+                <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 lg:py-16">
+                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
+                    {/* Left Column: Headline, Copy, Actions & Trust Proof */}
+                    <div className="lg:col-span-7 flex flex-col items-start text-left space-y-4 sm:space-y-6">
+                      {/* Category / Campaign Badge & Optional Image Badge */}
+                      <div className="flex flex-wrap items-center gap-2 sm:gap-2.5 animate-glide-up-1">
+                        {tagText && (
+                          <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-extrabold uppercase tracking-widest bg-primary/15 text-primary border border-primary/35 backdrop-blur-md shadow-lg shadow-black/40">
+                            <span className="flex h-1.5 w-1.5 sm:h-2 sm:w-2 relative">
+                              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
+                              <span className="relative inline-flex rounded-full h-1.5 w-1.5 sm:h-2 sm:w-2 bg-primary" />
+                            </span>
+                            <span>{tagText}</span>
+                          </div>
+                        )}
+                        {slide.imageBadge && (
+                          <div className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-semibold bg-primary/20 text-primary border border-primary/30 backdrop-blur-md">
+                            <span>{slide.imageBadge}</span>
+                          </div>
+                        )}
                       </div>
-                    )}
-                    {slide.imageBadge && (
-                      <div className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-semibold bg-primary/20 text-primary border border-primary/30 backdrop-blur-md">
-                        <span>{slide.imageBadge}</span>
+
+                      {/* Main Headline with Dynamic Ambient Glow */}
+                      <div className="relative animate-glide-up-2">
+                        <div className="absolute top-1/2 left-0 -translate-y-1/2 w-[280px] sm:w-[480px] h-[140px] sm:h-[220px] bg-primary/25 blur-[100px] rounded-full pointer-events-none -z-10 animate-gradient-drift" />
+                        <h1 className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-5xl xl:text-6xl font-black tracking-tight leading-[1.12] sm:leading-[1.1] bg-gradient-to-b from-white via-white to-slate-300 bg-clip-text text-transparent drop-shadow-sm">
+                          {slide.headline}
+                        </h1>
                       </div>
-                    )}
-                  </div>
 
-                  {/* Main Headline with Dynamic Ambient Glow from Active Admin Theme */}
-                  <div className="relative px-2 max-w-5xl mx-auto animate-glide-up-2">
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[280px] sm:w-[500px] md:w-[650px] h-[140px] sm:h-[240px] md:h-[300px] bg-primary/20 blur-[90px] sm:blur-[130px] rounded-full pointer-events-none -z-10 animate-gradient-drift" />
-                    <h1 className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-[70px] font-black tracking-tight leading-[1.18] sm:leading-[1.12] lg:leading-[1.08] text-white drop-shadow-lg">
-                      {slide.headline}
-                    </h1>
-                  </div>
+                      {/* Subheadline Description */}
+                      {slide.subheadline && (
+                        <p className="text-xs xs:text-sm sm:text-base text-slate-200/90 max-w-xl leading-relaxed font-normal drop-shadow-md animate-glide-up-3">
+                          {slide.subheadline}
+                        </p>
+                      )}
 
-                  {/* Subheadline Description */}
-                  {slide.subheadline && (
-                    <p className="text-xs xs:text-sm sm:text-base md:text-lg text-slate-200/90 max-w-2xl md:max-w-3xl mx-auto leading-relaxed font-normal drop-shadow-md px-2 animate-glide-up-3">
-                      {slide.subheadline}
-                    </p>
-                  )}
+                      {/* Action CTAs */}
+                      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-1 w-full sm:w-auto animate-glide-up-4">
+                        {slide.primaryCtaText && (
+                          <MagneticButton>
+                            <Link
+                              href={slide.primaryCtaLink || "/contact"}
+                              className="group relative overflow-hidden inline-flex items-center justify-center gap-2.5 rounded-xl bg-primary hover:bg-primary-hover px-5 sm:px-7 py-3 sm:py-3.5 text-xs sm:text-sm font-black text-primary-foreground shadow-2xl shadow-primary/30 hover:shadow-primary/50 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 w-full sm:w-auto text-center cursor-pointer"
+                            >
+                              <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full bg-gradient-to-r from-transparent via-white/30 to-transparent transition-transform duration-1000 ease-out pointer-events-none" />
+                              <span>{slide.primaryCtaText}</span>
+                              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1 shrink-0" />
+                            </Link>
+                          </MagneticButton>
+                        )}
 
-                  {/* Action CTAs (Responsive on mobile, tablet & desktop) */}
-                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-2.5 sm:gap-4 pt-1 sm:pt-2 w-full max-w-xs sm:max-w-md md:max-w-none mx-auto animate-glide-up-4">
-                    {slide.primaryCtaText && (
-                      <MagneticButton>
-                        <Link
-                          href={slide.primaryCtaLink || "/contact"}
-                          className="group relative overflow-hidden inline-flex items-center justify-center gap-2.5 rounded-xl bg-[#FB7185] hover:bg-[#f43f5e] px-5 sm:px-8 py-3 sm:py-4 text-xs sm:text-sm md:text-base font-black text-[#0B1F2A] shadow-2xl shadow-[#FB7185]/40 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 w-full sm:w-auto text-center cursor-pointer"
-                        >
-                          <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full bg-gradient-to-r from-transparent via-white/30 to-transparent transition-transform duration-1000 ease-out pointer-events-none" />
-                          <span>{slide.primaryCtaText}</span>
-                          <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1 shrink-0 text-[#0B1F2A]" />
-                        </Link>
-                      </MagneticButton>
-                    )}
+                        {slide.secondaryCtaText && (
+                          <Link
+                            href={slide.secondaryCtaLink || "/services"}
+                            className="inline-flex items-center justify-center gap-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/25 hover:border-white/40 backdrop-blur-md px-5 sm:px-6 py-3 sm:py-3.5 text-xs sm:text-sm font-bold text-white shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 w-full sm:w-auto text-center"
+                          >
+                            <span>{slide.secondaryCtaText}</span>
+                          </Link>
+                        )}
+                      </div>
 
-                    {slide.secondaryCtaText && (
-                      <Link
-                        href={slide.secondaryCtaLink || "/services"}
-                        className="inline-flex items-center justify-center gap-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/25 hover:border-white/40 backdrop-blur-md px-5 sm:px-7 py-3 sm:py-4 text-xs sm:text-sm md:text-base font-bold text-white shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 w-full sm:w-auto text-center"
-                      >
-                        <span>{slide.secondaryCtaText}</span>
-                      </Link>
-                    )}
-                  </div>
-
-                  {/* Trust Proof Badges Strip */}
-                  <div className="pt-1 sm:pt-3 flex flex-wrap items-center justify-center gap-1.5 sm:gap-2.5 text-[10px] sm:text-xs font-semibold text-slate-200 animate-glide-up-5">
-                    <div className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-md shadow-sm">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-primary shrink-0" />
-                      <span>Audited ROI Attribution</span>
+                      {/* Trust Proof Badges Strip */}
+                      <div className="pt-2 flex flex-wrap items-center gap-2 text-[10px] sm:text-xs font-semibold text-slate-200 animate-glide-up-5">
+                        <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 border border-white/10 backdrop-blur-md shadow-xs">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-primary shrink-0" />
+                          <span>Audited Attribution</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 border border-white/10 backdrop-blur-md shadow-xs">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-primary shrink-0" />
+                          <span>High-Converting Funnels</span>
+                        </div>
+                        <div className="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 border border-white/10 backdrop-blur-md shadow-xs">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-primary shrink-0" />
+                          <span>Predictable Revenue</span>
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-md shadow-sm">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-primary shrink-0" />
-                      <span>High-Converting Funnels</span>
-                    </div>
-                    <div className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-md shadow-sm">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-primary shrink-0" />
-                      <span>Predictable Revenue Growth</span>
+
+                    {/* Right Column: Interactive Results Dashboard Visual Mockup */}
+                    <div className="lg:col-span-5 w-full flex justify-center lg:justify-end animate-glide-up-3">
+                      <HeroResultsVisual />
                     </div>
                   </div>
                 </div>

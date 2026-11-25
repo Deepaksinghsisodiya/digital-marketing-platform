@@ -45,7 +45,7 @@ export function AdLandingHeader({
           className="flex items-center gap-2.5 group focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 rounded-lg"
           aria-label="Nexora Performance Marketing"
         >
-          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-[#0D9488] via-teal-600 to-[#FB7185] flex items-center justify-center shadow-md shadow-teal-500/20 group-hover:scale-105 transition-transform">
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-primary via-accent to-primary flex items-center justify-center shadow-md shadow-teal-500/20 group-hover:scale-105 transition-transform">
             <span className="text-white font-black text-lg sm:text-xl tracking-tighter">N</span>
           </div>
           <div className="flex flex-col">

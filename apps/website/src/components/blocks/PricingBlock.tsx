@@ -159,7 +159,7 @@ export const PricingBlock: React.FC<PricingBlockProps> = ({ block }) => {
         {/* Controls: Billing Cycle & Currency Switcher */}
         <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
           {/* Monthly vs Annual Toggle */}
-          <div className="inline-flex items-center p-1.5 rounded-2xl bg-white border border-slate-200/80 shadow-xs">
+          <div className="inline-flex items-center p-1.5 rounded-2xl bg-card border border-slate-200/80 shadow-xs">
             <button
               type="button"
               onClick={() => setBillingCycle("monthly")}
@@ -188,7 +188,7 @@ export const PricingBlock: React.FC<PricingBlockProps> = ({ block }) => {
           </div>
 
           {/* Currency Toggle */}
-          <div className="inline-flex items-center p-1 rounded-xl bg-white border border-slate-200/80 shadow-xs">
+          <div className="inline-flex items-center p-1 rounded-xl bg-card border border-slate-200/80 shadow-xs">
             {(["USD", "INR", "EUR"] as const).map((curr) => (
               <button
                 key={curr}
@@ -218,8 +218,8 @@ export const PricingBlock: React.FC<PricingBlockProps> = ({ block }) => {
                 key={plan.id || plan.name || idx}
                 className={`relative flex flex-col justify-between rounded-3xl p-8 transition-all duration-200 ${
                   isPopular
-                    ? "bg-white border-2 border-primary shadow-xl shadow-primary/5 ring-4 ring-primary/5 -translate-y-1 lg:-translate-y-2 z-10"
-                    : "bg-white border border-slate-200/80 shadow-sm hover:shadow-md hover:border-slate-300"
+                    ? "bg-card border-2 border-primary shadow-xl shadow-primary/5 ring-4 ring-primary/5 -translate-y-1 lg:-translate-y-2 z-10"
+                    : "bg-card border border-slate-200/80 shadow-sm hover:shadow-md hover:border-slate-300"
                 }`}
               >
                 {isPopular && (

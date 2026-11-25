@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans, Inter } from "next/font/google";
+import { Sora, Inter } from "next/font/google";
 import "./globals.css";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, getLocale } from "next-intl/server";
@@ -9,10 +9,15 @@ import { MobileStickyBar } from "../components/layout/MobileStickyBar";
 import { FloatingWhatsApp } from "../components/layout/FloatingWhatsApp";
 import { ToastProvider } from "../components/ui/ToastProvider";
 import { ScrollProgressBar } from "../components/motion/ScrollProgressBar";
+import { ThemeSwitcher } from "../components/ui/ThemeSwitcher";
 import { getPublicSiteSettings, getPublicTheme } from "../lib/cms";
-import { resolveTheme, themeToCss } from "@nexora/design-tokens";
+import {
+  MODERN_GROWTH_PRESET,
+  resolveTheme,
+  themeToCss,
+} from "@nexora/design-tokens";
 
-const plusJakartaSans = Plus_Jakarta_Sans({
+const sora = Sora({
   subsets: ["latin"],
   variable: "--font-heading",
   weight: ["500", "600", "700", "800"],
@@ -71,7 +76,10 @@ export default async function RootLayout({
   const resolvedTheme = resolveTheme(
     (publicTheme?.config as Parameters<typeof resolveTheme>[0]) ?? null,
   );
-  const activeTheme = resolvedTheme.slug || publicTheme?.themeId || "teal-coral";
+  const activeTheme =
+    resolvedTheme.slug ||
+    publicTheme?.themeId ||
+    MODERN_GROWTH_PRESET.slug;
   const themeCss = themeToCss(resolvedTheme, { mode: "both" });
 
   let trackingCodes: {
@@ -111,17 +119,18 @@ export default async function RootLayout({
     logo: settings?.logoUrl || undefined,
     contactPoint: settings?.supportPhone
       ? {
-          "@type": "ContactPoint",
-          telephone: settings.supportPhone,
-          contactType: "customer service",
-          email: settings.supportEmail,
-        }
+        "@type": "ContactPoint",
+        telephone: settings.supportPhone,
+        contactType: "customer service",
+        email: settings.supportEmail,
+      }
       : undefined,
   };
 
   return (
     <html
       lang={locale}
+      className={activeTheme === MODERN_GROWTH_PRESET.slug || activeTheme === "dark-charcoal-neon-lime" ? "dark" : undefined}
       data-theme={activeTheme}
       data-animation-mode={animationMode}
       suppressHydrationWarning
@@ -147,7 +156,7 @@ export default async function RootLayout({
         <TrackingScripts codes={trackingCodes} />
       </head>
       <body
-        className={`min-h-screen antialiased bg-background text-foreground font-sans selection:bg-primary selection:text-primary-foreground ${plusJakartaSans.variable} ${inter.variable}`}
+        className={`min-h-screen antialiased bg-background text-foreground font-sans selection:bg-primary selection:text-primary-foreground ${sora.variable} ${inter.variable}`}
         suppressHydrationWarning
       >
         {trackingCodes.gtmContainerId && (
@@ -175,6 +184,7 @@ export default async function RootLayout({
           </div>
           <CookieBanner />
           <FloatingWhatsApp phone={settings?.supportPhone} />
+          <ThemeSwitcher />
           <MobileStickyBar
             supportPhone={settings?.supportPhone}
             bookingUrl="/book-a-call"

@@ -124,35 +124,48 @@ export const FeatureGridBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
         description={sectionSubtitle}
       />
 
-      {/* 100% Pure CSS Grid:
-          - Mobile (< 640px): 1 column (grid-cols-1) with full width cards
-          - Tablet (640px - 1023px): 2 columns (sm:grid-cols-2)
-          - Laptop & Large Screen (1024px+): 3 columns (lg:grid-cols-3)
-          - All cards expand to fill full cell width (w-full) and equal height (h-full)
+      {/* Modern Bento Grid Layout:
+          - Asymmetric high-impact card distribution
+          - Card 0 (SEO & Architecture): Spans 2 columns on tablet & desktop
+          - Card 4 (WhatsApp & Automation): Spans 2 columns on desktop
+          - All cards have glowing gradient borders and interactive micro-animations
       */}
-      <Stagger className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6 lg:gap-8 items-stretch w-full">
+      <Stagger className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6 lg:gap-7 items-stretch w-full">
         {features.map((feature, idx) => {
           const meta =
             FEATURE_METADATA[idx % FEATURE_METADATA.length] ??
             FEATURE_METADATA[0]!;
           const Icon = meta.icon;
           const targetLink = (feature as { link?: string }).link || "/services";
+          const isLarge = idx === 0;
+          const isWide = idx === 3;
 
           return (
-            <StaggerItem key={idx} index={idx} className="h-full">
+            <StaggerItem
+              key={idx}
+              index={idx}
+              className={`h-full ${isLarge ? "sm:col-span-2 lg:col-span-2" : isWide ? "sm:col-span-2 lg:col-span-2" : ""}`}
+            >
               <Link
                 href={targetLink}
-                className="w-full h-full rounded-2xl sm:rounded-3xl border border-slate-200/90 bg-white p-5 sm:p-6 md:p-7 lg:p-8 shadow-xs hover:shadow-xl hover:border-primary/40 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between group cursor-pointer"
+                className={`w-full h-full rounded-2xl sm:rounded-3xl border border-slate-200/90 bg-card p-6 sm:p-7 md:p-8 shadow-xs hover:shadow-2xl hover:border-primary/50 hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between group cursor-pointer relative overflow-hidden ${
+                  isLarge ? "bg-gradient-to-br from-card via-card to-primary/5" : ""
+                }`}
               >
+                {/* Subtle Ambient Hover Glow */}
+                <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+
                 <div>
                   {/* Card Top: Icon + Badge with rotation on hover */}
                   <div className="flex items-center justify-between gap-2 mb-4 sm:mb-5">
                     <div
-                      className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-gradient-to-tr ${meta.color} flex items-center justify-center text-white shadow-md shadow-indigo-500/20 group-hover:scale-105 group-hover:rotate-6 transition-transform duration-300 shrink-0`}
+                      className={`${
+                        isLarge ? "w-12 h-12 sm:w-14 sm:h-14" : "w-10 h-10 sm:w-12 sm:h-12"
+                      } rounded-xl sm:rounded-2xl bg-gradient-to-tr ${meta.color} flex items-center justify-center text-white shadow-md shadow-indigo-500/20 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shrink-0`}
                     >
-                      <Icon className="w-5 h-5 sm:w-6 sm:h-6" />
+                      <Icon className={isLarge ? "w-6 h-6 sm:w-7 sm:h-7" : "w-5 h-5 sm:w-6 sm:h-6"} />
                     </div>
-                    <span className="inline-flex items-center text-[10px] sm:text-[11px] font-bold px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 group-hover:bg-primary/10 group-hover:text-primary transition shrink-0">
+                    <span className="inline-flex items-center text-[10px] sm:text-[11px] font-bold px-3 py-1 rounded-full bg-slate-100 text-slate-700 group-hover:bg-primary/15 group-hover:text-primary transition shrink-0 shadow-2xs">
                       {meta.badge}
                     </span>
                   </div>
@@ -161,18 +174,26 @@ export const FeatureGridBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
                     {meta.tag}
                   </div>
 
-                  <h3 className="text-base sm:text-lg lg:text-xl font-bold text-slate-900 mb-2 tracking-tight group-hover:text-primary transition-colors">
+                  <h3
+                    className={`${
+                      isLarge ? "text-lg sm:text-2xl lg:text-3xl" : "text-base sm:text-lg lg:text-xl"
+                    } font-black text-slate-900 mb-2 tracking-tight group-hover:text-primary transition-colors`}
+                  >
                     {feature.title}
                   </h3>
 
-                  <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-normal">
+                  <p
+                    className={`${
+                      isLarge ? "text-sm sm:text-base max-w-2xl" : "text-xs sm:text-sm"
+                    } text-slate-600 leading-relaxed font-normal`}
+                  >
                     {feature.description}
                   </p>
                 </div>
 
-                <div className="mt-5 sm:mt-6 pt-3.5 sm:pt-4 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-primary group-hover:text-primary-hover">
+                <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-primary group-hover:text-primary-hover">
                   <span>Explore capability</span>
-                  <ArrowUpRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 transform group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                  <ArrowUpRight className="w-4 h-4 transform group-hover:translate-x-1.5 group-hover:-translate-y-1.5 transition-transform" />
                 </div>
               </Link>
             </StaggerItem>
@@ -181,7 +202,7 @@ export const FeatureGridBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
       </Stagger>
 
       {/* Interactive 3-Stage Pipeline Teaser (Responsive Grid for Mobile, Tablet & Desktop) */}
-      <div className="mt-10 sm:mt-14 md:mt-18 p-4 sm:p-6 md:p-8 lg:p-10 rounded-2xl sm:rounded-3xl bg-gradient-to-r from-indigo-50/80 via-white to-purple-50/80 text-slate-900 shadow-xl border border-indigo-100 w-full">
+      <div className="mt-10 sm:mt-14 md:mt-18 p-4 sm:p-6 md:p-8 lg:p-10 rounded-2xl sm:rounded-3xl bg-gradient-to-r from-indigo-50/80 via-background to-purple-50/80 text-slate-900 shadow-xl border border-indigo-100 w-full">
         <div className="max-w-3xl mb-4 sm:mb-6 text-center sm:text-left">
           <span className="text-[10px] sm:text-xs uppercase font-extrabold tracking-widest text-indigo-600 bg-indigo-50/80 border border-indigo-200/60 px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full inline-block">
             Automated Execution Pipeline
@@ -193,7 +214,7 @@ export const FeatureGridBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4 md:gap-5 items-stretch w-full">
           {/* Stage 1: Capture */}
-          <div className="p-3.5 sm:p-4.5 md:p-5 lg:p-6 rounded-xl sm:rounded-2xl bg-white border border-slate-200/90 shadow-2xs hover:shadow-md hover:border-indigo-400 hover:-translate-y-0.5 transition-all duration-300 flex flex-col justify-between group relative overflow-hidden">
+          <div className="p-3.5 sm:p-4.5 md:p-5 lg:p-6 rounded-xl sm:rounded-2xl bg-card border border-slate-200/90 shadow-2xs hover:shadow-md hover:border-indigo-400 hover:-translate-y-0.5 transition-all duration-300 flex flex-col justify-between group relative overflow-hidden">
             <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-500 to-cyan-500" />
             <div>
               <div className="flex items-center justify-between text-indigo-600 font-mono text-xs font-bold mb-1">
@@ -218,7 +239,7 @@ export const FeatureGridBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
           </div>
 
           {/* Stage 2: Attribute */}
-          <div className="p-3.5 sm:p-4.5 md:p-5 lg:p-6 rounded-xl sm:rounded-2xl bg-white border border-slate-200/90 shadow-2xs hover:shadow-md hover:border-purple-400 hover:-translate-y-0.5 transition-all duration-300 flex flex-col justify-between group relative overflow-hidden">
+          <div className="p-3.5 sm:p-4.5 md:p-5 lg:p-6 rounded-xl sm:rounded-2xl bg-card border border-slate-200/90 shadow-2xs hover:shadow-md hover:border-purple-400 hover:-translate-y-0.5 transition-all duration-300 flex flex-col justify-between group relative overflow-hidden">
             <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-500 to-indigo-500" />
             <div>
               <div className="flex items-center justify-between text-purple-600 font-mono text-xs font-bold mb-1">
@@ -243,7 +264,7 @@ export const FeatureGridBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
           </div>
 
           {/* Stage 3: Convert */}
-          <div className="p-3.5 sm:p-4.5 md:p-5 lg:p-6 rounded-xl sm:rounded-2xl bg-white border border-slate-200/90 shadow-2xs hover:shadow-md hover:border-emerald-400 hover:-translate-y-0.5 transition-all duration-300 flex flex-col justify-between group relative overflow-hidden">
+          <div className="p-3.5 sm:p-4.5 md:p-5 lg:p-6 rounded-xl sm:rounded-2xl bg-card border border-slate-200/90 shadow-2xs hover:shadow-md hover:border-emerald-400 hover:-translate-y-0.5 transition-all duration-300 flex flex-col justify-between group relative overflow-hidden">
             <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 to-teal-500" />
             <div>
               <div className="flex items-center justify-between text-emerald-600 font-mono text-xs font-bold mb-1">

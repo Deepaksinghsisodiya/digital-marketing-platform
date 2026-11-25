@@ -105,7 +105,7 @@ export const CaseStudiesBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
   }
 
   return (
-    <section className="py-10 sm:py-16 lg:py-20 bg-gradient-to-b from-white via-slate-50/70 to-white text-slate-900 border-t border-slate-200/80 w-full relative overflow-hidden">
+    <section className="py-10 sm:py-16 lg:py-20 bg-gradient-to-b from-background via-surface/70 to-background text-slate-900 border-t border-slate-200/80 w-full relative overflow-hidden">
       {/* Background radial accent */}
       <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[500px] bg-primary/5 blur-[160px] pointer-events-none rounded-full" />
 
@@ -135,7 +135,7 @@ export const CaseStudiesBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
                   className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer ${
                     selectedCategory === cat
                       ? "bg-primary text-primary-foreground shadow-md shadow-primary/25 scale-105"
-                      : "bg-white text-slate-600 border border-slate-200 hover:border-primary/40 hover:text-primary hover:bg-slate-50"
+                      : "bg-card text-slate-600 border border-slate-200 hover:border-primary/40 hover:text-primary hover:bg-slate-50"
                   }`}
                 >
                   {cat}
@@ -160,7 +160,7 @@ export const CaseStudiesBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
             return (
               <div
                 key={study.id || idx}
-                className="group relative rounded-2xl sm:rounded-3xl border border-slate-200/90 bg-white overflow-hidden shadow-xs hover:shadow-2xl hover:border-primary/50 hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between w-full h-full"
+                className="group relative rounded-2xl sm:rounded-3xl border border-slate-200/90 bg-card overflow-hidden shadow-xs hover:shadow-2xl hover:border-primary/50 hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between w-full h-full"
               >
                 {/* Visual Thumbnail */}
                 <div className="relative h-44 sm:h-52 md:h-56 w-full overflow-hidden bg-slate-100 shrink-0">

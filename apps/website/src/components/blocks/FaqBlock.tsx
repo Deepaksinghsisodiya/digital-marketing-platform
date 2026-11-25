@@ -60,7 +60,7 @@ export const FaqBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
   };
 
   return (
-    <section className="py-10 sm:py-14 lg:py-18 bg-white text-slate-900 border-t border-slate-200/80 w-full relative overflow-hidden">
+    <section className="py-10 sm:py-14 lg:py-18 bg-background text-slate-900 border-t border-slate-200/80 w-full relative overflow-hidden">
       {/* Schema Injection */}
       <script
         type="application/ld+json"
@@ -90,7 +90,7 @@ export const FaqBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
               <AccordionItem
                 key={idx}
                 value={`item-${idx}`}
-                className="border border-slate-200/90 rounded-xl sm:rounded-2xl px-4 sm:px-6 py-0.5 sm:py-1 data-[state=open]:border-primary/40 data-[state=open]:bg-primary/5 data-[state=open]:shadow-2xs transition-all duration-200 bg-white"
+                className="border border-slate-200/90 rounded-xl sm:rounded-2xl px-4 sm:px-6 py-0.5 sm:py-1 data-[state=open]:border-primary/40 data-[state=open]:bg-primary/5 data-[state=open]:shadow-2xs transition-all duration-200 bg-card"
               >
                 <AccordionTrigger className="text-sm sm:text-base md:text-lg font-bold text-slate-900 hover:text-primary hover:no-underline py-3.5 sm:py-4.5 text-left">
                   {item.question}
@@ -120,7 +120,7 @@ export const FaqBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
           </div>
           <Link
             href="/contact"
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-white border border-slate-300 hover:border-primary/50 px-5 py-2.5 sm:py-3 text-xs font-bold text-slate-800 hover:text-primary transition-all shadow-2xs shrink-0 w-full sm:w-auto text-center"
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-card border border-slate-300 hover:border-primary/50 px-5 py-2.5 sm:py-3 text-xs font-bold text-slate-800 hover:text-primary transition-all shadow-2xs shrink-0 w-full sm:w-auto text-center"
           >
             <span>Ask Custom Question</span>
             <ChevronRight className="w-4 h-4 text-primary" />

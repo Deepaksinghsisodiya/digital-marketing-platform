@@ -79,7 +79,7 @@ export const SearchDialog: React.FC<SearchDialogProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-xl p-0 overflow-hidden bg-white border-slate-200 shadow-2xl">
+      <DialogContent className="sm:max-w-xl p-0 overflow-hidden bg-background border-slate-200 shadow-2xl">
         <DialogHeader className="p-4 border-b border-slate-100">
           <div className="flex items-center gap-3">
             <Search className="w-5 h-5 text-indigo-600 shrink-0" />
@@ -149,7 +149,7 @@ export const SearchDialog: React.FC<SearchDialogProps> = ({
 
         <div className="px-4 py-2.5 bg-slate-50 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
           <span>Navigate with mouse or touch</span>
-          <kbd className="px-1.5 py-0.5 rounded bg-white text-slate-600 font-mono text-[10px] border border-slate-200 shadow-xs">
+          <kbd className="px-1.5 py-0.5 rounded bg-background text-slate-600 font-mono text-[10px] border border-slate-200 shadow-xs">
             ESC to close
           </kbd>
         </div>

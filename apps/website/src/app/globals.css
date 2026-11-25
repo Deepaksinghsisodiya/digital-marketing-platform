@@ -12,8 +12,141 @@
    NEXORA MULTI-THEME ENGINE (6 Curated World-Class Presets)
    ========================================================================= */
 
-/* 1. Teal & Coral (Modern Growth & Performance Marketing) - DEFAULT */
+/* =========================================================================
+   SINGLE-FILE THEME CONTROL
+   Change the tokens in the :root block below and the whole site follows.
+   Components consume CSS variables only — never edit a component to re-theme.
+   ========================================================================= */
+
+/* =========================================================================
+   1. Modern Growth & Electric Violet (Stripe, Linear & Raycast Caliber) - DEFAULT
+   ========================================================================= */
 :root,
+[data-theme="modern-growth"],
+[data-theme="electric-indigo"] {
+  --nexora-theme-id: "modern-growth";
+  --nexora-navy: #080C14;
+  --nexora-ink: #0E1424;
+  --nexora-muted: #94A3B8;
+  --nexora-paper: #080C14;
+  --nexora-white: #ffffff;
+  --nexora-primary: #6366F1;
+  --nexora-primary-rgb: 99 102 241;
+  --nexora-primary-foreground: #ffffff;
+  --nexora-primary-hover: #4F46E5;
+  --nexora-primary-active: #4338CA;
+  --nexora-secondary: #0E1424;
+  --nexora-secondary-rgb: 14 20 36;
+  --nexora-secondary-foreground: #F8FAFC;
+  --nexora-accent: #06B6D4;
+  --nexora-accent-rgb: 6 182 212;
+  --nexora-accent-foreground: #080C14;
+  --nexora-background: #080C14;
+  --nexora-background-rgb: 8 12 20;
+  --nexora-foreground: #F8FAFC;
+  --nexora-foreground-rgb: 248 250 252;
+  --nexora-surface: #0E1424;
+  --nexora-surface-rgb: 14 20 36;
+  --nexora-surface-elevated: #162036;
+  --nexora-card: #0E1424;
+  --nexora-card-rgb: 14 20 36;
+  --nexora-card-foreground: #F8FAFC;
+  --nexora-purple: #6366F1;
+  --nexora-purple-light: #162036;
+  --nexora-purple-dark: #4F46E5;
+  --nexora-blue: #06B6D4;
+  --nexora-blue-light: #0B1929;
+  --nexora-blue-dark: #0891B2;
+  --nexora-cyan: #06B6D4;
+  --nexora-cyan-light: #0B1929;
+  --nexora-pink: #F43F5E;
+  --nexora-pink-light: #241118;
+  --nexora-orange: #F59E0B;
+  --nexora-orange-light: #261B0B;
+  --nexora-green: #10B981;
+  --nexora-green-light: #0D231A;
+  --nexora-green-dark: #059669;
+  --nexora-border: rgba(255, 255, 255, 0.10);
+  --nexora-border-strong: rgba(99, 102, 241, 0.45);
+  --nexora-divider: rgba(255, 255, 255, 0.06);
+  --nexora-input: #121A2E;
+  --nexora-ring: #6366F1;
+  --nexora-selection: #6366F1;
+  --nexora-glow: rgba(99, 102, 241, 0.35);
+  --nexora-gradient: linear-gradient(135deg, #6366F1 0%, #8B5CF6 50%, #06B6D4 100%);
+  --nexora-gradient-brand: linear-gradient(135deg, #6366F1 0%, #8B5CF6 50%, #06B6D4 100%);
+  --nexora-font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --nexora-font-heading: 'Sora', 'Plus Jakarta Sans', sans-serif;
+  --nexora-font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --nexora-radius-sm: 0.375rem;
+  --nexora-radius-md: 0.5rem;
+  --nexora-radius-lg: 0.75rem;
+  --nexora-radius-xl: 1rem;
+}
+
+/* 1B. Dark Charcoal & Neon Lime (Hacker Tech Startup) */
+[data-theme="dark-charcoal-neon-lime"] {
+  --nexora-theme-id: "dark-charcoal-neon-lime";
+  --nexora-navy: #121212;
+  --nexora-ink: #1E1E1E;
+  --nexora-muted: #7B8278;
+  --nexora-paper: #121212;
+  --nexora-white: #ffffff;
+  --nexora-primary: #B6FF3C;
+  --nexora-primary-rgb: 182 255 60;
+  --nexora-primary-foreground: #0F1408;
+  --nexora-primary-hover: #C8FF6B;
+  --nexora-primary-active: #9FE02B;
+  --nexora-secondary: #1E1E1E;
+  --nexora-secondary-rgb: 30 30 30;
+  --nexora-secondary-foreground: #F5F7F2;
+  --nexora-accent: #3CE0FF;
+  --nexora-accent-rgb: 60 224 255;
+  --nexora-accent-foreground: #06161B;
+  --nexora-background: #121212;
+  --nexora-background-rgb: 18 18 18;
+  --nexora-foreground: #F5F7F2;
+  --nexora-foreground-rgb: 245 247 242;
+  --nexora-surface: #1A1A1A;
+  --nexora-surface-rgb: 26 26 26;
+  --nexora-surface-elevated: #242424;
+  --nexora-card: #1E1E1E;
+  --nexora-card-rgb: 30 30 30;
+  --nexora-card-foreground: #F5F7F2;
+  --nexora-purple: #B6FF3C;
+  --nexora-purple-light: #242424;
+  --nexora-purple-dark: #9FE02B;
+  --nexora-blue: #3CE0FF;
+  --nexora-blue-light: #0F2226;
+  --nexora-blue-dark: #1AB8D8;
+  --nexora-cyan: #3CE0FF;
+  --nexora-cyan-light: #0F2226;
+  --nexora-pink: #FF6B6B;
+  --nexora-pink-light: #2A1616;
+  --nexora-orange: #FFC24B;
+  --nexora-orange-light: #2A2210;
+  --nexora-green: #8BEF5A;
+  --nexora-green-light: #18280F;
+  --nexora-green-dark: #6FC93E;
+  --nexora-border: rgba(182, 255, 60, 0.18);
+  --nexora-border-strong: rgba(182, 255, 60, 0.32);
+  --nexora-divider: rgba(255, 255, 255, 0.07);
+  --nexora-input: #1A1A1A;
+  --nexora-ring: #B6FF3C;
+  --nexora-selection: #B6FF3C;
+  --nexora-glow: rgba(182, 255, 60, 0.25);
+  --nexora-gradient: linear-gradient(135deg, #B6FF3C 0%, #8FE02B 100%);
+  --nexora-gradient-brand: linear-gradient(135deg, #B6FF3C 0%, #8FE02B 100%);
+  --nexora-font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --nexora-font-heading: 'Sora', 'Inter', sans-serif;
+  --nexora-font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --nexora-radius-sm: 0.375rem;
+  --nexora-radius-md: 0.5rem;
+  --nexora-radius-lg: 0.75rem;
+  --nexora-radius-xl: 1rem;
+}
+
+/* 2. Teal & Coral (Modern Growth & Performance Marketing) */
 [data-theme="teal-coral"],
 [data-theme="cyber-emerald"] {
   --nexora-theme-id: "teal-coral";
@@ -32,19 +165,17 @@
   --nexora-secondary-foreground: #ffffff;
   --nexora-accent: #FB7185;
   --nexora-accent-rgb: 251 113 133;
-  --nexora-accent-foreground: #0B1F2A;
-  --nexora-on-accent: #0B1F2A;
-  --nexora-body: #475569;
-  --nexora-success: #16A34A;
-  --nexora-danger: #DC2626;
+  --nexora-accent-foreground: #ffffff;
   --nexora-background: #ffffff;
   --nexora-background-rgb: 255 255 255;
   --nexora-foreground: #0B1F2A;
   --nexora-foreground-rgb: 11 31 42;
   --nexora-surface: #f0fdfa;
   --nexora-surface-rgb: 240 253 250;
+  --nexora-surface-elevated: #ffffff;
   --nexora-card: #ffffff;
   --nexora-card-rgb: 255 255 255;
+  --nexora-card-foreground: #0B1F2A;
   --nexora-purple: #0D9488;
   --nexora-purple-light: #f0fdfa;
   --nexora-purple-dark: #0f766e;
@@ -61,6 +192,10 @@
   --nexora-green-light: #f0fdfa;
   --nexora-green-dark: #115e59;
   --nexora-border: #e2e8f0;
+  --nexora-border-strong: #cbd5e1;
+  --nexora-divider: #f1f5f9;
+  --nexora-input: #ffffff;
+  --nexora-ring: #0D9488;
   --nexora-gradient: linear-gradient(135deg, #0D9488 0%, #14B8A6 50%, #FB7185 100%);
   --nexora-gradient-brand: linear-gradient(135deg, #0D9488 0%, #14B8A6 50%, #FB7185 100%);
   --nexora-glow: rgba(13, 148, 136, 0.28);
@@ -74,7 +209,7 @@
   --nexora-radius-xl: 1rem;
 }
 
-/* 2. Silicon Valley Electric (Linear / Stripe) */
+/* 3. Silicon Valley Electric (Linear / Stripe) */
 [data-theme="silicon-valley"] {
   --nexora-theme-id: "silicon-valley";
   --nexora-navy: #060b18;
@@ -84,6 +219,16 @@
   --nexora-white: #ffffff;
   --nexora-primary: #4f46e5;
   --nexora-accent: #2563eb;
+  --nexora-background: #ffffff;
+  --nexora-background-rgb: 255 255 255;
+  --nexora-foreground: #060b18;
+  --nexora-foreground-rgb: 6 11 24;
+  --nexora-surface: #f8fafc;
+  --nexora-surface-rgb: 248 250 252;
+  --nexora-surface-elevated: #ffffff;
+  --nexora-card: #ffffff;
+  --nexora-card-rgb: 255 255 255;
+  --nexora-card-foreground: #060b18;
   --nexora-purple: #7c3aed;
   --nexora-purple-light: #f5f3ff;
   --nexora-purple-dark: #5b21b6;
@@ -100,12 +245,16 @@
   --nexora-green-light: #ecfdf5;
   --nexora-green-dark: #047857;
   --nexora-border: #e2e8f0;
+  --nexora-border-strong: #cbd5e1;
+  --nexora-divider: #f1f5f9;
+  --nexora-input: #ffffff;
+  --nexora-ring: #4f46e5;
   --nexora-gradient: linear-gradient(135deg, #2563eb 0%, #4f46e5 50%, #7c3aed 100%);
   --nexora-glow: rgba(79, 70, 229, 0.28);
   --nexora-selection: #3b82f6;
 }
 
-/* 3. Midnight Violet & Sunset Coral (OpenAI / Raycast) */
+/* 4. Midnight Violet & Sunset Coral (OpenAI / Raycast) */
 [data-theme="midnight-violet"] {
   --nexora-theme-id: "midnight-violet";
   --nexora-navy: #0b0816;
@@ -115,6 +264,16 @@
   --nexora-white: #ffffff;
   --nexora-primary: #8b5cf6;
   --nexora-accent: #f97316;
+  --nexora-background: #ffffff;
+  --nexora-background-rgb: 255 255 255;
+  --nexora-foreground: #0b0816;
+  --nexora-foreground-rgb: 11 8 22;
+  --nexora-surface: #f8fafc;
+  --nexora-surface-rgb: 248 250 252;
+  --nexora-surface-elevated: #ffffff;
+  --nexora-card: #ffffff;
+  --nexora-card-rgb: 255 255 255;
+  --nexora-card-foreground: #0b0816;
   --nexora-purple: #8b5cf6;
   --nexora-purple-light: #f5f3ff;
   --nexora-purple-dark: #6d28d9;
@@ -131,12 +290,16 @@
   --nexora-green-light: #ecfdf5;
   --nexora-green-dark: #047857;
   --nexora-border: #e4e4e7;
+  --nexora-border-strong: #cbd5e1;
+  --nexora-divider: #f1f5f9;
+  --nexora-input: #ffffff;
+  --nexora-ring: #8b5cf6;
   --nexora-gradient: linear-gradient(135deg, #8b5cf6 0%, #d946ef 50%, #f97316 100%);
   --nexora-glow: rgba(139, 92, 246, 0.28);
   --nexora-selection: #8b5cf6;
 }
 
-/* 4. Monochrome Stealth & Laser Cobalt (Apple Pro / Vercel) */
+/* 5. Monochrome Stealth & Laser Cobalt (Apple Pro / Vercel) */
 [data-theme="monochrome-stealth"] {
   --nexora-theme-id: "monochrome-stealth";
   --nexora-navy: #000000;
@@ -146,6 +309,16 @@
   --nexora-white: #ffffff;
   --nexora-primary: #0055ff;
   --nexora-accent: #38bdf8;
+  --nexora-background: #ffffff;
+  --nexora-background-rgb: 255 255 255;
+  --nexora-foreground: #000000;
+  --nexora-foreground-rgb: 0 0 0;
+  --nexora-surface: #f8fafc;
+  --nexora-surface-rgb: 248 250 252;
+  --nexora-surface-elevated: #ffffff;
+  --nexora-card: #ffffff;
+  --nexora-card-rgb: 255 255 255;
+  --nexora-card-foreground: #000000;
   --nexora-purple: #0055ff;
   --nexora-purple-light: #eff6ff;
   --nexora-purple-dark: #1e3a8a;
@@ -162,12 +335,16 @@
   --nexora-green-light: #ecfdf5;
   --nexora-green-dark: #047857;
   --nexora-border: #e4e4e7;
+  --nexora-border-strong: #cbd5e1;
+  --nexora-divider: #f1f5f9;
+  --nexora-input: #ffffff;
+  --nexora-ring: #0055ff;
   --nexora-gradient: linear-gradient(135deg, #0055ff 0%, #2563eb 50%, #38bdf8 100%);
   --nexora-glow: rgba(0, 85, 255, 0.28);
   --nexora-selection: #0055ff;
 }
 
-/* 5. Sapphire Ocean & Cyber Cyan (Cloudflare / Docker) */
+/* 6. Sapphire Ocean & Cyber Cyan (Cloudflare / Docker) */
 [data-theme="sapphire-ocean"] {
   --nexora-theme-id: "sapphire-ocean";
   --nexora-navy: #040d21;
@@ -177,6 +354,16 @@
   --nexora-white: #ffffff;
   --nexora-primary: #1d4ed8;
   --nexora-accent: #00d8ff;
+  --nexora-background: #ffffff;
+  --nexora-background-rgb: 255 255 255;
+  --nexora-foreground: #040d21;
+  --nexora-foreground-rgb: 4 13 33;
+  --nexora-surface: #f8fafc;
+  --nexora-surface-rgb: 248 250 252;
+  --nexora-surface-elevated: #ffffff;
+  --nexora-card: #ffffff;
+  --nexora-card-rgb: 255 255 255;
+  --nexora-card-foreground: #040d21;
   --nexora-purple: #1d4ed8;
   --nexora-purple-light: #eff6ff;
   --nexora-purple-dark: #1e3a8a;
@@ -193,12 +380,16 @@
   --nexora-green-light: #ecfdf5;
   --nexora-green-dark: #047857;
   --nexora-border: #e2e8f0;
+  --nexora-border-strong: #cbd5e1;
+  --nexora-divider: #f1f5f9;
+  --nexora-input: #ffffff;
+  --nexora-ring: #1d4ed8;
   --nexora-gradient: linear-gradient(135deg, #1d4ed8 0%, #0284c7 50%, #00d8ff 100%);
   --nexora-glow: rgba(0, 216, 255, 0.28);
   --nexora-selection: #0284c7;
 }
 
-/* 6. Champagne Gold & Executive Obsidian (Luxury Elite) */
+/* 7. Champagne Gold & Executive Obsidian (Luxury Elite) */
 [data-theme="champagne-gold"] {
   --nexora-theme-id: "champagne-gold";
   --nexora-navy: #0b0c10;
@@ -208,6 +399,16 @@
   --nexora-white: #ffffff;
   --nexora-primary: #f59e0b;
   --nexora-accent: #d97706;
+  --nexora-background: #ffffff;
+  --nexora-background-rgb: 255 255 255;
+  --nexora-foreground: #0b0c10;
+  --nexora-foreground-rgb: 11 12 16;
+  --nexora-surface: #f8fafc;
+  --nexora-surface-rgb: 248 250 252;
+  --nexora-surface-elevated: #ffffff;
+  --nexora-card: #ffffff;
+  --nexora-card-rgb: 255 255 255;
+  --nexora-card-foreground: #0b0c10;
   --nexora-purple: #f59e0b;
   --nexora-purple-light: #fffbeb;
   --nexora-purple-dark: #b45309;
@@ -224,9 +425,19 @@
   --nexora-green-light: #ecfdf5;
   --nexora-green-dark: #047857;
   --nexora-border: #e7e5e4;
+  --nexora-border-strong: #cbd5e1;
+  --nexora-divider: #f1f5f9;
+  --nexora-input: #ffffff;
+  --nexora-ring: #f59e0b;
   --nexora-gradient: linear-gradient(135deg, #b45309 0%, #f59e0b 50%, #fde68a 100%);
   --nexora-glow: rgba(245, 158, 11, 0.28);
   --nexora-selection: #f59e0b;
+}
+
+/* Raw Tailwind surfaces are mapped to theme tokens here so no component
+   needs to be touched when the palette changes. */
+.bg-white {
+  background-color: var(--nexora-card, #ffffff);
 }
 
 html {
@@ -234,21 +445,27 @@ html {
 }
 
 body {
-  background-color: #ffffff;
-  color: #0f172a;
+  background-color: var(--nexora-background, #121212);
+  color: var(--nexora-foreground, #F5F7F2);
   font-family: var(--font-sans), var(--nexora-font-sans);
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
 }
 
-h1, h2, h3, h4, h5, h6, .font-heading {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.font-heading {
   font-family: var(--font-heading), var(--font-sans), sans-serif;
   letter-spacing: -0.025em;
 }
 
 ::selection {
-  background-color: var(--nexora-selection, #10b981);
-  color: #ffffff;
+  background-color: var(--nexora-selection, #B6FF3C);
+  color: var(--nexora-primary-foreground, #0F1408);
 }
 
 /* Modern World-Class MNC Dynamic Multi-Theme Utility Classes */
@@ -401,6 +618,7 @@ h1, h2, h3, h4, h5, h6, .font-heading {
 
 /* Accessibility: Prefers Reduced Motion */
 @media (prefers-reduced-motion: reduce) {
+
   *,
   *::before,
   *::after {
@@ -438,10 +656,10 @@ h1, h2, h3, h4, h5, h6, .font-heading {
 .max-w-7xl,
 .max-w-6xl,
 .max-w-\[1440px\],
-header > div > div.max-w-7xl,
+header>div>div.max-w-7xl,
 main section[class*="max-w-"],
-main section > div[class*="max-w-7xl"],
-main section > div[class*="max-w-6xl"] {
+main section>div[class*="max-w-7xl"],
+main section>div[class*="max-w-6xl"] {
   width: var(--nexora-content-width) !important;
   max-width: var(--nexora-content-width) !important;
   margin-left: auto !important;
@@ -450,7 +668,7 @@ main section > div[class*="max-w-6xl"] {
 
 /* 3. Direct Sections in Main (FAQ, CTA, etc.) */
 main section.max-w-4xl,
-main section > div.max-w-4xl {
+main section>div.max-w-4xl {
   width: var(--nexora-content-width) !important;
   max-width: var(--nexora-content-width) !important;
   margin-left: auto !important;
@@ -458,8 +676,8 @@ main section > div.max-w-4xl {
 }
 
 /* 4. Footer Columns & Regulatory Sub-Footer (Aligned to 85% grid) */
-footer > div.max-w-7xl,
-footer > div > div.max-w-7xl {
+footer>div.max-w-7xl,
+footer>div>div.max-w-7xl {
   width: var(--nexora-content-width) !important;
   max-width: var(--nexora-content-width) !important;
   margin-left: auto !important;
@@ -473,30 +691,35 @@ footer > div > div.max-w-7xl {
    To adjust the padding across the entire website, change this ONE variable:
    ========================================================================= */
 :root {
-  --nexora-mobile-gutter: 1rem; /* 16px (matches navbar & announcement bar px-4 on mobile) */
-  --nexora-section-py-mobile: 2.5rem; /* 40px (py-10) */
-  --nexora-section-py-tablet: 3.5rem; /* 56px (py-14) */
-  --nexora-section-py-desktop: 4.5rem; /* 72px (py-18) */
+  --nexora-mobile-gutter: 1rem;
+  /* 16px (matches navbar & announcement bar px-4 on mobile) */
+  --nexora-section-py-mobile: 2.5rem;
+  /* 40px (py-10) */
+  --nexora-section-py-tablet: 3.5rem;
+  /* 56px (py-14) */
+  --nexora-section-py-desktop: 4.5rem;
+  /* 72px (py-18) */
 }
 
 @media (max-width: 639px) {
+
   /* 1. Header Navigation Container */
   header .h-12,
   header .h-14,
   header .h-16,
-  header > div > .w-full,
+  header>div>.w-full,
   /* 2. Announcement Bar Container */
-  header div[class*="bg-"] > div,
+  header div[class*="bg-"]>div,
   /* 3. All Direct Main Sections & CMS Block Containers */
-  main > section,
-  main > div > section,
+  main>section,
+  main>div>section,
   main section[class*="max-w-"],
-  main section > div[class*="max-w-7xl"],
-  main section > div[class*="max-w-6xl"],
-  main section > div[class*="max-w-5xl"],
+  main section>div[class*="max-w-7xl"],
+  main section>div[class*="max-w-6xl"],
+  main section>div[class*="max-w-5xl"],
   /* 4. Footer Outer & Inner Containers */
-  footer > div,
-  footer > div > div {
+  footer>div,
+  footer>div>div {
     padding-left: var(--nexora-mobile-gutter) !important;
     padding-right: var(--nexora-mobile-gutter) !important;
   }
@@ -513,17 +736,105 @@ footer > div > div.max-w-7xl {
   padding-left: 1rem;
   padding-right: 1rem;
 }
+
 @media (min-width: 640px) {
   .nexora-container {
     padding-left: 1.5rem;
     padding-right: 1.5rem;
   }
 }
+
 @media (min-width: 1024px) {
   .nexora-container {
     padding-left: 2rem;
     padding-right: 2rem;
   }
+}
+
+/* =========================================================================
+   SEMANTIC SECTION & CARD UTILITY CLASSES
+   Use these instead of hardcoded bg-white/text-slate-900 in components.
+   ========================================================================= */
+.section-light {
+  background-color: var(--nexora-background, #ffffff);
+  color: var(--nexora-foreground, #0B1F2A);
+}
+
+.section-dark {
+  background-color: var(--nexora-navy, #0B1F2A);
+  color: var(--nexora-foreground, #f8fafc);
+}
+
+.section-surface {
+  background-color: var(--nexora-surface, #f8fafc);
+  color: var(--nexora-foreground, #0B1F2A);
+}
+
+.card-theme {
+  background-color: var(--nexora-card, #ffffff);
+  color: var(--nexora-card-foreground, #0f172a);
+  border-color: var(--nexora-border, #e2e8f0);
+}
+
+/* SVG Section Dividers */
+.section-divider-wave {
+  position: relative;
+}
+.section-divider-wave::after {
+  content: "";
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 48px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 48' preserveAspectRatio='none'%3E%3Cpath d='M0,24 C360,48 720,0 1080,24 C1260,36 1380,48 1440,48 L1440,48 L0,48 Z' fill='%23f8fafc'/%3E%3C/svg%3E") no-repeat bottom center;
+  background-size: 100% 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Gradient Mesh Background for Hero/CTA */
+.gradient-mesh {
+  background-image: 
+    radial-gradient(at 40% 20%, var(--nexora-glow, rgba(16, 185, 129, 0.15)) 0px, transparent 50%),
+    radial-gradient(at 80% 0%, rgba(var(--nexora-accent-rgb, 6 182 212) / 0.1) 0px, transparent 50%),
+    radial-gradient(at 0% 50%, rgba(var(--nexora-primary-rgb, 16 185 129) / 0.08) 0px, transparent 50%);
+}
+
+/* Dot Grid Pattern */
+.dot-grid {
+  background-image: radial-gradient(circle, var(--nexora-border, #e2e8f0) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* Animated Gradient Border */
+@keyframes borderRotate {
+  0% { --angle: 0deg; }
+  100% { --angle: 360deg; }
+}
+
+.animated-border {
+  position: relative;
+  overflow: hidden;
+}
+.animated-border::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  background: conic-gradient(from var(--angle, 0deg), var(--nexora-primary, #10b981), var(--nexora-accent, #06b6d4), var(--nexora-primary, #10b981));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  padding: 2px;
+  pointer-events: none;
+  animation: borderRotate 4s linear infinite;
+}
+
+@property --angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
 }
 
 /* =========================================================================
@@ -545,9 +856,11 @@ footer > div > div.max-w-7xl {
   0% {
     box-shadow: 0 0 0 0 rgba(var(--nexora-primary-rgb, 16 185 129), 0.45);
   }
+
   70% {
     box-shadow: 0 0 0 12px rgba(var(--nexora-primary-rgb, 16 185 129), 0);
   }
+
   100% {
     box-shadow: 0 0 0 0 rgba(var(--nexora-primary-rgb, 16 185 129), 0);
   }
@@ -562,9 +875,12 @@ footer > div > div.max-w-7xl {
 }
 
 @keyframes gradientDrift {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translate3d(0, 0, 0);
   }
+
   50% {
     transform: translate3d(8px, -8px, 0);
   }
@@ -576,9 +892,21 @@ footer > div > div.max-w-7xl {
 }
 
 @keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  20%, 60% { transform: translateX(-4px); }
-  40%, 80% { transform: translateX(4px); }
+
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  20%,
+  60% {
+    transform: translateX(-4px);
+  }
+
+  40%,
+  80% {
+    transform: translateX(4px);
+  }
 }
 
 .animate-shake {
@@ -589,6 +917,7 @@ footer > div > div.max-w-7xl {
   0% {
     stroke-dashoffset: 200;
   }
+
   100% {
     stroke-dashoffset: 0;
   }
@@ -604,6 +933,7 @@ footer > div > div.max-w-7xl {
     opacity: 0;
     transform: translate3d(0, 36px, 0);
   }
+
   100% {
     opacity: 1;
     transform: translate3d(0, 0, 0);
@@ -613,21 +943,171 @@ footer > div > div.max-w-7xl {
 .animate-glide-up-1 {
   animation: heroGlideUp 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0.05s both;
 }
+
 .animate-glide-up-2 {
   animation: heroGlideUp 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0.18s both;
 }
+
 .animate-glide-up-3 {
   animation: heroGlideUp 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0.32s both;
 }
+
 .animate-glide-up-4 {
   animation: heroGlideUp 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0.46s both;
 }
+
 .animate-glide-up-5 {
   animation: heroGlideUp 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0.60s both;
 }
 
+/* Typewriter cursor blink */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.animate-blink {
+  animation: blink 1s step-end infinite;
+}
+
+/* Smooth slide in from bottom for sections */
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Parallax float */
+@keyframes parallaxFloat {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  25% {
+    transform: translateY(-10px) rotate(1deg);
+  }
+  75% {
+    transform: translateY(5px) rotate(-1deg);
+  }
+}
+
+.animate-parallax-float {
+  animation: parallaxFloat 6s ease-in-out infinite;
+}
+
+/* Scale in with bounce */
+@keyframes scaleIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* =========================================================================
+   GLOBAL MOTION SHIMS
+   Fixes animate-in / fade / zoom / slide classes used by dialogs and menus
+   without adding an animation dependency, and adds scroll-reveal to sections.
+   ========================================================================= */
+@keyframes nexoraFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes nexoraFadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes nexoraFadeZoomIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes nexoraFadeZoomOut {
+  from { opacity: 1; transform: scale(1); }
+  to { opacity: 0; transform: scale(0.95); }
+}
+
+@keyframes nexoraFadeSlideRight {
+  from { opacity: 0; transform: translateX(16px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes nexoraFadeSlideUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes nexoraSectionReveal {
+  from { opacity: 0; transform: translate3d(0, var(--nexora-motion-dist-lg), 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+.animate-in,
+.animate-out {
+  animation-duration: var(--nexora-motion-normal);
+  animation-timing-function: var(--nexora-motion-easing);
+  animation-fill-mode: both;
+  animation-name: nexoraFade;
+}
+
+.animate-out {
+  animation-name: nexoraFadeOut;
+}
+
+.fade-in,
+.fade-in-0,
+.fade-in-50 {
+  animation-name: nexoraFade;
+}
+
+.fade-out-0 {
+  animation-name: nexoraFadeOut;
+}
+
+.zoom-in-95 {
+  animation-name: nexoraFadeZoomIn;
+}
+
+.zoom-out-95 {
+  animation-name: nexoraFadeZoomOut;
+}
+
+.slide-in-from-right {
+  animation-name: nexoraFadeSlideRight;
+}
+
+.slide-in-from-bottom-4 {
+  animation-name: nexoraFadeSlideUp;
+}
+
+.duration-250 {
+  animation-duration: 250ms;
+  transition-duration: 250ms;
+}
+
+@supports (animation-timeline: view()) {
+  main section {
+    animation: nexoraSectionReveal linear both;
+    animation-timeline: view();
+    animation-range: entry 0% cover 22%;
+  }
+}
+
 /* Global reduced motion override (Hard Rule 3 & DB 'off' mode) */
 @media (prefers-reduced-motion: reduce) {
+
   *,
   *::before,
   *::after {
@@ -635,6 +1115,10 @@ footer > div > div.max-w-7xl {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+
+  main section {
+    animation: none !important;
   }
 
   .animate-pulse-ring,
@@ -660,6 +1144,10 @@ footer > div > div.max-w-7xl {
   scroll-behavior: auto !important;
 }
 
+[data-animation-mode="off"] main section {
+  animation: none !important;
+}
+
 [data-animation-mode="off"] .animate-pulse-ring,
 [data-animation-mode="off"] .animate-gradient-drift,
 [data-animation-mode="off"] .animate-marquee,
@@ -672,8 +1160,3 @@ footer > div > div.max-w-7xl {
 [data-animation-mode="off"] .animate-glide-up-5 {
   animation: none !important;
 }
-
-
-
-
-

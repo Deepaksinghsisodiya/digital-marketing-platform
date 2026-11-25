@@ -132,7 +132,7 @@ export const CookieBanner: React.FC = () => {
       role="dialog"
       aria-live="polite"
       aria-label="Cookie and Privacy Consent"
-      className="fixed bottom-20 md:bottom-6 left-4 right-4 md:left-auto md:right-6 md:max-w-lg z-50 rounded-2xl border border-slate-200/90 bg-white/95 backdrop-blur-2xl p-5 sm:p-6 shadow-2xl text-slate-800 animate-in fade-in slide-in-from-bottom-4 duration-300 ring-1 ring-slate-900/5"
+      className="fixed bottom-20 md:bottom-6 left-4 right-4 md:left-auto md:right-6 md:max-w-lg z-50 rounded-2xl border border-slate-200/90 bg-card/95 backdrop-blur-2xl p-5 sm:p-6 shadow-2xl text-slate-800 animate-in fade-in slide-in-from-bottom-4 duration-300 ring-1 ring-slate-900/5"
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-start gap-3">

@@ -32,7 +32,6 @@ function compileColorVars(colors: ColorTokens, prefix = "--nexora"): string[] {
   vars.push(`${prefix}-accent: ${sanitizeCssVal(colors.accent)};`);
   vars.push(`${prefix}-accent-rgb: ${toRgbChannel(colors.accent)};`);
   vars.push(`${prefix}-accent-foreground: ${sanitizeCssVal(colors.accentForeground)};`);
-  vars.push(`${prefix}-on-accent: ${sanitizeCssVal(colors.accentForeground)};`);
 
   vars.push(`${prefix}-background: ${sanitizeCssVal(colors.background)};`);
   vars.push(`${prefix}-background-rgb: ${toRgbChannel(colors.background)};`);
@@ -202,8 +201,7 @@ export function themeToCss(
     sharedVars.push(`${prefix}-card-border-color: ${sanitizeCssVal(cardBorder)};`);
     sharedVars.push(`${prefix}-card-shadow: ${sanitizeCssVal(cardShadow)};`);
     sharedVars.push(
-      `${prefix}-card-backdrop: ${
-        cardStyle === "glass" ? `blur(var(${prefix}-glass-blur, 12px))` : "none"
+      `${prefix}-card-backdrop: ${cardStyle === "glass" ? `blur(var(${prefix}-glass-blur, 12px))` : "none"
       };`,
     );
 

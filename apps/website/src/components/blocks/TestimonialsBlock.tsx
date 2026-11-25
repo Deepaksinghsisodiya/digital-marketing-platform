@@ -118,7 +118,7 @@ export const TestimonialsBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
             <button
               type="button"
               onClick={scrollPrev}
-              className="w-10 h-10 rounded-full border border-slate-300 bg-white hover:bg-slate-50 hover:border-primary/50 text-slate-700 flex items-center justify-center transition shadow-xs active:scale-95 cursor-pointer"
+              className="w-10 h-10 rounded-full border border-slate-300 bg-card hover:bg-slate-50 hover:border-primary/50 text-slate-700 flex items-center justify-center transition shadow-xs active:scale-95 cursor-pointer"
               aria-label="Previous testimonial"
             >
               <ChevronLeft className="w-5 h-5" />
@@ -126,7 +126,7 @@ export const TestimonialsBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
             <button
               type="button"
               onClick={scrollNext}
-              className="w-10 h-10 rounded-full border border-slate-300 bg-white hover:bg-slate-50 hover:border-primary/50 text-slate-700 flex items-center justify-center transition shadow-xs active:scale-95 cursor-pointer"
+              className="w-10 h-10 rounded-full border border-slate-300 bg-card hover:bg-slate-50 hover:border-primary/50 text-slate-700 flex items-center justify-center transition shadow-xs active:scale-95 cursor-pointer"
               aria-label="Next testimonial"
             >
               <ChevronRight className="w-5 h-5" />
@@ -149,7 +149,7 @@ export const TestimonialsBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
                   key={idx}
                   className="pl-4 sm:pl-6 min-w-0 flex-[0_0_100%] sm:flex-[0_0_50%] lg:flex-[0_0_33.333%]"
                 >
-                  <div className="h-full rounded-2xl sm:rounded-3xl border border-slate-200/90 bg-white p-5 sm:p-7 md:p-8 hover:border-primary/40 hover:shadow-xl transition-all duration-300 flex flex-col justify-between shadow-xs select-none">
+                  <div className="h-full rounded-2xl sm:rounded-3xl border border-slate-200/90 bg-card p-5 sm:p-7 md:p-8 hover:border-primary/40 hover:shadow-xl transition-all duration-300 flex flex-col justify-between shadow-xs select-none">
                     <div>
                       {/* Rating Stars & Quote Icon */}
                       <div className="flex items-center justify-between mb-4 sm:mb-5">

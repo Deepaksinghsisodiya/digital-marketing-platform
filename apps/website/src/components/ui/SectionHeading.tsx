@@ -62,7 +62,7 @@ export const SectionHeading: React.FC<SectionHeadingProps> = ({
 
       <h2
         className={`font-heading font-extrabold tracking-tight text-3xl sm:text-4xl lg:text-5xl leading-[1.15] ${
-          isDarkTone ? "text-white" : "text-slate-900"
+          isDarkTone ? "text-white" : "text-foreground"
         }`}
       >
         {renderedTitle}
@@ -71,7 +71,7 @@ export const SectionHeading: React.FC<SectionHeadingProps> = ({
       {description && (
         <p
           className={`mt-4 text-base sm:text-lg leading-relaxed max-w-2xl font-normal ${
-            isDarkTone ? "text-slate-300" : "text-slate-600"
+            isDarkTone ? "text-white/70" : "text-muted"
           }`}
         >
           {description}

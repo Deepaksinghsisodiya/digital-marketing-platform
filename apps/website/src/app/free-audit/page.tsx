@@ -33,7 +33,7 @@ export default async function FreeAuditPage() {
   ]);
 
   return (
-    <div className="min-h-screen flex flex-col justify-between bg-white text-slate-900">
+    <div className="min-h-screen flex flex-col justify-between bg-background text-foreground">
       <Header
         settings={siteSettings}
         currentRegionCode={region.code}

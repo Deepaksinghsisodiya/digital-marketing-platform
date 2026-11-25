@@ -355,14 +355,14 @@ export const Header: React.FC<HeaderProps> = ({
     menu?.items && menu.items.length > 0
       ? [...menu.items].sort((a, b) => a.displayOrder - b.displayOrder)
       : [
-          { id: "nav-services", label: "Services", url: "/services", displayOrder: 0, children: [] },
-          { id: "nav-industries", label: "Industries", url: "/industries", displayOrder: 1, children: [] },
-          { id: "nav-solutions", label: "Solutions", url: "/solutions", displayOrder: 2, children: [] },
-          { id: "nav-work", label: "Our Work", url: "/case-studies", displayOrder: 3, children: [] },
-          { id: "nav-insights", label: "Insights", url: "/blog", displayOrder: 4, children: [] },
-          { id: "nav-about", label: "About", url: "/about", displayOrder: 5, children: [] },
-          { id: "nav-contact", label: "Contact", url: "/contact", displayOrder: 6, children: [] },
-        ];
+        { id: "nav-services", label: "Services", url: "/services", displayOrder: 0, children: [] },
+        { id: "nav-industries", label: "Industries", url: "/industries", displayOrder: 1, children: [] },
+        { id: "nav-solutions", label: "Solutions", url: "/solutions", displayOrder: 2, children: [] },
+        { id: "nav-work", label: "Our Work", url: "/case-studies", displayOrder: 3, children: [] },
+        { id: "nav-insights", label: "Insights", url: "/blog", displayOrder: 4, children: [] },
+        { id: "nav-about", label: "About", url: "/about", displayOrder: 5, children: [] },
+        { id: "nav-contact", label: "Contact", url: "/contact", displayOrder: 6, children: [] },
+      ];
 
   // Map any legacy "Solutions" item to "Services" if no Services item exists
   const resolvedMenuItems: PublicMenuItem[] = rawMenuItems.map((item) => {
@@ -401,16 +401,14 @@ export const Header: React.FC<HeaderProps> = ({
 
       {/* 2. Main Sticky Header Navigation */}
       <div
-        className={`w-full transition-all duration-300 border-b border-slate-200/90 ${
-          isScrolled
-            ? "bg-white/90 backdrop-blur-xl shadow-sm"
-            : "bg-white/95 backdrop-blur-md shadow-2xs"
-        }`}
+        className={`w-full transition-all duration-300 border-b border-border/80 ${isScrolled
+          ? "bg-background/90 backdrop-blur-xl shadow-sm"
+          : "bg-background/95 backdrop-blur-md shadow-2xs"
+          }`}
       >
         <div
-          className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-2 sm:gap-4 transition-all duration-300 ${
-            isScrolled ? "h-12 sm:h-14" : "h-12 sm:h-16"
-          }`}
+          className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-2 sm:gap-4 transition-all duration-300 ${isScrolled ? "h-12 sm:h-14" : "h-12 sm:h-16"
+            }`}
         >
           {/* Brand Logo & Wordmark */}
           <Link
@@ -430,10 +428,10 @@ export const Header: React.FC<HeaderProps> = ({
               </div>
             )}
             <div className="flex flex-col min-w-0">
-              <span className="font-black text-slate-900 text-xs sm:text-base tracking-tight leading-none group-hover:text-primary transition-colors truncate max-w-[150px] xs:max-w-[200px] sm:max-w-[280px] md:max-w-none">
+              <span className="font-black text-foreground text-xs sm:text-base tracking-tight leading-none group-hover:text-primary transition-colors truncate max-w-[150px] xs:max-w-[200px] sm:max-w-[280px] md:max-w-none">
                 {companyName}
               </span>
-              <span className="hidden md:block text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-0.5 whitespace-nowrap">
+              <span className="hidden md:block text-[10px] font-bold text-muted uppercase tracking-widest mt-0.5 whitespace-nowrap">
                 Growth &bull; Technology &bull; AI
               </span>
             </div>
@@ -441,7 +439,7 @@ export const Header: React.FC<HeaderProps> = ({
 
           {/* Desktop/Tablet Navigation Links & Mega Menus (Dynamically Driven by Admin CMS with Curated Defaults) */}
           <nav
-            className="hidden lg:flex items-center gap-0.5 xl:gap-1 text-xs xl:text-sm font-semibold text-slate-700 whitespace-nowrap shrink-0 h-full"
+            className="hidden lg:flex items-center gap-0.5 xl:gap-1 text-xs xl:text-sm font-semibold text-foreground/80 whitespace-nowrap shrink-0 h-full"
             aria-label="Main Navigation"
           >
             {resolvedMenuItems.map((item) => {
@@ -449,8 +447,8 @@ export const Header: React.FC<HeaderProps> = ({
               const dropdownKey = getItemDropdownKey(item);
               const isItemActive = Boolean(
                 pathname &&
-                  (pathname === item.url ||
-                    (item.url !== "/" && pathname.startsWith(item.url))),
+                (pathname === item.url ||
+                  (item.url !== "/" && pathname.startsWith(item.url))),
               );
 
               if (isDropdown) {
@@ -463,13 +461,12 @@ export const Header: React.FC<HeaderProps> = ({
                   >
                     <button
                       type="button"
-                      className={`h-full px-2.5 xl:px-3 flex items-center gap-1 transition-colors whitespace-nowrap shrink-0 cursor-pointer focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-primary relative ${
-                        activeDropdown === dropdownKey
+                      className={`h-full px-2.5 xl:px-3 flex items-center gap-1 transition-colors whitespace-nowrap shrink-0 cursor-pointer focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-primary relative ${activeDropdown === dropdownKey
+                        ? "text-primary font-bold"
+                        : isItemActive
                           ? "text-primary font-bold"
-                          : isItemActive
-                            ? "text-primary font-bold"
-                            : "hover:text-primary hover:bg-slate-50/60"
-                      }`}
+                          : "hover:text-primary hover:bg-slate-50/60"
+                        }`}
                       aria-expanded={activeDropdown === dropdownKey}
                       aria-haspopup="true"
                       onClick={() =>
@@ -480,11 +477,10 @@ export const Header: React.FC<HeaderProps> = ({
                     >
                       <span>{item.label}</span>
                       <ChevronDown
-                        className={`w-3.5 h-3.5 transition-transform duration-200 ${
-                          activeDropdown === dropdownKey
-                            ? "rotate-180 text-primary"
-                            : "text-slate-400"
-                        }`}
+                        className={`w-3.5 h-3.5 transition-transform duration-200 ${activeDropdown === dropdownKey
+                          ? "rotate-180 text-primary"
+                          : "text-slate-400"
+                          }`}
                       />
                       {(activeDropdown === dropdownKey || isItemActive) && (
                         <span className="absolute bottom-0 inset-x-1 h-0.5 bg-primary z-10" />
@@ -494,7 +490,7 @@ export const Header: React.FC<HeaderProps> = ({
                     {/* 1. SERVICES MEGA MENU CANVAS (100% Solid Opaque Background - Zero Transparency) */}
                     {activeDropdown === dropdownKey && dropdownKey === "services" && (
                       <div
-                        className="absolute top-full left-0 w-[840px] xl:w-[920px] max-w-[calc(100vw-3rem)] bg-white dark:bg-slate-900 rounded-b-2xl rounded-t-none border-x border-b border-t-0 border-slate-200 dark:border-slate-800 shadow-2xl p-5 sm:p-6 animate-in fade-in-50 zoom-in-95 duration-150 z-50 select-none"
+                        className="absolute top-full right-0 lg:left-0 w-[min(840px,calc(100vw-2rem))] xl:w-[920px] max-w-[calc(100vw-3rem)] bg-card dark:bg-card rounded-b-2xl rounded-t-none border-x border-b border-t-0 border-slate-200 dark:border-slate-800 shadow-2xl p-5 sm:p-6 animate-in fade-in-50 zoom-in-95 duration-150 z-50 select-none"
                       >
                         <div className="flex items-center justify-between pb-3.5 mb-5 border-b border-slate-100 dark:border-slate-800">
                           <div className="flex items-center gap-2.5">
@@ -534,7 +530,7 @@ export const Header: React.FC<HeaderProps> = ({
                                     <li key={it.href}>
                                       <Link
                                         href={it.href}
-                                        className="group flex items-start gap-2.5 p-1.5 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors"
+                                        className="group flex items-start gap-2.5 p-1.5 rounded-xl hover:bg-surface dark:hover:bg-surface transition-colors"
                                       >
                                         <div className="mt-0.5 w-6 h-6 rounded-lg bg-slate-100 dark:bg-slate-800 group-hover:bg-primary/10 group-hover:text-primary flex items-center justify-center shrink-0 transition-colors">
                                           <IconComponent className="w-3.5 h-3.5 text-slate-600 dark:text-slate-300 group-hover:text-primary" />
@@ -557,7 +553,7 @@ export const Header: React.FC<HeaderProps> = ({
                         </div>
 
                         {/* Mega Menu Footer Banner */}
-                        <div className="mt-5 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs bg-slate-50 dark:bg-slate-800/50 rounded-xl px-4 py-2.5">
+                        <div className="mt-5 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs bg-surface dark:bg-surface rounded-xl px-4 py-2.5">
                           <span className="text-slate-600 dark:text-slate-300 font-medium text-[11px]">
                             Need a customized scope or dual marketing + engineering retainer?
                           </span>
@@ -575,7 +571,7 @@ export const Header: React.FC<HeaderProps> = ({
                     {/* 2. INDUSTRIES DROPDOWN CANVAS (100% Solid Opaque Background) */}
                     {activeDropdown === dropdownKey && dropdownKey === "industries" && (
                       <div
-                        className="absolute top-full left-0 w-[540px] max-w-[calc(100vw-3rem)] bg-white dark:bg-slate-900 rounded-b-2xl rounded-t-none border-x border-b border-t-0 border-slate-200 dark:border-slate-800 shadow-2xl p-5 animate-in fade-in-50 zoom-in-95 duration-150 z-50 select-none"
+                        className="absolute top-full left-0 w-[540px] max-w-[calc(100vw-3rem)] bg-card dark:bg-card rounded-b-2xl rounded-t-none border-x border-b border-t-0 border-slate-200 dark:border-slate-800 shadow-2xl p-5 animate-in fade-in-50 zoom-in-95 duration-150 z-50 select-none"
                       >
                         <div className="flex items-center justify-between pb-2.5 mb-3 border-b border-slate-100 dark:border-slate-800">
                           <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400">
@@ -596,7 +592,7 @@ export const Header: React.FC<HeaderProps> = ({
                               <Link
                                 key={ind.href}
                                 href={ind.href}
-                                className="group flex items-start gap-2.5 p-2 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/60 transition"
+                                className="group flex items-start gap-2.5 p-2 rounded-xl hover:bg-surface dark:hover:bg-surface transition"
                               >
                                 <div className="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 group-hover:bg-primary/10 group-hover:text-primary flex items-center justify-center shrink-0">
                                   <IconComponent className="w-3.5 h-3.5 text-slate-600 dark:text-slate-300 group-hover:text-primary" />
@@ -619,7 +615,7 @@ export const Header: React.FC<HeaderProps> = ({
                     {/* 3. SOLUTIONS DROPDOWN CANVAS (2-Column Solid Opaque Card Grid - ZERO Transparency) */}
                     {activeDropdown === dropdownKey && dropdownKey === "solutions" && (
                       <div
-                        className="absolute top-full left-0 w-[620px] max-w-[calc(100vw-2rem)] bg-white dark:bg-slate-900 rounded-b-2xl rounded-t-none border-x border-b border-t-0 border-slate-200 dark:border-slate-800 shadow-2xl p-5 sm:p-6 animate-in fade-in-50 zoom-in-95 duration-150 z-50 select-none"
+                        className="absolute top-full left-0 w-[620px] max-w-[calc(100vw-2rem)] bg-card dark:bg-card rounded-b-2xl rounded-t-none border-x border-b border-t-0 border-slate-200 dark:border-slate-800 shadow-2xl p-5 sm:p-6 animate-in fade-in-50 zoom-in-95 duration-150 z-50 select-none"
                       >
                         {/* Header Row */}
                         <div className="pb-3 mb-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
@@ -644,11 +640,11 @@ export const Header: React.FC<HeaderProps> = ({
                         <div className="grid grid-cols-2 gap-2.5">
                           {(item.children && item.children.length > 0
                             ? item.children.map((c) => ({
-                                title: c.label,
-                                href: c.url,
-                                desc: "Configured via Admin Navigation Menus",
-                                icon: Sparkles,
-                              }))
+                              title: c.label,
+                              href: c.url,
+                              desc: "Configured via Admin Navigation Menus",
+                              icon: Sparkles,
+                            }))
                             : solutionsList
                           ).map((sol) => {
                             const IconComponent = sol.icon;
@@ -675,7 +671,7 @@ export const Header: React.FC<HeaderProps> = ({
                         </div>
 
                         {/* Bottom Banner */}
-                        <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs bg-slate-50 dark:bg-slate-800/40 rounded-xl px-4 py-2.5">
+                        <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs bg-surface dark:bg-surface rounded-xl px-4 py-2.5">
                           <span className="text-slate-600 dark:text-slate-300 font-medium text-[11px]">
                             Need custom enterprise architecture or technical advisory?
                           </span>
@@ -698,13 +694,13 @@ export const Header: React.FC<HeaderProps> = ({
                       item.children &&
                       item.children.length > 0 && (
                         <div
-                          className="absolute top-full left-0 min-w-[220px] bg-white dark:bg-slate-900 rounded-b-xl rounded-t-none border-x border-b border-t-0 border-slate-200 dark:border-slate-800 shadow-xl p-2 animate-in fade-in-50 zoom-in-95 duration-150 z-50 space-y-0.5 select-none"
+                          className="absolute top-full left-0 min-w-[220px] bg-card dark:bg-card rounded-b-xl rounded-t-none border-x border-b border-t-0 border-slate-200 dark:border-slate-800 shadow-xl p-2 animate-in fade-in-50 zoom-in-95 duration-150 z-50 space-y-0.5 select-none"
                         >
                           {item.children.map((child) => (
                             <Link
                               key={child.id || child.url}
                               href={child.url}
-                              className="flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold text-slate-700 dark:text-slate-200 hover:text-primary hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors group"
+                              className="flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold text-slate-700 dark:text-slate-200 hover:text-primary hover:bg-surface dark:hover:bg-surface transition-colors group"
                             >
                               <span>{child.label}</span>
                               <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 text-primary transition-all" />
@@ -724,11 +720,10 @@ export const Header: React.FC<HeaderProps> = ({
                 >
                   <Link
                     href={item.url}
-                    className={`h-full px-2.5 xl:px-3 flex items-center transition-colors whitespace-nowrap shrink-0 relative hover:text-primary ${
-                      isItemActive
-                        ? "text-primary font-bold"
-                        : "hover:bg-slate-50/60"
-                    }`}
+                    className={`h-full px-2.5 xl:px-3 flex items-center transition-colors whitespace-nowrap shrink-0 relative hover:text-primary ${isItemActive
+                      ? "text-primary font-bold"
+                      : "hover:bg-slate-50/60"
+                      }`}
                   >
                     <span>{item.label}</span>
                     {isItemActive && (
@@ -745,26 +740,26 @@ export const Header: React.FC<HeaderProps> = ({
             {/* Book a Call Link */}
             <Link
               href="/book-a-call"
-              className="hidden sm:inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold text-slate-700 hover:text-primary hover:bg-primary/10 transition border border-slate-200 whitespace-nowrap shrink-0 shadow-2xs"
+              className="hidden sm:inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold text-foreground/80 hover:text-primary hover:bg-primary/10 transition border border-border whitespace-nowrap shrink-0 shadow-2xs"
             >
               <Clock className="w-3.5 h-3.5 text-primary" />
               <span>Book a Call</span>
             </Link>
 
-            {/* Primary CTA Button: "Get Free Audit" in Coral #FB7185 with Dark #0B1F2A text */}
+            {/* Primary CTA Button: "Let's Talk" */}
             <Link
-              href="/free-audit"
-              className="inline-flex items-center gap-1 sm:gap-1.5 rounded-lg bg-[#FB7185] hover:bg-[#f43f5e] px-2.5 sm:px-3.5 py-1 sm:py-1.5 text-[10px] sm:text-xs font-black text-[#0B1F2A] shadow-md shadow-[#FB7185]/30 hover:scale-[1.02] active:scale-[0.98] transition-all whitespace-nowrap shrink-0"
+              href="/contact"
+              className="inline-flex items-center gap-1 sm:gap-1.5 rounded-lg bg-primary hover:bg-primary-hover px-2 sm:px-3.5 py-1 sm:py-1.5 text-[10px] sm:text-xs font-bold text-primary-foreground shadow-md shadow-primary/25 hover:shadow-primary/40 hover:scale-[1.02] active:scale-[0.98] transition-all whitespace-nowrap shrink-0"
             >
-              <span>Get Free Audit</span>
-              <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#0B1F2A]" />
+              <span>Let&apos;s Talk</span>
+              <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
             </Link>
 
             {/* Mobile/Tablet Hamburger Drawer Trigger */}
             <button
               type="button"
               onClick={() => setMobileMenuOpen(true)}
-              className="lg:hidden p-1 sm:p-1.5 rounded-lg text-slate-700 hover:text-primary hover:bg-slate-100 transition focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-primary cursor-pointer"
+              className="lg:hidden p-1 sm:p-1.5 rounded-lg text-foreground hover:text-primary hover:bg-muted/10 transition focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-primary cursor-pointer"
               aria-label="Open Mobile Menu"
               aria-expanded={mobileMenuOpen}
             >
@@ -784,27 +779,27 @@ export const Header: React.FC<HeaderProps> = ({
         >
           {/* Backdrop Scrim */}
           <div
-            className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity"
+            className="fixed inset-0 bg-black/70 backdrop-blur-xs transition-opacity"
             onClick={() => setMobileMenuOpen(false)}
           />
 
           {/* Slide-over Content Sheet */}
-          <div className="fixed inset-y-0 right-0 w-full max-w-sm sm:max-w-md md:max-w-lg bg-white shadow-2xl p-5 sm:p-7 flex flex-col justify-between overflow-y-auto border-l border-slate-200 animate-in slide-in-from-right duration-250">
+          <div className="fixed inset-y-0 right-0 w-full max-w-sm sm:max-w-md md:max-w-lg bg-card shadow-2xl p-5 sm:p-7 flex flex-col justify-between overflow-y-auto border-l border-border animate-in slide-in-from-right duration-250">
             <div className="space-y-6">
               {/* Drawer Top Header */}
-              <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+              <div className="flex items-center justify-between pb-4 border-b border-border">
                 <div className="flex items-center gap-2.5">
                   <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground font-black text-sm shadow-sm">
                     N
                   </div>
-                  <span className="font-black text-slate-900 text-sm tracking-tight">
+                  <span className="font-black text-foreground text-sm tracking-tight">
                     {companyName}
                   </span>
                 </div>
                 <button
                   type="button"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="p-1.5 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition"
+                  className="p-1.5 rounded-lg text-muted hover:text-foreground hover:bg-muted/10 transition"
                   aria-label="Close menu"
                 >
                   <X className="w-5 h-5" />
@@ -812,7 +807,7 @@ export const Header: React.FC<HeaderProps> = ({
               </div>
 
               {/* Mobile Navigation List with Dynamic Accordions & Direct Links */}
-              <div className="space-y-1 text-sm font-bold text-slate-800">
+              <div className="space-y-1 text-sm font-bold text-foreground">
                 {resolvedMenuItems.map((item) => {
                   const isDropdown = hasDropdown(item);
                   const dropdownKey = getItemDropdownKey(item);
@@ -827,15 +822,14 @@ export const Header: React.FC<HeaderProps> = ({
                               mobileAccordion === dropdownKey ? null : dropdownKey,
                             )
                           }
-                          className="w-full flex items-center justify-between py-2.5 px-3 rounded-xl hover:bg-slate-50 transition"
+                          className="w-full flex items-center justify-between py-2.5 px-3 rounded-xl hover:bg-muted/10 transition"
                         >
                           <span>{item.label}</span>
                           <ChevronDown
-                            className={`w-4 h-4 transition-transform ${
-                              mobileAccordion === dropdownKey
-                                ? "rotate-180 text-primary"
-                                : "text-slate-400"
-                            }`}
+                            className={`w-4 h-4 transition-transform ${mobileAccordion === dropdownKey
+                              ? "rotate-180 text-primary"
+                              : "text-muted"
+                              }`}
                           />
                         </button>
 
@@ -845,7 +839,7 @@ export const Header: React.FC<HeaderProps> = ({
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                               {megaMenuPillars.map((p) => (
                                 <div key={p.pillar} className="space-y-1.5">
-                                  <span className="font-extrabold text-slate-900 uppercase tracking-wider text-[10px] block">
+                                  <span className="font-extrabold text-foreground uppercase tracking-wider text-[10px] block">
                                     {p.pillar}
                                   </span>
                                   {p.items.map((it) => (
@@ -853,7 +847,7 @@ export const Header: React.FC<HeaderProps> = ({
                                       key={it.href}
                                       href={it.href}
                                       onClick={() => setMobileMenuOpen(false)}
-                                      className="block py-1 text-slate-600 hover:text-primary transition-colors"
+                                      className="block py-1 text-muted hover:text-primary transition-colors"
                                     >
                                       {it.title}
                                     </Link>
@@ -873,7 +867,7 @@ export const Header: React.FC<HeaderProps> = ({
                                   key={ind.href}
                                   href={ind.href}
                                   onClick={() => setMobileMenuOpen(false)}
-                                  className="block py-1 text-slate-600 hover:text-primary transition-colors"
+                                  className="block py-1 text-muted hover:text-primary transition-colors"
                                 >
                                   {ind.title}
                                 </Link>
@@ -891,7 +885,7 @@ export const Header: React.FC<HeaderProps> = ({
                                   key={sol.href}
                                   href={sol.href}
                                   onClick={() => setMobileMenuOpen(false)}
-                                  className="block py-1 text-slate-600 hover:text-primary transition-colors"
+                                  className="block py-1 text-muted hover:text-primary transition-colors"
                                 >
                                   {sol.title}
                                 </Link>
@@ -914,7 +908,7 @@ export const Header: React.FC<HeaderProps> = ({
                                     key={child.id || child.url}
                                     href={child.url}
                                     onClick={() => setMobileMenuOpen(false)}
-                                    className="block py-1 text-slate-600 hover:text-primary transition-colors"
+                                    className="block py-1 text-muted hover:text-primary transition-colors"
                                   >
                                     {child.label}
                                   </Link>
@@ -932,7 +926,7 @@ export const Header: React.FC<HeaderProps> = ({
                       key={item.id || item.label}
                       href={item.url}
                       onClick={() => setMobileMenuOpen(false)}
-                      className="block py-2.5 px-3 rounded-xl hover:bg-slate-50 transition"
+                      className="block py-2.5 px-3 rounded-xl hover:bg-muted/10 transition"
                     >
                       {item.label}
                     </Link>
@@ -942,26 +936,26 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
 
             {/* Drawer Bottom CTAs: Primary & Book a Call */}
-            <div className="pt-6 border-t border-slate-100 space-y-2.5">
+            <div className="pt-6 border-t border-border space-y-2.5">
               <Link
-                href="/free-audit"
+                href="/contact"
                 onClick={() => setMobileMenuOpen(false)}
-                className="w-full flex items-center justify-center gap-2 rounded-xl bg-[#FB7185] hover:bg-[#f43f5e] py-3 text-xs font-black text-[#0B1F2A] shadow-md shadow-[#FB7185]/30 transition"
+                className="w-full flex items-center justify-center gap-2 rounded-xl bg-primary hover:bg-primary-hover py-3 text-xs font-bold text-primary-foreground shadow-md shadow-primary/25 transition"
               >
-                <span>Get Free Audit</span>
-                <ArrowRight className="w-4 h-4 text-[#0B1F2A]" />
+                <span>Let&apos;s Talk</span>
+                <ArrowRight className="w-4 h-4" />
               </Link>
 
               <Link
                 href="/book-a-call"
                 onClick={() => setMobileMenuOpen(false)}
-                className="w-full flex items-center justify-center gap-2 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 py-2.5 text-xs font-bold text-slate-700 transition"
+                className="w-full flex items-center justify-center gap-2 rounded-xl bg-card hover:bg-muted/10 border border-border py-2.5 text-xs font-bold text-foreground transition"
               >
                 <Clock className="w-3.5 h-3.5 text-primary" />
                 <span>Book a Call</span>
               </Link>
 
-              <div className="text-center text-[10px] sm:text-[11px] text-slate-400 pt-1">
+              <div className="text-center text-[10px] sm:text-[11px] text-muted pt-1">
                 {settings?.legalName || `${companyName} Technology Pvt. Ltd.`} &bull; Enterprise SLA
               </div>
             </div>

@@ -21,15 +21,17 @@ interface IndustryBenchmark {
   defaultDealUSD: number;
 }
 
+const DEFAULT_BENCHMARK: IndustryBenchmark = {
+  name: "E-Commerce & Retail",
+  avgCpcINR: 18,
+  avgCpcUSD: 0.85,
+  baseConvRate: 2.8,
+  defaultDealINR: 2200,
+  defaultDealUSD: 65,
+};
+
 const INDUSTRIES: Record<string, IndustryBenchmark> = {
-  ecommerce: {
-    name: "E-Commerce & Retail",
-    avgCpcINR: 18,
-    avgCpcUSD: 0.85,
-    baseConvRate: 2.8,
-    defaultDealINR: 2200,
-    defaultDealUSD: 65,
-  },
+  ecommerce: DEFAULT_BENCHMARK,
   realestate: {
     name: "Real Estate & Construction",
     avgCpcINR: 52,
@@ -84,7 +86,7 @@ export function InteractiveROICalculator() {
   const [dealValueINR, setDealValueINR] = useState<number>(2200);
   const [dealValueUSD, setDealValueUSD] = useState<number>(65);
 
-  const industry = INDUSTRIES[selectedIndustry] || INDUSTRIES.ecommerce;
+  const industry: IndustryBenchmark = INDUSTRIES[selectedIndustry] || DEFAULT_BENCHMARK;
 
   const handleIndustryChange = (key: string) => {
     setSelectedIndustry(key);
@@ -123,7 +125,7 @@ export function InteractiveROICalculator() {
       projectedRevenue,
       roas,
     };
-  }, [currency, selectedIndustry, monthlySpendINR, monthlySpendUSD, dealValueINR, dealValueUSD, industry]);
+  }, [currency, monthlySpendINR, monthlySpendUSD, dealValueINR, dealValueUSD, industry]);
 
   const currencySymbol = currency === "INR" ? "₹" : "$";
 
@@ -138,11 +140,11 @@ export function InteractiveROICalculator() {
 
   return (
     <div className="w-full max-w-5xl mx-auto rounded-3xl border border-slate-200 bg-white shadow-2xl overflow-hidden text-slate-900">
-      {/* Top Banner & Currency Switcher with Deep Navy #0B1F2A & Teal #0D9488 */}
-      <div className="bg-[#0B1F2A] text-white p-6 sm:p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-white/10">
+      {/* Top Banner & Currency Switcher */}
+      <div className="bg-navy text-white p-6 sm:p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-white/10">
         <div className="space-y-1">
-          <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-[#0D9488]/20 text-[#0D9488] text-xs font-bold uppercase tracking-wider">
-            <Sparkles className="w-3.5 h-3.5 text-[#0D9488]" />
+          <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-primary/20 text-primary text-xs font-bold uppercase tracking-wider">
+            <Sparkles className="w-3.5 h-3.5 text-primary" />
             <span>Interactive Performance Simulator</span>
           </div>
           <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight">
@@ -154,13 +156,13 @@ export function InteractiveROICalculator() {
         </div>
 
         {/* Currency Switcher */}
-        <div className="flex items-center bg-[#102A38] rounded-xl p-1 border border-white/10 shrink-0">
+        <div className="flex items-center bg-ink rounded-xl p-1 border border-white/10 shrink-0">
           <button
             type="button"
             onClick={() => setCurrency("INR")}
             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition ${
               currency === "INR"
-                ? "bg-[#0D9488] text-white shadow-sm"
+                ? "bg-primary text-white shadow-sm"
                 : "text-slate-400 hover:text-white"
             }`}
           >
@@ -171,7 +173,7 @@ export function InteractiveROICalculator() {
             onClick={() => setCurrency("USD")}
             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition ${
               currency === "USD"
-                ? "bg-[#0D9488] text-white shadow-sm"
+                ? "bg-primary text-white shadow-sm"
                 : "text-slate-400 hover:text-white"
             }`}
           >
@@ -190,7 +192,7 @@ export function InteractiveROICalculator() {
             <select
               value={selectedIndustry}
               onChange={(e) => handleIndustryChange(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm font-semibold text-slate-900 bg-slate-50 hover:bg-white focus:outline-none focus:ring-2 focus:ring-[#0D9488] transition"
+              className="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm font-semibold text-slate-900 bg-slate-50 hover:bg-white focus:outline-none focus:ring-2 focus:ring-primary transition"
             >
               {Object.entries(INDUSTRIES).map(([key, ind]) => (
                 <option key={key} value={key}>
@@ -206,7 +208,7 @@ export function InteractiveROICalculator() {
               <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">
                 Monthly Ad Spend
               </label>
-              <span className="text-base font-black text-[#0D9488] font-mono">
+              <span className="text-base font-black text-primary font-mono">
                 {currency === "INR"
                   ? formatMoney(monthlySpendINR)
                   : formatMoney(monthlySpendUSD)}
@@ -220,7 +222,7 @@ export function InteractiveROICalculator() {
                 step={10000}
                 value={monthlySpendINR}
                 onChange={(e) => setMonthlySpendINR(Number(e.target.value))}
-                className="w-full accent-[#0D9488] cursor-pointer h-2 bg-slate-200 rounded-lg"
+                className="w-full accent-primary cursor-pointer h-2 bg-slate-200 rounded-lg"
               />
             ) : (
               <input
@@ -230,7 +232,7 @@ export function InteractiveROICalculator() {
                 step={250}
                 value={monthlySpendUSD}
                 onChange={(e) => setMonthlySpendUSD(Number(e.target.value))}
-                className="w-full accent-[#0D9488] cursor-pointer h-2 bg-slate-200 rounded-lg"
+                className="w-full accent-primary cursor-pointer h-2 bg-slate-200 rounded-lg"
               />
             )}
             <div className="flex justify-between text-[11px] text-slate-400 font-mono">
@@ -260,7 +262,7 @@ export function InteractiveROICalculator() {
                 step={1000}
                 value={dealValueINR}
                 onChange={(e) => setDealValueINR(Number(e.target.value))}
-                className="w-full accent-[#0D9488] cursor-pointer h-2 bg-slate-200 rounded-lg"
+                className="w-full accent-primary cursor-pointer h-2 bg-slate-200 rounded-lg"
               />
             ) : (
               <input
@@ -270,7 +272,7 @@ export function InteractiveROICalculator() {
                 step={25}
                 value={dealValueUSD}
                 onChange={(e) => setDealValueUSD(Number(e.target.value))}
-                className="w-full accent-[#0D9488] cursor-pointer h-2 bg-slate-200 rounded-lg"
+                className="w-full accent-primary cursor-pointer h-2 bg-slate-200 rounded-lg"
               />
             )}
             <div className="flex justify-between text-[11px] text-slate-400 font-mono">
@@ -281,7 +283,7 @@ export function InteractiveROICalculator() {
           </div>
 
           <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 flex items-start gap-3 text-xs text-slate-600 leading-relaxed">
-            <Info className="w-4 h-4 text-[#0D9488] shrink-0 mt-0.5" />
+            <Info className="w-4 h-4 text-primary shrink-0 mt-0.5" />
             <span>
               Projections include <strong>custom conversion-engineered landing pages</strong> and <strong>negative keyword filtering</strong>, which historically increase lead capture by 25% to 45% over standard websites.
             </span>
@@ -296,15 +298,15 @@ export function InteractiveROICalculator() {
             </span>
 
             {/* Big Highlight Card: Projected Revenue / Pipeline */}
-            <div className="p-5 rounded-2xl bg-gradient-to-br from-[#0B1F2A] via-[#102A38] to-[#0D9488] text-white shadow-lg space-y-1">
-              <span className="text-xs text-[#FB7185] font-semibold uppercase tracking-wider">
+            <div className="p-5 rounded-2xl bg-gradient-to-br from-navy via-ink to-primary text-primary-foreground shadow-lg space-y-1">
+              <span className="text-xs text-accent font-semibold uppercase tracking-wider">
                 Projected Monthly Pipeline / Sales
               </span>
               <div className="text-3xl sm:text-4xl font-black font-mono tracking-tight text-white">
                 {formatMoney(calculations.projectedRevenue)}
               </div>
               <div className="text-xs text-slate-300 pt-1 flex items-center gap-1.5">
-                <TrendingUp className="w-3.5 h-3.5 text-[#0D9488]" />
+                <TrendingUp className="w-3.5 h-3.5 text-primary" />
                 <span>Estimated ROAS: <strong className="text-white">{calculations.roas}x</strong> on ad spend</span>
               </div>
             </div>
@@ -316,7 +318,7 @@ export function InteractiveROICalculator() {
                 <div className="text-xl font-black text-slate-900 font-mono">
                   {calculations.optimizedLeads}
                 </div>
-                <span className="text-[10px] text-[#0D9488] font-bold">
+                <span className="text-[10px] text-primary font-bold">
                   +{calculations.optimizedLeads - calculations.baselineLeads} vs unoptimized
                 </span>
               </div>
@@ -337,7 +339,7 @@ export function InteractiveROICalculator() {
           <div className="space-y-2 pt-2">
             <Link
               href="/free-audit"
-              className="w-full py-3.5 px-6 rounded-xl bg-[#0D9488] hover:bg-[#0f766e] text-white font-extrabold text-sm flex items-center justify-center gap-2 transition duration-200 shadow-md shadow-[#0D9488]/20 text-center"
+              className="w-full py-3.5 px-6 rounded-xl bg-primary hover:bg-primary-hover text-primary-foreground font-extrabold text-sm flex items-center justify-center gap-2 transition duration-200 shadow-md shadow-primary/20 text-center"
             >
               <span>Get Free Custom ROI Blueprint</span>
               <ArrowRight className="w-4 h-4" />

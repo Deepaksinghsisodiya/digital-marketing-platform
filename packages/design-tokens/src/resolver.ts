@@ -1,5 +1,9 @@
 import type { ThemeConfig } from "./types.js";
-import { TEAL_CORAL_PRESET, SYSTEM_THEME_PRESETS } from "./presets.js";
+import {
+  DARK_CHARCOAL_LIME_PRESET,
+  SYSTEM_THEME_PRESETS,
+  TEAL_CORAL_PRESET,
+} from "./presets.js";
 
 type DeepPartial<T> = {
   [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P];
@@ -7,10 +11,10 @@ type DeepPartial<T> = {
 
 export function resolveTheme(partialTheme?: DeepPartial<ThemeConfig> | null): ThemeConfig {
   if (!partialTheme) {
-    return { ...TEAL_CORAL_PRESET };
+    return { ...DARK_CHARCOAL_LIME_PRESET };
   }
 
-  let basePreset: ThemeConfig = TEAL_CORAL_PRESET;
+  let basePreset: ThemeConfig = DARK_CHARCOAL_LIME_PRESET;
   if (partialTheme.id || partialTheme.slug) {
     const found = SYSTEM_THEME_PRESETS.find(
       (p: ThemeConfig) => p.id === partialTheme.id || p.slug === partialTheme.slug

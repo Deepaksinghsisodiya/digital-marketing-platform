@@ -177,7 +177,7 @@ export const ProcessSteps: React.FC<{ block: CmsBlock }> = ({ block }) => {
                 <StaggerItem key={step.number || idx} index={idx} className="h-full">
                   <div
                   key={step.number || idx}
-                  className={`w-full h-full bg-white border ${theme.border} rounded-2xl sm:rounded-3xl p-4 sm:p-5 lg:p-6 shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between group relative overflow-hidden`}
+                  className={`w-full h-full bg-card border ${theme.border} rounded-2xl sm:rounded-3xl p-4 sm:p-5 lg:p-6 shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between group relative overflow-hidden`}
                 >
                   {/* Phase Colored Top Accent Line for crisp visual distinction */}
                   <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${theme.color}`} />
