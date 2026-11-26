@@ -26,7 +26,6 @@ public static class MenuEndpoints
             }
             return Results.Ok(menu);
         })
-        .CacheOutput("PublicCache")
         .WithName("GetPublicMenuByKey")
         .WithSummary("Retrieve hierarchical navigation menu by key (e.g. header, footer) and region.");
 

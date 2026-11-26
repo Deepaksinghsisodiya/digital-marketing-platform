@@ -4,6 +4,7 @@ import { Header } from "../../components/layout/Header";
 import { Footer } from "../../components/layout/Footer";
 import { ContactForm } from "../../components/forms/ContactForm";
 import { Reveal } from "../../components/motion/Reveal";
+import { BreadcrumbJsonLd, LocalBusinessJsonLd } from "../../components/seo/StructuredData";
 import type { Metadata } from "next";
 import {
   ShieldCheck,
@@ -27,9 +28,22 @@ export const metadata: Metadata = {
 export default async function ContactPage() {
   const region = resolveRegion();
   const siteSettings = await getPublicSiteSettings();
+  const siteBase = process.env.NEXT_PUBLIC_SITE_URL || "https://nexora.digital";
 
   return (
     <div className="min-h-screen flex flex-col justify-between bg-slate-50 text-slate-900">
+      <BreadcrumbJsonLd
+        items={[
+          { name: "Home", url: siteBase },
+          { name: "Contact", url: `${siteBase}/contact` },
+        ]}
+      />
+      <LocalBusinessJsonLd
+        name={siteSettings?.companyName || "Nexora Digital"}
+        url={siteBase}
+        email={siteSettings?.supportEmail}
+        phone={siteSettings?.supportPhone}
+      />
       <Header settings={siteSettings} currentRegionCode={region.code} />
 
       <main className="flex-1 py-16 sm:py-24 px-6">

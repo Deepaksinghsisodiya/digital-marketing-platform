@@ -149,10 +149,11 @@ export const TestimonialsBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
                   key={idx}
                   className="pl-4 sm:pl-6 min-w-0 flex-[0_0_100%] sm:flex-[0_0_50%] lg:flex-[0_0_33.333%]"
                 >
-                  <div className="h-full rounded-2xl sm:rounded-3xl border border-slate-200/90 bg-card p-5 sm:p-7 md:p-8 hover:border-primary/40 hover:shadow-xl transition-all duration-300 flex flex-col justify-between shadow-xs select-none">
+                  <div className="h-full rounded-2xl border border-slate-200 bg-white p-6 sm:p-7 hover:border-teal-500/40 hover:shadow-lg transition-all duration-300 flex flex-col justify-between shadow-xs select-none relative overflow-hidden group">
+                    <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-teal-500/0 via-teal-500/70 to-teal-500/0 opacity-0 group-hover:opacity-100 transition-opacity" />
                     <div>
-                      {/* Rating Stars & Quote Icon */}
-                      <div className="flex items-center justify-between mb-4 sm:mb-5">
+                      {/* Rating Stars & Verified Tag */}
+                      <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center gap-1 text-amber-500">
                           {Array.from({ length: item.rating || 5 }).map((_, i) => (
                             <Star
@@ -161,25 +162,30 @@ export const TestimonialsBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
                             />
                           ))}
                         </div>
-                        <Quote className="w-6 h-6 text-slate-200" />
+                        <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-teal-700 bg-teal-50 px-2.5 py-0.5 rounded-full border border-teal-100">
+                          Verified Client
+                        </span>
                       </div>
 
-                      <p className="text-xs sm:text-sm text-slate-700 leading-relaxed font-normal italic mb-6">
-                        &ldquo;{item.quote}&rdquo;
-                      </p>
+                      <div className="relative">
+                        <Quote className="w-5 h-5 text-teal-500/20 mb-2" />
+                        <p className="text-sm text-slate-700 leading-relaxed font-normal mb-6">
+                          &ldquo;{item.quote}&rdquo;
+                        </p>
+                      </div>
                     </div>
 
                     {/* Author Monogram & Identity */}
                     <div className="pt-4 border-t border-slate-100 flex items-center gap-3">
-                      <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-primary/10 text-primary border border-primary/20 flex items-center justify-center font-bold text-xs shrink-0">
+                      <div className="w-10 h-10 rounded-full bg-teal-50 text-teal-700 border border-teal-200 flex items-center justify-center font-bold text-xs shrink-0">
                         {initials}
                       </div>
                       <div className="min-w-0">
-                        <div className="text-xs sm:text-sm font-bold text-slate-900 truncate">
+                        <div className="text-sm font-bold text-slate-900 truncate">
                           {item.author}
                         </div>
-                        <div className="text-[11px] text-slate-500 truncate">
-                          {item.role} • {item.company}
+                        <div className="text-xs text-slate-500 truncate">
+                          {item.role} &bull; {item.company}
                         </div>
                       </div>
                     </div>

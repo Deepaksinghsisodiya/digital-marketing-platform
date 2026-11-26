@@ -52,6 +52,8 @@ public class SiteSettings : BaseEntity
     public string RedirectRulesJson { get; set; } = "[]";
     public string? WebhookUrl { get; set; }
     public string? WebhookSecret { get; set; }
+    public string? CustomDomain { get; set; }
+    public string? SslStatus { get; set; } = "Pending";
 
     [Timestamp]
     public byte[] Version { get; set; } = [];

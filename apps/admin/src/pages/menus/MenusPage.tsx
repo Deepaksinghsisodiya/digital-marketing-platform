@@ -1,9 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { ConfirmDialog } from "../../components/ConfirmDialog";
 import {
   useGetAdminMenusQuery,
   useSaveAdminMenuMutation,
   useDeleteAdminMenuMutation,
+  useGetPagesQuery,
+  useGetSettingsQuery,
+  useUpdateSettingsMutation,
 } from "../../store/api/adminApi";
 import type {
   NavigationMenuDto,
@@ -22,41 +25,167 @@ import {
   X,
   AlertCircle,
   FolderTree,
+  GripVertical,
+  ChevronDown,
+  ChevronRight,
+  Settings2,
 } from "lucide-react";
+import {
+  NavbarStudioPanel,
+  LiveNavbarPreview,
+  type NavbarPreviewState,
+} from "./NavbarStudioPanel";
+import { toast } from "../../utils/toast";
 
 export const MenusPage: React.FC = () => {
   const { data: menus = [], isLoading, refetch } = useGetAdminMenusQuery();
+  const { data: pagesData } = useGetPagesQuery({ pageSize: 100 });
+  const { data: settings, refetch: refetchSettings } = useGetSettingsQuery();
+  const [updateSettings] = useUpdateSettingsMutation();
   const [saveMenu, { isLoading: isSaving }] = useSaveAdminMenuMutation();
+  const [showMetaSettings, setShowMetaSettings] = useState(false);
   const [deleteMenu, { isLoading: isDeleting }] = useDeleteAdminMenuMutation();
 
   const [selectedMenuId, setSelectedMenuId] = useState<string | null>(null);
-
-  // Form State for Active Menu
   const [activeMenuKey, setActiveMenuKey] = useState("");
   const [activeMenuTitle, setActiveMenuTitle] = useState("");
   const [activeMenuRegion, setActiveMenuRegion] = useState("");
   const [items, setItems] = useState<NavigationMenuItemDto[]>([]);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
-  // Item Modal / Editing state
+  // Live Navbar Preview state synced from NavbarStudioPanel
+  const [navPreview, setNavPreview] = useState<NavbarPreviewState>({
+    companyName: "Nexora",
+    tagline: "",
+    logoPreviewUrl: null,
+    showSearch: true,
+    showCta: true,
+    ctaText: "Book a Call",
+    alignment: "center",
+    sticky: true,
+  });
+
+  // Quick-add bar state
+  const [quickLabel, setQuickLabel] = useState("");
+  const [quickUrl, setQuickUrl] = useState("");
+  const [quickError, setQuickError] = useState<string | null>(null);
+
+  // Inline editing state
+  const [inlineEditId, setInlineEditId] = useState<string | null>(null);
+  const [inlineLabel, setInlineLabel] = useState("");
+  const [inlineUrl, setInlineUrl] = useState("");
+  const [inlineError, setInlineError] = useState<string | null>(null);
+
+  // Collapsible parent rows
+  const [collapsedParents, setCollapsedParents] = useState<Record<string, boolean>>({});
+
+  // Sub-link / Item Modal state
   const [isItemModalOpen, setIsItemModalOpen] = useState(false);
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
   const [itemLabel, setItemLabel] = useState("");
   const [itemUrl, setItemUrl] = useState("");
-  const [itemParentId, setItemParentId] = useState<string>("");
+  const [itemParentId, setItemParentId] = useState("");
+  const [itemErrors, setItemErrors] = useState<{ label?: string; url?: string }>({});
 
-  // Create Menu Modal state
+  // Create / Delete Menu Modal state
   const [isCreateMenuModalOpen, setIsCreateMenuModalOpen] = useState(false);
   const [isDeleteMenuConfirmOpen, setIsDeleteMenuConfirmOpen] = useState(false);
   const [newMenuKey, setNewMenuKey] = useState("");
   const [newMenuTitle, setNewMenuTitle] = useState("");
   const [newMenuRegion, setNewMenuRegion] = useState("");
 
-  const [feedback, setFeedback] = useState<{
-    type: "success" | "error";
-    message: string;
-  } | null>(null);
+  const availablePages = pagesData?.items || [];
 
-  // Select first menu once loaded if none selected
+  const hiddenUrlsSet = new Set<string>();
+  if (settings?.themeTokensJson) {
+    try {
+      const parsed = JSON.parse(settings.themeTokensJson) as {
+        navbarConfig?: { hiddenMenuUrls?: string[] };
+      };
+      (parsed.navbarConfig?.hiddenMenuUrls || []).forEach((u) =>
+        hiddenUrlsSet.add(u.trim().toLowerCase()),
+      );
+    } catch {
+      // ignore
+    }
+  }
+
+  const handleToggleItemVisibility = async (url: string, label: string) => {
+    if (!settings) return;
+    const normalized = url.trim().toLowerCase();
+    const nextHidden = new Set(hiddenUrlsSet);
+    const willHide = !nextHidden.has(normalized);
+    if (willHide) {
+      nextHidden.add(normalized);
+    } else {
+      nextHidden.delete(normalized);
+    }
+    const hiddenMenuUrls = Array.from(nextHidden);
+
+    let existingTokens: Record<string, unknown> = {};
+    if (settings.themeTokensJson) {
+      try {
+        existingTokens = JSON.parse(settings.themeTokensJson) as Record<string, unknown>;
+      } catch {
+        existingTokens = {};
+      }
+    }
+    const existingNavCfg = (existingTokens.navbarConfig || {}) as Record<string, unknown>;
+    const mergedTokens = {
+      ...existingTokens,
+      navbarConfig: {
+        ...existingNavCfg,
+        hiddenMenuUrls,
+      },
+    };
+
+    setNavPreview((prev) => ({ ...prev, hiddenMenuUrls }));
+    try {
+      await updateSettings({
+        companyName: settings.companyName,
+        legalName: settings.legalName,
+        supportEmail: settings.supportEmail,
+        supportPhone: settings.supportPhone,
+        address: settings.address,
+        defaultRegion: settings.defaultRegion,
+        supportedRegions: settings.supportedRegions || ["IN", "US"],
+        timeZoneId: settings.timeZoneId,
+        logoMediaId: settings.logoMediaId,
+        faviconMediaId: settings.faviconMediaId,
+        versionToken: settings.versionToken,
+        smtpHost: settings.smtpHost,
+        smtpPort: settings.smtpPort,
+        smtpUseSsl: settings.smtpUseSsl,
+        smtpUserName: settings.smtpUserName,
+        smtpPassword: settings.smtpPassword,
+        smtpFromEmail: settings.smtpFromEmail,
+        smtpFromName: settings.smtpFromName,
+        sectionVisibilityJson: settings.sectionVisibilityJson,
+        themeTokensJson: JSON.stringify(mergedTokens),
+        socialLinksJson: settings.socialLinksJson,
+        trackingCodesJson: settings.trackingCodesJson,
+        bookingUrl: settings.bookingUrl,
+        announcementBarJson: settings.announcementBarJson,
+        redirectRulesJson: settings.redirectRulesJson,
+        webhookUrl: settings.webhookUrl,
+        customDomain: settings.customDomain,
+        sslStatus: settings.sslStatus,
+      }).unwrap();
+      await refetchSettings();
+      toast.success(
+        willHide
+          ? `"${label}" hidden from live website.`
+          : `"${label}" activated on live website.`,
+      );
+    } catch {
+      toast.error("Failed to update link visibility.");
+    }
+  };
+
+  const handlePreviewChange = useCallback((next: NavbarPreviewState) => {
+    setNavPreview(next);
+  }, []);
+
   useEffect(() => {
     if (menus.length > 0 && !selectedMenuId) {
       const first = menus[0];
@@ -76,7 +205,108 @@ export const MenusPage: React.FC = () => {
     setActiveMenuTitle(m.title);
     setActiveMenuRegion(m.regionCode || "");
     setItems(m.items || []);
-    setFeedback(null);
+    setHasUnsavedChanges(false);
+    setInlineEditId(null);
+    setQuickError(null);
+  };
+
+  const validateUrl = (url: string) =>
+    url.startsWith("/") ||
+    url.startsWith("http://") ||
+    url.startsWith("https://") ||
+    url.startsWith("#");
+
+  const persistItemsToApi = async (
+    nextItems: NavigationMenuItemDto[],
+    successMsg = "Menu updated and published live!",
+  ) => {
+    setItems(nextItems);
+    if (!selectedMenuId || !activeMenuKey.trim() || !activeMenuTitle.trim()) {
+      setHasUnsavedChanges(true);
+      return;
+    }
+
+    const payload: SaveMenuRequest = {
+      key: activeMenuKey.trim().toLowerCase(),
+      title: activeMenuTitle.trim(),
+      regionCode: activeMenuRegion.trim() || null,
+      items: buildSavePayloadItems(nextItems),
+    };
+
+    try {
+      const updated = await saveMenu({ id: selectedMenuId, request: payload }).unwrap();
+      setItems(updated.items || []);
+      setHasUnsavedChanges(false);
+      await refetch();
+      toast.success(successMsg);
+    } catch (err: unknown) {
+      setHasUnsavedChanges(true);
+      const errorObj = err as { data?: { error?: string } };
+      toast.error(errorObj?.data?.error || "Failed to save menu changes.");
+    }
+  };
+
+  const handleQuickAddLink = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const label = quickLabel.trim();
+    const url = quickUrl.trim();
+    if (!label || !url) {
+      setQuickError("Enter both link label and URL.");
+      return;
+    }
+    if (!validateUrl(url)) {
+      setQuickError("URL must start with /, http://, https://, or #.");
+      return;
+    }
+    setQuickError(null);
+    const newItem: NavigationMenuItemDto = {
+      id: crypto.randomUUID(),
+      label,
+      url,
+      displayOrder: items.length,
+      parentItemId: null,
+      children: [],
+    };
+    const next = [...items, newItem];
+    setQuickLabel("");
+    setQuickUrl("");
+    await persistItemsToApi(next, `"${label}" added and published live!`);
+  };
+
+  const handleStartInlineEdit = (item: NavigationMenuItemDto) => {
+    setInlineEditId(item.id);
+    setInlineLabel(item.label);
+    setInlineUrl(item.url);
+    setInlineError(null);
+  };
+
+  const handleCommitInlineEdit = async (itemId: string) => {
+    const label = inlineLabel.trim();
+    const url = inlineUrl.trim();
+    if (!label || !url) {
+      setInlineError("Label and URL cannot be empty.");
+      return;
+    }
+    if (!validateUrl(url)) {
+      setInlineError("URL must start with /, http://, https://, or #.");
+      return;
+    }
+
+    const updateNode = (nodes: NavigationMenuItemDto[]): NavigationMenuItemDto[] =>
+      nodes.map((n) => {
+        if (n.id === itemId) {
+          return { ...n, label, url };
+        }
+        if (n.children && n.children.length > 0) {
+          return { ...n, children: updateNode(n.children) };
+        }
+        return n;
+      });
+
+    const next = updateNode(items);
+    setInlineEditId(null);
+    setInlineError(null);
+    await persistItemsToApi(next, "Link updated and published live!");
   };
 
   const handleCreateMenuSubmit = async (e: React.FormEvent) => {
@@ -92,21 +322,12 @@ export const MenusPage: React.FC = () => {
       };
       const created = await saveMenu({ request: req }).unwrap();
       setIsCreateMenuModalOpen(false);
-      setNewMenuKey("");
-      setNewMenuTitle("");
-      setNewMenuRegion("");
       await refetch();
       handleSelectMenu(created);
-      setFeedback({
-        type: "success",
-        message: "Navigation menu created successfully.",
-      });
+      toast.success("Navigation menu created.");
     } catch (err: unknown) {
       const errorObj = err as { data?: { error?: string } };
-      setFeedback({
-        type: "error",
-        message: errorObj?.data?.error || "Failed to create menu.",
-      });
+      toast.error(errorObj?.data?.error || "Failed to create menu.");
     }
   };
 
@@ -115,70 +336,46 @@ export const MenusPage: React.FC = () => {
     setIsDeleteMenuConfirmOpen(true);
   };
 
-  const confirmDeleteMenuAction = async () => {
+  const confirmDeleteMenu = async () => {
     if (!selectedMenuId) return;
     try {
       await deleteMenu(selectedMenuId).unwrap();
       setSelectedMenuId(null);
       setIsDeleteMenuConfirmOpen(false);
       await refetch();
-      setFeedback({
-        type: "success",
-        message: "Navigation menu deleted successfully.",
-      });
+      toast.success("Navigation menu deleted.");
     } catch (err: unknown) {
       const errorObj = err as { data?: { error?: string } };
-      setFeedback({
-        type: "error",
-        message: errorObj?.data?.error || "Failed to delete menu.",
-      });
+      toast.error(errorObj?.data?.error || "Failed to delete menu.");
     }
   };
 
-  // Flatten items into flat list with hierarchical display
-  const flattenItems = (
-    list: NavigationMenuItemDto[],
-    depth = 0,
-  ): { item: NavigationMenuItemDto; depth: number }[] => {
-    let result: { item: NavigationMenuItemDto; depth: number }[] = [];
-    const sorted = [...list].sort((a, b) => a.displayOrder - b.displayOrder);
-    for (const item of sorted) {
-      result.push({ item, depth });
-      if (item.children && item.children.length > 0) {
-        result = result.concat(flattenItems(item.children, depth + 1));
-      }
-    }
-    return result;
-  };
-
-  // Flat representation of all items for SaveMenuRequest
   const buildSavePayloadItems = (
-    itemList: NavigationMenuItemDto[],
+    list: NavigationMenuItemDto[],
+    parentId: string | null = null,
   ): SaveMenuItemRequest[] => {
-    const flattened: SaveMenuItemRequest[] = [];
-    const traverse = (
-      nodes: NavigationMenuItemDto[],
-      parentId?: string | null,
-    ) => {
-      nodes.forEach((n, idx) => {
-        flattened.push({
-          label: n.label,
-          url: n.url,
-          displayOrder: idx,
-          parentItemId: parentId || null,
-        });
-        if (n.children && n.children.length > 0) {
-          traverse(n.children, n.id);
-        }
+    let flat: SaveMenuItemRequest[] = [];
+    list.forEach((item, index) => {
+      flat.push({
+        id: item.id,
+        label: item.label,
+        url: item.url,
+        displayOrder: index,
+        parentItemId: parentId,
       });
-    };
-    traverse(itemList, null);
-    return flattened;
+      if (item.children && item.children.length > 0) {
+        flat = flat.concat(buildSavePayloadItems(item.children, item.id));
+      }
+    });
+    return flat;
   };
 
   const handleSaveMenu = async () => {
     if (!selectedMenuId) return;
-    setFeedback(null);
+    if (!activeMenuKey.trim() || !activeMenuTitle.trim()) {
+      toast.error("Menu title and lookup key are required.");
+      return;
+    }
 
     const payload: SaveMenuRequest = {
       key: activeMenuKey.trim().toLowerCase(),
@@ -188,142 +385,122 @@ export const MenusPage: React.FC = () => {
     };
 
     try {
-      const updated = await saveMenu({
-        id: selectedMenuId,
-        request: payload,
-      }).unwrap();
+      const updated = await saveMenu({ id: selectedMenuId, request: payload }).unwrap();
       handleSelectMenu(updated);
       await refetch();
-      setFeedback({
-        type: "success",
-        message: "Navigation menu and links saved successfully.",
-      });
+      setHasUnsavedChanges(false);
+      toast.success("Navigation menu saved and published live!");
     } catch (err: unknown) {
       const errorObj = err as { data?: { error?: string } };
-      setFeedback({
-        type: "error",
-        message: errorObj?.data?.error || "Failed to save menu.",
-      });
+      toast.error(errorObj?.data?.error || "Failed to save menu.");
     }
   };
 
-  const handleOpenAddItem = () => {
+  const handleOpenAddSubItem = (parentId: string) => {
     setEditingItemId(null);
     setItemLabel("");
     setItemUrl("");
-    setItemParentId("");
+    setItemParentId(parentId);
+    setItemErrors({});
     setIsItemModalOpen(true);
   };
 
-  const handleOpenEditItem = (item: NavigationMenuItemDto) => {
-    setEditingItemId(item.id);
-    setItemLabel(item.label);
-    setItemUrl(item.url);
-    setItemParentId(item.parentItemId || "");
-    setIsItemModalOpen(true);
-  };
-
-  const handleSaveItemModal = (e: React.FormEvent) => {
+  const handleSaveItemModal = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!itemLabel.trim() || !itemUrl.trim()) return;
+    const errs: { label?: string; url?: string } = {};
+    if (!itemLabel.trim()) errs.label = "Link label is required.";
+    const urlTrimmed = itemUrl.trim();
+    if (!urlTrimmed) {
+      errs.url = "Target URL / path is required.";
+    } else if (!validateUrl(urlTrimmed)) {
+      errs.url = "URL must start with /, http://, https://, or #.";
+    }
+    if (errs.label || errs.url) {
+      setItemErrors(errs);
+      return;
+    }
 
-    if (editingItemId) {
-      // Update existing item in state
-      const updateNode = (
-        nodes: NavigationMenuItemDto[],
-      ): NavigationMenuItemDto[] => {
-        return nodes.map((node) => {
-          if (node.id === editingItemId) {
-            return {
-              ...node,
-              label: itemLabel.trim(),
-              url: itemUrl.trim(),
-              parentItemId: itemParentId || null,
-            };
+    const newItem: NavigationMenuItemDto = {
+      id: crypto.randomUUID(),
+      label: itemLabel.trim(),
+      url: urlTrimmed,
+      displayOrder: items.length,
+      parentItemId: itemParentId || null,
+      children: [],
+    };
+
+    let next: NavigationMenuItemDto[];
+    if (!itemParentId) {
+      next = [...items, newItem];
+    } else {
+      const addToParent = (nodes: NavigationMenuItemDto[]): NavigationMenuItemDto[] =>
+        nodes.map((node) => {
+          if (node.id === itemParentId) {
+            return { ...node, children: [...(node.children || []), newItem] };
           }
           if (node.children && node.children.length > 0) {
-            return { ...node, children: updateNode(node.children) };
+            return { ...node, children: addToParent(node.children) };
           }
           return node;
         });
-      };
-      setItems(updateNode(items));
-    } else {
-      // Add new item
-      const newItem: NavigationMenuItemDto = {
-        id: crypto.randomUUID(),
-        label: itemLabel.trim(),
-        url: itemUrl.trim(),
-        displayOrder: items.length,
-        parentItemId: itemParentId || null,
-        children: [],
-      };
-
-      if (!itemParentId) {
-        setItems([...items, newItem]);
-      } else {
-        const addToParent = (
-          nodes: NavigationMenuItemDto[],
-        ): NavigationMenuItemDto[] => {
-          return nodes.map((node) => {
-            if (node.id === itemParentId) {
-              return {
-                ...node,
-                children: [...(node.children || []), newItem],
-              };
-            }
-            if (node.children && node.children.length > 0) {
-              return { ...node, children: addToParent(node.children) };
-            }
-            return node;
-          });
-        };
-        setItems(addToParent(items));
-      }
+      next = addToParent(items);
+      setCollapsedParents((prev) => ({ ...prev, [itemParentId]: false }));
     }
 
     setIsItemModalOpen(false);
+    await persistItemsToApi(next, `"${newItem.label}" added and published live!`);
   };
 
-  const handleDeleteItem = (itemId: string) => {
-    const removeNode = (
-      nodes: NavigationMenuItemDto[],
-    ): NavigationMenuItemDto[] => {
-      return nodes
+  const handleDeleteItem = async (itemId: string) => {
+    const removeNode = (nodes: NavigationMenuItemDto[]): NavigationMenuItemDto[] =>
+      nodes
         .filter((node) => node.id !== itemId)
         .map((node) => ({
           ...node,
           children: node.children ? removeNode(node.children) : [],
         }));
-    };
-    setItems(removeNode(items));
+    await persistItemsToApi(removeNode(items), "Link removed and published live!");
   };
 
-  const handleMoveItem = (index: number, direction: "up" | "down") => {
-    const newItems = [...items];
+  const handleMoveRootItem = async (index: number, direction: "up" | "down") => {
     const targetIdx = direction === "up" ? index - 1 : index + 1;
-    if (targetIdx < 0 || targetIdx >= newItems.length) return;
-
-    const currentItem = newItems[index];
-    const targetItem = newItems[targetIdx];
-    if (!currentItem || !targetItem) return;
-
-    newItems[index] = targetItem;
-    newItems[targetIdx] = currentItem;
-
-    // re-assign display orders
-    newItems.forEach((it, idx) => {
-      it.displayOrder = idx;
+    if (targetIdx < 0 || targetIdx >= items.length) return;
+    const copy = [...items];
+    const current = copy[index]!;
+    const target = copy[targetIdx]!;
+    copy[index] = target;
+    copy[targetIdx] = current;
+    copy.forEach((it, i) => {
+      it.displayOrder = i;
     });
-    setItems(newItems);
+    await persistItemsToApi(copy, "Menu order updated live!");
   };
 
-  const flatItemList = flattenItems(items);
+  const handleMoveSubItem = async (parentId: string, childId: string, direction: "up" | "down") => {
+    const next = items.map((node) => {
+      if (node.id !== parentId || !node.children) return node;
+      const children = [...node.children];
+      const idx = children.findIndex((c) => c.id === childId);
+      const targetIdx = direction === "up" ? idx - 1 : idx + 1;
+      if (idx === -1 || targetIdx < 0 || targetIdx >= children.length) return node;
+      const current = children[idx]!;
+      const target = children[targetIdx]!;
+      children[idx] = target;
+      children[targetIdx] = current;
+      children.forEach((c, i) => {
+        c.displayOrder = i;
+      });
+      return { ...node, children };
+    });
+    await persistItemsToApi(next, "Sub-link order updated live!");
+  };
+
+  const isHeaderMenu = activeMenuKey.toLowerCase() === "header";
 
   return (
-    <div className="space-y-6">
-      {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="space-y-5 max-w-7xl mx-auto pb-12">
+      {/* Top Page Title & New Menu Button */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-2.5">
             <span className="p-2 rounded-xl bg-primary/10 text-primary border border-primary/20">
@@ -331,86 +508,52 @@ export const MenusPage: React.FC = () => {
             </span>
             <span>Navigation Menus</span>
           </h2>
-          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-            Control dynamic header navigation, footer link groups, and regional menus
+          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+            Edit website header links, nested dropdowns, brand logo, and CTA controls with real-time preview.
           </p>
         </div>
 
         <button
+          type="button"
           onClick={() => {
             setNewMenuKey("");
             setNewMenuTitle("");
             setNewMenuRegion("");
             setIsCreateMenuModalOpen(true);
           }}
-          className="px-4 py-2.5 bg-primary hover:bg-primary-hover text-primary-foreground rounded-xl text-sm font-semibold shadow-xs flex items-center gap-2 transition"
+          className="px-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-primary text-slate-800 dark:text-white rounded-xl text-xs font-bold shadow-2xs flex items-center gap-1.5 transition cursor-pointer self-start sm:self-auto"
         >
-          <Plus className="w-4 h-4" />
+          <Plus className="w-3.5 h-3.5 text-primary" />
           <span>New Menu Group</span>
         </button>
       </div>
 
-      {feedback && (
-        <div
-          className={`p-4 rounded-xl text-xs font-medium flex items-center gap-2 ${
-            feedback.type === "success"
-              ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800"
-              : "bg-rose-50 dark:bg-rose-950/40 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-800"
-          }`}
-        >
-          {feedback.type === "success" ? (
-            <Check className="w-4 h-4 shrink-0" />
-          ) : (
-            <AlertCircle className="w-4 h-4 shrink-0" />
-          )}
-          <span>{feedback.message}</span>
-        </div>
-      )}
-
-      {/* Main Grid: Sidebar + Menu Editor */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        {/* Sidebar: List of Menus */}
-        <div className="lg:col-span-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-sm flex flex-col gap-2">
-          <span className="text-xs font-bold uppercase tracking-wider text-slate-400 px-2 mb-1">
-            Menu Collections
-          </span>
+      {/* Top Collection Tabs + Sticky Save Bar */}
+      <div className="flex flex-wrap items-center justify-between gap-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-2.5 shadow-2xs">
+        <div className="flex flex-wrap items-center gap-2">
           {isLoading ? (
-            <div className="py-8 text-center text-xs text-slate-400">
-              Loading menus...
-            </div>
+            <span className="px-3 py-1.5 text-xs text-slate-400">Loading menus...</span>
           ) : menus.length === 0 ? (
-            <div className="py-8 text-center text-xs text-slate-400">
-              No menus created yet.
-            </div>
+            <span className="px-3 py-1.5 text-xs text-slate-400">No menus created yet.</span>
           ) : (
             menus.map((m) => {
               const isSelected = m.id === selectedMenuId;
               return (
                 <button
                   key={m.id}
+                  type="button"
                   onClick={() => handleSelectMenu(m)}
-                  className={`w-full text-left px-3.5 py-3 rounded-xl transition flex items-center justify-between group ${
+                  className={`px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 cursor-pointer ${
                     isSelected
-                      ? "bg-primary text-primary-foreground shadow-xs font-semibold"
-                      : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+                      ? "bg-primary text-primary-foreground shadow-xs"
+                      : "bg-slate-50 dark:bg-slate-800/70 text-slate-700 dark:text-slate-300 hover:bg-slate-100"
                   }`}
                 >
-                  <div className="truncate">
-                    <span className="block text-sm truncate">{m.title}</span>
-                    <span
-                      className={`text-[10px] font-mono ${
-                        isSelected ? "text-primary-foreground/80" : "text-slate-500 dark:text-slate-400"
-                      }`}
-                    >
-                      key: {m.key}{" "}
-                      {m.regionCode ? `(${m.regionCode})` : "(Global)"}
-                    </span>
-                  </div>
+                  <span>{m.title}</span>
+                  <span className="font-mono text-[10px] opacity-80">({m.key})</span>
                   <span
-                    className={`text-[11px] px-2 py-0.5 rounded-full font-bold ${
-                      isSelected
-                        ? "bg-white/20 text-primary-foreground"
-                        : "bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400"
+                    className={`px-1.5 py-0.5 rounded-full text-[10px] ${
+                      isSelected ? "bg-white/20 text-white" : "bg-white dark:bg-slate-900 text-slate-500"
                     }`}
                   >
                     {m.items?.length || 0}
@@ -421,259 +564,595 @@ export const MenusPage: React.FC = () => {
           )}
         </div>
 
-        {/* Editor Area */}
-        <div className="lg:col-span-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm">
-          {!selectedMenuId ? (
-            <div className="py-24 text-center text-slate-400 text-sm">
-              Select or create a menu to view and configure its links.
+        {selectedMenuId && (
+          <div className="flex items-center gap-2.5">
+            {hasUnsavedChanges && (
+              <span className="text-[11px] font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-full">
+                Unsaved link changes
+              </span>
+            )}
+            <button
+              type="button"
+              onClick={handleSaveMenu}
+              disabled={isSaving}
+              className="px-4 py-2 bg-primary hover:bg-primary-hover text-primary-foreground rounded-xl text-xs font-bold shadow-xs flex items-center gap-1.5 transition disabled:opacity-50 cursor-pointer"
+            >
+              <Save className="w-3.5 h-3.5" />
+              <span>{isSaving ? "Saving..." : "Save Menu Links"}</span>
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Top Pinned Live Navbar Preview (for header menu) */}
+      {selectedMenuId && isHeaderMenu && (
+        <LiveNavbarPreview preview={navPreview} menuItems={items} />
+      )}
+
+      {/* Main Studio Grid */}
+      {!selectedMenuId ? (
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl py-20 text-center text-slate-400 text-sm">
+          Select or create a menu to view and configure its links.
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+          {/* Left Panel: Visual Link Tree Builder */}
+          <div
+            className={`${
+              isHeaderMenu ? "lg:col-span-7" : "lg:col-span-12"
+            } bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm space-y-5`}
+          >
+            {/* Collapsible Menu Settings */}
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+              <div>
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+                  Navigation Links &amp; Dropdowns
+                </h3>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                  Every add, edit, reorder, or active toggle saves live automatically.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowMetaSettings((v) => !v)}
+                className="px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-[11px] font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 flex items-center gap-1.5 cursor-pointer"
+              >
+                <Settings2 className="w-3.5 h-3.5 text-primary" />
+                <span>Menu Settings</span>
+              </button>
             </div>
-          ) : (
-            <div className="space-y-6">
-              {/* Menu Metadata Controls */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pb-6 border-b border-slate-200 dark:border-slate-800">
+
+            {showMetaSettings && (
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                    Menu Title
-                  </label>
+                  <label className="block text-[11px] font-bold text-slate-500 mb-1">Menu Title</label>
                   <input
                     type="text"
                     value={activeMenuTitle}
-                    onChange={(e) => setActiveMenuTitle(e.target.value)}
-                    placeholder="e.g. Main Header"
-                    className="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
+                    onChange={(e) => {
+                      setActiveMenuTitle(e.target.value);
+                      setHasUnsavedChanges(true);
+                    }}
+                    className="w-full px-3 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-xs font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
                   />
                 </div>
-
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                    System Key (e.g. header, footer)
-                  </label>
+                  <label className="block text-[11px] font-bold text-slate-500 mb-1">System Key</label>
                   <input
                     type="text"
                     value={activeMenuKey}
-                    onChange={(e) =>
-                      setActiveMenuKey(e.target.value.toLowerCase())
-                    }
-                    placeholder="e.g. header"
-                    className="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-mono text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
+                    onChange={(e) => {
+                      setActiveMenuKey(e.target.value.toLowerCase());
+                      setHasUnsavedChanges(true);
+                    }}
+                    className="w-full px-3 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-xs font-mono text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
                   />
                 </div>
-
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                    Region Code (Optional)
-                  </label>
+                  <label className="block text-[11px] font-bold text-slate-500 mb-1">Region (Optional)</label>
                   <input
                     type="text"
                     value={activeMenuRegion}
-                    onChange={(e) =>
-                      setActiveMenuRegion(e.target.value.toUpperCase())
-                    }
-                    placeholder="e.g. IN, US (leave blank for Global)"
-                    className="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-mono text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
+                    onChange={(e) => {
+                      setActiveMenuRegion(e.target.value.toUpperCase());
+                      setHasUnsavedChanges(true);
+                    }}
+                    placeholder="Global"
+                    className="w-full px-3 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-xs font-mono text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
                   />
                 </div>
               </div>
+            )}
 
-              {/* Items Table / Structure */}
-              <div>
-                <div className="flex items-center justify-between mb-4">
-                  <div>
-                    <h3 className="text-sm font-bold text-slate-900 dark:text-white">
-                      Navigation Link Structure
-                    </h3>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">
-                      Configure URLs, hierarchy, and ordering
-                    </p>
-                  </div>
+            {/* Smart Quick-Add Bar with CMS Page Picker */}
+            <div className="space-y-2">
+              <form
+                onSubmit={handleQuickAddLink}
+                className="p-3 rounded-xl bg-slate-50/90 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800 space-y-2.5"
+              >
+                <div className="grid grid-cols-1 sm:grid-cols-12 gap-2">
+                  <input
+                    type="text"
+                    value={quickLabel}
+                    onChange={(e) => {
+                      setQuickLabel(e.target.value);
+                      if (quickError) setQuickError(null);
+                    }}
+                    placeholder="Label (e.g. Services)"
+                    className="sm:col-span-4 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
+                  />
+                  <select
+                    value=""
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (!val) return;
+                      const picked = availablePages.find((p) => `/${p.slug}` === val || (p.slug === "home" && val === "/"));
+                      setQuickUrl(val);
+                      if (!quickLabel.trim() && picked) {
+                        setQuickLabel(picked.title);
+                      }
+                      if (quickError) setQuickError(null);
+                    }}
+                    className="sm:col-span-3 px-2.5 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs text-slate-600 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary cursor-pointer"
+                  >
+                    <option value="">Pick CMS Page...</option>
+                    <option value="/">Home (/)</option>
+                    {availablePages
+                      .filter((p) => p.slug !== "home")
+                      .map((p) => (
+                        <option key={p.id} value={`/${p.slug}`}>
+                          {p.title} (/{p.slug})
+                        </option>
+                      ))}
+                  </select>
+                  <input
+                    type="text"
+                    value={quickUrl}
+                    onChange={(e) => {
+                      setQuickUrl(e.target.value);
+                      if (quickError) setQuickError(null);
+                    }}
+                    placeholder="URL (e.g. /services)"
+                    className="sm:col-span-3 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs font-mono text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
+                  />
                   <button
-                    onClick={handleOpenAddItem}
-                    className="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 transition"
+                    type="submit"
+                    className="sm:col-span-2 px-3 py-2 rounded-lg bg-primary hover:bg-primary-hover text-primary-foreground text-xs font-bold flex items-center justify-center gap-1 transition cursor-pointer"
                   >
                     <Plus className="w-3.5 h-3.5" />
-                    <span>Add Link Item</span>
+                    <span>Add</span>
                   </button>
                 </div>
+                {quickError && (
+                  <p className="text-[11px] text-rose-500 font-semibold flex items-center gap-1">
+                    <AlertCircle className="w-3 h-3 shrink-0" />
+                    <span>{quickError}</span>
+                  </p>
+                )}
+              </form>
+            </div>
 
-                {flatItemList.length === 0 ? (
-                  <div className="py-12 text-center border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-xl text-slate-400 text-xs">
-                    No links added to this menu yet. Click &quot;Add Link
-                    Item&quot; above.
-                  </div>
-                ) : (
-                  <div className="border border-slate-200 dark:border-slate-800 rounded-xl divide-y divide-slate-100 dark:divide-slate-800/80 overflow-hidden">
-                    {flatItemList.map(({ item, depth }, idx) => (
-                      <div
-                        key={item.id}
-                        className="p-3.5 flex items-center justify-between hover:bg-slate-50/50 dark:hover:bg-slate-950/40 transition gap-4"
-                        style={{
-                          paddingLeft: `${Math.max(14, depth * 28 + 14)}px`,
-                        }}
-                      >
-                        <div className="flex items-center gap-3 min-w-0">
-                          {depth > 0 && (
-                            <span className="text-slate-300 dark:text-slate-700">
-                              └─
-                            </span>
+            {/* Clean Card Tree Rows with Inline Edit */}
+            {items.length === 0 ? (
+              <div className="py-12 text-center border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-xl text-slate-400 text-xs">
+                No links added yet. Use the Quick Add bar above to build your menu.
+              </div>
+            ) : (
+              <div className="space-y-2.5">
+                {items.map((item, idx) => {
+                  const children = item.children || [];
+                  const isCollapsed = Boolean(collapsedParents[item.id]);
+                  const isEditingThis = inlineEditId === item.id;
+
+                  return (
+                    <div
+                      key={item.id}
+                      draggable={!isEditingThis}
+                      onDragStart={(e) => e.dataTransfer.setData("text/plain", String(idx))}
+                      onDragOver={(e) => e.preventDefault()}
+                      onDrop={(e) => {
+                        e.preventDefault();
+                        const fromIdx = Number(e.dataTransfer.getData("text/plain"));
+                        if (Number.isNaN(fromIdx) || fromIdx === idx) return;
+                        const next = [...items];
+                        const [moved] = next.splice(fromIdx, 1);
+                        if (!moved) return;
+                        next.splice(idx, 0, moved);
+                        next.forEach((it, i) => {
+                          it.displayOrder = i;
+                        });
+                        void persistItemsToApi(next, "Menu order updated live!");
+                      }}
+                      className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden transition hover:border-slate-300"
+                    >
+                      {/* Parent Row */}
+                      <div className="p-3 flex items-center justify-between gap-2 bg-white dark:bg-slate-900">
+                        <div className="flex items-center gap-2 min-w-0 flex-1">
+                          <GripVertical className="w-4 h-4 text-slate-300 cursor-grab shrink-0" />
+
+                          {isEditingThis ? (
+                            <div className="flex flex-col sm:flex-row gap-2 flex-1">
+                              <input
+                                type="text"
+                                value={inlineLabel}
+                                onChange={(e) => setInlineLabel(e.target.value)}
+                                className="flex-1 px-2.5 py-1 rounded-lg border border-primary text-xs font-semibold text-slate-900 focus:outline-none"
+                                placeholder="Label"
+                              />
+                              <input
+                                type="text"
+                                value={inlineUrl}
+                                onChange={(e) => setInlineUrl(e.target.value)}
+                                className="flex-1 px-2.5 py-1 rounded-lg border border-primary text-xs font-mono text-slate-900 focus:outline-none"
+                                placeholder="/url"
+                              />
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-2 min-w-0 flex-wrap">
+                              <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white truncate">
+                                {item.label}
+                              </span>
+                              <span className="text-[11px] font-mono text-slate-400 truncate">
+                                {item.url}
+                              </span>
+                              {children.length > 0 && (
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    setCollapsedParents((prev) => ({
+                                      ...prev,
+                                      [item.id]: !isCollapsed,
+                                    }))
+                                  }
+                                  className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full bg-teal-50 text-teal-700 border border-teal-200 text-[10px] font-bold cursor-pointer"
+                                >
+                                  <span>{children.length} sub-link{children.length > 1 ? "s" : ""}</span>
+                                  {isCollapsed ? (
+                                    <ChevronRight className="w-3 h-3" />
+                                  ) : (
+                                    <ChevronDown className="w-3 h-3" />
+                                  )}
+                                </button>
+                              )}
+                            </div>
                           )}
-                          <div className="truncate">
-                            <span className="text-sm font-semibold text-slate-900 dark:text-white">
-                              {item.label}
-                            </span>
-                            <span className="ml-2 text-xs font-mono text-slate-400">
-                              {item.url}
-                            </span>
-                          </div>
                         </div>
 
                         <div className="flex items-center gap-1 shrink-0">
-                          {/* Reorder Buttons (only for top-level for now) */}
-                          {depth === 0 && (
+                          {isEditingThis ? (
                             <>
                               <button
-                                onClick={() => handleMoveItem(idx, "up")}
+                                type="button"
+                                onClick={() => handleCommitInlineEdit(item.id)}
+                                className="p-1.5 rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition cursor-pointer"
+                                title="Apply"
+                              >
+                                <Check className="w-3.5 h-3.5" />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setInlineEditId(null);
+                                  setInlineError(null);
+                                }}
+                                className="p-1.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 transition cursor-pointer"
+                                title="Cancel"
+                              >
+                                <X className="w-3.5 h-3.5" />
+                              </button>
+                            </>
+                          ) : (
+                            <>
+                              <button
+                                type="button"
+                                onClick={() => handleToggleItemVisibility(item.url, item.label)}
+                                className={`px-2 py-0.5 rounded-full text-[10px] font-bold border transition cursor-pointer ${
+                                  hiddenUrlsSet.has((item.url || "").trim().toLowerCase())
+                                    ? "bg-slate-100 text-slate-500 border-slate-200"
+                                    : "bg-emerald-50 text-emerald-700 border-emerald-200"
+                                }`}
+                                title="Toggle active/hidden on live website"
+                              >
+                                {hiddenUrlsSet.has((item.url || "").trim().toLowerCase()) ? "Hidden" : "Active"}
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleOpenAddSubItem(item.id)}
+                                className="px-2 py-1 text-[11px] font-bold text-primary hover:bg-primary/10 rounded-lg flex items-center gap-0.5 transition cursor-pointer"
+                                title="Add dropdown sub-link"
+                              >
+                                <Plus className="w-3 h-3" />
+                                <span className="hidden sm:inline">Sub-link</span>
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleMoveRootItem(idx, "up")}
                                 disabled={idx === 0}
-                                className="p-1 text-slate-400 hover:text-slate-700 dark:hover:text-white disabled:opacity-30 rounded"
+                                className="p-1 text-slate-400 hover:text-slate-700 disabled:opacity-30 cursor-pointer"
                                 title="Move Up"
                               >
                                 <ArrowUp className="w-3.5 h-3.5" />
                               </button>
                               <button
-                                onClick={() => handleMoveItem(idx, "down")}
-                                disabled={idx === flatItemList.length - 1}
-                                className="p-1 text-slate-400 hover:text-slate-700 dark:hover:text-white disabled:opacity-30 rounded"
+                                type="button"
+                                onClick={() => handleMoveRootItem(idx, "down")}
+                                disabled={idx === items.length - 1}
+                                className="p-1 text-slate-400 hover:text-slate-700 disabled:opacity-30 cursor-pointer"
                                 title="Move Down"
                               >
                                 <ArrowDown className="w-3.5 h-3.5" />
                               </button>
+                              <button
+                                type="button"
+                                onClick={() => handleStartInlineEdit(item)}
+                                className="p-1.5 text-slate-400 hover:text-primary rounded-lg hover:bg-slate-100 transition cursor-pointer"
+                                title="Edit inline"
+                              >
+                                <Edit2 className="w-3.5 h-3.5" />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteItem(item.id)}
+                                className="p-1.5 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-rose-50 transition cursor-pointer"
+                                title="Delete"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
                             </>
                           )}
-
-                          <button
-                            onClick={() => handleOpenEditItem(item)}
-                            className="p-1.5 text-slate-400 hover:text-primary rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition"
-                            title="Edit Link"
-                          >
-                            <Edit2 className="w-3.5 h-3.5" />
-                          </button>
-                          <button
-                            onClick={() => handleDeleteItem(item.id)}
-                            className="p-1.5 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition"
-                            title="Delete Link"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
                         </div>
                       </div>
-                    ))}
-                  </div>
-                )}
-              </div>
 
-              {/* Bottom Actions */}
-              <div className="pt-6 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
-                <button
-                  onClick={handleDeleteMenu}
-                  disabled={isDeleting}
-                  className="px-3.5 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-xl transition"
-                >
-                  {isDeleting ? "Deleting..." : "Delete Menu Group"}
-                </button>
+                      {isEditingThis && inlineError && (
+                        <div className="px-3 pb-2 text-[11px] text-rose-500 font-semibold">
+                          {inlineError}
+                        </div>
+                      )}
 
-                <button
-                  onClick={handleSaveMenu}
-                  disabled={isSaving}
-                  className="px-5 py-2.5 bg-primary hover:bg-primary-hover text-primary-foreground rounded-xl text-xs font-semibold shadow-xs flex items-center gap-2 transition disabled:opacity-50"
-                >
-                  <Save className="w-4 h-4" />
-                  <span>
-                    {isSaving ? "Saving Changes..." : "Save Navigation Menu"}
-                  </span>
-                </button>
+                      {/* Sub-links List */}
+                      {!isCollapsed && children.length > 0 && (
+                        <div className="bg-slate-50/70 dark:bg-slate-950/40 border-t border-slate-100 dark:border-slate-800 divide-y divide-slate-100 dark:divide-slate-800">
+                          {children.map((child, cIdx) => {
+                            const isEditingChild = inlineEditId === child.id;
+                            return (
+                              <div key={child.id} className="pl-9 pr-3 py-2.5 flex items-center justify-between gap-2">
+                                <div className="flex items-center gap-2 min-w-0 flex-1">
+                                  <span className="text-slate-300 text-xs">└─</span>
+                                  {isEditingChild ? (
+                                    <div className="flex flex-col sm:flex-row gap-2 flex-1">
+                                      <input
+                                        type="text"
+                                        value={inlineLabel}
+                                        onChange={(e) => setInlineLabel(e.target.value)}
+                                        className="flex-1 px-2.5 py-1 rounded-lg border border-primary text-xs font-semibold text-slate-900 focus:outline-none"
+                                      />
+                                      <input
+                                        type="text"
+                                        value={inlineUrl}
+                                        onChange={(e) => setInlineUrl(e.target.value)}
+                                        className="flex-1 px-2.5 py-1 rounded-lg border border-primary text-xs font-mono text-slate-900 focus:outline-none"
+                                      />
+                                    </div>
+                                  ) : (
+                                    <div className="flex items-center gap-2 min-w-0 truncate">
+                                      <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 truncate">
+                                        {child.label}
+                                      </span>
+                                      <span className="text-[11px] font-mono text-slate-400 truncate">
+                                        {child.url}
+                                      </span>
+                                    </div>
+                                  )}
+                                </div>
+
+                                <div className="flex items-center gap-1 shrink-0">
+                                  {isEditingChild ? (
+                                    <>
+                                      <button
+                                        type="button"
+                                        onClick={() => handleCommitInlineEdit(child.id)}
+                                        className="p-1 rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 cursor-pointer"
+                                      >
+                                        <Check className="w-3.5 h-3.5" />
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          setInlineEditId(null);
+                                          setInlineError(null);
+                                        }}
+                                        className="p-1 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer"
+                                      >
+                                        <X className="w-3.5 h-3.5" />
+                                      </button>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <button
+                                        type="button"
+                                        onClick={() => handleToggleItemVisibility(child.url, child.label)}
+                                        className={`px-2 py-0.5 rounded-full text-[10px] font-bold border transition cursor-pointer ${
+                                          hiddenUrlsSet.has((child.url || "").trim().toLowerCase())
+                                            ? "bg-slate-100 text-slate-500 border-slate-200"
+                                            : "bg-emerald-50 text-emerald-700 border-emerald-200"
+                                        }`}
+                                        title="Toggle active/hidden on live website"
+                                      >
+                                        {hiddenUrlsSet.has((child.url || "").trim().toLowerCase()) ? "Hidden" : "Active"}
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={() => handleMoveSubItem(item.id, child.id, "up")}
+                                        disabled={cIdx === 0}
+                                        className="p-1 text-slate-400 hover:text-slate-700 disabled:opacity-30 cursor-pointer"
+                                      >
+                                        <ArrowUp className="w-3 h-3" />
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={() => handleMoveSubItem(item.id, child.id, "down")}
+                                        disabled={cIdx === children.length - 1}
+                                        className="p-1 text-slate-400 hover:text-slate-700 disabled:opacity-30 cursor-pointer"
+                                      >
+                                        <ArrowDown className="w-3 h-3" />
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={() => handleStartInlineEdit(child)}
+                                        className="p-1 text-slate-400 hover:text-primary rounded-lg hover:bg-slate-100 cursor-pointer"
+                                      >
+                                        <Edit2 className="w-3 h-3" />
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={() => handleDeleteItem(child.id)}
+                                        className="p-1 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-rose-50 cursor-pointer"
+                                      >
+                                        <Trash2 className="w-3 h-3" />
+                                      </button>
+                                    </>
+                                  )}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
+            )}
+
+            {/* Footer Danger Action */}
+            <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+              <button
+                type="button"
+                onClick={handleDeleteMenu}
+                disabled={isDeleting}
+                className="px-3 py-1.5 text-xs font-semibold text-rose-600 hover:bg-rose-50 rounded-lg transition cursor-pointer"
+              >
+                {isDeleting ? "Deleting..." : "Delete Menu Group"}
+              </button>
+              <button
+                type="button"
+                onClick={handleSaveMenu}
+                disabled={isSaving}
+                className="px-4 py-2 bg-primary hover:bg-primary-hover text-primary-foreground rounded-xl text-xs font-bold shadow-xs flex items-center gap-1.5 transition disabled:opacity-50 cursor-pointer"
+              >
+                <Save className="w-3.5 h-3.5" />
+                <span>{isSaving ? "Saving..." : "Save Menu Links"}</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Right Panel: Sticky Brand, Logo & Header Settings (for header menu) */}
+          {isHeaderMenu && (
+            <div className="lg:col-span-5">
+              <NavbarStudioPanel onPreviewChange={handlePreviewChange} />
             </div>
           )}
         </div>
-      </div>
+      )}
 
-      {/* Add / Edit Link Item Modal */}
+      {/* Add Sub-Link Modal */}
       {isItemModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl w-full max-w-md shadow-2xl p-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-base font-bold text-slate-900 dark:text-white">
-                {editingItemId ? "Edit Link Item" : "Add New Navigation Link"}
+                Add Dropdown Sub-Link
               </h3>
               <button
+                type="button"
                 onClick={() => setIsItemModalOpen(false)}
-                className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
+                className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            <form onSubmit={handleSaveItemModal} className="space-y-4">
+            <form onSubmit={handleSaveItemModal} className="space-y-4" noValidate>
               <div>
                 <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                  Link Label
+                  Link Label <span className="text-rose-500">*</span>
                 </label>
                 <input
                   type="text"
-                  required
                   value={itemLabel}
-                  onChange={(e) => setItemLabel(e.target.value)}
-                  placeholder="e.g. Services or Contact"
-                  className="w-full px-3.5 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
+                  onChange={(e) => {
+                    setItemLabel(e.target.value);
+                    if (itemErrors.label) setItemErrors((p) => ({ ...p, label: undefined }));
+                  }}
+                  placeholder="e.g. SEO Services"
+                  className={`w-full px-3.5 py-2 bg-white dark:bg-slate-900 border rounded-xl text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 ${
+                    itemErrors.label ? "border-rose-500 focus:ring-rose-500" : "border-slate-200 dark:border-slate-800 focus:ring-primary"
+                  }`}
                 />
+                {itemErrors.label && (
+                  <p className="text-[11px] text-rose-500 mt-1 font-semibold">{itemErrors.label}</p>
+                )}
               </div>
 
               <div>
                 <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                  Target URL / Path
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={itemUrl}
-                  onChange={(e) => setItemUrl(e.target.value)}
-                  placeholder="e.g. /services or https://..."
-                  className="w-full px-3.5 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-mono text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                  Parent Item (Optional for nested dropdowns)
+                  Pick CMS Page (Optional)
                 </label>
                 <select
-                  value={itemParentId}
-                  onChange={(e) => setItemParentId(e.target.value)}
-                  className="w-full px-3.5 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
+                  value=""
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (!val) return;
+                    const picked = availablePages.find((p) => `/${p.slug}` === val);
+                    setItemUrl(val);
+                    if (!itemLabel.trim() && picked) setItemLabel(picked.title);
+                    if (itemErrors.url) setItemErrors((p) => ({ ...p, url: undefined }));
+                  }}
+                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary"
                 >
-                  <option value="">None (Top-Level Item)</option>
-                  {items
-                    .filter((i) => i.id !== editingItemId)
-                    .map((i) => (
-                      <option key={i.id} value={i.id}>
-                        {i.label} ({i.url})
-                      </option>
-                    ))}
+                  <option value="">Choose an existing page...</option>
+                  {availablePages.map((p) => (
+                    <option key={p.id} value={p.slug === "home" ? "/" : `/${p.slug}`}>
+                      {p.title} ({p.slug === "home" ? "/" : `/${p.slug}`})
+                    </option>
+                  ))}
                 </select>
               </div>
 
-              <div className="pt-3 flex justify-end gap-2">
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                  Target URL / Path <span className="text-rose-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={itemUrl}
+                  onChange={(e) => {
+                    setItemUrl(e.target.value);
+                    if (itemErrors.url) setItemErrors((p) => ({ ...p, url: undefined }));
+                  }}
+                  placeholder="e.g. /services/seo"
+                  className={`w-full px-3.5 py-2 bg-white dark:bg-slate-900 border rounded-xl text-xs font-mono text-slate-900 dark:text-white focus:outline-none focus:ring-2 ${
+                    itemErrors.url ? "border-rose-500 focus:ring-rose-500" : "border-slate-200 dark:border-slate-800 focus:ring-primary"
+                  }`}
+                />
+                {itemErrors.url && (
+                  <p className="text-[11px] text-rose-500 mt-1 font-semibold">{itemErrors.url}</p>
+                )}
+              </div>
+
+              <div className="pt-2 flex justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setIsItemModalOpen(false)}
-                  className="px-4 py-2 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition"
+                  className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 text-xs font-semibold bg-primary hover:bg-primary-hover text-primary-foreground rounded-xl shadow-xs transition"
+                  className="px-4 py-2 text-xs font-bold bg-primary hover:bg-primary-hover text-primary-foreground rounded-xl shadow-xs transition cursor-pointer"
                 >
-                  {editingItemId ? "Apply Changes" : "Add Link"}
+                  Add Sub-Link
                 </button>
               </div>
             </form>
@@ -683,15 +1162,16 @@ export const MenusPage: React.FC = () => {
 
       {/* Create Menu Modal */}
       {isCreateMenuModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl w-full max-w-md shadow-2xl p-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-base font-bold text-slate-900 dark:text-white">
                 Create Navigation Menu
               </h3>
               <button
+                type="button"
                 onClick={() => setIsCreateMenuModalOpen(false)}
-                className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
+                className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -708,10 +1188,9 @@ export const MenusPage: React.FC = () => {
                   value={newMenuTitle}
                   onChange={(e) => setNewMenuTitle(e.target.value)}
                   placeholder="e.g. Header Navigation"
-                  className="w-full px-3.5 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full px-3.5 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
                 />
               </div>
-
               <div>
                 <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                   Lookup Key
@@ -722,10 +1201,9 @@ export const MenusPage: React.FC = () => {
                   value={newMenuKey}
                   onChange={(e) => setNewMenuKey(e.target.value.toLowerCase())}
                   placeholder="e.g. header or footer"
-                  className="w-full px-3.5 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-mono text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full px-3.5 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-mono text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
                 />
               </div>
-
               <div>
                 <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                   Region Code (Optional)
@@ -733,26 +1211,23 @@ export const MenusPage: React.FC = () => {
                 <input
                   type="text"
                   value={newMenuRegion}
-                  onChange={(e) =>
-                    setNewMenuRegion(e.target.value.toUpperCase())
-                  }
-                  placeholder="e.g. IN, US (leave blank for Global)"
-                  className="w-full px-3.5 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-mono text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
+                  onChange={(e) => setNewMenuRegion(e.target.value.toUpperCase())}
+                  placeholder="e.g. IN, US"
+                  className="w-full px-3.5 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-mono text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
                 />
               </div>
-
-              <div className="pt-3 flex justify-end gap-2">
+              <div className="pt-2 flex justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setIsCreateMenuModalOpen(false)}
-                  className="px-4 py-2 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition"
+                  className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSaving}
-                  className="px-4 py-2 text-xs font-semibold bg-primary hover:bg-primary-hover text-primary-foreground rounded-xl shadow-xs transition disabled:opacity-50"
+                  className="px-4 py-2 text-xs font-bold bg-primary hover:bg-primary-hover text-primary-foreground rounded-xl shadow-xs transition disabled:opacity-50 cursor-pointer"
                 >
                   {isSaving ? "Creating..." : "Create Menu"}
                 </button>
@@ -761,16 +1236,16 @@ export const MenusPage: React.FC = () => {
           </div>
         </div>
       )}
-      {/* Delete Menu Confirmation Dialog */}
+
       <ConfirmDialog
         isOpen={isDeleteMenuConfirmOpen}
         title="Delete Navigation Menu"
-        description="Are you sure you want to permanently delete this navigation menu? All its associated menu items and links will be removed."
+        description={`Are you sure you want to delete the "${activeMenuTitle}" menu group?`}
         confirmText="Delete Menu"
         cancelText="Cancel"
         variant="danger"
         isLoading={isDeleting}
-        onConfirm={confirmDeleteMenuAction}
+        onConfirm={confirmDeleteMenu}
         onClose={() => setIsDeleteMenuConfirmOpen(false)}
       />
     </div>

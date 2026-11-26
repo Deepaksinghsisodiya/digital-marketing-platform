@@ -79,17 +79,17 @@ export default async function AboutPage() {
 
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="py-20 sm:py-28 bg-slate-950 text-white relative overflow-hidden">
+        <section className="py-20 sm:py-28 bg-white text-slate-900 border-b border-slate-200/80 relative overflow-hidden">
           <div
             aria-hidden="true"
             className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[350px] bg-primary/10 blur-[150px] rounded-full pointer-events-none"
           />
           <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6">
             <Badge variant="accent">Enterprise Agency Infrastructure</Badge>
-            <h1 className="text-4xl sm:text-6xl font-black tracking-tight text-white max-w-4xl mx-auto leading-tight">
+            <h1 className="text-4xl sm:text-6xl font-black tracking-tight text-slate-950 max-w-4xl mx-auto leading-tight">
               Pioneering Data-Driven Growth at Global Scale
             </h1>
-            <p className="text-slate-400 text-base sm:text-lg max-w-3xl mx-auto leading-relaxed">
+            <p className="text-slate-600 text-base sm:text-lg max-w-3xl mx-auto leading-relaxed">
               Nexora combines enterprise software engineering, deterministic revenue attribution,
               and programmatic campaign execution to accelerate pipeline velocity for ambitious organizations.
             </p>
@@ -162,12 +162,12 @@ export default async function AboutPage() {
         </section>
 
         {/* Bottom CTA */}
-        <section className="py-16 bg-slate-950 text-white text-center">
+        <section className="py-16 bg-slate-50 text-slate-900 border-t border-slate-200 text-center">
           <div className="max-w-4xl mx-auto px-4 space-y-6">
-            <h2 className="text-3xl sm:text-4xl font-black">
+            <h2 className="text-3xl sm:text-4xl font-black text-slate-950">
               Ready to Partner with Nexora?
             </h2>
-            <p className="text-slate-400 text-sm sm:text-base max-w-xl mx-auto">
+            <p className="text-slate-600 text-sm sm:text-base max-w-xl mx-auto">
               Schedule an executive consultation to discover how our engineering-first marketing framework elevates your customer acquisition.
             </p>
             <div className="pt-2">

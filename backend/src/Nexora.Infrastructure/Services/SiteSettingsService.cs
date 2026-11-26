@@ -133,6 +133,15 @@ public class SiteSettingsService : ISiteSettingsService
         if (dto.BookingUrl != null) settings.BookingUrl = dto.BookingUrl;
         if (dto.AnnouncementBarJson != null) settings.AnnouncementBarJson = dto.AnnouncementBarJson;
         if (dto.RedirectRulesJson != null) settings.RedirectRulesJson = dto.RedirectRulesJson;
+        if (dto.WebhookUrl != null) settings.WebhookUrl = string.IsNullOrWhiteSpace(dto.WebhookUrl) ? null : dto.WebhookUrl.Trim();
+        if (!string.IsNullOrWhiteSpace(dto.WebhookSecret))
+        {
+            settings.WebhookSecret = _protector != null
+                ? "enc:" + _protector.Protect(dto.WebhookSecret.Trim())
+                : dto.WebhookSecret.Trim();
+        }
+        if (dto.CustomDomain != null) settings.CustomDomain = string.IsNullOrWhiteSpace(dto.CustomDomain) ? null : dto.CustomDomain.Trim();
+        if (dto.SslStatus != null) settings.SslStatus = dto.SslStatus.Trim();
 
         settings.UpdatedByUserId = actingUserId;
         settings.MarkUpdated();
@@ -223,6 +232,10 @@ public class SiteSettingsService : ISiteSettingsService
             RedirectRulesJson: string.IsNullOrWhiteSpace(entity.RedirectRulesJson) ? "[]" : entity.RedirectRulesJson,
             VersionToken: Convert.ToBase64String(entity.Version),
             CreatedAtUtc: entity.CreatedAtUtc,
-            UpdatedAtUtc: entity.UpdatedAtUtc);
+            UpdatedAtUtc: entity.UpdatedAtUtc,
+            WebhookUrl: entity.WebhookUrl,
+            WebhookSecretConfigured: !string.IsNullOrWhiteSpace(entity.WebhookSecret),
+            CustomDomain: entity.CustomDomain,
+            SslStatus: entity.SslStatus);
     }
 }

@@ -19,6 +19,8 @@ import {
   useSendLeadEmailMutation,
   useAnonymizeLeadMutation,
   useDeleteLeadMutation,
+  useBulkLeadActionMutation,
+  useScheduleLeadFollowUpMutation,
 } from "../../store/api/adminApi";
 import { useAuth } from "../../hooks/useAuth";
 import type { LeadStatus } from "../../types";
@@ -184,6 +186,10 @@ export const LeadsPage: React.FC = () => {
   const [deleteLead, { isLoading: isDeletingLead }] = useDeleteLeadMutation();
   const [convertLead, { isLoading: isConverting }] =
     useConvertLeadToClientMutation();
+  const [bulkLeadAction, { isLoading: isBulkUpdating }] = useBulkLeadActionMutation();
+  const [scheduleFollowUp, { isLoading: isSchedulingFollowUp }] = useScheduleLeadFollowUpMutation();
+  const [followUpDate, setFollowUpDate] = useState("");
+  const [followUpNote, setFollowUpNote] = useState("");
 
   const handleAnonymizeLead = async () => {
     if (!selectedLead) return;
@@ -986,6 +992,58 @@ export const LeadsPage: React.FC = () => {
                       <span>Send Direct Outbound Email</span>
                     </button>
                   )}
+
+                  {hasPermission("leads.manage") && (
+                    <div className="p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/60 space-y-2">
+                      <div className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                        Automated Follow-Up Scheduler
+                      </div>
+                      {(selectedLead as any).nextFollowUpAtUtc && (
+                        <div className="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold">
+                          Scheduled: {new Date((selectedLead as any).nextFollowUpAtUtc).toLocaleString()}
+                          {(selectedLead as any).followUpNote ? ` — ${(selectedLead as any).followUpNote}` : ""}
+                        </div>
+                      )}
+                      <div className="flex flex-wrap gap-2">
+                        <input
+                          type="datetime-local"
+                          aria-label="Follow-up date and time"
+                          value={followUpDate}
+                          onChange={(e) => setFollowUpDate(e.target.value)}
+                          className="flex-1 min-w-[160px] rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 px-2.5 py-1.5 text-xs"
+                        />
+                        <input
+                          type="text"
+                          value={followUpNote}
+                          onChange={(e) => setFollowUpNote(e.target.value)}
+                          placeholder="Follow-up reminder note..."
+                          className="flex-1 min-w-[140px] rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 px-2.5 py-1.5 text-xs"
+                        />
+                        <button
+                          type="button"
+                          disabled={isSchedulingFollowUp || !followUpDate}
+                          onClick={async () => {
+                            try {
+                              await scheduleFollowUp({
+                                id: selectedLead.id,
+                                nextFollowUpAtUtc: new Date(followUpDate).toISOString(),
+                                followUpNote: followUpNote.trim() || null,
+                              }).unwrap();
+                              toast.success("Follow-up scheduled.");
+                              setFollowUpDate("");
+                              setFollowUpNote("");
+                              refetchLead();
+                            } catch {
+                              toast.error("Failed to schedule follow-up.");
+                            }
+                          }}
+                          className="px-3 py-1.5 rounded-lg bg-primary text-white text-xs font-bold disabled:opacity-50"
+                        >
+                          Schedule
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Contact Dossier */}
@@ -1398,6 +1456,60 @@ export const LeadsPage: React.FC = () => {
             <Download className="w-3.5 h-3.5 text-primary" />
             <span>Export CSV</span>
           </button>
+          {hasPermission("leads.manage") && (
+            <>
+              <select
+                aria-label="Bulk change status"
+                disabled={isBulkUpdating}
+                defaultValue=""
+                onChange={async (e) => {
+                  const val = e.target.value;
+                  if (val === "") return;
+                  try {
+                    const res = await bulkLeadAction({
+                      leadIds: selectedLeadIds,
+                      action: "status",
+                      status: Number(val),
+                    }).unwrap();
+                    toast.success(`Updated ${res.affected} leads.`);
+                    setSelectedLeadIds([]);
+                  } catch {
+                    toast.error("Bulk status update failed.");
+                  } finally {
+                    e.target.value = "";
+                  }
+                }}
+                className="px-2.5 py-1 rounded-lg bg-slate-800 dark:bg-slate-200 text-xs font-semibold cursor-pointer"
+              >
+                <option value="">Bulk Stage...</option>
+                <option value="0">New Inquiry</option>
+                <option value="1">Under Evaluation</option>
+                <option value="2">Contacted</option>
+                <option value="3">Qualified SQL</option>
+                <option value="4">Converted / Closed</option>
+              </select>
+              <button
+                type="button"
+                disabled={isBulkUpdating}
+                onClick={async () => {
+                  try {
+                    const res = await bulkLeadAction({
+                      leadIds: selectedLeadIds,
+                      action: "delete",
+                    }).unwrap();
+                    toast.success(`Deleted ${res.affected} leads.`);
+                    setSelectedLeadIds([]);
+                  } catch {
+                    toast.error("Bulk delete failed.");
+                  }
+                }}
+                className="px-3 py-1 rounded-lg bg-rose-600 hover:bg-rose-500 text-white transition flex items-center gap-1 cursor-pointer"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>Delete</span>
+              </button>
+            </>
+          )}
           <button
             type="button"
             onClick={() => setSelectedLeadIds([])}

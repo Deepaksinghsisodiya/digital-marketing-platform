@@ -268,4 +268,49 @@ describe("BlockRenderer", () => {
     expect(htmlSlider).toContain("Next slide");
     expect(htmlSlider).toContain("Second Slide Tech Headline");
   });
+
+  it("renders Industry and Team blocks when populated and hides when empty", () => {
+    const blocks: CmsBlock[] = [
+      {
+        id: "ind-1",
+        type: "Industry",
+        schemaVersion: 1,
+        settings: {},
+        content: {
+          title: "Industries We Scale",
+          industries: [
+            { name: "B2B SaaS", slug: "saas", description: "Pipeline growth", metric: "3.8x" },
+          ],
+        },
+        enabled: true,
+      },
+      {
+        id: "team-1",
+        type: "Team",
+        schemaVersion: 1,
+        settings: {},
+        content: {
+          title: "Growth Architects",
+          members: [
+            { name: "Aarav Sharma", role: "VP Growth", bio: "10+ years scaling B2B" },
+          ],
+        },
+        enabled: true,
+      },
+      {
+        id: "team-empty",
+        type: "Team",
+        schemaVersion: 1,
+        settings: {},
+        content: { members: [] },
+        enabled: true,
+      },
+    ];
+
+    const html = renderToString(<BlockRenderer blocks={blocks} />);
+    expect(html).toContain("Industries We Scale");
+    expect(html).toContain("B2B SaaS");
+    expect(html).toContain("Growth Architects");
+    expect(html).toContain("Aarav Sharma");
+  });
 });

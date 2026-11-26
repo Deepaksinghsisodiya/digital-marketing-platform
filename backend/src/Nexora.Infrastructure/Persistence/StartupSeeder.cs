@@ -495,7 +495,24 @@ public static class StartupSeeder
                       "imageAlt": "Paid Ads Performance & Sales Dashboard",
                       "imageBadge": "4.5x+ Average Client ROAS",
                       "overlayOpacity": 0.65,
-                      "enabled": true
+                      "enabled": true,
+                      "showQuickAudit": true,
+                      "ratingText": "4.9/5 Verified",
+                      "socialProofText": "Trusted by 120+ growth teams",
+                      "trustBadges": ["Audited Attribution", "High-Converting Funnels", "Predictable Revenue"],
+                      "metricTitle": "Performance Architecture",
+                      "metricBadge": "Active Attribution",
+                      "metricLabel": "Average Portfolio ROAS",
+                      "metricValue": "4.85x",
+                      "metricDelta": "+42% vs Industry",
+                      "metricSubtitle": "Auditable Campaign Growth",
+                      "metricFooterNote": "100% Client Owned",
+                      "stat1Label": "Cost Per Lead (CPA)",
+                      "stat1Value": "-36.4%",
+                      "stat1Sub": "via negative keyword lists",
+                      "stat2Label": "Conversion Rate",
+                      "stat2Value": "18.2%",
+                      "stat2Sub": "dedicated landing pages"
                     },
                     {
                       "id": "slide-2",
@@ -510,7 +527,24 @@ public static class StartupSeeder
                       "imageAlt": "Google Search Rankings and Organic Traffic Growth",
                       "imageBadge": "Page #1 Commercial Rankings",
                       "overlayOpacity": 0.65,
-                      "enabled": true
+                      "enabled": true,
+                      "showQuickAudit": true,
+                      "ratingText": "4.9/5 Verified",
+                      "socialProofText": "Trusted by 120+ growth teams",
+                      "trustBadges": ["Technical Crawl Audits", "Commercial Intent SEO", "Compounding Pipeline"],
+                      "metricTitle": "Enterprise Search Engine",
+                      "metricBadge": "Compounding Pipeline",
+                      "metricLabel": "Organic Pipeline Velocity",
+                      "metricValue": "+340%",
+                      "metricDelta": "+3.4x YoY Growth",
+                      "metricSubtitle": "Technical SEO & Authority Content",
+                      "metricFooterNote": "100% Client Owned",
+                      "stat1Label": "Blended CAC",
+                      "stat1Value": "-41.2%",
+                      "stat1Sub": "lower acquisition cost",
+                      "stat2Label": "Top-3 Rankings",
+                      "stat2Value": "280+",
+                      "stat2Sub": "high-intent commercial terms"
                     },
                     {
                       "id": "slide-3",
@@ -525,7 +559,24 @@ public static class StartupSeeder
                       "imageAlt": "Lead Conversion and WhatsApp Automation",
                       "imageBadge": "Sub-60s Instant Lead Routing",
                       "overlayOpacity": 0.65,
-                      "enabled": true
+                      "enabled": true,
+                      "showQuickAudit": true,
+                      "ratingText": "4.9/5 Verified",
+                      "socialProofText": "Trusted by 120+ growth teams",
+                      "trustBadges": ["Sub-60s Lead Routing", "WhatsApp & CRM Sync", "Split-Tested Funnels"],
+                      "metricTitle": "Conversion Architecture",
+                      "metricBadge": "Live Funnel Lift",
+                      "metricLabel": "Qualified Lead Conversion",
+                      "metricValue": "2.14x",
+                      "metricDelta": "+114% vs Baseline",
+                      "metricSubtitle": "Landing Pages & Sub-60s Routing",
+                      "metricFooterNote": "100% Client Owned",
+                      "stat1Label": "Response Speed",
+                      "stat1Value": "< 45s",
+                      "stat1Sub": "WhatsApp & email routing",
+                      "stat2Label": "Landing Page CVR",
+                      "stat2Value": "18.2%",
+                      "stat2Sub": "dedicated split-tested pages"
                     }
                   ]
                 }
@@ -664,23 +715,70 @@ public static class StartupSeeder
                 "id": "blk_casestudies_1",
                 "type": "CaseStudies",
                 "schemaVersion": 1,
-                "enabled": false,
+                "enabled": true,
                 "content": {
                   "sectionTitle": "Commercial Outcomes & Case Studies",
                   "sectionSubtitle": "Real client results delivered through our marketing and engineering capabilities.",
-                  "caseStudies": []
+                  "caseStudies": [
+                    {
+                      "title": "Enterprise B2B Pipeline Scaled by 312% in 6 Months",
+                      "client": "Apex Cloud Infrastructure",
+                      "category": "B2B SaaS & Cloud",
+                      "metric": "312%",
+                      "metricLabel": "Qualified Inbound Pipeline",
+                      "summary": "Re-engineered commercial search architecture and deterministic multi-touch attribution, driving 4.85x pipeline velocity.",
+                      "imageUrl": "/images/demo/case-study-saas.svg",
+                      "caseStudyUrl": "/case-studies",
+                      "featured": true,
+                      "enabled": true
+                    },
+                    {
+                      "title": "Global D2C Revenue Tripled via Full-Funnel Paid Acquisition",
+                      "client": "UrbanLux Apparel",
+                      "category": "E-Commerce & D2C",
+                      "metric": "4.6x",
+                      "metricLabel": "Blended Return on Ad Spend",
+                      "summary": "Deployed sub-second Next.js storefront with server-side Meta CAPI and Google Shopping optimization across 14 markets.",
+                      "imageUrl": "/images/demo/case-study-ecommerce.svg",
+                      "caseStudyUrl": "/case-studies",
+                      "featured": true,
+                      "enabled": true
+                    }
+                  ]
                 }
               },
               {
                 "id": "blk_testimonials_1",
                 "type": "Testimonials",
                 "schemaVersion": 1,
-                "enabled": false,
+                "enabled": true,
                 "settings": { "theme": "light" },
                 "content": {
-                  "sectionTitle": "Client Feedback",
-                  "sectionSubtitle": "What our clients say about our work.",
-                  "testimonials": []
+                  "sectionTitle": "Validated by Growth Leaders",
+                  "sectionSubtitle": "How high-growth teams scale predictable pipeline with Nexora.",
+                  "testimonials": [
+                    {
+                      "quote": "Nexora redesigned our acquisition funnels and attribution stack. Our CAC dropped by 77% while qualified pipeline tripled within 90 days.",
+                      "author": "Marcus Vance",
+                      "role": "Chief Revenue Officer",
+                      "company": "NexScale Cloud",
+                      "rating": 5
+                    },
+                    {
+                      "quote": "The technical precision of their commercial SEO and programmatic Next.js architecture is unmatched. We now rank #1 across our core terms.",
+                      "author": "Sarah Jenkins",
+                      "role": "VP of Digital Marketing",
+                      "company": "Aura Life Sciences",
+                      "rating": 5
+                    },
+                    {
+                      "quote": "Our ad waste dropped by 40% in month one. Deterministic server tracking gives our board complete confidence in media spend.",
+                      "author": "Rohan Patel",
+                      "role": "Founder & CEO",
+                      "company": "Stellar Logistics",
+                      "rating": 5
+                    }
+                  ]
                 }
               },
               {
@@ -789,7 +887,24 @@ public static class StartupSeeder
                               "imageAlt": "Paid Ads Performance & Sales Dashboard",
                               "imageBadge": "4.5x+ Average Client ROAS",
                               "overlayOpacity": 0.65,
-                              "enabled": true
+                              "enabled": true,
+                              "showQuickAudit": true,
+                              "ratingText": "4.9/5 Verified",
+                              "socialProofText": "Trusted by 120+ growth teams",
+                              "trustBadges": ["Audited Attribution", "High-Converting Funnels", "Predictable Revenue"],
+                              "metricTitle": "Performance Architecture",
+                              "metricBadge": "Active Attribution",
+                              "metricLabel": "Average Portfolio ROAS",
+                              "metricValue": "4.85x",
+                              "metricDelta": "+42% vs Industry",
+                              "metricSubtitle": "Auditable Campaign Growth",
+                              "metricFooterNote": "100% Client Owned",
+                              "stat1Label": "Cost Per Lead (CPA)",
+                              "stat1Value": "-36.4%",
+                              "stat1Sub": "via negative keyword lists",
+                              "stat2Label": "Conversion Rate",
+                              "stat2Value": "18.2%",
+                              "stat2Sub": "dedicated landing pages"
                             },
                             {
                               "id": "slide-2",
@@ -804,7 +919,24 @@ public static class StartupSeeder
                               "imageAlt": "Google Search Rankings and Organic Traffic Growth",
                               "imageBadge": "Page #1 Commercial Rankings",
                               "overlayOpacity": 0.65,
-                              "enabled": true
+                              "enabled": true,
+                              "showQuickAudit": true,
+                              "ratingText": "4.9/5 Verified",
+                              "socialProofText": "Trusted by 120+ growth teams",
+                              "trustBadges": ["Technical Crawl Audits", "Commercial Intent SEO", "Compounding Pipeline"],
+                              "metricTitle": "Enterprise Search Engine",
+                              "metricBadge": "Compounding Pipeline",
+                              "metricLabel": "Organic Pipeline Velocity",
+                              "metricValue": "+340%",
+                              "metricDelta": "+3.4x YoY Growth",
+                              "metricSubtitle": "Technical SEO & Authority Content",
+                              "metricFooterNote": "100% Client Owned",
+                              "stat1Label": "Blended CAC",
+                              "stat1Value": "-41.2%",
+                              "stat1Sub": "lower acquisition cost",
+                              "stat2Label": "Top-3 Rankings",
+                              "stat2Value": "280+",
+                              "stat2Sub": "high-intent commercial terms"
                             },
                             {
                               "id": "slide-3",
@@ -819,7 +951,24 @@ public static class StartupSeeder
                               "imageAlt": "Lead Conversion and WhatsApp Automation",
                               "imageBadge": "Sub-60s Instant Lead Routing",
                               "overlayOpacity": 0.65,
-                              "enabled": true
+                              "enabled": true,
+                              "showQuickAudit": true,
+                              "ratingText": "4.9/5 Verified",
+                              "socialProofText": "Trusted by 120+ growth teams",
+                              "trustBadges": ["Sub-60s Lead Routing", "WhatsApp & CRM Sync", "Split-Tested Funnels"],
+                              "metricTitle": "Conversion Architecture",
+                              "metricBadge": "Live Funnel Lift",
+                              "metricLabel": "Qualified Lead Conversion",
+                              "metricValue": "2.14x",
+                              "metricDelta": "+114% vs Baseline",
+                              "metricSubtitle": "Landing Pages & Sub-60s Routing",
+                              "metricFooterNote": "100% Client Owned",
+                              "stat1Label": "Response Speed",
+                              "stat1Value": "< 45s",
+                              "stat1Sub": "WhatsApp & email routing",
+                              "stat2Label": "Landing Page CVR",
+                              "stat2Value": "18.2%",
+                              "stat2Sub": "dedicated split-tested pages"
                             }
                           ]
                         }
@@ -958,23 +1107,70 @@ public static class StartupSeeder
                         "id": "blk_casestudies_1",
                         "type": "CaseStudies",
                         "schemaVersion": 1,
-                        "enabled": false,
+                        "enabled": true,
                         "content": {
                           "sectionTitle": "Commercial Outcomes & Case Studies",
                           "sectionSubtitle": "Real client results delivered through our marketing and engineering capabilities.",
-                          "caseStudies": []
+                          "caseStudies": [
+                            {
+                              "title": "Enterprise B2B Pipeline Scaled by 312% in 6 Months",
+                              "client": "Apex Cloud Infrastructure",
+                              "category": "B2B SaaS & Cloud",
+                              "metric": "312%",
+                              "metricLabel": "Qualified Inbound Pipeline",
+                              "summary": "Re-engineered commercial search architecture and deterministic multi-touch attribution, driving 4.85x pipeline velocity.",
+                              "imageUrl": "/images/demo/case-study-saas.svg",
+                              "caseStudyUrl": "/case-studies",
+                              "featured": true,
+                              "enabled": true
+                            },
+                            {
+                              "title": "Global D2C Revenue Tripled via Full-Funnel Paid Acquisition",
+                              "client": "UrbanLux Apparel",
+                              "category": "E-Commerce & D2C",
+                              "metric": "4.6x",
+                              "metricLabel": "Blended Return on Ad Spend",
+                              "summary": "Deployed sub-second Next.js storefront with server-side Meta CAPI and Google Shopping optimization across 14 markets.",
+                              "imageUrl": "/images/demo/case-study-ecommerce.svg",
+                              "caseStudyUrl": "/case-studies",
+                              "featured": true,
+                              "enabled": true
+                            }
+                          ]
                         }
                       },
                       {
                         "id": "blk_testimonials_1",
                         "type": "Testimonials",
                         "schemaVersion": 1,
-                        "enabled": false,
+                        "enabled": true,
                         "settings": { "theme": "light" },
                         "content": {
-                          "sectionTitle": "Client Feedback",
-                          "sectionSubtitle": "What our clients say about our work.",
-                          "testimonials": []
+                          "sectionTitle": "Validated by Growth Leaders",
+                          "sectionSubtitle": "How high-growth teams scale predictable pipeline with Nexora.",
+                          "testimonials": [
+                            {
+                              "quote": "Nexora redesigned our acquisition funnels and attribution stack. Our CAC dropped by 77% while qualified pipeline tripled within 90 days.",
+                              "author": "Marcus Vance",
+                              "role": "Chief Revenue Officer",
+                              "company": "NexScale Cloud",
+                              "rating": 5
+                            },
+                            {
+                              "quote": "The technical precision of their commercial SEO and programmatic Next.js architecture is unmatched. We now rank #1 across our core terms.",
+                              "author": "Sarah Jenkins",
+                              "role": "VP of Digital Marketing",
+                              "company": "Aura Life Sciences",
+                              "rating": 5
+                            },
+                            {
+                              "quote": "Our ad waste dropped by 40% in month one. Deterministic server tracking gives our board complete confidence in media spend.",
+                              "author": "Rohan Patel",
+                              "role": "Founder & CEO",
+                              "company": "Stellar Logistics",
+                              "rating": 5
+                            }
+                          ]
                         }
                       },
                       {
@@ -1210,6 +1406,7 @@ public static class StartupSeeder
 
         if (existingHeader == null)
         {
+            var servicesItem = new NavigationMenuItem { Label = "Services", Url = "/services", DisplayOrder = 0 };
             var headerMenu = new NavigationMenu
             {
                 Key = "header",
@@ -1217,51 +1414,35 @@ public static class StartupSeeder
                 RegionCode = null,
                 Items = new List<NavigationMenuItem>
                 {
-                    new() { Label = "Services", Url = "/services", DisplayOrder = 0 },
-                    new() { Label = "Industries", Url = "/industries", DisplayOrder = 1 },
-                    new() { Label = "Solutions", Url = "/solutions", DisplayOrder = 2 },
-                    new() { Label = "Our Work", Url = "/case-studies", DisplayOrder = 3 },
-                    new() { Label = "Insights", Url = "/blog", DisplayOrder = 4 },
-                    new() { Label = "About", Url = "/about", DisplayOrder = 5 },
-                    new() { Label = "Contact", Url = "/contact", DisplayOrder = 6 }
+                    servicesItem,
+                    new() { Label = "SEO Services", Url = "/services/seo", DisplayOrder = 0, ParentItem = servicesItem },
+                    new() { Label = "Paid Media (Google & Meta)", Url = "/services/paid-ads", DisplayOrder = 1, ParentItem = servicesItem },
+                    new() { Label = "Conversion Optimization (CRO)", Url = "/services/cro", DisplayOrder = 2, ParentItem = servicesItem },
+                    new() { Label = "Content Marketing", Url = "/services/content-marketing", DisplayOrder = 3, ParentItem = servicesItem },
+                    new() { Label = "Web Design & Development", Url = "/services/web-design-development", DisplayOrder = 4, ParentItem = servicesItem },
+                    new() { Label = "AI Marketing & Automation", Url = "/services/ai-marketing", DisplayOrder = 5, ParentItem = servicesItem },
+                    new() { Label = "Social Media Marketing", Url = "/services/social-media-marketing", DisplayOrder = 6, ParentItem = servicesItem },
+                    new() { Label = "Analytics & Reporting", Url = "/services/analytics-reporting", DisplayOrder = 7, ParentItem = servicesItem },
+                    new() { Label = "Web Application Development", Url = "/services/web-application-development", DisplayOrder = 8, ParentItem = servicesItem },
+                    new() { Label = "Custom Software Development", Url = "/services/custom-software-development", DisplayOrder = 9, ParentItem = servicesItem },
+                    new() { Label = "E-Commerce Development", Url = "/services/ecommerce-development", DisplayOrder = 10, ParentItem = servicesItem },
+                    new() { Label = "Lead Automation", Url = "/services/lead-automation", DisplayOrder = 11, ParentItem = servicesItem },
+                    new() { Label = "CRM Integrations", Url = "/services/crm-integrations", DisplayOrder = 12, ParentItem = servicesItem },
+                    new() { Label = "Case Studies", Url = "/case-studies", DisplayOrder = 1 },
+                    new() { Label = "About Us", Url = "/about", DisplayOrder = 2 },
+                    new() { Label = "Blog", Url = "/blog", DisplayOrder = 3 },
+                    new() { Label = "Contact", Url = "/contact", DisplayOrder = 4 }
                 }
             };
             context.NavigationMenus.Add(headerMenu);
             try
             {
                 await context.SaveChangesAsync();
-                logger.LogInformation("Seeded default header navigation menu.");
+                logger.LogInformation("Seeded default header navigation menu with Services sub-links.");
             }
             catch (DbUpdateException ex)
             {
                 logger.LogDebug(ex, "Header menu already seeded.");
-            }
-        }
-        else if (!existingHeader.Items.Any(i => i.Label == "Services"))
-        {
-            existingHeader.Items.Clear();
-            var newHeaderItems = new[]
-            {
-                new NavigationMenuItem { Label = "Services", Url = "/services", DisplayOrder = 0 },
-                new NavigationMenuItem { Label = "Industries", Url = "/industries", DisplayOrder = 1 },
-                new NavigationMenuItem { Label = "Solutions", Url = "/solutions", DisplayOrder = 2 },
-                new NavigationMenuItem { Label = "Our Work", Url = "/case-studies", DisplayOrder = 3 },
-                new NavigationMenuItem { Label = "Insights", Url = "/blog", DisplayOrder = 4 },
-                new NavigationMenuItem { Label = "About", Url = "/about", DisplayOrder = 5 },
-                new NavigationMenuItem { Label = "Contact", Url = "/contact", DisplayOrder = 6 }
-            };
-            foreach (var item in newHeaderItems)
-            {
-                existingHeader.Items.Add(item);
-            }
-            try
-            {
-                await context.SaveChangesAsync();
-                logger.LogInformation("Updated default header navigation menu with full services and industries routes.");
-            }
-            catch (Exception ex)
-            {
-                logger.LogDebug(ex, "Failed to update header menu.");
             }
         }
 

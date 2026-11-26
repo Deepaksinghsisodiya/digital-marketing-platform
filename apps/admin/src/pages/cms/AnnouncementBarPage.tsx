@@ -206,6 +206,10 @@ export const AnnouncementBarPage: React.FC = () => {
       trackingCodesJson: settings.trackingCodesJson,
       bookingUrl: settings.bookingUrl,
       announcementBarJson: JSON.stringify(payload),
+      redirectRulesJson: settings.redirectRulesJson,
+      webhookUrl: settings.webhookUrl,
+      customDomain: settings.customDomain,
+      sslStatus: settings.sslStatus,
     };
 
     try {
@@ -261,6 +265,19 @@ export const AnnouncementBarPage: React.FC = () => {
     );
   };
 
+  // Toggle Auto-Slide (Persists to API)
+  const handleToggleAutoplay = async () => {
+    const next = !autoplay;
+    setAutoplay(next);
+    await persistAnnouncementToApi(
+      items,
+      globalEnabled,
+      next,
+      interval,
+      next ? "Auto-slide enabled and published live!" : "Auto-slide paused and published live!",
+    );
+  };
+
   // Open Modal for "Add Announcement"
   const handleOpenCreateModal = () => {
     setEditingId(null);
@@ -309,7 +326,6 @@ export const AnnouncementBarPage: React.FC = () => {
           }
         });
         setFormErrors(errors);
-        toast.error("Please resolve validation errors in the form.");
         return;
       }
     }
@@ -475,6 +491,21 @@ export const AnnouncementBarPage: React.FC = () => {
               {globalEnabled ? "Active" : "Deactivated"}
             </span>
           </div>
+
+          {/* Auto-Slide Switch */}
+          <button
+            type="button"
+            onClick={handleToggleAutoplay}
+            disabled={isSaving}
+            className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-xs font-bold transition cursor-pointer disabled:opacity-50 ${
+              autoplay
+                ? "bg-teal-50 border-teal-200 text-teal-700"
+                : "bg-slate-50 border-slate-200 text-slate-600"
+            }`}
+            title="Toggle automatic sliding when multiple announcements are active"
+          >
+            <span>Auto-Slide: {autoplay ? "ON" : "OFF"}</span>
+          </button>
 
           {/* Rotate Selector */}
           <div className="flex items-center gap-2 bg-slate-50 dark:bg-slate-800/80 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-bold">
@@ -787,13 +818,22 @@ export const AnnouncementBarPage: React.FC = () => {
                   <input
                     type="text"
                     value={formBadge}
-                    onChange={(e) => setFormBadge(e.target.value)}
+                    onChange={(e) => {
+                      setFormBadge(e.target.value);
+                      if (formErrors.badge)
+                        setFormErrors((prev) => ({ ...prev, badge: "" }));
+                    }}
                     placeholder="e.g. ENTERPRISE 2.0, LIMITED OFFER, NEW"
-                    className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 text-xs text-slate-900 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-primary uppercase tracking-wider font-semibold"
+                    className={`w-full px-3 py-2 rounded-lg border text-xs text-slate-900 dark:text-white focus:outline-hidden focus:ring-2 uppercase tracking-wider font-semibold ${
+                      formErrors.badge
+                        ? "border-rose-500 focus:ring-rose-500 bg-rose-50/20"
+                        : "border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 focus:ring-primary"
+                    }`}
                   />
                   {formErrors.badge && (
-                    <p className="text-[11px] text-rose-500 mt-1">
-                      {formErrors.badge}
+                    <p className="text-[11px] text-rose-500 mt-1 font-semibold flex items-center gap-1">
+                      <AlertCircle className="w-3 h-3 shrink-0" />
+                      <span>{formErrors.badge}</span>
                     </p>
                   )}
                 </div>
@@ -835,10 +875,24 @@ export const AnnouncementBarPage: React.FC = () => {
                     <input
                       type="text"
                       value={formLinkText}
-                      onChange={(e) => setFormLinkText(e.target.value)}
+                      onChange={(e) => {
+                        setFormLinkText(e.target.value);
+                        if (formErrors.linkText)
+                          setFormErrors((prev) => ({ ...prev, linkText: "" }));
+                      }}
                       placeholder="e.g. Explore →"
-                      className="w-full px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 text-xs text-slate-900 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-primary"
+                      className={`w-full px-3 py-1.5 rounded-lg border text-xs text-slate-900 dark:text-white focus:outline-hidden focus:ring-2 ${
+                        formErrors.linkText
+                          ? "border-rose-500 focus:ring-rose-500 bg-rose-50/20"
+                          : "border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 focus:ring-primary"
+                      }`}
                     />
+                    {formErrors.linkText && (
+                      <p className="text-[11px] text-rose-500 mt-1 font-semibold flex items-center gap-1">
+                        <AlertCircle className="w-3 h-3 shrink-0" />
+                        <span>{formErrors.linkText}</span>
+                      </p>
+                    )}
                   </div>
                   <div>
                     <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
@@ -860,8 +914,9 @@ export const AnnouncementBarPage: React.FC = () => {
                       }`}
                     />
                     {formErrors.linkUrl && (
-                      <p className="text-[11px] text-rose-500 mt-1">
-                        {formErrors.linkUrl}
+                      <p className="text-[11px] text-rose-500 mt-1 font-semibold flex items-center gap-1">
+                        <AlertCircle className="w-3 h-3 shrink-0" />
+                        <span>{formErrors.linkUrl}</span>
                       </p>
                     )}
                   </div>

@@ -19,6 +19,8 @@ import { ROICalculatorBlock } from "./ROICalculatorBlock";
 import { ComparisonTableBlock } from "./ComparisonTableBlock";
 import { CaseStudyShowcaseBlock } from "./CaseStudyShowcaseBlock";
 import { ProcessTimelineBlock } from "./ProcessTimelineBlock";
+import { IndustryBlock } from "./IndustryBlock";
+import { TeamBlock } from "./TeamBlock";
 import { Reveal } from "../motion/Reveal";
 
 const BLOCK_REGISTRY: Record<string, React.FC<{ block: CmsBlock }>> = {
@@ -55,6 +57,11 @@ const BLOCK_REGISTRY: Record<string, React.FC<{ block: CmsBlock }>> = {
   CaseStudySpotlight: CaseStudyShowcaseBlock,
   ProcessTimeline: ProcessTimelineBlock,
   Timeline: ProcessTimelineBlock,
+  Industry: IndustryBlock,
+  IndustryBlock: IndustryBlock,
+  Industries: IndustryBlock,
+  Team: TeamBlock,
+  TeamBlock: TeamBlock,
 };
 
 interface BlockRendererProps {
@@ -98,11 +105,11 @@ export const BlockRenderer: React.FC<BlockRendererProps> = ({
         const tone = (block.settings?.tone as string) || "light";
         const toneClass =
           tone === "dark"
-            ? "bg-slate-950 text-white"
+            ? "bg-slate-50 text-slate-900 border-y border-slate-200/80"
             : tone === "alt"
               ? "bg-slate-50/70 text-slate-900 border-y border-slate-200/80"
               : tone === "brand-gradient"
-                ? "bg-gradient-to-br from-slate-900 via-primary/10 to-slate-950 text-white"
+                ? "bg-gradient-to-br from-slate-50 via-primary/5 to-white text-slate-900"
                 : "";
 
         const animation = (block.settings?.animation as string) || "subtle";

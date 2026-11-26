@@ -57,10 +57,7 @@ export async function getPublicPage(
 
   try {
     const res = await fetch(url, {
-      next: {
-        revalidate: 3600,
-        tags: ["cms-pages", `cms-page-${cleanSlug}`],
-      },
+      cache: "no-store",
     });
 
     if (res.status === 404) return null;
@@ -104,10 +101,7 @@ export async function getPublicSiteSettings(): Promise<PublicSiteSettings | null
 
   try {
     const res = await fetch(url, {
-      next: {
-        revalidate: 3600,
-        tags: ["site-settings"],
-      },
+      cache: "no-store",
     });
 
     if (!res.ok) return null;
@@ -140,16 +134,12 @@ export async function getPublicMenu(
   key: string,
   region?: string,
 ): Promise<PublicMenu | null> {
-  const url = `${API_BASE}/api/v1/public/menus/${encodeURIComponent(key)}${
-    region ? `?region=${encodeURIComponent(region)}` : ""
-  }`;
+  const url = `${API_BASE}/api/v1/public/menus/${encodeURIComponent(key)}${region ? `?region=${encodeURIComponent(region)}` : ""
+    }`;
 
   try {
     const res = await fetch(url, {
-      next: {
-        revalidate: 3600,
-        tags: ["site-menus", `menu-${key}`],
-      },
+      cache: "no-store",
     });
 
     if (!res.ok) return null;

@@ -254,6 +254,34 @@ public class MediaAndMenuIntegrationTests
         var pubRegionMenu = await pubRegionRes.Content.ReadFromJsonAsync<NavigationMenuDto>();
         pubRegionMenu.ShouldNotBeNull();
         pubRegionMenu.Title.ShouldBe("Global Main Navigation");
+
+        // Update existing menu with nested sub-links using PUT and ID remapping
+        var servicesItem = pubMenu.Items.First(i => i.Label == "Services");
+        var childId = Guid.NewGuid();
+        var updateReqPayload = new SaveMenuRequest(
+            Key: menuKey,
+            Title: "Global Main Navigation",
+            RegionCode: null,
+            Items: new List<SaveMenuItemRequest>
+            {
+                new SaveMenuItemRequest("Services", "/services", 0, null, servicesItem.Id),
+                new SaveMenuItemRequest("Paid Ads", "/services/paid-ads", 0, servicesItem.Id, childId),
+                new SaveMenuItemRequest("About Us", "/about", 1, null, Guid.NewGuid())
+            });
+
+        var putReq = new HttpRequestMessage(HttpMethod.Put, $"/api/v1/admin/menus/{created.Id}")
+        {
+            Content = JsonContent.Create(updateReqPayload)
+        };
+        putReq.Headers.Add("X-XSRF-TOKEN", csrfToken);
+        var putRes = await client.SendAsync(putReq);
+        putRes.StatusCode.ShouldBe(HttpStatusCode.OK);
+
+        var updatedMenu = await putRes.Content.ReadFromJsonAsync<NavigationMenuDto>();
+        updatedMenu.ShouldNotBeNull();
+        var updatedServices = updatedMenu.Items.First(i => i.Label == "Services");
+        updatedServices.Children.Count.ShouldBe(1);
+        updatedServices.Children[0].Label.ShouldBe("Paid Ads");
     }
 
     [Fact]

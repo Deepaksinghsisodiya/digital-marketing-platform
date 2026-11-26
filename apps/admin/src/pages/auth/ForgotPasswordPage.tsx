@@ -1,24 +1,36 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import { useFormik } from "formik";
+import * as yup from "yup";
 import { useForgotPasswordMutation } from "../../store/api/adminApi";
-import { Mail, CheckCircle, ArrowLeft, ArrowRight, ShieldCheck } from "lucide-react";
+import { Mail, CheckCircle, ArrowLeft, ArrowRight } from "lucide-react";
 import { Button } from "../../components/ui/button";
 
+const forgotPasswordSchema = yup.object().shape({
+  email: yup
+    .string()
+    .trim()
+    .email("Please enter a valid work email address.")
+    .required("Work email address is required."),
+});
+
 export const ForgotPasswordPage: React.FC = () => {
-  const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [forgotPassword, { isLoading }] = useForgotPasswordMutation();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      await forgotPassword({ email }).unwrap();
-    } catch {
-      // Anti-enumeration: Always show success regardless of whether email exists
-    } finally {
-      setSubmitted(true);
-    }
-  };
+  const formik = useFormik({
+    initialValues: { email: "" },
+    validationSchema: forgotPasswordSchema,
+    onSubmit: async (values) => {
+      try {
+        await forgotPassword({ email: values.email.trim() }).unwrap();
+      } catch {
+        // Anti-enumeration: Always show success regardless of whether email exists
+      } finally {
+        setSubmitted(true);
+      }
+    },
+  });
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 font-sans transition-colors relative overflow-hidden">
@@ -57,7 +69,7 @@ export const ForgotPasswordPage: React.FC = () => {
               </Link>
             </div>
           ) : (
-            <form className="space-y-4" onSubmit={handleSubmit}>
+            <form className="space-y-4" onSubmit={formik.handleSubmit} noValidate>
               <div>
                 <label
                   htmlFor="email"
@@ -71,14 +83,25 @@ export const ForgotPasswordPage: React.FC = () => {
                   </div>
                   <input
                     id="email"
+                    name="email"
                     type="email"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="block w-full pl-9 pr-3.5 py-2.5 bg-slate-50/70 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 rounded-xl text-slate-900 dark:text-white placeholder:text-slate-400 text-xs focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all"
+                    value={formik.values.email}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    aria-invalid={Boolean(formik.touched.email && formik.errors.email)}
+                    className={`block w-full pl-9 pr-3.5 py-2.5 bg-slate-50/70 dark:bg-slate-800/60 border rounded-xl text-slate-900 dark:text-white placeholder:text-slate-400 text-xs focus:outline-none focus:ring-1 transition-all ${
+                      formik.touched.email && formik.errors.email
+                        ? "border-red-400 focus:ring-red-400 focus:border-red-400"
+                        : "border-slate-200 dark:border-slate-700/80 focus:ring-primary focus:border-primary"
+                    }`}
                     placeholder="user@company.com"
                   />
                 </div>
+                {formik.touched.email && formik.errors.email && (
+                  <p className="mt-1 text-[11px] font-medium text-red-600 dark:text-red-400">
+                    {formik.errors.email}
+                  </p>
+                )}
               </div>
 
               <div className="pt-2">

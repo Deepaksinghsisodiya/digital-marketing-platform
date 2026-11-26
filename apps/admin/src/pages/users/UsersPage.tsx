@@ -27,13 +27,7 @@ import {
   Sparkles,
   Send,
 } from "lucide-react";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-} from "../../components/ui/Card";
+import { Card } from "../../components/ui/Card";
 import { Badge } from "../../components/ui/Badge";
 import { Button } from "../../components/ui/button";
 import { SearchInput } from "../../components/ui/SearchInput";

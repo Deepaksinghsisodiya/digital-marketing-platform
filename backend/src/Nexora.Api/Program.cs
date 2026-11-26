@@ -57,7 +57,7 @@ var builder = WebApplication.CreateBuilder(args);
 var logsDir = Path.Combine(AppContext.BaseDirectory, "logs");
 Directory.CreateDirectory(logsDir);
 
-Log.Logger = new LoggerConfiguration()
+var loggerConfig = new LoggerConfiguration()
     .ReadFrom.Configuration(builder.Configuration)
     .Enrich.FromLogContext()
     .Filter.ByExcluding(logEvent =>
@@ -71,8 +71,15 @@ Log.Logger = new LoggerConfiguration()
         path: Path.Combine(logsDir, "nexora-.log"),
         rollingInterval: RollingInterval.Day,
         retainedFileCountLimit: 14,
-        outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] ({CorrelationId}) {Message:lj}{NewLine}{Exception}")
-    .CreateLogger();
+        outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] ({CorrelationId}) {Message:lj}{NewLine}{Exception}");
+
+var centralizedLogUrl = builder.Configuration["Seq:ServerUrl"] ?? builder.Configuration["Logging:CentralizedEndpointUrl"];
+if (!string.IsNullOrWhiteSpace(centralizedLogUrl))
+{
+    loggerConfig.WriteTo.Sink(new CentralizedLogSink(centralizedLogUrl, builder.Configuration["Seq:ApiKey"]));
+}
+
+Log.Logger = loggerConfig.CreateLogger();
 
 builder.Host.UseSerilog();
 
@@ -199,18 +206,24 @@ builder.Services.AddAuthorization(options =>
     }
 });
 
-// 8. Rate Limiting Middleware Configuration
+// 8. Rate Limiting Middleware Configuration (Per-User Adaptive + IP Partitioning)
 builder.Services.AddRateLimiter(options =>
 {
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
     options.AddPolicy("AuthRateLimit", httpContext =>
     {
         var config = httpContext.RequestServices.GetRequiredService<IConfiguration>();
-        var ip = httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
-        var permitLimit = config.GetValue("RateLimiting:PermitLimit", 100);
+        var userId = httpContext.User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        var isAuthenticated = httpContext.User?.Identity?.IsAuthenticated == true && !string.IsNullOrWhiteSpace(userId);
+        var partitionKey = isAuthenticated
+            ? $"user:{userId}"
+            : $"ip:{httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown"}";
+
+        var baseLimit = config.GetValue("RateLimiting:PermitLimit", 100);
+        var permitLimit = isAuthenticated ? baseLimit * 3 : baseLimit;
         var windowSeconds = config.GetValue("RateLimiting:WindowSeconds", 60);
 
-        return RateLimitPartition.GetFixedWindowLimiter(ip, _ => new FixedWindowRateLimiterOptions
+        return RateLimitPartition.GetFixedWindowLimiter(partitionKey, _ => new FixedWindowRateLimiterOptions
         {
             PermitLimit = permitLimit,
             Window = TimeSpan.FromSeconds(windowSeconds),
@@ -245,7 +258,8 @@ builder.Services.AddAntiforgery(options =>
     options.Cookie.SecurePolicy = authCookieOptions.Secure ? CookieSecurePolicy.Always : CookieSecurePolicy.SameAsRequest;
 });
 
-// 9b. Response Compression & Output Caching (C5)
+// 9b. Response Compression, Distributed Cache & Output Caching (C5)
+builder.Services.AddDistributedMemoryCache();
 builder.Services.AddResponseCompression(options =>
 {
     options.EnableForHttps = true;
@@ -407,6 +421,7 @@ app.MapEmailEndpoints();
 app.MapClientEndpoints();
 app.MapBlogEndpoints();
 app.MapLookupEndpoints();
+app.MapWhatsAppEndpoints();
 
 // Dev-only: Test email via Mailpit (never exposed in production)
 if (app.Environment.IsDevelopment())

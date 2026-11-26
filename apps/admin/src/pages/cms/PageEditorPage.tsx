@@ -7,6 +7,9 @@ import {
   useSavePageDraftMutation,
   usePublishPageMutation,
   useGeneratePreviewTokenMutation,
+  useGetPageVersionsQuery,
+  useRollbackPageMutation,
+  useSchedulePagePublishMutation,
 } from "../../store/api/adminApi";
 import { useAuth } from "../../hooks/useAuth";
 import type { CmsBlock, SaveDraftRequest } from "../../types";
@@ -314,6 +317,60 @@ const BLOCK_TEMPLATES: Record<
     },
     defaultSettings: {},
   },
+  CaseStudyShowcase: {
+    label: "Case Study Spotlight Showcase",
+    defaultContent: {
+      title: "Client Success Spotlight",
+      subtitle:
+        "Real outcomes, verified attribution data, and documented growth velocity.",
+    },
+    defaultSettings: {},
+  },
+  ProcessTimeline: {
+    label: "Execution Process Timeline",
+    defaultContent: {
+      title: "90-Day Growth Roadmap",
+      subtitle: "Structured sprint milestones from audit to scaled acquisition.",
+    },
+    defaultSettings: {},
+  },
+  Industry: {
+    label: "Industries & Sector Playbooks",
+    defaultContent: {
+      eyebrow: "Sector Expertise",
+      title: "Industries We Scale",
+      subtitle:
+        "Vertical-specific acquisition playbooks engineered for high-intent B2B and consumer markets.",
+      industries: [
+        {
+          name: "B2B SaaS",
+          slug: "saas",
+          description: "Full-funnel demand generation and pipeline velocity.",
+          metric: "3.8x Pipeline",
+          highlights: ["ABM Paid Search", "Demo Funnel CRO"],
+        },
+        {
+          name: "E-Commerce & D2C",
+          slug: "ecommerce",
+          description: "High-ROAS Meta & Shopping campaigns with LTV retention.",
+          metric: "4.5x ROAS",
+          highlights: ["Server-Side CAPI", "Creative Testing"],
+        },
+      ],
+    },
+    defaultSettings: {},
+  },
+  Team: {
+    label: "Leadership & Growth Team",
+    defaultContent: {
+      eyebrow: "Leadership & Strategists",
+      title: "Meet Our Growth Architects",
+      subtitle:
+        "Senior performance marketers, engineers, and attribution specialists.",
+      members: [],
+    },
+    defaultSettings: {},
+  },
 };
 
 export const PageEditorPage: React.FC = () => {
@@ -332,6 +389,12 @@ export const PageEditorPage: React.FC = () => {
   const [saveDraft, { isLoading: isSaving }] = useSavePageDraftMutation();
   const [publishPage, { isLoading: isPublishing }] = usePublishPageMutation();
   const [generatePreviewToken] = useGeneratePreviewTokenMutation();
+  const { data: pageVersions = [], refetch: refetchVersions } = useGetPageVersionsQuery(id || "", { skip: !id });
+  const [rollbackPage, { isLoading: isRollingBack }] = useRollbackPageMutation();
+  const [schedulePublish, { isLoading: isScheduling }] = useSchedulePagePublishMutation();
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const [scheduleOpen, setScheduleOpen] = useState(false);
+  const [scheduledAtInput, setScheduledAtInput] = useState("");
 
   const [title, setTitle] = useState("");
   const [blocks, setBlocks] = useState<CmsBlock[]>([]);
@@ -653,21 +716,117 @@ export const PageEditorPage: React.FC = () => {
           )}
 
           {hasPermission("pages.publish") && (
-            <button
-              onClick={handlePublish}
-              disabled={isPublishing}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-500 shadow-xs transition disabled:opacity-50 cursor-pointer"
-            >
-              {isPublishing ? (
-                <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-              ) : (
-                <Sparkles className="w-3.5 h-3.5" />
-              )}
-              <span>{isPublishing ? "Publishing..." : "Publish Live"}</span>
-            </button>
+            <>
+              <button
+                type="button"
+                onClick={() => setScheduleOpen((v) => !v)}
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer"
+              >
+                <span>Schedule</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  refetchVersions();
+                  setHistoryOpen((v) => !v);
+                }}
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer"
+              >
+                <span>History ({pageVersions.length})</span>
+              </button>
+              <button
+                onClick={handlePublish}
+                disabled={isPublishing}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-500 shadow-xs transition disabled:opacity-50 cursor-pointer"
+              >
+                {isPublishing ? (
+                  <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  <Sparkles className="w-3.5 h-3.5" />
+                )}
+                <span>{isPublishing ? "Publishing..." : "Publish Live"}</span>
+              </button>
+            </>
           )}
         </div>
       </div>
+
+      {scheduleOpen && hasPermission("pages.publish") && (
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 flex flex-wrap items-center gap-3 text-xs">
+          <span className="font-bold text-slate-700 dark:text-slate-200">Schedule Auto-Publish (UTC):</span>
+          <input
+            type="datetime-local"
+            aria-label="Scheduled publish date and time"
+            value={scheduledAtInput}
+            onChange={(e) => setScheduledAtInput(e.target.value)}
+            className="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950"
+          />
+          <button
+            type="button"
+            disabled={isScheduling || !scheduledAtInput}
+            onClick={async () => {
+              if (!id || !scheduledAtInput) return;
+              try {
+                const res = await schedulePublish({
+                  id,
+                  scheduledPublishAtUtc: new Date(scheduledAtInput).toISOString(),
+                }).unwrap();
+                toast.success(res.message);
+                setScheduleOpen(false);
+                refetch();
+              } catch {
+                toast.error("Failed to schedule page publish.");
+              }
+            }}
+            className="px-3.5 py-1.5 rounded-xl bg-primary text-white font-bold disabled:opacity-50"
+          >
+            Confirm Schedule
+          </button>
+        </div>
+      )}
+
+      {historyOpen && (
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 space-y-2 text-xs">
+          <div className="flex items-center justify-between">
+            <span className="font-bold text-slate-900 dark:text-white">Version History &amp; Rollback</span>
+            <button type="button" onClick={() => setHistoryOpen(false)} className="text-slate-400 hover:text-slate-700">
+              Close
+            </button>
+          </div>
+          {pageVersions.length === 0 ? (
+            <p className="text-slate-500">No historical snapshots recorded yet.</p>
+          ) : (
+            <div className="divide-y divide-slate-200 dark:divide-slate-800 max-h-56 overflow-y-auto">
+              {pageVersions.map((v) => (
+                <div key={v.id} className="py-2 flex items-center justify-between gap-3">
+                  <div>
+                    <span className="font-bold">v{v.versionNumber}</span>
+                    <span className="ml-2 text-slate-500">{new Date(v.createdAtUtc).toLocaleString()}</span>
+                    {v.note && <span className="ml-2 text-slate-400">— {v.note}</span>}
+                  </div>
+                  <button
+                    type="button"
+                    disabled={isRollingBack}
+                    onClick={async () => {
+                      if (!id) return;
+                      try {
+                        await rollbackPage({ pageId: id, request: { versionNumber: v.versionNumber } }).unwrap();
+                        toast.success(`Rolled back to v${v.versionNumber}.`);
+                        refetch();
+                      } catch {
+                        toast.error("Rollback failed.");
+                      }
+                    }}
+                    className="px-2.5 py-1 rounded-lg border border-primary/30 text-primary font-bold hover:bg-primary/10"
+                  >
+                    Rollback
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Main Studio Grid: Split Screen */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">

@@ -25,6 +25,7 @@ public sealed class Page : BaseEntity
     public string? CanonicalUrl { get; set; }
     public string? OgImageUrl { get; set; }
     public bool NoIndex { get; set; } = false;
+    public DateTime? ScheduledPublishAtUtc { get; set; }
 
     // Concurrency Token for optimistic locking (409 conflict detection)
     public byte[] Version { get; set; } = [];

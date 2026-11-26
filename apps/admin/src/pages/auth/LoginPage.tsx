@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { useFormik } from "formik";
+import * as yup from "yup";
 import { useLoginMutation, adminApi } from "../../store/api/adminApi";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { setUser } from "../../store/slices/authSlice";
@@ -11,15 +13,24 @@ import {
   ArrowRight,
   Eye,
   EyeOff,
-  Sparkles,
 } from "lucide-react";
 import { Button } from "../../components/ui/button";
 
+const loginSchema = yup.object().shape({
+  email: yup
+    .string()
+    .trim()
+    .email("Please enter a valid work email address.")
+    .required("Work email is required."),
+  password: yup
+    .string()
+    .required("Password is required.")
+    .min(6, "Password must be at least 6 characters."),
+  rememberMe: yup.boolean().required(),
+});
+
 export const LoginPage: React.FC = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const navigate = useNavigate();
@@ -36,42 +47,52 @@ export const LoginPage: React.FC = () => {
     }
   }, [isInitialized, isAuthenticated, navigate]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setErrorMsg(null);
-
-    try {
-      const res = await login({ email, password, rememberMe }).unwrap();
-
-      // Ensure user profile is populated in Redux before navigating
+  const formik = useFormik({
+    initialValues: {
+      email: "",
+      password: "",
+      rememberMe: false,
+    },
+    validationSchema: loginSchema,
+    onSubmit: async (values) => {
+      setErrorMsg(null);
       try {
-        const profile = await dispatch(
-          adminApi.endpoints.getCurrentUser.initiate(undefined, {
-            subscribe: false,
-            forceRefetch: true,
-          }),
-        ).unwrap();
-        if (profile) {
-          dispatch(setUser(profile));
-        }
-      } catch {
-        // Fallback: Continue navigation
-      }
+        const res = await login({
+          email: values.email.trim(),
+          password: values.password,
+          rememberMe: values.rememberMe,
+        }).unwrap();
 
-      if (res.mustChangePassword) {
-        navigate("/auth/change-password", { replace: true });
-      } else {
-        navigate("/dashboard", { replace: true });
+        // Ensure user profile is populated in Redux before navigating
+        try {
+          const profile = await dispatch(
+            adminApi.endpoints.getCurrentUser.initiate(undefined, {
+              subscribe: false,
+              forceRefetch: true,
+            }),
+          ).unwrap();
+          if (profile) {
+            dispatch(setUser(profile));
+          }
+        } catch {
+          // Fallback: Continue navigation
+        }
+
+        if (res.mustChangePassword) {
+          navigate("/auth/change-password", { replace: true });
+        } else {
+          navigate("/dashboard", { replace: true });
+        }
+      } catch (err: unknown) {
+        const apiErr = err as { data?: { error?: string; detail?: string } };
+        const detail =
+          apiErr?.data?.error ||
+          apiErr?.data?.detail ||
+          "Invalid email or password. Please check your credentials.";
+        setErrorMsg(detail);
       }
-    } catch (err: unknown) {
-      const apiErr = err as { data?: { error?: string; detail?: string } };
-      const detail =
-        apiErr?.data?.error ||
-        apiErr?.data?.detail ||
-        "Invalid email or password. Please check your credentials.";
-      setErrorMsg(detail);
-    }
-  };
+    },
+  });
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 font-sans transition-colors relative overflow-hidden">
@@ -99,7 +120,7 @@ export const LoginPage: React.FC = () => {
             </div>
           )}
 
-          <form className="space-y-4" onSubmit={handleSubmit}>
+          <form className="space-y-4" onSubmit={formik.handleSubmit} noValidate>
             <div>
               <label
                 htmlFor="email"
@@ -116,13 +137,23 @@ export const LoginPage: React.FC = () => {
                   name="email"
                   type="email"
                   autoComplete="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="block w-full pl-9 pr-3.5 py-2.5 bg-slate-50/70 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 rounded-xl text-slate-900 dark:text-white placeholder:text-slate-400 text-xs focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all"
+                  value={formik.values.email}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  aria-invalid={Boolean(formik.touched.email && formik.errors.email)}
+                  className={`block w-full pl-9 pr-3.5 py-2.5 bg-slate-50/70 dark:bg-slate-800/60 border rounded-xl text-slate-900 dark:text-white placeholder:text-slate-400 text-xs focus:outline-none focus:ring-1 transition-all ${
+                    formik.touched.email && formik.errors.email
+                      ? "border-red-400 focus:ring-red-400 focus:border-red-400"
+                      : "border-slate-200 dark:border-slate-700/80 focus:ring-primary focus:border-primary"
+                  }`}
                   placeholder="admin@nexora.local"
                 />
               </div>
+              {formik.touched.email && formik.errors.email && (
+                <p className="mt-1 text-[11px] font-medium text-red-600 dark:text-red-400">
+                  {formik.errors.email}
+                </p>
+              )}
             </div>
 
             <div>
@@ -141,10 +172,15 @@ export const LoginPage: React.FC = () => {
                   name="password"
                   type={showPassword ? "text" : "password"}
                   autoComplete="current-password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="block w-full pl-9 pr-10 py-2.5 bg-slate-50/70 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 rounded-xl text-slate-900 dark:text-white placeholder:text-slate-400 text-xs focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all"
+                  value={formik.values.password}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  aria-invalid={Boolean(formik.touched.password && formik.errors.password)}
+                  className={`block w-full pl-9 pr-10 py-2.5 bg-slate-50/70 dark:bg-slate-800/60 border rounded-xl text-slate-900 dark:text-white placeholder:text-slate-400 text-xs focus:outline-none focus:ring-1 transition-all ${
+                    formik.touched.password && formik.errors.password
+                      ? "border-red-400 focus:ring-red-400 focus:border-red-400"
+                      : "border-slate-200 dark:border-slate-700/80 focus:ring-primary focus:border-primary"
+                  }`}
                   placeholder="••••••••••••"
                 />
                 <button
@@ -160,16 +196,21 @@ export const LoginPage: React.FC = () => {
                   )}
                 </button>
               </div>
+              {formik.touched.password && formik.errors.password && (
+                <p className="mt-1 text-[11px] font-medium text-red-600 dark:text-red-400">
+                  {formik.errors.password}
+                </p>
+              )}
             </div>
 
             <div className="flex items-center justify-between text-xs pt-1">
               <label className="flex items-center gap-2 cursor-pointer select-none">
                 <input
                   id="remember-me"
-                  name="remember-me"
+                  name="rememberMe"
                   type="checkbox"
-                  checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
+                  checked={formik.values.rememberMe}
+                  onChange={formik.handleChange}
                   className="h-3.5 w-3.5 text-primary rounded border-slate-300 dark:border-slate-700 focus:ring-primary"
                 />
                 <span className="text-slate-600 dark:text-slate-400">

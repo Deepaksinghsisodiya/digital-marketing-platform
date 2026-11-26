@@ -113,7 +113,8 @@ public record SaveMenuItemRequest(
     string Label,
     string Url,
     int DisplayOrder,
-    Guid? ParentItemId = null);
+    Guid? ParentItemId = null,
+    Guid? Id = null);
 
 public record SaveMenuRequest(
     string Key,

@@ -4,6 +4,8 @@ import {
   useGetMediaAssetsQuery,
   useUploadMediaMutation,
   useDeleteMediaAssetMutation,
+  useUpdateMediaMetadataMutation,
+  useLazyGetMediaUsageQuery,
 } from "../../store/api/adminApi";
 import { API_BASE_URL } from "../../store/api/baseApi";
 import type { MediaAssetDto } from "../../types";
@@ -358,6 +360,35 @@ export const MediaLibraryPage: React.FC = () => {
   const [uploadMedia, { isLoading: isUploading }] = useUploadMediaMutation();
   const [deleteMediaAsset, { isLoading: isDeleting }] =
     useDeleteMediaAssetMutation();
+  const [updateMediaMetadata, { isLoading: isSavingMeta }] =
+    useUpdateMediaMetadataMutation();
+  const [triggerGetUsage, { data: usageData, isFetching: isLoadingUsage }] =
+    useLazyGetMediaUsageQuery();
+  const [editAltText, setEditAltText] = useState("");
+  const [bulkProgress, setBulkProgress] = useState<{ current: number; total: number } | null>(null);
+  const bulkInputRef = useRef<HTMLInputElement>(null);
+
+  const handleBulkFilesSelected = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+    setBulkProgress({ current: 0, total: files.length });
+    let uploaded = 0;
+    for (const file of files) {
+      const fd = new FormData();
+      fd.append("file", file);
+      try {
+        await uploadMedia(fd).unwrap();
+        uploaded++;
+      } catch {
+        // continue remaining
+      }
+      setBulkProgress({ current: uploaded, total: files.length });
+    }
+    setBulkProgress(null);
+    e.target.value = "";
+    toast.success(`Uploaded ${uploaded} of ${files.length} assets.`);
+    refetch();
+  };
 
   const handleCopyUrl = (asset: MediaAssetDto) => {
     navigator.clipboard.writeText(resolveAbsoluteMediaUrl(asset.url));
@@ -426,18 +457,41 @@ export const MediaLibraryPage: React.FC = () => {
           </p>
         </div>
 
-        <button
-          onClick={() => {
-            setUploadFile(null);
-            setUploadAltText("");
-            setUploadError(null);
-            setIsUploadModalOpen(true);
-          }}
-          className="px-4 py-2.5 bg-primary hover:bg-primary-hover text-primary-foreground rounded-xl text-sm font-semibold shadow-xs flex items-center gap-2 transition"
-        >
-          <UploadCloud className="w-4 h-4" />
-          <span>Upload Media Asset</span>
-        </button>
+        <div className="flex items-center gap-2">
+          <input
+            ref={bulkInputRef}
+            type="file"
+            multiple
+            accept="image/*,.pdf"
+            className="hidden"
+            onChange={handleBulkFilesSelected}
+          />
+          <button
+            type="button"
+            onClick={() => bulkInputRef.current?.click()}
+            disabled={Boolean(bulkProgress)}
+            className="px-3.5 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-100 rounded-xl text-sm font-semibold flex items-center gap-2 transition"
+          >
+            <UploadCloud className="w-4 h-4" />
+            <span>
+              {bulkProgress
+                ? `Uploading ${bulkProgress.current}/${bulkProgress.total}...`
+                : "Bulk Upload"}
+            </span>
+          </button>
+          <button
+            onClick={() => {
+              setUploadFile(null);
+              setUploadAltText("");
+              setUploadError(null);
+              setIsUploadModalOpen(true);
+            }}
+            className="px-4 py-2.5 bg-primary hover:bg-primary-hover text-primary-foreground rounded-xl text-sm font-semibold shadow-xs flex items-center gap-2 transition"
+          >
+            <UploadCloud className="w-4 h-4" />
+            <span>Upload Media Asset</span>
+          </button>
+        </div>
       </div>
 
       {/* Media Category Folders Strip */}
@@ -852,15 +906,67 @@ export const MediaLibraryPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Usage Alert Reference Box */}
-            <div className="p-3.5 rounded-xl border border-amber-200 dark:border-amber-800/60 bg-amber-50/50 dark:bg-amber-950/20 text-xs space-y-1.5">
-              <div className="flex items-center gap-1.5 font-bold text-amber-800 dark:text-amber-300">
-                <AlertTriangle className="w-4 h-4 text-amber-600 flex-shrink-0" />
-                <span>Usage Reference &amp; Safe Deletion Check</span>
+            {/* Alt Text Editor */}
+            <div className="space-y-1.5">
+              <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                Alt Text / Accessibility Description
+              </label>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={editAltText || inspectedAsset.altText || ""}
+                  onChange={(e) => setEditAltText(e.target.value)}
+                  placeholder="Describe this asset for screen readers & SEO..."
+                  className="flex-1 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-xs"
+                />
+                <button
+                  type="button"
+                  disabled={isSavingMeta}
+                  onClick={async () => {
+                    try {
+                      await updateMediaMetadata({
+                        id: inspectedAsset.id,
+                        altText: editAltText || inspectedAsset.altText || "",
+                      }).unwrap();
+                      toast.success("Alt text updated.");
+                      refetch();
+                    } catch {
+                      toast.error("Failed to update alt text.");
+                    }
+                  }}
+                  className="px-3 py-1.5 rounded-lg bg-primary text-white text-xs font-bold disabled:opacity-50"
+                >
+                  Save Alt
+                </button>
               </div>
-              <p className="text-[11px] text-amber-700 dark:text-amber-400/90 leading-relaxed">
-                This asset may be embedded across CMS Landing Pages, Hero Carousel Slides, or Editorial Blog Posts. Deleting it will permanently break public image rendering where referenced.
-              </p>
+            </div>
+
+            {/* Live Usage Reference Box */}
+            <div className="p-3.5 rounded-xl border border-amber-200 dark:border-amber-800/60 bg-amber-50/50 dark:bg-amber-950/20 text-xs space-y-1.5">
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-1.5 font-bold text-amber-800 dark:text-amber-300">
+                  <AlertTriangle className="w-4 h-4 text-amber-600 flex-shrink-0" />
+                  <span>Usage Tracking ({usageData?.assetId === inspectedAsset.id ? `${usageData.usageCount} references` : "Scan"})</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => triggerGetUsage(inspectedAsset.id)}
+                  className="text-[11px] font-bold text-primary hover:underline"
+                >
+                  {isLoadingUsage ? "Scanning..." : "Scan References"}
+                </button>
+              </div>
+              {usageData?.assetId === inspectedAsset.id && usageData.usages.length > 0 ? (
+                <ul className="text-[11px] text-amber-800 dark:text-amber-300 space-y-1 pt-1">
+                  {usageData.usages.map((u, i) => (
+                    <li key={i}>• [{u.type}] {u.title} ({u.url})</li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-[11px] text-amber-700 dark:text-amber-400/90 leading-relaxed">
+                  Click &quot;Scan References&quot; to check CMS Pages, Blog Posts, and Site Settings before deleting.
+                </p>
+              )}
             </div>
 
             {/* Actions */}

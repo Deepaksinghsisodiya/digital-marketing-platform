@@ -44,6 +44,10 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
     public DbSet<CountryRegion> CountryRegions => Set<CountryRegion>();
     public DbSet<Theme> Themes => Set<Theme>();
     public DbSet<ThemeVersion> ThemeVersions => Set<ThemeVersion>();
+    public DbSet<ClientInvoice> ClientInvoices => Set<ClientInvoice>();
+    public DbSet<ClientMilestone> ClientMilestones => Set<ClientMilestone>();
+    public DbSet<ClientDocument> ClientDocuments => Set<ClientDocument>();
+    public DbSet<ApiKey> ApiKeys => Set<ApiKey>();
 
     IQueryable<AuditLog> IAppDbContext.AuditLogs => AuditLogs;
     IQueryable<SiteSettings> IAppDbContext.SiteSettings => SiteSettings;
@@ -62,6 +66,10 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
     IQueryable<CountryRegion> IAppDbContext.CountryRegions => CountryRegions;
     IQueryable<Theme> IAppDbContext.Themes => Themes;
     IQueryable<ThemeVersion> IAppDbContext.ThemeVersions => ThemeVersions;
+    IQueryable<ClientInvoice> IAppDbContext.ClientInvoices => ClientInvoices;
+    IQueryable<ClientMilestone> IAppDbContext.ClientMilestones => ClientMilestones;
+    IQueryable<ClientDocument> IAppDbContext.ClientDocuments => ClientDocuments;
+    IQueryable<ApiKey> IAppDbContext.ApiKeys => ApiKeys;
 
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
     {
@@ -714,6 +722,55 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
             b.Property(v => v.ConfigJson).HasColumnType("nvarchar(max)").IsRequired();
             b.Property(v => v.ChangeDescription).HasMaxLength(500);
             b.HasIndex(v => new { v.ThemeId, v.VersionNumber }).IsUnique();
+        });
+
+        // 24. Client Invoices
+        builder.Entity<ClientInvoice>(b =>
+        {
+            b.ToTable("ClientInvoices");
+            b.HasKey(i => i.Id);
+            b.Property(i => i.InvoiceNumber).HasMaxLength(64).IsRequired();
+            b.Property(i => i.Amount).HasPrecision(18, 2);
+            b.Property(i => i.Currency).HasMaxLength(10).IsRequired();
+            b.Property(i => i.Description).HasMaxLength(1000);
+            b.HasIndex(i => i.InvoiceNumber).IsUnique();
+            b.HasIndex(i => new { i.ClientId, i.Status });
+            b.HasOne(i => i.Client).WithMany(c => c.Invoices).HasForeignKey(i => i.ClientId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // 25. Client Milestones
+        builder.Entity<ClientMilestone>(b =>
+        {
+            b.ToTable("ClientMilestones");
+            b.HasKey(m => m.Id);
+            b.Property(m => m.Title).HasMaxLength(200).IsRequired();
+            b.Property(m => m.Description).HasMaxLength(1000);
+            b.HasIndex(m => new { m.ClientId, m.Status });
+            b.HasOne(m => m.Client).WithMany(c => c.Milestones).HasForeignKey(m => m.ClientId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // 26. Client Documents
+        builder.Entity<ClientDocument>(b =>
+        {
+            b.ToTable("ClientDocuments");
+            b.HasKey(d => d.Id);
+            b.Property(d => d.Title).HasMaxLength(200).IsRequired();
+            b.Property(d => d.FileUrl).HasMaxLength(1000).IsRequired();
+            b.Property(d => d.Category).HasMaxLength(64);
+            b.HasIndex(d => d.ClientId);
+            b.HasOne(d => d.Client).WithMany(c => c.Documents).HasForeignKey(d => d.ClientId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // 27. API Keys
+        builder.Entity<ApiKey>(b =>
+        {
+            b.ToTable("ApiKeys");
+            b.HasKey(k => k.Id);
+            b.Property(k => k.Name).HasMaxLength(120).IsRequired();
+            b.Property(k => k.KeyPrefix).HasMaxLength(32).IsRequired();
+            b.Property(k => k.KeyHash).HasMaxLength(128).IsRequired();
+            b.Property(k => k.Scopes).HasMaxLength(500).IsRequired();
+            b.HasIndex(k => k.KeyHash).IsUnique();
         });
     }
 }

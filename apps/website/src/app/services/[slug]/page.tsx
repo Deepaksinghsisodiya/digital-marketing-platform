@@ -9,6 +9,7 @@ import {
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { BlockRenderer } from "@/components/blocks/BlockRenderer";
+import { BreadcrumbJsonLd, ServiceJsonLd } from "@/components/seo/StructuredData";
 import { Badge } from "@/components/ui/badge";
 import {
   CheckCircle2,
@@ -633,9 +634,24 @@ export default async function ServiceDetailPage({
 
   // Dynamic rich fallback service page
   const service = SERVICES_DATA[slug] || getFallbackService(slug);
+  const siteBase = process.env.NEXT_PUBLIC_SITE_URL || "https://nexora.digital";
 
   return (
     <div className="min-h-screen flex flex-col justify-between bg-white text-slate-900">
+      <BreadcrumbJsonLd
+        items={[
+          { name: "Home", url: siteBase },
+          { name: "Services", url: `${siteBase}/services` },
+          { name: service.title, url: `${siteBase}/services/${service.slug}` },
+        ]}
+      />
+      <ServiceJsonLd
+        name={service.title}
+        description={service.description}
+        url={`${siteBase}/services/${service.slug}`}
+        providerName={siteSettings?.companyName || "Nexora Digital"}
+        category={service.category}
+      />
       <Header
         settings={siteSettings}
         currentRegionCode={region.code}

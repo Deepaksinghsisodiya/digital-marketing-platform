@@ -8,6 +8,7 @@ import type { PublicSiteSettings } from "../../lib/cms";
 import { siteConfig, isRealValue } from "../../content/site.config";
 import {
   ArrowUp,
+  ArrowRight,
   Send,
   CheckCircle2,
   Phone,
@@ -15,7 +16,6 @@ import {
   MapPin,
   Clock,
   Loader2,
-  Sparkles,
 } from "lucide-react";
 
 const SOCIAL_ICONS: Record<string, React.ReactNode> = {
@@ -51,30 +51,52 @@ const SOCIAL_ICONS: Record<string, React.ReactNode> = {
   ),
 };
 
-export const Footer: React.FC<{ settings?: PublicSiteSettings | null }> = () => {
+export const Footer: React.FC<{ settings?: PublicSiteSettings | null }> = ({
+  settings,
+}) => {
   const [newsletterEmail, setNewsletterEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
   const [isSubscribing, setIsSubscribing] = useState(false);
+  const [logoError, setLogoError] = useState(false);
 
-  const companyName = siteConfig.company.brandName;
-  const legalName = isRealValue(siteConfig.company.legalName)
-    ? siteConfig.company.legalName
-    : `${companyName} Digital Marketing Agency`;
+  const companyName = settings?.companyName || siteConfig.company.brandName;
+  const legalName =
+    settings?.legalName ||
+    (isRealValue(siteConfig.company.legalName)
+      ? siteConfig.company.legalName
+      : `${companyName} Digital Marketing Agency`);
 
-  const supportPhone = isRealValue(siteConfig.contact.phone)
-    ? siteConfig.contact.phone
-    : null;
-  const supportEmail = isRealValue(siteConfig.contact.email)
-    ? siteConfig.contact.email
-    : null;
+  const supportPhone =
+    settings?.supportPhone ||
+    (isRealValue(siteConfig.contact.phone) ? siteConfig.contact.phone : null);
+  const supportEmail =
+    settings?.supportEmail ||
+    (isRealValue(siteConfig.contact.email) ? siteConfig.contact.email : null);
 
   const address =
-    isRealValue(siteConfig.contact.address.city) &&
+    settings?.address ||
+    (isRealValue(siteConfig.contact.address.city) &&
     isRealValue(siteConfig.contact.address.state)
       ? `${siteConfig.contact.address.city}, ${siteConfig.contact.address.state}, ${siteConfig.contact.address.country}`
-      : null;
+      : null);
 
   const workingHours = siteConfig.contact.workingHours;
+  const bookingUrl = settings?.bookingUrl || "/book-a-call";
+
+  const apiBase =
+    process.env.INTERNAL_API_URL ||
+    process.env.NEXT_PUBLIC_API_URL ||
+    "http://localhost:5201";
+  const rawLogo =
+    settings?.logoUrl ||
+    (settings?.logoMediaId
+      ? `/api/v1/public/media/${settings.logoMediaId}/download`
+      : null);
+  const logoUrl = rawLogo
+    ? rawLogo.startsWith("http")
+      ? rawLogo
+      : `${apiBase}${rawLogo.startsWith("/") ? "" : "/"}${rawLogo}`
+    : null;
 
   const handleNewsletterSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -94,54 +116,90 @@ export const Footer: React.FC<{ settings?: PublicSiteSettings | null }> = () => 
   };
 
   // Only real social profiles that are verified
-  const activeSocials = Object.entries(siteConfig.social).filter(
-    ([, url]) => isRealValue(url)
+  const activeSocials = Object.entries(siteConfig.social).filter(([, url]) =>
+    isRealValue(url),
   );
 
   return (
-    <footer className="border-t border-slate-800 bg-slate-950 text-slate-400 text-xs relative overflow-hidden">
+    <footer className="border-t border-slate-200 bg-slate-50/90 text-slate-600 text-xs relative overflow-hidden">
       {/* Background ambient glow */}
-      <div className="absolute top-0 left-1/3 w-[500px] h-[250px] bg-primary/10 blur-[130px] rounded-full pointer-events-none" />
+      <div className="absolute top-0 left-1/3 w-[500px] h-[250px] bg-teal-500/8 blur-[130px] rounded-full pointer-events-none" />
+
+      {/* Top Pre-Footer Conversion Strip */}
+      <div className="border-b border-slate-200/80 bg-white/80 backdrop-blur-xs relative z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="space-y-0.5">
+            <h3 className="text-sm sm:text-base font-black text-slate-900 tracking-tight">
+              Ready to build predictable revenue?
+            </h3>
+            <p className="text-xs text-slate-500">
+              Partner with {companyName} for auditable acquisition, CRO, and full-funnel growth.
+            </p>
+          </div>
+          <div className="flex items-center gap-2.5 shrink-0">
+            <Link
+              href="/free-audit"
+              className="inline-flex items-center gap-1.5 rounded-full bg-white hover:bg-slate-50 border border-slate-200 px-4 py-2 text-xs font-bold text-slate-700 hover:text-teal-700 transition-colors shadow-2xs"
+            >
+              Free Growth Audit
+            </Link>
+            <Link
+              href={bookingUrl}
+              className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 px-4 py-2 text-xs font-bold text-white shadow-sm shadow-teal-600/20 transition-all group"
+            >
+              <span>Book a Strategy Call</span>
+              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+            </Link>
+          </div>
+        </div>
+      </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 grid grid-cols-2 md:grid-cols-2 lg:grid-cols-5 gap-8 sm:gap-10 relative z-10">
         {/* Brand & Corporate Column (Span 2) */}
-        <div className="space-y-4 lg:col-span-2">
-          <Link href="/" className="inline-block" aria-label="Nexora Home">
-            <img
-              src="/images/brand/logo-white.svg"
-              alt={companyName}
-              className="h-9 w-auto object-contain"
-              onError={(e) => {
-                (e.target as HTMLElement).style.display = "none";
-              }}
-            />
+        <div className="space-y-4 col-span-2 lg:col-span-2">
+          <Link href="/" className="inline-flex items-center gap-2.5 group" aria-label={`${companyName} Home`}>
+            {logoUrl && !logoError ? (
+              <img
+                src={logoUrl}
+                alt={companyName}
+                onError={() => setLogoError(true)}
+                className="w-9 h-9 object-contain rounded-xl bg-white border border-slate-200 p-1 shadow-2xs"
+              />
+            ) : (
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-teal-600 to-emerald-600 flex items-center justify-center text-white font-black text-base shadow-sm">
+                {companyName.charAt(0).toUpperCase()}
+              </div>
+            )}
+            <span className="font-black text-slate-900 text-base tracking-tight group-hover:text-teal-700 transition-colors">
+              {companyName}
+            </span>
           </Link>
 
-          <p className="text-slate-400 text-xs leading-relaxed max-w-sm">
+          <p className="text-slate-600 text-xs leading-relaxed max-w-sm">
             {siteConfig.company.description}
           </p>
 
           {/* Contact Details (Only real ones shown) */}
-          <div className="text-xs text-slate-400 space-y-2 pt-2">
+          <div className="text-xs text-slate-600 space-y-2 pt-1">
             {supportPhone && (
               <div className="flex items-center gap-2">
-                <Phone className="w-3.5 h-3.5 text-primary shrink-0" />
-                <a href={`tel:${supportPhone}`} className="hover:text-white transition">
+                <Phone className="w-3.5 h-3.5 text-teal-600 shrink-0" />
+                <a href={`tel:${supportPhone}`} className="hover:text-teal-700 transition-colors font-medium">
                   {supportPhone}
                 </a>
               </div>
             )}
             {supportEmail && (
               <div className="flex items-center gap-2">
-                <Mail className="w-3.5 h-3.5 text-primary shrink-0" />
-                <a href={`mailto:${supportEmail}`} className="hover:text-white transition">
+                <Mail className="w-3.5 h-3.5 text-teal-600 shrink-0" />
+                <a href={`mailto:${supportEmail}`} className="hover:text-teal-700 transition-colors font-medium">
                   {supportEmail}
                 </a>
               </div>
             )}
             {address && (
               <div className="flex items-start gap-2">
-                <MapPin className="w-3.5 h-3.5 text-primary shrink-0 mt-0.5" />
+                <MapPin className="w-3.5 h-3.5 text-teal-600 shrink-0 mt-0.5" />
                 <span>{address}</span>
               </div>
             )}
@@ -156,7 +214,7 @@ export const Footer: React.FC<{ settings?: PublicSiteSettings | null }> = () => 
           {/* Real Social Links (Hidden if none configured) */}
           {activeSocials.length > 0 && (
             <div className="pt-2">
-              <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400 block mb-2">
+              <span className="text-[10px] uppercase font-bold tracking-wider text-slate-500 block mb-2">
                 Follow Us
               </span>
               <div className="flex items-center gap-2">
@@ -166,7 +224,7 @@ export const Footer: React.FC<{ settings?: PublicSiteSettings | null }> = () => 
                     href={url as string}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-8 h-8 rounded-lg bg-slate-900 hover:bg-primary hover:text-primary-foreground text-slate-400 flex items-center justify-center border border-slate-800 hover:border-primary/40 transition-all text-xs"
+                    className="w-8 h-8 rounded-lg bg-white hover:bg-teal-600 text-slate-600 hover:text-white flex items-center justify-center border border-slate-200 hover:border-teal-600 shadow-2xs transition-all text-xs"
                     aria-label={platform}
                   >
                     {SOCIAL_ICONS[platform.toLowerCase()] || platform.charAt(0).toUpperCase()}
@@ -179,15 +237,15 @@ export const Footer: React.FC<{ settings?: PublicSiteSettings | null }> = () => 
 
         {/* Column 2: Digital Marketing Services */}
         <div className="space-y-3">
-          <span className="font-bold text-white text-xs uppercase tracking-wider block">
+          <span className="font-bold text-slate-900 text-xs uppercase tracking-wider block">
             Services
           </span>
-          <ul className="space-y-2">
+          <ul className="space-y-2 text-slate-600">
             {siteConfig.services.map((srv) => (
               <li key={srv.slug}>
                 <Link
                   href={`/services/${srv.slug}`}
-                  className="hover:text-white transition block truncate"
+                  className="hover:text-teal-700 transition-colors block truncate font-medium"
                 >
                   {srv.title}
                 </Link>
@@ -198,15 +256,15 @@ export const Footer: React.FC<{ settings?: PublicSiteSettings | null }> = () => 
 
         {/* Column 3: Industries */}
         <div className="space-y-3">
-          <span className="font-bold text-white text-xs uppercase tracking-wider block">
+          <span className="font-bold text-slate-900 text-xs uppercase tracking-wider block">
             Industries
           </span>
-          <ul className="space-y-2">
+          <ul className="space-y-2 text-slate-600">
             {siteConfig.industries.map((ind) => (
               <li key={ind.slug}>
                 <Link
                   href={`/industries/${ind.slug}`}
-                  className="hover:text-white transition block truncate"
+                  className="hover:text-teal-700 transition-colors block truncate font-medium"
                 >
                   {ind.name}
                 </Link>
@@ -215,34 +273,34 @@ export const Footer: React.FC<{ settings?: PublicSiteSettings | null }> = () => 
           </ul>
         </div>
 
-        {/* Column 4: Quick Links & Free Audit CTA */}
-        <div className="space-y-4">
-          <span className="font-bold text-white text-xs uppercase tracking-wider block">
-            Company & Resources
+        {/* Column 4: Quick Links & Newsletter */}
+        <div className="space-y-4 col-span-2 lg:col-span-1">
+          <span className="font-bold text-slate-900 text-xs uppercase tracking-wider block">
+            Company &amp; Resources
           </span>
-          <ul className="space-y-2">
+          <ul className="space-y-2 text-slate-600">
             <li>
-              <Link href="/about" className="hover:text-white transition">
-                About Nexora
+              <Link href="/about" className="hover:text-teal-700 transition-colors font-medium">
+                About {companyName}
               </Link>
             </li>
             <li>
-              <Link href="/case-studies" className="hover:text-white transition">
-                Our Work & Results
+              <Link href="/case-studies" className="hover:text-teal-700 transition-colors font-medium">
+                Our Work &amp; Results
               </Link>
             </li>
             <li>
-              <Link href="/pricing" className="hover:text-white transition">
-                Pricing & Packages
+              <Link href="/pricing" className="hover:text-teal-700 transition-colors font-medium">
+                Pricing &amp; Packages
               </Link>
             </li>
             <li>
-              <Link href="/free-audit" className="hover:text-white transition">
+              <Link href="/free-audit" className="hover:text-teal-700 transition-colors font-medium">
                 Free Marketing Audit
               </Link>
             </li>
             <li>
-              <Link href="/contact" className="hover:text-white transition">
+              <Link href="/contact" className="hover:text-teal-700 transition-colors font-medium">
                 Contact Us
               </Link>
             </li>
@@ -250,12 +308,12 @@ export const Footer: React.FC<{ settings?: PublicSiteSettings | null }> = () => 
 
           {/* Newsletter Box */}
           <div className="pt-2">
-            <span className="text-[11px] font-bold text-slate-300 block mb-1.5">
+            <span className="text-[11px] font-bold text-slate-800 block mb-1.5">
               Marketing Tips in Your Inbox
             </span>
             {subscribed ? (
-              <div className="text-[11px] text-emerald-400 font-semibold flex items-center gap-1.5">
-                <CheckCircle2 className="w-3.5 h-3.5" /> Subscribed successfully!
+              <div className="text-[11px] text-emerald-700 font-semibold flex items-center gap-1.5 bg-emerald-50 border border-emerald-200 rounded-lg px-2.5 py-2">
+                <CheckCircle2 className="w-3.5 h-3.5 shrink-0" /> Subscribed successfully!
               </div>
             ) : (
               <form onSubmit={handleNewsletterSubmit} className="flex gap-1.5 max-w-sm">
@@ -265,13 +323,13 @@ export const Footer: React.FC<{ settings?: PublicSiteSettings | null }> = () => 
                   onChange={(e) => setNewsletterEmail(e.target.value)}
                   placeholder="name@company.com"
                   required
-                  className="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-hidden focus:border-primary"
+                  className="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-slate-900 placeholder-slate-400 focus:outline-hidden focus:border-teal-500"
                 />
                 <button
                   type="submit"
                   disabled={isSubscribing}
                   aria-label="Subscribe"
-                  className="bg-primary hover:bg-primary-hover text-white font-bold px-3 py-1.5 rounded-lg transition shrink-0 cursor-pointer disabled:opacity-50"
+                  className="bg-teal-600 hover:bg-teal-700 text-white font-bold px-3 py-1.5 rounded-lg transition shrink-0 cursor-pointer disabled:opacity-50"
                 >
                   {isSubscribing ? (
                     <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -286,20 +344,22 @@ export const Footer: React.FC<{ settings?: PublicSiteSettings | null }> = () => 
       </div>
 
       {/* Legal & Regulatory Sub-Footer */}
-      <div className="border-t border-slate-800 bg-slate-950 py-5">
+      <div className="border-t border-slate-200 bg-white py-5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-slate-500 text-center sm:text-left">
           <div className="flex flex-wrap items-center justify-center sm:justify-start gap-x-3 gap-y-1.5">
-            <span>&copy; {new Date().getFullYear()} {legalName}. All rights reserved.</span>
+            <span className="font-medium text-slate-600">
+              &copy; {new Date().getFullYear()} {legalName}. All rights reserved.
+            </span>
             <span>&bull;</span>
-            <Link href="/privacy" className="hover:text-slate-300 transition">
+            <Link href="/privacy" className="hover:text-teal-700 transition-colors">
               Privacy Policy
             </Link>
             <span>&bull;</span>
-            <Link href="/terms" className="hover:text-slate-300 transition">
+            <Link href="/terms" className="hover:text-teal-700 transition-colors">
               Terms of Service
             </Link>
             <span>&bull;</span>
-            <Link href="/cookies" className="hover:text-slate-300 transition">
+            <Link href="/cookies" className="hover:text-teal-700 transition-colors">
               Cookie Policy
             </Link>
             <span>&bull;</span>
@@ -310,7 +370,7 @@ export const Footer: React.FC<{ settings?: PublicSiteSettings | null }> = () => 
                   window.dispatchEvent(new Event("nexora_open_cookie_preferences"));
                 }
               }}
-              className="hover:text-slate-300 transition cursor-pointer text-[11px] underline underline-offset-2"
+              className="hover:text-teal-700 transition-colors cursor-pointer text-[11px] underline underline-offset-2"
             >
               Cookie Settings
             </button>
@@ -319,7 +379,7 @@ export const Footer: React.FC<{ settings?: PublicSiteSettings | null }> = () => 
           <button
             type="button"
             onClick={scrollToTop}
-            className="flex items-center gap-1.5 text-slate-400 hover:text-white transition px-2.5 py-1 rounded-md hover:bg-slate-900 cursor-pointer shrink-0"
+            className="flex items-center gap-1.5 text-slate-600 hover:text-teal-700 transition-colors px-3 py-1.5 rounded-full border border-slate-200 hover:border-teal-200 hover:bg-teal-50/60 cursor-pointer shrink-0 font-semibold"
             aria-label="Back to top"
           >
             <span>Back to top</span>

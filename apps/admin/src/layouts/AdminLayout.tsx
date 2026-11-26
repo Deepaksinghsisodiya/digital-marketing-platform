@@ -119,6 +119,7 @@ export const AdminLayout: React.FC = () => {
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
   const [notificationDrawerOpen, setNotificationDrawerOpen] = useState(false);
+  const [logoError, setLogoError] = useState(false);
   const userDropdownRef = useRef<HTMLDivElement>(null);
 
   const toggleSidebarCollapse = () => {
@@ -499,10 +500,11 @@ export const AdminLayout: React.FC = () => {
                   to="/dashboard"
                   className="flex items-center gap-2.5 min-w-0 flex-1 group"
                 >
-                  {logoUrl ? (
+                  {logoUrl && !logoError ? (
                     <img
                       src={resolveMediaUrl(logoUrl)}
                       alt={companyName}
+                      onError={() => setLogoError(true)}
                       className="w-8 h-8 rounded-lg object-contain bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-0.5 shadow-xs shrink-0 group-hover:scale-105 transition-transform"
                     />
                   ) : (
@@ -542,10 +544,11 @@ export const AdminLayout: React.FC = () => {
                   className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition group"
                   title="Expand sidebar"
                 >
-                  {logoUrl ? (
+                  {logoUrl && !logoError ? (
                     <img
                       src={resolveMediaUrl(logoUrl)}
                       alt={companyName}
+                      onError={() => setLogoError(true)}
                       className="w-8 h-8 rounded-lg object-contain bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-0.5 shadow-xs group-hover:scale-105 transition-transform"
                     />
                   ) : (

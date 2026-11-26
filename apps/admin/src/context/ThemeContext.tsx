@@ -189,9 +189,9 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
     if (saved === "light" || saved === "dark") {
       return saved;
     }
-    return "dark"; // Default to dark for modern SaaS admin
+    return "light"; // Default to clean white/light SaaS admin
   });
-  const [activeThemeSlug, setActiveThemeSlug] = useState<string>("cyber-emerald");
+  const [activeThemeSlug, setActiveThemeSlug] = useState<string>("teal-coral");
 
   useEffect(() => {
     const root = document.documentElement;

@@ -40,7 +40,7 @@ export const ChannelsGrowthDiagram: React.FC<{ block?: CmsBlock }> = ({ block })
     "Every customer touchpoint synchronised into a unified, high-converting revenue platform.";
 
   return (
-    <section className="relative py-20 sm:py-28 overflow-hidden bg-slate-950 text-white">
+    <section className="relative py-20 sm:py-28 overflow-hidden bg-slate-50 text-slate-900 border-y border-slate-200/80">
       {/* Background ambient mesh */}
       <div
         aria-hidden="true"
@@ -48,7 +48,7 @@ export const ChannelsGrowthDiagram: React.FC<{ block?: CmsBlock }> = ({ block })
       />
       <div
         aria-hidden="true"
-        className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:3.5rem_3.5rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] pointer-events-none -z-0"
+        className="absolute inset-0 bg-[linear-gradient(to_right,rgba(15,23,42,0.035)_1px,transparent_1px),linear-gradient(to_bottom,rgba(15,23,42,0.035)_1px,transparent_1px)] bg-[size:3.5rem_3.5rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] pointer-events-none -z-0"
       />
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -57,7 +57,7 @@ export const ChannelsGrowthDiagram: React.FC<{ block?: CmsBlock }> = ({ block })
           title={title}
           highlight="Growth Engine"
           description={description}
-          tone="dark"
+          tone="light"
         />
 
         {/* Diagram Canvas */}

@@ -47,6 +47,8 @@ public class Lead : BaseEntity<Guid>
     public int Score { get; private set; } = 0;
     public Guid? AssignedToUserId { get; private set; }
     public string InternalNotesJson { get; private set; } = "[]";
+    public DateTime? NextFollowUpAtUtc { get; private set; }
+    public string? FollowUpNote { get; private set; }
 
     // Technical Context
     public string? IpAddress { get; private set; }
@@ -165,6 +167,13 @@ public class Lead : BaseEntity<Guid>
         InternalNotesJson = "[]";
         ConsentGiven = false;
         Status = LeadStatus.Closed;
+        MarkUpdated();
+    }
+
+    public void ScheduleFollowUp(DateTime? nextFollowUpAtUtc, string? note)
+    {
+        NextFollowUpAtUtc = nextFollowUpAtUtc;
+        FollowUpNote = string.IsNullOrWhiteSpace(note) ? null : note.Trim();
         MarkUpdated();
     }
 }

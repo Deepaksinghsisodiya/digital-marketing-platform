@@ -184,13 +184,67 @@ export const RedirectsPage: React.FC = () => {
           </p>
         </div>
 
-        <Button
-          onClick={openCreateModal}
-          icon={Plus}
-          className="self-start sm:self-auto"
-        >
-          New Redirect Rule
-        </Button>
+        <div className="flex items-center gap-2 self-start sm:self-auto">
+          <label className="px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer transition">
+            <span>Import CSV</span>
+            <input
+              type="file"
+              accept=".csv,text/csv"
+              className="hidden"
+              onChange={async (e) => {
+                const file = e.target.files?.[0];
+                if (!file || !settings) return;
+                try {
+                  const text = await file.text();
+                  const lines = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+                  const imported: RedirectRule[] = [];
+                  for (const line of lines) {
+                    if (line.toLowerCase().startsWith("source")) continue;
+                    const [src, dest, codeStr, desc] = line.split(",").map((c) => c.trim().replace(/^"|"$/g, ""));
+                    if (!src || !dest) continue;
+                    imported.push({
+                      id: crypto.randomUUID(),
+                      sourcePath: src.startsWith("/") ? src : `/${src}`,
+                      destinationPath: dest,
+                      statusCode: codeStr === "302" ? 302 : 301,
+                      description: desc || "CSV Import",
+                      isActive: true,
+                    });
+                  }
+                  if (imported.length === 0) {
+                    toast.error("No valid redirect rows found in CSV (expected: sourcePath,destinationPath,statusCode,description).");
+                    return;
+                  }
+                  const merged = [...redirectRules, ...imported];
+                  await updateSettings({
+                    companyName: settings.companyName,
+                    legalName: settings.legalName,
+                    supportEmail: settings.supportEmail,
+                    supportPhone: settings.supportPhone,
+                    address: settings.address,
+                    defaultRegion: settings.defaultRegion,
+                    supportedRegions: settings.supportedRegions,
+                    timeZoneId: settings.timeZoneId,
+                    logoMediaId: settings.logoMediaId,
+                    versionToken: settings.versionToken,
+                    redirectRulesJson: JSON.stringify(merged),
+                  }).unwrap();
+                  toast.success(`Imported ${imported.length} redirect rules from CSV.`);
+                } catch {
+                  toast.error("Failed to import CSV redirects.");
+                } finally {
+                  e.target.value = "";
+                }
+              }}
+            />
+          </label>
+          <Button
+            onClick={openCreateModal}
+            icon={Plus}
+          >
+            New Redirect Rule
+          </Button>
+        </div>
       </div>
 
       {/* KPI / Telemetry Strip */}

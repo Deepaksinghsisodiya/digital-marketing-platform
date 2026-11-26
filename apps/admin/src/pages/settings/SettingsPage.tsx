@@ -18,6 +18,13 @@ import type { PipelineStage, CountryRegion } from "../../types";
 import * as yup from "yup";
 import { MediaPickerModal, resolveMediaUrl } from "../media/MediaLibraryPage";
 import {
+  WebhooksTab,
+  BackupsTab,
+  DomainSslTab,
+  ApiKeysTab,
+  FormBuilderTab,
+} from "./SettingsExtensionsTabs";
+import {
   CheckCircle2,
   AlertCircle,
   Save,
@@ -105,7 +112,7 @@ export const phoneValidationSchema = yup.object().shape({
 
 export const SettingsPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<
-    "identity" | "pipelines" | "regions" | "smtp" | "tracking"
+    "identity" | "pipelines" | "regions" | "smtp" | "tracking" | "webhooks" | "backups" | "domain" | "apikeys" | "forms"
   >("identity");
 
   // Site Settings Query & Mutation
@@ -1025,6 +1032,29 @@ export const SettingsPage: React.FC = () => {
             <BarChart3 className="w-4 h-4" />
             <span>Marketing Pixels & Analytics</span>
           </button>
+
+          {(
+            [
+              { id: "webhooks", label: "Webhooks" },
+              { id: "backups", label: "Backups" },
+              { id: "domain", label: "Domain & SSL" },
+              { id: "apikeys", label: "API Keys" },
+              { id: "forms", label: "Form Builder" },
+            ] as const
+          ).map((t) => (
+            <button
+              key={t.id}
+              type="button"
+              onClick={() => setActiveTab(t.id)}
+              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer border ${
+                activeTab === t.id
+                  ? "bg-primary text-primary-foreground border-primary shadow-sm"
+                  : "bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border-slate-200/80 dark:border-slate-800 hover:border-slate-300 hover:text-slate-900 dark:hover:text-white"
+              }`}
+            >
+              <span>{t.label}</span>
+            </button>
+          ))}
         </div>
       </div>
 
@@ -2286,6 +2316,7 @@ export const SettingsPage: React.FC = () => {
                   </span>
                 </label>
                 <select
+                
                   defaultValue=""
                   onChange={(e) => {
                     const sel = (globalCurrencies || []).find(
@@ -2442,6 +2473,16 @@ export const SettingsPage: React.FC = () => {
           }
         }}
       />
+
+      {activeTab === "webhooks" && (
+        <WebhooksTab settings={settings} onSettingsUpdated={setVersionToken} />
+      )}
+      {activeTab === "backups" && <BackupsTab />}
+      {activeTab === "domain" && (
+        <DomainSslTab settings={settings} onSettingsUpdated={setVersionToken} />
+      )}
+      {activeTab === "apikeys" && <ApiKeysTab />}
+      {activeTab === "forms" && <FormBuilderTab />}
     </div>
   );
 };

@@ -263,16 +263,16 @@ export default async function ServicesCatalogPage() {
 
       const rawServices = Array.isArray(servicesBlock.content.services)
         ? (servicesBlock.content.services as Array<{
-            id?: string;
-            title: string;
-            pillar?: string;
-            description?: string;
-            link?: string;
-            badge?: string;
-            startingPrice?: string;
-            deliverables?: string[];
-            enabled?: boolean;
-          }>)
+          id?: string;
+          title: string;
+          pillar?: string;
+          description?: string;
+          link?: string;
+          badge?: string;
+          startingPrice?: string;
+          deliverables?: string[];
+          enabled?: boolean;
+        }>)
         : [];
 
       if (rawServices.length > 0) {
@@ -314,7 +314,7 @@ export default async function ServicesCatalogPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col justify-between bg-background text-foreground">
+    <div className="min-h-screen flex flex-col justify-between bg-white text-slate-900">
       <Header
         settings={siteSettings}
         currentRegionCode={region.code}
@@ -334,20 +334,20 @@ export default async function ServicesCatalogPage() {
           distance="lg"
           duration="slower"
           as="div"
-          className="rounded-3xl bg-slate-950 text-white p-6 sm:p-12 lg:p-16 text-center space-y-6 relative overflow-hidden"
+          className="rounded-3xl bg-slate-50 border border-slate-200 text-slate-900 p-6 sm:p-12 lg:p-16 text-center space-y-6 relative overflow-hidden shadow-sm"
         >
           <div
             aria-hidden="true"
-            className="absolute top-0 right-0 w-80 h-80 bg-primary/20 blur-[120px] rounded-full pointer-events-none"
+            className="absolute top-0 right-0 w-80 h-80 bg-primary/10 blur-[120px] rounded-full pointer-events-none"
           />
           <div className="relative z-10 space-y-4 max-w-2xl mx-auto">
             <span className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-primary bg-primary/10 px-3 py-1 rounded-full border border-primary/20 inline-block">
               Tailored Engineering &amp; Growth Scope
             </span>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight leading-snug">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight leading-snug text-slate-950">
               Need a Combined Technology &amp; Growth Retainer?
             </h2>
-            <p className="text-xs sm:text-sm md:text-base text-slate-400 leading-relaxed font-normal">
+            <p className="text-xs sm:text-sm md:text-base text-slate-600 leading-relaxed font-normal">
               We assemble dedicated sprint squads combining software architects, performance marketers, and automation engineers tailored to your exact roadmap.
             </p>
             <div className="pt-2">

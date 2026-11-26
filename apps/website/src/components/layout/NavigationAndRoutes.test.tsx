@@ -6,7 +6,7 @@ import { Footer } from "./Footer";
 import { AnnouncementBar } from "./AnnouncementBar";
 
 describe("Global Layout & Navigation Suite", () => {
-  it("renders Header with company logo monogram, SOC2 badge, and Mega-Menu triggers", () => {
+  it("renders Header strictly from Admin menu and settings props", () => {
     const html = renderToString(
       <Header
         settings={{
@@ -16,13 +16,23 @@ describe("Global Layout & Navigation Suite", () => {
           defaultRegion: "IN",
           supportedRegions: [],
           timeZoneId: "Asia/Kolkata",
+          bookingUrl: "/book-a-call",
+        }}
+        menu={{
+          id: "m1",
+          key: "header",
+          title: "Main Navigation",
+          items: [
+            { id: "i1", label: "Services", url: "/services", displayOrder: 0, children: [] },
+            { id: "i2", label: "Case Studies", url: "/case-studies", displayOrder: 1, children: [] },
+          ],
         }}
         currentRegionCode="IN"
       />,
     );
     expect(html).toContain("NEXORA ENTERPRISE");
     expect(html).toContain("Services");
-    expect(html).toContain("Industries");
+    expect(html).toContain("Case Studies");
     expect(html).toContain("Book a Call");
   });
 

@@ -133,6 +133,55 @@ namespace Nexora.Infrastructure.Persistence.Migrations
                     b.ToTable("UserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("Nexora.Domain.Entities.ApiKey", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("CreatedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("KeyHash")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<string>("KeyPrefix")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("nvarchar(32)");
+
+                    b.Property<DateTime?>("LastUsedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("nvarchar(120)");
+
+                    b.Property<DateTime?>("RevokedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Scopes")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime?>("UpdatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("KeyHash")
+                        .IsUnique();
+
+                    b.ToTable("ApiKeys", (string)null);
+                });
+
             modelBuilder.Entity("Nexora.Domain.Entities.AuditLog", b =>
                 {
                     b.Property<Guid>("Id")
@@ -317,6 +366,12 @@ namespace Nexora.Infrastructure.Persistence.Migrations
                         .HasMaxLength(2000)
                         .HasColumnType("nvarchar(2000)");
 
+                    b.Property<bool>("PortalEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("PortalToken")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("PrimaryContactEmail")
                         .IsRequired()
                         .HasMaxLength(256)
@@ -391,6 +446,140 @@ namespace Nexora.Infrastructure.Persistence.Migrations
                         .IsDescending(false, true);
 
                     b.ToTable("ClientActivities", (string)null);
+                });
+
+            modelBuilder.Entity("Nexora.Domain.Entities.ClientDocument", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Category")
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<Guid>("ClientId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long>("FileSizeBytes")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("FileUrl")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateTime?>("UpdatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("UploadedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClientId");
+
+                    b.ToTable("ClientDocuments", (string)null);
+                });
+
+            modelBuilder.Entity("Nexora.Domain.Entities.ClientInvoice", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<Guid>("ClientId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<DateTime>("DueDateUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("InvoiceNumber")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<DateTime?>("PaidAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InvoiceNumber")
+                        .IsUnique();
+
+                    b.HasIndex("ClientId", "Status");
+
+                    b.ToTable("ClientInvoices", (string)null);
+                });
+
+            modelBuilder.Entity("Nexora.Domain.Entities.ClientMilestone", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ClientId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("CompletedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<DateTime?>("DueDateUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateTime?>("UpdatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClientId", "Status");
+
+                    b.ToTable("ClientMilestones", (string)null);
                 });
 
             modelBuilder.Entity("Nexora.Domain.Entities.Contact", b =>
@@ -691,6 +880,9 @@ namespace Nexora.Infrastructure.Persistence.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
+                    b.Property<string>("FollowUpNote")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("FormKey")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -712,6 +904,9 @@ namespace Nexora.Infrastructure.Persistence.Migrations
                     b.Property<string>("IpAddress")
                         .HasMaxLength(45)
                         .HasColumnType("nvarchar(45)");
+
+                    b.Property<DateTime?>("NextFollowUpAtUtc")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Phone")
                         .HasMaxLength(50)
@@ -1112,6 +1307,9 @@ namespace Nexora.Infrastructure.Persistence.Migrations
                     b.Property<Guid?>("PublishedVersionId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<DateTime?>("ScheduledPublishAtUtc")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Slug")
                         .IsRequired()
                         .HasMaxLength(200)
@@ -1334,6 +1532,9 @@ namespace Nexora.Infrastructure.Persistence.Migrations
                     b.Property<DateTime>("CreatedAtUtc")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("CustomDomain")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("DefaultRegion")
                         .IsRequired()
                         .HasMaxLength(10)
@@ -1414,6 +1615,9 @@ namespace Nexora.Infrastructure.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("nvarchar(max)")
                         .HasDefaultValue("{}");
+
+                    b.Property<string>("SslStatus")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("SupportEmail")
                         .IsRequired()
@@ -1891,6 +2095,39 @@ namespace Nexora.Infrastructure.Persistence.Migrations
                     b.Navigation("Client");
                 });
 
+            modelBuilder.Entity("Nexora.Domain.Entities.ClientDocument", b =>
+                {
+                    b.HasOne("Nexora.Domain.Entities.Client", "Client")
+                        .WithMany("Documents")
+                        .HasForeignKey("ClientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Client");
+                });
+
+            modelBuilder.Entity("Nexora.Domain.Entities.ClientInvoice", b =>
+                {
+                    b.HasOne("Nexora.Domain.Entities.Client", "Client")
+                        .WithMany("Invoices")
+                        .HasForeignKey("ClientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Client");
+                });
+
+            modelBuilder.Entity("Nexora.Domain.Entities.ClientMilestone", b =>
+                {
+                    b.HasOne("Nexora.Domain.Entities.Client", "Client")
+                        .WithMany("Milestones")
+                        .HasForeignKey("ClientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Client");
+                });
+
             modelBuilder.Entity("Nexora.Domain.Entities.Contact", b =>
                 {
                     b.HasOne("Nexora.Domain.Entities.Client", "Client")
@@ -2026,6 +2263,12 @@ namespace Nexora.Infrastructure.Persistence.Migrations
                     b.Navigation("Activities");
 
                     b.Navigation("Contacts");
+
+                    b.Navigation("Documents");
+
+                    b.Navigation("Invoices");
+
+                    b.Navigation("Milestones");
 
                     b.Navigation("Tasks");
                 });

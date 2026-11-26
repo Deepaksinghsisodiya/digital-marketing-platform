@@ -6,6 +6,7 @@ import {
   useGetLeadStatsQuery,
   useGetClientsQuery,
   useGetLeadsQuery,
+  useGetDashboardAnalyticsQuery,
 } from "../../store/api/adminApi";
 import {
   Users,
@@ -43,7 +44,26 @@ import {
 
 export const DashboardPage: React.FC = () => {
   const { user } = useAppSelector((state) => state.auth);
-  const [timeframe, setTimeframe] = useState<"7d" | "30d" | "90d">("7d");
+  const [timeframe, setTimeframe] = useState<"7d" | "30d" | "90d" | "custom">("7d");
+  const [customStartDate, setCustomStartDate] = useState(() => {
+    const d = new Date();
+    d.setDate(d.getDate() - 30);
+    return d.toISOString().slice(0, 10);
+  });
+  const [customEndDate, setCustomEndDate] = useState(() => new Date().toISOString().slice(0, 10));
+
+  const analyticsRange = useMemo(() => {
+    const end = timeframe === "custom" ? new Date(`${customEndDate}T23:59:59Z`) : new Date();
+    const start = new Date(end);
+    if (timeframe === "custom") {
+      return { startDate: `${customStartDate}T00:00:00Z`, endDate: `${customEndDate}T23:59:59Z` };
+    }
+    const days = timeframe === "7d" ? 7 : timeframe === "30d" ? 30 : 90;
+    start.setDate(start.getDate() - days);
+    return { startDate: start.toISOString(), endDate: end.toISOString() };
+  }, [timeframe, customStartDate, customEndDate]);
+
+  const { data: analyticsData } = useGetDashboardAnalyticsQuery(analyticsRange);
 
   const { data: usersData, isLoading: isUsersLoading } = useGetUsersQuery({
     page: 1,
@@ -123,22 +143,43 @@ export const DashboardPage: React.FC = () => {
           </p>
         </div>
 
-        {/* Global Timeframe Quick Switcher */}
-        <div className="inline-flex items-center p-1 rounded-xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/80 self-start sm:self-auto shrink-0 shadow-2xs">
-          {(["7d", "30d", "90d"] as const).map((t) => (
-            <button
-              key={t}
-              type="button"
-              onClick={() => setTimeframe(t)}
-              className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
-                timeframe === t
-                  ? "bg-white dark:bg-slate-900 text-primary shadow-xs"
-                  : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100"
-              }`}
-            >
-              {t === "7d" ? "Past 7 Days" : t === "30d" ? "Past 30 Days" : "Past Quarter"}
-            </button>
-          ))}
+        {/* Global Timeframe Quick Switcher + Custom Date Range Picker */}
+        <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto shrink-0">
+          <div className="inline-flex items-center p-1 rounded-xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/80 shadow-2xs">
+            {(["7d", "30d", "90d", "custom"] as const).map((t) => (
+              <button
+                key={t}
+                type="button"
+                onClick={() => setTimeframe(t)}
+                className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
+                  timeframe === t
+                    ? "bg-white dark:bg-slate-900 text-primary shadow-xs"
+                    : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100"
+                }`}
+              >
+                {t === "7d" ? "Past 7 Days" : t === "30d" ? "Past 30 Days" : t === "90d" ? "Past Quarter" : "Custom Range"}
+              </button>
+            ))}
+          </div>
+          {timeframe === "custom" && (
+            <div className="flex items-center gap-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-2.5 py-1 text-xs">
+              <input
+                type="date"
+                aria-label="Start date"
+                value={customStartDate}
+                onChange={(e) => setCustomStartDate(e.target.value)}
+                className="bg-transparent text-slate-700 dark:text-slate-200 focus:outline-none"
+              />
+              <span className="text-slate-400">to</span>
+              <input
+                type="date"
+                aria-label="End date"
+                value={customEndDate}
+                onChange={(e) => setCustomEndDate(e.target.value)}
+                className="bg-transparent text-slate-700 dark:text-slate-200 focus:outline-none"
+              />
+            </div>
+          )}
         </div>
       </div>
 
@@ -328,6 +369,57 @@ export const DashboardPage: React.FC = () => {
               </span>
             </div>
           </Link>
+        </div>
+      </Card>
+
+      {/* Pipeline Funnel Telemetry (Selected Date Range) */}
+      <Card className="p-5 space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800/80 pb-3">
+          <div>
+            <h2 className="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white flex items-center gap-2">
+              <TrendingUp className="w-4 h-4 text-primary" />
+              <span>Lead Conversion Telemetry</span>
+            </h2>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+              Live inbound pipeline breakdown across stages for the selected date range.
+            </p>
+          </div>
+          <Link to="/leads" className="text-xs font-semibold text-primary hover:underline">
+            Open Leads Pipeline →
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
+          <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/70 dark:border-slate-800">
+            <div className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">Total Inquiries</div>
+            <div className="text-xl font-black text-slate-900 dark:text-white mt-1">
+              {analyticsData?.funnel.total ?? 0}
+            </div>
+          </div>
+          <div className="p-3.5 rounded-xl bg-primary/5 border border-primary/20">
+            <div className="text-[11px] font-semibold text-primary">New</div>
+            <div className="text-xl font-black text-primary mt-1">
+              {analyticsData?.funnel.new ?? 0}
+            </div>
+          </div>
+          <div className="p-3.5 rounded-xl bg-amber-500/5 border border-amber-500/20">
+            <div className="text-[11px] font-semibold text-amber-600 dark:text-amber-400">Contacted</div>
+            <div className="text-xl font-black text-amber-600 dark:text-amber-400 mt-1">
+              {analyticsData?.funnel.contacted ?? 0}
+            </div>
+          </div>
+          <div className="p-3.5 rounded-xl bg-indigo-500/5 border border-indigo-500/20">
+            <div className="text-[11px] font-semibold text-indigo-600 dark:text-indigo-400">Qualified SQL</div>
+            <div className="text-xl font-black text-indigo-600 dark:text-indigo-400 mt-1">
+              {analyticsData?.funnel.qualified ?? 0}
+            </div>
+          </div>
+          <div className="p-3.5 rounded-xl bg-emerald-500/5 border border-emerald-500/20">
+            <div className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">Converted</div>
+            <div className="text-xl font-black text-emerald-600 dark:text-emerald-400 mt-1">
+              {analyticsData?.funnel.closed ?? 0}
+            </div>
+          </div>
         </div>
       </Card>
 

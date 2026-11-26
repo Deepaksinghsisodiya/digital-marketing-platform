@@ -95,9 +95,20 @@ public class MenuService : IMenuService
             menu.RegionCode = region;
             menu.MarkUpdated();
 
-            // Clear old items
-            _context.NavigationMenuItems.RemoveRange(menu.Items);
-            menu.Items.Clear();
+            // Break self-referencing ParentItemId FKs (DeleteBehavior.Restrict) and delete old items cleanly
+            var oldItems = menu.Items.ToList();
+            if (oldItems.Count > 0)
+            {
+                foreach (var old in oldItems)
+                {
+                    old.ParentItemId = null;
+                }
+                await _context.SaveChangesAsync(ct);
+
+                _context.NavigationMenuItems.RemoveRange(oldItems);
+                menu.Items.Clear();
+                await _context.SaveChangesAsync(ct);
+            }
         }
         else
         {
@@ -116,10 +127,11 @@ public class MenuService : IMenuService
             _context.NavigationMenus.Add(menu);
         }
 
-        // Add items if supplied
+        // Add items if supplied (two-pass ID remapping so nested sub-links always link to their newly created parent)
         if (request.Items != null && request.Items.Count > 0)
         {
-            var itemMap = new Dictionary<SaveMenuItemRequest, NavigationMenuItem>();
+            var idRemap = new Dictionary<Guid, Guid>();
+            var createdItems = new List<(SaveMenuItemRequest Req, NavigationMenuItem Entity)>();
 
             foreach (var itemReq in request.Items)
             {
@@ -129,9 +141,23 @@ public class MenuService : IMenuService
                     Label = itemReq.Label.Trim(),
                     Url = itemReq.Url.Trim(),
                     DisplayOrder = itemReq.DisplayOrder,
-                    ParentItemId = itemReq.ParentItemId
+                    ParentItemId = null
                 };
-                menu.Items.Add(item);
+                if (itemReq.Id.HasValue && itemReq.Id.Value != Guid.Empty)
+                {
+                    idRemap[itemReq.Id.Value] = item.Id;
+                }
+                createdItems.Add((itemReq, item));
+                _context.NavigationMenuItems.Add(item);
+            }
+
+            foreach (var (req, entity) in createdItems)
+            {
+                if (req.ParentItemId.HasValue && req.ParentItemId.Value != Guid.Empty &&
+                    idRemap.TryGetValue(req.ParentItemId.Value, out var mappedParentId))
+                {
+                    entity.ParentItemId = mappedParentId;
+                }
             }
         }
 

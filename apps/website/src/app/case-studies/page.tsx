@@ -63,17 +63,17 @@ export default async function CaseStudiesPage() {
 
       <main className="flex-1">
         {/* Page Hero */}
-        <section className="py-20 sm:py-24 bg-slate-950 text-white relative overflow-hidden">
+        <section className="py-20 sm:py-24 bg-white text-slate-900 border-b border-slate-200/80 relative overflow-hidden">
           <div
             aria-hidden="true"
             className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[350px] bg-primary/10 blur-[150px] rounded-full pointer-events-none"
           />
           <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6">
             <Badge variant="accent">Documented Results</Badge>
-            <h1 className="text-4xl sm:text-6xl font-black tracking-tight text-white max-w-4xl mx-auto leading-tight">
+            <h1 className="text-4xl sm:text-6xl font-black tracking-tight text-slate-950 max-w-4xl mx-auto leading-tight">
               Enterprise Growth Case Studies
             </h1>
-            <p className="text-slate-400 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed">
+            <p className="text-slate-600 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed">
               Real-world transformations, verifiable attribution models, and commercial outcomes delivered for leading enterprises.
             </p>
           </div>
@@ -83,12 +83,12 @@ export default async function CaseStudiesPage() {
         <CaseStudiesBlock block={activeBlock} />
 
         {/* CTA Banner */}
-        <section className="py-16 bg-slate-900 text-white text-center border-t border-slate-800">
+        <section className="py-16 bg-slate-50 text-slate-900 text-center border-t border-slate-200">
           <div className="max-w-4xl mx-auto px-4 space-y-6">
-            <h2 className="text-3xl sm:text-4xl font-black">
+            <h2 className="text-3xl sm:text-4xl font-black text-slate-950">
               Ready for Similar Growth Results?
             </h2>
-            <p className="text-slate-400 text-sm sm:text-base max-w-xl mx-auto">
+            <p className="text-slate-600 text-sm sm:text-base max-w-xl mx-auto">
               Our growth strategists will conduct a tailored opportunity diagnostic on your domain and ad accounts.
             </p>
             <div className="pt-2">

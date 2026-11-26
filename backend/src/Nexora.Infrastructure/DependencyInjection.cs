@@ -93,10 +93,31 @@ public static class DependencyInjection
         };
         services.AddSingleton(Options.Create(smtpOptions));
 
-        services.AddTransient<IEmailSender, MailKitEmailSender>();
+        var emailProvider = configuration["Email:Provider"];
+        if (string.Equals(emailProvider, "Resend", StringComparison.OrdinalIgnoreCase) &&
+            !string.IsNullOrWhiteSpace(configuration["Resend:ApiKey"]))
+        {
+            services.AddTransient<IEmailSender, ResendEmailSender>();
+        }
+        else
+        {
+            services.AddTransient<IEmailSender, MailKitEmailSender>();
+        }
 
         // Domain & Application service implementations
-        services.AddSingleton<IStorageService, Storage.LocalStorageService>();
+        var storageProvider = configuration["Storage:Provider"];
+        if ((string.Equals(storageProvider, "S3", StringComparison.OrdinalIgnoreCase) ||
+             string.Equals(storageProvider, "Cloud", StringComparison.OrdinalIgnoreCase) ||
+             string.Equals(storageProvider, "AzureBlob", StringComparison.OrdinalIgnoreCase)) &&
+            (!string.IsNullOrWhiteSpace(configuration["Storage:Cloud:EndpointUrl"]) ||
+             !string.IsNullOrWhiteSpace(configuration["Storage:S3:BucketName"])))
+        {
+            services.AddSingleton<IStorageService, Storage.S3StorageService>();
+        }
+        else
+        {
+            services.AddSingleton<IStorageService, Storage.LocalStorageService>();
+        }
         services.AddScoped<IMediaService, MediaService>();
         services.AddScoped<IMenuService, MenuService>();
         services.AddScoped<IAuditLogService, AuditLogService>();
@@ -111,6 +132,8 @@ public static class DependencyInjection
         services.AddScoped<IBlogService, BlogService>();
         services.AddSingleton<ILeadScoringService, LeadScoringService>();
         services.AddHttpClient<IWebhookDispatcher, WebhookDispatcher>();
+        services.Configure<WhatsAppOptions>(configuration.GetSection(WhatsAppOptions.SectionName));
+        services.AddHttpClient<IWhatsAppService, WhatsAppCloudService>();
 
         // Health check registration
         services.AddHealthChecks()

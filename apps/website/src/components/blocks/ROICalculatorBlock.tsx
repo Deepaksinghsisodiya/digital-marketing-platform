@@ -221,28 +221,28 @@ export const ROICalculatorBlock: React.FC<ROICalculatorBlockProps> = ({ block })
           </div>
 
           {/* Results Projection Panel (5 cols) */}
-          <div className="lg:col-span-5 bg-slate-950 text-white rounded-3xl p-6 sm:p-8 shadow-xl relative overflow-hidden flex flex-col justify-between">
+          <div className="lg:col-span-5 bg-white border border-slate-200 text-slate-900 rounded-3xl p-6 sm:p-8 shadow-xl relative overflow-hidden flex flex-col justify-between">
             <div
               aria-hidden="true"
-              className="absolute top-0 right-0 w-64 h-64 bg-primary/20 blur-[100px] rounded-full pointer-events-none"
+              className="absolute top-0 right-0 w-64 h-64 bg-primary/10 blur-[100px] rounded-full pointer-events-none"
             />
 
             <div className="relative z-10 space-y-6">
               <div className="flex items-center justify-between">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-primary/20 text-primary border border-primary/30">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-primary/10 text-primary border border-primary/20">
                   <Sparkles className="w-3.5 h-3.5" />
                   Estimated Monthly Impact
                 </span>
-                <span className="text-xs font-mono text-slate-400">Deterministic Model</span>
+                <span className="text-xs font-mono text-slate-500">Deterministic Model</span>
               </div>
 
               {/* Big Highlight: Pipeline Generated */}
               <div className="space-y-1">
-                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
                   Projected Monthly Pipeline
                 </p>
                 <div className="flex items-baseline gap-2">
-                  <span className="text-4xl sm:text-5xl font-black text-white tracking-tight font-mono">
+                  <span className="text-4xl sm:text-5xl font-black text-slate-950 tracking-tight font-mono">
                     ${metrics.pipelineGenerated.toLocaleString()}
                   </span>
                   <span className="text-xs text-emerald-400 font-bold">/mo</span>
@@ -250,43 +250,43 @@ export const ROICalculatorBlock: React.FC<ROICalculatorBlockProps> = ({ block })
               </div>
 
               {/* 3 Metric Cards */}
-              <div className="grid grid-cols-2 gap-3 pt-4 border-t border-slate-800">
-                <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-4">
-                  <span className="text-[11px] text-slate-400 font-medium">ROI Multiplier</span>
+              <div className="grid grid-cols-2 gap-3 pt-4 border-t border-slate-200">
+                <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-4">
+                  <span className="text-[11px] text-slate-500 font-medium">ROI Multiplier</span>
                   <div className="flex items-baseline gap-1 mt-1">
-                    <span className="text-2xl font-bold text-white font-mono">{metrics.roiMultiplier}x</span>
-                    <span className="text-[10px] text-emerald-400 font-semibold">return</span>
+                    <span className="text-2xl font-bold text-slate-900 font-mono">{metrics.roiMultiplier}x</span>
+                    <span className="text-[10px] text-emerald-600 font-semibold">return</span>
                   </div>
                 </div>
 
-                <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-4">
-                  <span className="text-[11px] text-slate-400 font-medium">Est. CAC Reduction</span>
+                <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-4">
+                  <span className="text-[11px] text-slate-500 font-medium">Est. CAC Reduction</span>
                   <div className="flex items-baseline gap-1 mt-1">
-                    <span className="text-2xl font-bold text-emerald-400 font-mono">-{metrics.cacReduction}%</span>
-                    <span className="text-[10px] text-slate-400 font-semibold">efficiency</span>
+                    <span className="text-2xl font-bold text-emerald-600 font-mono">-{metrics.cacReduction}%</span>
+                    <span className="text-[10px] text-slate-500 font-semibold">efficiency</span>
                   </div>
                 </div>
 
-                <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-4">
-                  <span className="text-[11px] text-slate-400 font-medium">Optimized MQLs</span>
+                <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-4">
+                  <span className="text-[11px] text-slate-500 font-medium">Optimized MQLs</span>
                   <div className="flex items-baseline gap-1 mt-1">
-                    <span className="text-2xl font-bold text-white font-mono">{metrics.optimizedLeads}</span>
-                    <span className="text-[10px] text-emerald-400 font-semibold">+{metrics.optimizedLeads - metrics.baseLeads}</span>
+                    <span className="text-2xl font-bold text-slate-900 font-mono">{metrics.optimizedLeads}</span>
+                    <span className="text-[10px] text-emerald-600 font-semibold">+{metrics.optimizedLeads - metrics.baseLeads}</span>
                   </div>
                 </div>
 
-                <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-4">
-                  <span className="text-[11px] text-slate-400 font-medium">Deals Closed</span>
+                <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-4">
+                  <span className="text-[11px] text-slate-500 font-medium">Deals Closed</span>
                   <div className="flex items-baseline gap-1 mt-1">
-                    <span className="text-2xl font-bold text-white font-mono">{metrics.dealsClosed}</span>
-                    <span className="text-[10px] text-slate-400 font-semibold">/mo</span>
+                    <span className="text-2xl font-bold text-slate-900 font-mono">{metrics.dealsClosed}</span>
+                    <span className="text-[10px] text-slate-500 font-semibold">/mo</span>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* CTA action */}
-            <div className="pt-8 border-t border-slate-800 mt-6 relative z-10">
+            <div className="pt-8 border-t border-slate-200 mt-6 relative z-10">
               <Link
                 href={`/contact?spend=${monthlySpend}&pipeline=${metrics.pipelineGenerated}&conv=${conversionRate}`}
                 className="w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-primary text-white font-bold text-xs hover:bg-primary-hover transition-all duration-200 shadow-lg shadow-primary/20"

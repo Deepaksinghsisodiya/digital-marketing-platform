@@ -1036,6 +1036,268 @@ export const adminApi = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["Theme"],
     }),
+
+    // Dashboard Revenue & Date-Range Analytics
+    getDashboardAnalytics: builder.query<
+      {
+        startDateUtc: string;
+        endDateUtc: string;
+        funnel: { total: number; new: number; inProgress: number; contacted: number; qualified: number; closed: number };
+        revenue: {
+          totalBilled: number;
+          totalPaid: number;
+          totalPending: number;
+          totalOverdue: number;
+          invoiceCount: number;
+          monthlySeries: Array<{ month: string; billed: number; paid: number }>;
+        };
+      },
+      { startDate?: string; endDate?: string } | void
+    >({
+      query: (params) => {
+        const qs = new URLSearchParams();
+        if (params && params.startDate) qs.set("startDate", params.startDate);
+        if (params && params.endDate) qs.set("endDate", params.endDate);
+        const query = qs.toString();
+        return `/api/v1/admin/dashboard/analytics${query ? `?${query}` : ""}`;
+      },
+      providesTags: ["Lead", "Client"],
+    }),
+
+    // Webhooks, API Keys & Backups
+    testOutboundWebhook: builder.mutation<
+      { success: boolean; statusCode: number; message: string },
+      { webhookUrl?: string }
+    >({
+      query: (body) => ({
+        url: "/api/v1/admin/settings/webhook/test",
+        method: "POST",
+        body,
+      }),
+    }),
+    getApiKeys: builder.query<
+      Array<{
+        id: string;
+        name: string;
+        keyPrefix: string;
+        scopes: string;
+        createdAtUtc: string;
+        lastUsedAtUtc?: string | null;
+        revokedAtUtc?: string | null;
+        isActive: boolean;
+      }>,
+      void
+    >({
+      query: () => "/api/v1/admin/api-keys",
+      providesTags: ["Settings"],
+    }),
+    createApiKey: builder.mutation<
+      { id: string; name: string; keyPrefix: string; scopes: string; createdAtUtc: string; plaintextKey: string },
+      { name: string; scopes?: string }
+    >({
+      query: (body) => ({
+        url: "/api/v1/admin/api-keys",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["Settings"],
+    }),
+    revokeApiKey: builder.mutation<{ success: boolean; message: string }, string>({
+      query: (id) => ({
+        url: `/api/v1/admin/api-keys/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Settings"],
+    }),
+    getBackups: builder.query<Array<{ fileName: string; sizeBytes: number; createdAtUtc: string }>, void>({
+      query: () => "/api/v1/admin/backups",
+      providesTags: ["Settings"],
+    }),
+    createBackup: builder.mutation<{ fileName: string; sizeBytes: number; createdAtUtc: string }, void>({
+      query: () => ({
+        url: "/api/v1/admin/backups",
+        method: "POST",
+      }),
+      invalidatesTags: ["Settings"],
+    }),
+    restoreBackup: builder.mutation<{ verified: boolean; fileName: string; message: string }, { fileName: string }>({
+      query: (body) => ({
+        url: "/api/v1/admin/backups/restore",
+        method: "POST",
+        body,
+      }),
+    }),
+
+    // Leads Bulk & Follow-up
+    bulkLeadAction: builder.mutation<
+      { affected: number; action: string },
+      { leadIds: string[]; action: "status" | "assign" | "delete"; status?: number; assignedToUserId?: string | null }
+    >({
+      query: (body) => ({
+        url: "/api/v1/admin/leads/bulk",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["Lead"],
+    }),
+    scheduleLeadFollowUp: builder.mutation<
+      { id: string; nextFollowUpAtUtc?: string | null; followUpNote?: string | null },
+      { id: string; nextFollowUpAtUtc?: string | null; followUpNote?: string | null }
+    >({
+      query: ({ id, ...body }) => ({
+        url: `/api/v1/admin/leads/${id}/follow-up`,
+        method: "PATCH",
+        body,
+      }),
+      invalidatesTags: ["Lead"],
+    }),
+
+    // Admin Forms
+    getAdminForms: builder.query<Array<{ id: string; formKey: string; name: string; fieldsJson: string; isActive: boolean }>, void>({
+      query: () => "/api/v1/admin/forms",
+      providesTags: ["Settings"],
+    }),
+    saveAdminForm: builder.mutation<any, { id?: string; formKey: string; name: string; fieldsJson: string; isActive?: boolean }>({
+      query: ({ id, ...body }) => ({
+        url: id ? `/api/v1/admin/forms/${id}` : "/api/v1/admin/forms",
+        method: id ? "PUT" : "POST",
+        body,
+      }),
+      invalidatesTags: ["Settings"],
+    }),
+
+    // Media Metadata & Usage
+    updateMediaMetadata: builder.mutation<
+      { id: string; altText: string; folderId?: string | null },
+      { id: string; altText?: string; folderId?: string | null }
+    >({
+      query: ({ id, ...body }) => ({
+        url: `/api/v1/admin/media/${id}`,
+        method: "PATCH",
+        body,
+      }),
+      invalidatesTags: ["Media"],
+    }),
+    getMediaUsage: builder.query<
+      { assetId: string; usageCount: number; usages: Array<{ type: string; id: string; title: string; url: string }> },
+      string
+    >({
+      query: (id) => `/api/v1/admin/media/${id}/usage`,
+    }),
+
+    // Scheduled Page Publishing
+    schedulePagePublish: builder.mutation<
+      { id: string; scheduledPublishAtUtc?: string | null; message: string },
+      { id: string; scheduledPublishAtUtc: string | null }
+    >({
+      query: ({ id, scheduledPublishAtUtc }) => ({
+        url: `/api/v1/admin/pages/${id}/schedule`,
+        method: "POST",
+        body: { scheduledPublishAtUtc },
+      }),
+      invalidatesTags: ["CmsPage"],
+    }),
+
+    // Client Tasks, Invoices, Milestones, Documents & Portal
+    patchTaskStatus: builder.mutation<{ id: string; status: number }, { id: string; status: number }>({
+      query: ({ id, status }) => ({
+        url: `/api/v1/admin/tasks/${id}/status`,
+        method: "PATCH",
+        body: { status },
+      }),
+      invalidatesTags: ["Client"],
+    }),
+    deleteTask: builder.mutation<{ success: boolean }, string>({
+      query: (id) => ({
+        url: `/api/v1/admin/tasks/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Client"],
+    }),
+    getClientInvoices: builder.query<any[], string>({
+      query: (clientId) => `/api/v1/admin/clients/${clientId}/invoices`,
+      providesTags: ["Client"],
+    }),
+    createClientInvoice: builder.mutation<any, { clientId: string; invoiceNumber?: string; amount: number; currency?: string; status?: number; dueDateUtc?: string; description?: string }>({
+      query: ({ clientId, ...body }) => ({
+        url: `/api/v1/admin/clients/${clientId}/invoices`,
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["Client"],
+    }),
+    updateClientInvoiceStatus: builder.mutation<any, { invoiceId: string; status: number }>({
+      query: ({ invoiceId, status }) => ({
+        url: `/api/v1/admin/clients/invoices/${invoiceId}`,
+        method: "PATCH",
+        body: { status },
+      }),
+      invalidatesTags: ["Client"],
+    }),
+    deleteClientInvoice: builder.mutation<{ success: boolean }, string>({
+      query: (invoiceId) => ({
+        url: `/api/v1/admin/clients/invoices/${invoiceId}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Client"],
+    }),
+    getClientMilestones: builder.query<any[], string>({
+      query: (clientId) => `/api/v1/admin/clients/${clientId}/milestones`,
+      providesTags: ["Client"],
+    }),
+    createClientMilestone: builder.mutation<any, { clientId: string; title: string; description?: string; status?: number; dueDateUtc?: string }>({
+      query: ({ clientId, ...body }) => ({
+        url: `/api/v1/admin/clients/${clientId}/milestones`,
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["Client"],
+    }),
+    updateClientMilestoneStatus: builder.mutation<any, { milestoneId: string; status: number }>({
+      query: ({ milestoneId, status }) => ({
+        url: `/api/v1/admin/clients/milestones/${milestoneId}`,
+        method: "PATCH",
+        body: { status },
+      }),
+      invalidatesTags: ["Client"],
+    }),
+    deleteClientMilestone: builder.mutation<{ success: boolean }, string>({
+      query: (milestoneId) => ({
+        url: `/api/v1/admin/clients/milestones/${milestoneId}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Client"],
+    }),
+    getClientDocuments: builder.query<any[], string>({
+      query: (clientId) => `/api/v1/admin/clients/${clientId}/documents`,
+      providesTags: ["Client"],
+    }),
+    createClientDocument: builder.mutation<any, { clientId: string; title: string; fileUrl: string; category?: string; fileSizeBytes?: number }>({
+      query: ({ clientId, ...body }) => ({
+        url: `/api/v1/admin/clients/${clientId}/documents`,
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["Client"],
+    }),
+    deleteClientDocument: builder.mutation<{ success: boolean }, string>({
+      query: (docId) => ({
+        url: `/api/v1/admin/clients/documents/${docId}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Client"],
+    }),
+    generateClientPortalLink: builder.mutation<
+      { id: string; portalEnabled: boolean; portalToken?: string | null; portalPath?: string | null },
+      { clientId: string; enabled?: boolean; regenerate?: boolean }
+    >({
+      query: ({ clientId, ...body }) => ({
+        url: `/api/v1/admin/clients/${clientId}/portal-link`,
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["Client"],
+    }),
   }),
 });
 
@@ -1134,4 +1396,33 @@ export const {
   useGetThemeVersionsQuery,
   useRollbackThemeMutation,
   useImportThemeMutation,
+  useGetDashboardAnalyticsQuery,
+  useTestOutboundWebhookMutation,
+  useGetApiKeysQuery,
+  useCreateApiKeyMutation,
+  useRevokeApiKeyMutation,
+  useGetBackupsQuery,
+  useCreateBackupMutation,
+  useRestoreBackupMutation,
+  useBulkLeadActionMutation,
+  useScheduleLeadFollowUpMutation,
+  useGetAdminFormsQuery,
+  useSaveAdminFormMutation,
+  useUpdateMediaMetadataMutation,
+  useLazyGetMediaUsageQuery,
+  useSchedulePagePublishMutation,
+  usePatchTaskStatusMutation,
+  useDeleteTaskMutation,
+  useGetClientInvoicesQuery,
+  useCreateClientInvoiceMutation,
+  useUpdateClientInvoiceStatusMutation,
+  useDeleteClientInvoiceMutation,
+  useGetClientMilestonesQuery,
+  useCreateClientMilestoneMutation,
+  useUpdateClientMilestoneStatusMutation,
+  useDeleteClientMilestoneMutation,
+  useGetClientDocumentsQuery,
+  useCreateClientDocumentMutation,
+  useDeleteClientDocumentMutation,
+  useGenerateClientPortalLinkMutation,
 } = adminApi;

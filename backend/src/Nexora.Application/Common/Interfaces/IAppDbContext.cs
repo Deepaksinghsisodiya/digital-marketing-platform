@@ -21,5 +21,9 @@ public interface IAppDbContext
     IQueryable<CountryRegion> CountryRegions { get; }
     IQueryable<Theme> Themes { get; }
     IQueryable<ThemeVersion> ThemeVersions { get; }
+    IQueryable<ClientInvoice> ClientInvoices { get; }
+    IQueryable<ClientMilestone> ClientMilestones { get; }
+    IQueryable<ClientDocument> ClientDocuments { get; }
+    IQueryable<ApiKey> ApiKeys { get; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

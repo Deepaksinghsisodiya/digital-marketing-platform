@@ -99,6 +99,68 @@ public static class MediaEndpoints
         .WithName("DeleteMediaAsset")
         .WithSummary("Delete media asset from database and file storage.");
 
+        adminGroup.MapPatch("/{id:guid}", async (
+            Guid id,
+            [FromBody] UpdateMediaMetadataDto dto,
+            AppDbContext db,
+            CancellationToken ct) =>
+        {
+            var asset = await db.MediaAssets.FirstOrDefaultAsync(a => a.Id == id, ct);
+            if (asset == null) return Results.NotFound(new { error = "Media asset not found." });
+
+            if (dto.AltText != null) asset.AltText = dto.AltText.Trim();
+            if (dto.FolderId.HasValue) asset.FolderId = dto.FolderId.Value == Guid.Empty ? null : dto.FolderId.Value;
+
+            await db.SaveChangesAsync(ct);
+            return Results.Ok(new { asset.Id, asset.AltText, asset.FolderId });
+        })
+        .RequireAuthorization(Permissions.PagesEdit)
+        .WithName("UpdateMediaMetadata")
+        .WithSummary("Update alt text or folder assignment for a media asset.");
+
+        adminGroup.MapGet("/{id:guid}/usage", async (
+            Guid id,
+            AppDbContext db,
+            CancellationToken ct) =>
+        {
+            var asset = await db.MediaAssets.AsNoTracking().FirstOrDefaultAsync(a => a.Id == id, ct);
+            if (asset == null) return Results.NotFound(new { error = "Media asset not found." });
+
+            var idStr = id.ToString();
+            var keyStr = asset.StorageKey;
+
+            var pageRefs = await db.Pages
+                .AsNoTracking()
+                .Where(p => (p.OgImageUrl != null && (p.OgImageUrl.Contains(idStr) || p.OgImageUrl.Contains(keyStr)))
+                    || p.Versions.Any(v => v.ContentJson.Contains(idStr) || v.ContentJson.Contains(keyStr)))
+                .Select(p => new { Type = "Page", p.Id, Title = p.Title, Url = "/" + p.Slug })
+                .ToListAsync(ct);
+
+            var blogRefs = await db.BlogPosts
+                .AsNoTracking()
+                .Where(b => (b.CoverImageUrl != null && (b.CoverImageUrl.Contains(idStr) || b.CoverImageUrl.Contains(keyStr)))
+                    || b.ContentHtml.Contains(idStr) || b.ContentHtml.Contains(keyStr))
+                .Select(b => new { Type = "BlogPost", b.Id, Title = b.Title, Url = "/blog/" + b.Slug })
+                .ToListAsync(ct);
+
+            var settingsUsed = await db.SiteSettings
+                .AsNoTracking()
+                .AnyAsync(s => s.LogoMediaId == id || s.FaviconMediaId == id, ct);
+
+            var usages = new List<object>();
+            usages.AddRange(pageRefs);
+            usages.AddRange(blogRefs);
+            if (settingsUsed)
+            {
+                usages.Add(new { Type = "SiteSettings", Id = Guid.Empty, Title = "Brand Logo / Favicon", Url = "/settings" });
+            }
+
+            return Results.Ok(new { assetId = id, usageCount = usages.Count, usages });
+        })
+        .RequireAuthorization(Permissions.PagesView)
+        .WithName("GetMediaUsage")
+        .WithSummary("Scan CMS pages, blog posts, and site settings for references to this media asset.");
+
         // 2. Public Media Download / Streaming Endpoints
         var publicGroup = app.MapGroup("/api/v1/public/media")
             .WithTags("Public Media");
@@ -228,4 +290,6 @@ public static class MediaEndpoints
         .WithSummary("Download or stream publicly accessible media asset by storage path or legacy key.");
     }
 }
+
+public record UpdateMediaMetadataDto(string? AltText, Guid? FolderId);
 

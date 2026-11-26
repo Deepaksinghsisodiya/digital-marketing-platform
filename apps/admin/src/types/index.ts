@@ -94,6 +94,11 @@ export interface SiteSettingsDto {
   bookingUrl?: string | null;
   announcementBarJson?: string | null;
   redirectRulesJson?: string | null;
+  webhookUrl?: string | null;
+  webhookSecret?: string | null;
+  webhookSecretConfigured?: boolean;
+  customDomain?: string | null;
+  sslStatus?: string | null;
 }
 
 export interface UpdateSiteSettingsRequest {
@@ -124,6 +129,11 @@ export interface UpdateSiteSettingsRequest {
   bookingUrl?: string | null;
   announcementBarJson?: string | null;
   redirectRulesJson?: string | null;
+  webhookUrl?: string | null;
+  webhookSecret?: string | null;
+  webhookSecretConfigured?: boolean;
+  customDomain?: string | null;
+  sslStatus?: string | null;
 }
 
 export interface RedirectRule {
@@ -647,6 +657,7 @@ export interface NavigationMenuDto {
 }
 
 export interface SaveMenuItemRequest {
+  id?: string | null;
   label: string;
   url: string;
   displayOrder: number;

@@ -71,66 +71,50 @@ export const StatsBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
             - Laptop / Desktop (1024px+): 4 columns side by side (lg:grid-cols-4)
             All cards have equal height (h-full), distinct accent lines, and proportional padding.
         */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4 md:gap-5 lg:gap-6 items-stretch w-full">
-          {metrics.map((m, idx) => {
-            const meta = STAT_METADATA[idx % STAT_METADATA.length] ?? STAT_METADATA[0]!;
-            const Icon = meta.icon;
+        <div className="rounded-2xl sm:rounded-3xl bg-white border border-slate-200/90 shadow-sm overflow-hidden w-full">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-slate-200/80 w-full">
+            {metrics.map((m, idx) => {
+              const meta = STAT_METADATA[idx % STAT_METADATA.length] ?? STAT_METADATA[0]!;
+              const Icon = meta.icon;
 
-            return (
-              <div
-                key={idx}
-                className={`w-full h-full p-4 sm:p-5 lg:p-6 rounded-2xl sm:rounded-3xl bg-card border border-slate-200/90 shadow-2xs hover:shadow-xl ${meta.hoverBorder} hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between group relative overflow-hidden`}
-              >
-                {/* Subtle top accent gradient line */}
-                <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${meta.accentLine}`} />
+              return (
+                <div
+                  key={idx}
+                  className="w-full p-6 sm:p-7 hover:bg-slate-50/70 transition-colors flex flex-col justify-between group relative"
+                >
+                  <div className={`absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r ${meta.accentLine} opacity-80`} />
 
-                {/* Ambient hover glow */}
-                <div className={`absolute top-0 right-0 w-24 h-24 rounded-full blur-xl pointer-events-none transition-colors ${meta.hoverGlow}`} />
-
-                <div>
-                  {/* Top: Status pill + Icon */}
-                  <div className="flex items-center justify-between gap-2 mb-2.5 sm:mb-3.5">
-                    <span className="inline-flex items-center gap-1.5 text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full bg-slate-100 text-slate-700 border border-slate-200 shrink-0 shadow-2xs">
-                      <span className={`w-1.5 h-1.5 rounded-full ${meta.dot} animate-pulse shrink-0`} />
-                      <span className="truncate max-w-[120px] xs:max-w-[160px] sm:max-w-none">
-                        {m.change || "Growth Metric"}
+                  <div>
+                    {/* Top: Status pill + Icon */}
+                    <div className="flex items-center justify-between gap-2 mb-3">
+                      <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                        <span className={`w-1.5 h-1.5 rounded-full ${meta.dot} shrink-0`} />
+                        <span className="truncate max-w-[140px] sm:max-w-none">
+                          {m.change || "Growth Metric"}
+                        </span>
                       </span>
-                    </span>
-                    <div className={`w-8 h-8 sm:w-9 sm:h-9 rounded-xl border flex items-center justify-center transition-all duration-300 shadow-2xs shrink-0 ${meta.iconBg}`}>
-                      <Icon className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
+                      <div className={`w-8 h-8 rounded-lg border flex items-center justify-center transition-all duration-300 shrink-0 ${meta.iconBg}`}>
+                        <Icon className="w-4 h-4" />
+                      </div>
+                    </div>
+
+                    {/* Value with CountUp Animation */}
+                    <div className={`text-3xl sm:text-4xl font-black tracking-tight text-slate-900 ${meta.hoverText} transition-colors my-1 leading-none`}>
+                      <CountUp value={m.value} />
                     </div>
                   </div>
 
-                  {/* Value with CountUp Animation */}
-                  <div className={`text-2xl xs:text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-slate-900 ${meta.hoverText} transition-colors my-1.5 sm:my-2 leading-none`}>
-                    <CountUp value={m.value} />
+                  {/* Bottom label + arrow */}
+                  <div className="pt-3 mt-4 border-t border-slate-100 flex items-center justify-between gap-2">
+                    <div className="text-xs sm:text-sm font-semibold text-slate-600 leading-snug line-clamp-2">
+                      {m.label}
+                    </div>
+                    <ArrowUpRight className={`w-3.5 h-3.5 text-slate-400 ${meta.hoverText} group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all shrink-0`} />
                   </div>
                 </div>
-
-                {/* Mini sparkline graphic (stroke-draw, CSS only) */}
-                <div className="py-1">
-                  <svg className="w-full h-4 overflow-visible" viewBox="0 0 100 20" preserveAspectRatio="none">
-                    <path
-                      d="M0 16 Q 25 18, 50 10 T 100 4"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      className="text-slate-200 group-hover:text-primary transition-colors duration-500"
-                    />
-                  </svg>
-                </div>
-
-                {/* Bottom label + arrow */}
-                <div className="pt-2.5 sm:pt-3 border-t border-slate-100 flex items-center justify-between gap-1.5 mt-2">
-                  <div className="text-xs sm:text-sm font-semibold text-slate-600 leading-snug line-clamp-2">
-                    {m.label}
-                  </div>
-                  <ArrowUpRight className={`w-3.5 h-3.5 text-slate-400 ${meta.hoverText} group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all shrink-0 ml-1`} />
-                </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
       </div>
     </section>

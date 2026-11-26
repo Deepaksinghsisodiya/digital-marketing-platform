@@ -183,14 +183,14 @@ export default async function IndustriesCatalogPage() {
         </div>
 
         {/* Consultation Callout */}
-        <div className="rounded-3xl bg-slate-950 text-white p-8 sm:p-12 text-center space-y-6 border border-slate-800">
+        <div className="rounded-3xl bg-slate-50 text-slate-900 p-8 sm:p-12 text-center space-y-6 border border-slate-200 shadow-sm">
           <span className="text-xs font-bold uppercase tracking-widest text-primary bg-primary/10 px-3.5 py-1 rounded-full border border-primary/20">
             Sector-Specific Strategy
           </span>
-          <h2 className="text-2xl sm:text-4xl font-black tracking-tight text-white">
+          <h2 className="text-2xl sm:text-4xl font-black tracking-tight text-slate-950">
             Don&apos;t See Your Specific Industry Listed?
           </h2>
-          <p className="text-sm sm:text-base text-slate-300 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-sm sm:text-base text-slate-600 max-w-2xl mx-auto leading-relaxed">
             Our strategic methodology applies across diverse enterprise and high-growth commercial models. Contact our architects for a specialized discovery session.
           </p>
           <div className="pt-2">

@@ -111,17 +111,17 @@ export default async function PricingPage() {
 
       <main className="flex-1">
         {/* Page Hero Header */}
-        <section className="py-20 sm:py-24 bg-slate-950 text-white relative overflow-hidden">
+        <section className="py-20 sm:py-24 bg-white text-slate-900 border-b border-slate-200/80 relative overflow-hidden">
           <div
             aria-hidden="true"
             className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[350px] bg-primary/10 blur-[150px] rounded-full pointer-events-none"
           />
           <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6">
             <Badge variant="accent">Predictable Investment</Badge>
-            <h1 className="text-4xl sm:text-6xl font-black tracking-tight text-white max-w-4xl mx-auto leading-tight">
+            <h1 className="text-4xl sm:text-6xl font-black tracking-tight text-slate-950 max-w-4xl mx-auto leading-tight">
               Transparent Commercial Partnerships
             </h1>
-            <p className="text-slate-400 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed">
+            <p className="text-slate-600 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed">
               No hidden agency markups. Fixed monthly retainers paired with measurable pipeline goals, SLA guarantees, and deterministic ROI.
             </p>
           </div>

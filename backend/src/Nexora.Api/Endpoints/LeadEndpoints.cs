@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Nexora.Application.Common.Interfaces;
 using Nexora.Application.Leads.DTOs;
 using Nexora.Domain.Constants;
 using Nexora.Domain.Entities;
+using Nexora.Infrastructure.Persistence;
 
 namespace Nexora.Api.Endpoints;
 
@@ -331,5 +333,150 @@ public static class LeadEndpoints
         .RequireAuthorization(Permissions.SettingsManage)
         .WithName("UpdateFormDefinition")
         .WithSummary("Update existing dynamic form schema.");
+
+        // 4. Bulk Lead Actions & Follow-Up Scheduler
+        var adminLeadsGroup = app.MapGroup("/api/v1/admin/leads")
+            .WithTags("Leads (Admin)")
+            .RequireAuthorization();
+
+        adminLeadsGroup.MapPost("/bulk", async (
+            [FromBody] BulkLeadActionDto request,
+            AppDbContext db,
+            CancellationToken ct) =>
+        {
+            if (request.LeadIds == null || request.LeadIds.Length == 0)
+            {
+                return Results.BadRequest(new { error = "At least one lead ID is required." });
+            }
+
+            var leads = await db.Leads
+                .Where(l => request.LeadIds.Contains(l.Id))
+                .ToListAsync(ct);
+
+            if (leads.Count == 0)
+            {
+                return Results.NotFound(new { error = "No matching leads found." });
+            }
+
+            var action = (request.Action ?? string.Empty).Trim().ToLowerInvariant();
+            if (action == "delete")
+            {
+                db.Leads.RemoveRange(leads);
+            }
+            else if (action == "status" && request.Status.HasValue)
+            {
+                foreach (var lead in leads)
+                {
+                    lead.ChangeStatus(request.Status.Value);
+                }
+            }
+            else if (action == "assign")
+            {
+                foreach (var lead in leads)
+                {
+                    lead.AssignTo(request.AssignedToUserId);
+                }
+            }
+            else
+            {
+                return Results.BadRequest(new { error = "Unsupported bulk action. Use 'status', 'assign', or 'delete'." });
+            }
+
+            await db.SaveChangesAsync(ct);
+            return Results.Ok(new { affected = leads.Count, action });
+        })
+        .RequireAuthorization(Permissions.LeadsManage)
+        .WithName("BulkLeadAction");
+
+        adminLeadsGroup.MapPatch("/{id:guid}/follow-up", async (
+            Guid id,
+            [FromBody] ScheduleLeadFollowUpDto request,
+            AppDbContext db,
+            CancellationToken ct) =>
+        {
+            var lead = await db.Leads.FirstOrDefaultAsync(l => l.Id == id, ct);
+            if (lead == null) return Results.NotFound(new { error = "Lead not found." });
+
+            lead.ScheduleFollowUp(request.NextFollowUpAtUtc, request.FollowUpNote);
+            await db.SaveChangesAsync(ct);
+            return Results.Ok(new
+            {
+                lead.Id,
+                lead.NextFollowUpAtUtc,
+                lead.FollowUpNote
+            });
+        })
+        .RequireAuthorization(Permissions.LeadsManage)
+        .WithName("ScheduleLeadFollowUp");
+
+        // 5. Dashboard Revenue & Date-Range Analytics
+        app.MapGet("/api/v1/admin/dashboard/analytics", async (
+            DateTime? startDate,
+            DateTime? endDate,
+            AppDbContext db,
+            CancellationToken ct) =>
+        {
+            var start = startDate ?? DateTime.UtcNow.AddDays(-30);
+            var end = endDate ?? DateTime.UtcNow;
+
+            var leadsInRange = await db.Leads
+                .AsNoTracking()
+                .Where(l => l.CreatedAtUtc >= start && l.CreatedAtUtc <= end)
+                .ToListAsync(ct);
+
+            var invoices = await db.ClientInvoices
+                .AsNoTracking()
+                .Where(i => i.CreatedAtUtc >= start && i.CreatedAtUtc <= end)
+                .ToListAsync(ct);
+
+            var totalBilled = invoices.Where(i => i.Status != InvoiceStatus.Cancelled).Sum(i => i.Amount);
+            var totalPaid = invoices.Where(i => i.Status == InvoiceStatus.Paid).Sum(i => i.Amount);
+            var totalPending = invoices.Where(i => i.Status == InvoiceStatus.Sent || i.Status == InvoiceStatus.Draft).Sum(i => i.Amount);
+            var totalOverdue = invoices.Where(i => i.Status == InvoiceStatus.Overdue).Sum(i => i.Amount);
+
+            var monthlyRevenue = invoices
+                .Where(i => i.Status != InvoiceStatus.Cancelled)
+                .GroupBy(i => new { i.CreatedAtUtc.Year, i.CreatedAtUtc.Month })
+                .OrderBy(g => g.Key.Year).ThenBy(g => g.Key.Month)
+                .Select(g => new
+                {
+                    Month = $"{g.Key.Year}-{g.Key.Month:D2}",
+                    Billed = g.Sum(x => x.Amount),
+                    Paid = g.Where(x => x.Status == InvoiceStatus.Paid).Sum(x => x.Amount)
+                })
+                .ToList();
+
+            var funnel = new
+            {
+                Total = leadsInRange.Count,
+                New = leadsInRange.Count(l => l.Status == LeadStatus.New),
+                InProgress = leadsInRange.Count(l => l.Status == LeadStatus.InProgress),
+                Contacted = leadsInRange.Count(l => l.Status == LeadStatus.Contacted),
+                Qualified = leadsInRange.Count(l => l.Status == LeadStatus.Qualified),
+                Closed = leadsInRange.Count(l => l.Status == LeadStatus.Closed)
+            };
+
+            return Results.Ok(new
+            {
+                StartDateUtc = start,
+                EndDateUtc = end,
+                Funnel = funnel,
+                Revenue = new
+                {
+                    TotalBilled = totalBilled,
+                    TotalPaid = totalPaid,
+                    TotalPending = totalPending,
+                    TotalOverdue = totalOverdue,
+                    InvoiceCount = invoices.Count,
+                    MonthlySeries = monthlyRevenue
+                }
+            });
+        })
+        .RequireAuthorization(Permissions.LeadsView)
+        .WithTags("Dashboard")
+        .WithName("GetDashboardAnalytics");
     }
 }
+
+public record BulkLeadActionDto(Guid[] LeadIds, string Action, LeadStatus? Status, Guid? AssignedToUserId);
+public record ScheduleLeadFollowUpDto(DateTime? NextFollowUpAtUtc, string? FollowUpNote);

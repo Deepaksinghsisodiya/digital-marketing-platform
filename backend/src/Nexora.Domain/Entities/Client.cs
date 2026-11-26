@@ -22,6 +22,8 @@ public class Client
     public string? BillingAddress { get; private set; }
     public string? TaxId { get; private set; }
     public string? Notes { get; private set; }
+    public string? PortalToken { get; private set; }
+    public bool PortalEnabled { get; private set; }
     public DateTime CreatedAtUtc { get; private set; } = DateTime.UtcNow;
     public DateTime? UpdatedAtUtc { get; private set; }
     public byte[] Version { get; private set; } = [];
@@ -29,6 +31,9 @@ public class Client
     public ICollection<Contact> Contacts { get; private set; } = new List<Contact>();
     public ICollection<TaskItem> Tasks { get; private set; } = new List<TaskItem>();
     public ICollection<ClientActivity> Activities { get; private set; } = new List<ClientActivity>();
+    public ICollection<ClientInvoice> Invoices { get; private set; } = new List<ClientInvoice>();
+    public ICollection<ClientMilestone> Milestones { get; private set; } = new List<ClientMilestone>();
+    public ICollection<ClientDocument> Documents { get; private set; } = new List<ClientDocument>();
 
     private Client() { }
 
@@ -89,6 +94,13 @@ public class Client
     {
         PrimaryContactEmail = email;
         PrimaryContactPhone = phone;
+        UpdatedAtUtc = DateTime.UtcNow;
+    }
+
+    public void SetPortalAccess(string? portalToken, bool enabled)
+    {
+        PortalToken = portalToken;
+        PortalEnabled = enabled;
         UpdatedAtUtc = DateTime.UtcNow;
     }
 }

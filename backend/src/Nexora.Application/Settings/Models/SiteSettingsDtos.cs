@@ -30,7 +30,11 @@ public record SiteSettingsDto(
     string RedirectRulesJson,
     string VersionToken,
     DateTime CreatedAtUtc,
-    DateTime? UpdatedAtUtc);
+    DateTime? UpdatedAtUtc,
+    string? WebhookUrl = null,
+    bool WebhookSecretConfigured = false,
+    string? CustomDomain = null,
+    string? SslStatus = null);
 
 public record PublicSiteSettingsDto(
     string CompanyName,
@@ -76,7 +80,11 @@ public record UpdateSiteSettingsDto(
     string? BookingUrl = null,
     string? AnnouncementBarJson = null,
     string? RedirectRulesJson = null,
-    string VersionToken = "");
+    string VersionToken = "",
+    string? WebhookUrl = null,
+    string? WebhookSecret = null,
+    string? CustomDomain = null,
+    string? SslStatus = null);
 
 public record RedirectRuleDto(
     string Id,

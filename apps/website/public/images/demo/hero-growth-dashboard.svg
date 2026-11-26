@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 520" fill="none">
+  <rect width="800" height="520" rx="24" fill="#F8FAFC"/>
+  <rect x="24" y="24" width="752" height="472" rx="20" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="2"/>
+  <circle cx="56" cy="56" r="6" fill="#FB7185"/>
+  <circle cx="76" cy="56" r="6" fill="#FBBF24"/>
+  <circle cx="96" cy="56" r="6" fill="#0D9488"/>
+  <rect x="52" y="92" width="210" height="110" rx="14" fill="#F0FDFA" stroke="#99F6E4"/>
+  <text x="72" y="124" font-family="Inter, sans-serif" font-size="13" font-weight="600" fill="#0F766E">Portfolio ROAS</text>
+  <text x="72" y="166" font-family="Inter, sans-serif" font-size="34" font-weight="800" fill="#0F172A">4.85x</text>
+  <rect x="295" y="92" width="210" height="110" rx="14" fill="#FFF1F2" stroke="#FECDD3"/>
+  <text x="315" y="124" font-family="Inter, sans-serif" font-size="13" font-weight="600" fill="#E11D48">CAC Reduction</text>
+  <text x="315" y="166" font-family="Inter, sans-serif" font-size="34" font-weight="800" fill="#0F172A">-36.4%</text>
+  <rect x="538" y="92" width="210" height="110" rx="14" fill="#F8FAFC" stroke="#E2E8F0"/>
+  <text x="558" y="124" font-family="Inter, sans-serif" font-size="13" font-weight="600" fill="#475569">Conversion Rate</text>
+  <text x="558" y="166" font-family="Inter, sans-serif" font-size="34" font-weight="800" fill="#0D9488">18.2%</text>
+  <rect x="52" y="228" width="696" height="236" rx="16" fill="#F8FAFC" stroke="#E2E8F0"/>
+  <path d="M84 420 C 180 390, 260 350, 360 320 C 460 290, 560 265, 712 248" stroke="#0D9488" stroke-width="5" stroke-linecap="round"/>
+  <path d="M84 420 C 180 390, 260 350, 360 320 C 460 290, 560 265, 712 248 L 712 440 L 84 440 Z" fill="#0D9488" fill-opacity="0.10"/>
+  <circle cx="360" cy="320" r="7" fill="#0D9488"/>
+  <circle cx="712" cy="248" r="8" fill="#FB7185"/>
+</svg>

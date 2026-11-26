@@ -16,6 +16,7 @@ import {
 } from "../../store/api/adminApi";
 import type { ClientSummary, ClientStatus } from "../../types";
 import { DEFAULT_GLOBAL_COUNTRIES } from "../settings/SettingsPage";
+import { ClientExtensionsPanels } from "./ClientExtensionsPanels";
 import {
   Building2,
   Search,
@@ -1278,6 +1279,12 @@ export const ClientsPage: React.FC = () => {
                     ))}
                   </div>
                 </div>
+
+                <ClientExtensionsPanels
+                  clientId={clientDetail.id}
+                  portalEnabled={(clientDetail as any).portalEnabled}
+                  portalToken={(clientDetail as any).portalToken}
+                />
               </div>
             )}
           </div>

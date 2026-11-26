@@ -12,7 +12,7 @@ import { ScrollProgressBar } from "../components/motion/ScrollProgressBar";
 import { ThemeSwitcher } from "../components/ui/ThemeSwitcher";
 import { getPublicSiteSettings, getPublicTheme } from "../lib/cms";
 import {
-  MODERN_GROWTH_PRESET,
+  TEAL_CORAL_PRESET,
   resolveTheme,
   themeToCss,
 } from "@nexora/design-tokens";
@@ -76,11 +76,12 @@ export default async function RootLayout({
   const resolvedTheme = resolveTheme(
     (publicTheme?.config as Parameters<typeof resolveTheme>[0]) ?? null,
   );
-  const activeTheme =
-    resolvedTheme.slug ||
-    publicTheme?.themeId ||
-    MODERN_GROWTH_PRESET.slug;
-  const themeCss = themeToCss(resolvedTheme, { mode: "both" });
+  const darkThemes = new Set(["dark-charcoal-neon-lime", "modern-growth", "electric-indigo"]);
+  const effectiveTheme = darkThemes.has(resolvedTheme.slug || publicTheme?.themeId || "")
+    ? TEAL_CORAL_PRESET
+    : resolvedTheme;
+  const activeTheme = effectiveTheme.slug || TEAL_CORAL_PRESET.slug;
+  const themeCss = themeToCss(effectiveTheme, { mode: "light" });
 
   let trackingCodes: {
     gtmContainerId?: string;
@@ -130,7 +131,6 @@ export default async function RootLayout({
   return (
     <html
       lang={locale}
-      className={activeTheme === MODERN_GROWTH_PRESET.slug || activeTheme === "dark-charcoal-neon-lime" ? "dark" : undefined}
       data-theme={activeTheme}
       data-animation-mode={animationMode}
       suppressHydrationWarning

@@ -42,6 +42,23 @@ export interface HeroSlideItem {
   imageAlt: string;
   overlayOpacity: number;
   enabled: boolean;
+  showQuickAudit?: boolean;
+  ratingText?: string;
+  socialProofText?: string;
+  trustBadges?: string[];
+  metricTitle?: string;
+  metricBadge?: string;
+  metricLabel?: string;
+  metricValue?: string;
+  metricDelta?: string;
+  metricSubtitle?: string;
+  metricFooterNote?: string;
+  stat1Label?: string;
+  stat1Value?: string;
+  stat1Sub?: string;
+  stat2Label?: string;
+  stat2Value?: string;
+  stat2Sub?: string;
 }
 
 // Yup Validation Schema for Hero Banner Slide
@@ -177,6 +194,23 @@ export const HeroBannersPage: React.FC = () => {
   const [formImageAlt, setFormImageAlt] = useState<string>("");
   const [formOverlayOpacity, setFormOverlayOpacity] = useState<number>(0.65);
   const [formEnabled, setFormEnabled] = useState<boolean>(true);
+  const [formShowQuickAudit, setFormShowQuickAudit] = useState<boolean>(true);
+  const [formRatingText, setFormRatingText] = useState<string>("");
+  const [formSocialProofText, setFormSocialProofText] = useState<string>("");
+  const [formTrustBadges, setFormTrustBadges] = useState<string>("");
+  const [formMetricTitle, setFormMetricTitle] = useState<string>("");
+  const [formMetricBadge, setFormMetricBadge] = useState<string>("");
+  const [formMetricLabel, setFormMetricLabel] = useState<string>("");
+  const [formMetricValue, setFormMetricValue] = useState<string>("");
+  const [formMetricDelta, setFormMetricDelta] = useState<string>("");
+  const [formMetricSubtitle, setFormMetricSubtitle] = useState<string>("");
+  const [formMetricFooterNote, setFormMetricFooterNote] = useState<string>("");
+  const [formStat1Label, setFormStat1Label] = useState<string>("");
+  const [formStat1Value, setFormStat1Value] = useState<string>("");
+  const [formStat1Sub, setFormStat1Sub] = useState<string>("");
+  const [formStat2Label, setFormStat2Label] = useState<string>("");
+  const [formStat2Value, setFormStat2Value] = useState<string>("");
+  const [formStat2Sub, setFormStat2Sub] = useState<string>("");
 
   // Initialize strictly from API with ZERO fake/dummy data
   useEffect(() => {
@@ -331,6 +365,23 @@ export const HeroBannersPage: React.FC = () => {
     setFormImageAlt("");
     setFormOverlayOpacity(0.65);
     setFormEnabled(true);
+    setFormShowQuickAudit(true);
+    setFormRatingText("");
+    setFormSocialProofText("");
+    setFormTrustBadges("");
+    setFormMetricTitle("");
+    setFormMetricBadge("");
+    setFormMetricLabel("");
+    setFormMetricValue("");
+    setFormMetricDelta("");
+    setFormMetricSubtitle("");
+    setFormMetricFooterNote("");
+    setFormStat1Label("");
+    setFormStat1Value("");
+    setFormStat1Sub("");
+    setFormStat2Label("");
+    setFormStat2Value("");
+    setFormStat2Sub("");
     setFormErrors({});
     setIsFormOpen(true);
   };
@@ -353,6 +404,25 @@ export const HeroBannersPage: React.FC = () => {
     setFormImageAlt(slide.imageAlt);
     setFormOverlayOpacity(slide.overlayOpacity ?? 0.65);
     setFormEnabled(slide.enabled !== false);
+    setFormShowQuickAudit(slide.showQuickAudit !== false);
+    setFormRatingText(slide.ratingText || "");
+    setFormSocialProofText(slide.socialProofText || "");
+    setFormTrustBadges(
+      Array.isArray(slide.trustBadges) ? slide.trustBadges.join(", ") : "",
+    );
+    setFormMetricTitle(slide.metricTitle || "");
+    setFormMetricBadge(slide.metricBadge || "");
+    setFormMetricLabel(slide.metricLabel || "");
+    setFormMetricValue(slide.metricValue || "");
+    setFormMetricDelta(slide.metricDelta || "");
+    setFormMetricSubtitle(slide.metricSubtitle || "");
+    setFormMetricFooterNote(slide.metricFooterNote || "");
+    setFormStat1Label(slide.stat1Label || "");
+    setFormStat1Value(slide.stat1Value || "");
+    setFormStat1Sub(slide.stat1Sub || "");
+    setFormStat2Label(slide.stat2Label || "");
+    setFormStat2Value(slide.stat2Value || "");
+    setFormStat2Sub(slide.stat2Sub || "");
     setFormErrors({});
     setIsFormOpen(true);
   };
@@ -436,7 +506,6 @@ export const HeroBannersPage: React.FC = () => {
           }
         });
         setFormErrors(errors);
-        toast.error("Please fix form validation errors before saving.");
         return;
       }
     }
@@ -458,6 +527,26 @@ export const HeroBannersPage: React.FC = () => {
               imageAlt: formImageAlt,
               overlayOpacity: formOverlayOpacity,
               enabled: formEnabled,
+              showQuickAudit: formShowQuickAudit,
+              ratingText: formRatingText.trim() || undefined,
+              socialProofText: formSocialProofText.trim() || undefined,
+              trustBadges: formTrustBadges
+                .split(",")
+                .map((b) => b.trim())
+                .filter(Boolean),
+              metricTitle: formMetricTitle.trim() || undefined,
+              metricBadge: formMetricBadge.trim() || undefined,
+              metricLabel: formMetricLabel.trim() || undefined,
+              metricValue: formMetricValue.trim() || undefined,
+              metricDelta: formMetricDelta.trim() || undefined,
+              metricSubtitle: formMetricSubtitle.trim() || undefined,
+              metricFooterNote: formMetricFooterNote.trim() || undefined,
+              stat1Label: formStat1Label.trim() || undefined,
+              stat1Value: formStat1Value.trim() || undefined,
+              stat1Sub: formStat1Sub.trim() || undefined,
+              stat2Label: formStat2Label.trim() || undefined,
+              stat2Value: formStat2Value.trim() || undefined,
+              stat2Sub: formStat2Sub.trim() || undefined,
             }
           : s,
       );
@@ -475,6 +564,26 @@ export const HeroBannersPage: React.FC = () => {
         imageAlt: formImageAlt,
         overlayOpacity: formOverlayOpacity,
         enabled: formEnabled,
+        showQuickAudit: formShowQuickAudit,
+        ratingText: formRatingText.trim() || undefined,
+        socialProofText: formSocialProofText.trim() || undefined,
+        trustBadges: formTrustBadges
+          .split(",")
+          .map((b) => b.trim())
+          .filter(Boolean),
+        metricTitle: formMetricTitle.trim() || undefined,
+        metricBadge: formMetricBadge.trim() || undefined,
+        metricLabel: formMetricLabel.trim() || undefined,
+        metricValue: formMetricValue.trim() || undefined,
+        metricDelta: formMetricDelta.trim() || undefined,
+        metricSubtitle: formMetricSubtitle.trim() || undefined,
+        metricFooterNote: formMetricFooterNote.trim() || undefined,
+        stat1Label: formStat1Label.trim() || undefined,
+        stat1Value: formStat1Value.trim() || undefined,
+        stat1Sub: formStat1Sub.trim() || undefined,
+        stat2Label: formStat2Label.trim() || undefined,
+        stat2Value: formStat2Value.trim() || undefined,
+        stat2Sub: formStat2Sub.trim() || undefined,
       };
       updated = [...slides, newSlide];
     }
@@ -1297,6 +1406,159 @@ export const HeroBannersPage: React.FC = () => {
                         </p>
                       )}
                     </div>
+                  </div>
+                </div>
+
+                {/* Dynamic Bento Metric Card & Quick Audit Controls */}
+                <div className="p-4 rounded-xl bg-slate-50/90 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-700/60 space-y-3">
+                  <div className="flex items-center justify-between gap-2">
+                    <div>
+                      <h4 className="text-xs font-bold text-slate-900 dark:text-white">
+                        Right Bento Showcase Metrics (Optional)
+                      </h4>
+                      <p className="text-[11px] text-slate-500">
+                        Leave blank to auto-adapt to the slide topic, or customize every KPI for this slide.
+                      </p>
+                    </div>
+                    <label className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-700 dark:text-slate-300 cursor-pointer shrink-0">
+                      <input
+                        type="checkbox"
+                        checked={formShowQuickAudit}
+                        onChange={(e) => setFormShowQuickAudit(e.target.checked)}
+                        className="rounded accent-primary cursor-pointer"
+                      />
+                      <span>Quick Audit Bar</span>
+                    </label>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    <input
+                      type="text"
+                      value={formMetricTitle}
+                      onChange={(e) => setFormMetricTitle(e.target.value)}
+                      placeholder="Card Title (e.g. Performance Architecture)"
+                      className="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs"
+                    />
+                    <input
+                      type="text"
+                      value={formMetricBadge}
+                      onChange={(e) => setFormMetricBadge(e.target.value)}
+                      placeholder="Live Badge (e.g. Active Attribution)"
+                      className="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                    <input
+                      type="text"
+                      value={formMetricLabel}
+                      onChange={(e) => setFormMetricLabel(e.target.value)}
+                      placeholder="KPI Label (e.g. Avg Portfolio ROAS)"
+                      className="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs"
+                    />
+                    <input
+                      type="text"
+                      value={formMetricValue}
+                      onChange={(e) => setFormMetricValue(e.target.value)}
+                      placeholder="KPI Value (e.g. 4.85x)"
+                      className="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs font-mono"
+                    />
+                    <input
+                      type="text"
+                      value={formMetricDelta}
+                      onChange={(e) => setFormMetricDelta(e.target.value)}
+                      placeholder="Delta (e.g. +42% vs Industry)"
+                      className="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                    <input
+                      type="text"
+                      value={formStat1Label}
+                      onChange={(e) => setFormStat1Label(e.target.value)}
+                      placeholder="Stat 1 Label (e.g. Cost Per Lead)"
+                      className="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs"
+                    />
+                    <input
+                      type="text"
+                      value={formStat1Value}
+                      onChange={(e) => setFormStat1Value(e.target.value)}
+                      placeholder="Stat 1 Value (e.g. -36.4%)"
+                      className="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs font-mono"
+                    />
+                    <input
+                      type="text"
+                      value={formStat1Sub}
+                      onChange={(e) => setFormStat1Sub(e.target.value)}
+                      placeholder="Stat 1 Note"
+                      className="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                    <input
+                      type="text"
+                      value={formStat2Label}
+                      onChange={(e) => setFormStat2Label(e.target.value)}
+                      placeholder="Stat 2 Label (e.g. Conv. Rate)"
+                      className="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs"
+                    />
+                    <input
+                      type="text"
+                      value={formStat2Value}
+                      onChange={(e) => setFormStat2Value(e.target.value)}
+                      placeholder="Stat 2 Value (e.g. 18.2%)"
+                      className="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs font-mono"
+                    />
+                    <input
+                      type="text"
+                      value={formStat2Sub}
+                      onChange={(e) => setFormStat2Sub(e.target.value)}
+                      placeholder="Stat 2 Note"
+                      className="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs"
+                    />
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    <input
+                      type="text"
+                      value={formRatingText}
+                      onChange={(e) => setFormRatingText(e.target.value)}
+                      placeholder="Rating (e.g. 4.9/5 Verified)"
+                      className="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs"
+                    />
+                    <input
+                      type="text"
+                      value={formSocialProofText}
+                      onChange={(e) => setFormSocialProofText(e.target.value)}
+                      placeholder="Social Proof (e.g. Trusted by 120+ growth teams)"
+                      className="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs"
+                    />
+                  </div>
+
+                  <input
+                    type="text"
+                    value={formTrustBadges}
+                    onChange={(e) => setFormTrustBadges(e.target.value)}
+                    placeholder="Trust Badges (comma separated, e.g. Audited Attribution, Predictable Revenue)"
+                    className="w-full px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs"
+                  />
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    <input
+                      type="text"
+                      value={formMetricSubtitle}
+                      onChange={(e) => setFormMetricSubtitle(e.target.value)}
+                      placeholder="Card Footer Left (e.g. Auditable Campaign Growth)"
+                      className="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs"
+                    />
+                    <input
+                      type="text"
+                      value={formMetricFooterNote}
+                      onChange={(e) => setFormMetricFooterNote(e.target.value)}
+                      placeholder="Card Footer Right (e.g. 100% Client Owned)"
+                      className="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs font-mono"
+                    />
                   </div>
                 </div>
 

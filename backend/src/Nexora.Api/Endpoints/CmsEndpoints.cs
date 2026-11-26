@@ -195,6 +195,31 @@ public static class CmsEndpoints
         .WithName("RollbackPageVersion")
         .WithSummary("Rollback page published content to a previous version number.");
 
+        adminGroup.MapPost("/{id:guid}/schedule", async (
+            Guid id,
+            [FromBody] SchedulePagePublishDto dto,
+            AppDbContext db,
+            CancellationToken ct) =>
+        {
+            var page = await db.Pages.FirstOrDefaultAsync(p => p.Id == id, ct);
+            if (page == null) return Results.NotFound(new { error = "Page not found." });
+
+            page.ScheduledPublishAtUtc = dto.ScheduledPublishAtUtc;
+            await db.SaveChangesAsync(ct);
+
+            return Results.Ok(new
+            {
+                page.Id,
+                page.ScheduledPublishAtUtc,
+                message = dto.ScheduledPublishAtUtc.HasValue
+                    ? $"Page scheduled to publish at {dto.ScheduledPublishAtUtc.Value:O}."
+                    : "Scheduled publish cleared."
+            });
+        })
+        .RequireAuthorization(Permissions.PagesPublish)
+        .WithName("SchedulePagePublish")
+        .WithSummary("Schedule or clear automatic page publishing timestamp.");
+
         // 2. Public CMS Endpoints (Anonymous, Cached)
         var publicGroup = app.MapGroup("/api/v1/public")
             .WithTags("Public CMS");
@@ -229,7 +254,6 @@ public static class CmsEndpoints
             if (page == null) return Results.NotFound(new { error = "Page not found." });
             return Results.Ok(page);
         })
-        .CacheOutput("PublicCache")
         .WithName("GetPublicPage")
         .WithSummary("Fetch published page blocks and SEO metadata for website rendering.");
 
@@ -248,14 +272,45 @@ public static class CmsEndpoints
         publicGroup.MapGet("/search", async (
             [FromQuery] string? q,
             AppDbContext db,
+            IConfiguration config,
+            IHttpClientFactory httpClientFactory,
             CancellationToken ct) =>
         {
             if (string.IsNullOrWhiteSpace(q) || q.Trim().Length < 2)
             {
-                return Results.Ok(new { query = q ?? "", results = Array.Empty<object>() });
+                return Results.Ok(new { query = q ?? "", provider = "sql", results = Array.Empty<object>() });
             }
 
             var cleanQuery = q.Trim();
+            var searchProvider = config["Search:Provider"];
+            var searchEndpoint = config["Search:EndpointUrl"];
+            var searchApiKey = config["Search:ApiKey"];
+
+            if ((string.Equals(searchProvider, "Meilisearch", StringComparison.OrdinalIgnoreCase) ||
+                 string.Equals(searchProvider, "Algolia", StringComparison.OrdinalIgnoreCase)) &&
+                !string.IsNullOrWhiteSpace(searchEndpoint))
+            {
+                try
+                {
+                    using var client = httpClientFactory.CreateClient();
+                    client.Timeout = TimeSpan.FromSeconds(3);
+                    if (!string.IsNullOrWhiteSpace(searchApiKey))
+                    {
+                        client.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", $"Bearer {searchApiKey}");
+                        client.DefaultRequestHeaders.TryAddWithoutValidation("X-Algolia-API-Key", searchApiKey);
+                    }
+                    var extRes = await client.PostAsJsonAsync(searchEndpoint, new { q = cleanQuery, query = cleanQuery, limit = 15 }, ct);
+                    if (extRes.IsSuccessStatusCode)
+                    {
+                        var extJson = await extRes.Content.ReadFromJsonAsync<System.Text.Json.JsonElement>(ct);
+                        return Results.Ok(new { query = cleanQuery, provider = searchProvider, raw = extJson });
+                    }
+                }
+                catch
+                {
+                    // Fall back to SQL Server full-text search
+                }
+            }
 
             var matchedPages = await db.Pages.AsNoTracking()
                 .Where(p => p.Status == PageStatus.Published && p.IsEnabled &&
@@ -296,4 +351,6 @@ public static class CmsEndpoints
         .WithSummary("Universal keyword search across published CMS pages and blog posts.");
     }
 }
+
+public record SchedulePagePublishDto(DateTime? ScheduledPublishAtUtc);
 

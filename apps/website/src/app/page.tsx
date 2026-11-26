@@ -15,7 +15,7 @@ import { Reveal } from "../components/motion/Reveal";
 import { Stagger, StaggerItem } from "../components/motion/Stagger";
 import type { Metadata } from "next";
 
-export const revalidate = 3600;
+export const dynamic = "force-dynamic";
 
 import {
   ArrowRight,
