@@ -296,7 +296,6 @@ export const FaqsPage: React.FC = () => {
           }
         });
         setFormErrors(errors);
-        toast.error("Please fix form errors before saving.");
         return;
       }
     }

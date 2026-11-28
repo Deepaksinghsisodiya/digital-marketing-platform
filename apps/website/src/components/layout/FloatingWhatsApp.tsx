@@ -6,10 +6,12 @@ import { trackWhatsAppClick } from "@/lib/tracking";
 
 interface FloatingWhatsAppProps {
   phone?: string;
+  companyName?: string;
 }
 
 export const FloatingWhatsApp: React.FC<FloatingWhatsAppProps> = ({
   phone,
+  companyName = "Nexora",
 }) => {
   if (!phone || !phone.trim()) {
     return null;
@@ -20,10 +22,13 @@ export const FloatingWhatsApp: React.FC<FloatingWhatsAppProps> = ({
     return null;
   }
   const cleanPhone = digitsOnly;
+  const waMessage = encodeURIComponent(
+    `Hi ${companyName}, I'd like to discuss our growth requirements.`
+  );
 
   return (
     <a
-      href={`https://wa.me/${cleanPhone}?text=Hi%20Nexora,%20I'd%20like%20to%20discuss%20our%20growth%20requirements.`}
+      href={`https://wa.me/${cleanPhone}?text=${waMessage}`}
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Chat with us on WhatsApp"

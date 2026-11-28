@@ -240,7 +240,6 @@ public static class CmsEndpoints
 
             return Results.Ok(pages);
         })
-        .CacheOutput("PublicCache")
         .WithName("GetPublishedPagesForSitemap")
         .WithSummary("Retrieve all published pages with slugs and timestamps for dynamic XML sitemap generation.");
 

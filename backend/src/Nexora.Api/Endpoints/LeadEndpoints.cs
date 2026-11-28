@@ -72,6 +72,46 @@ public static class LeadEndpoints
         .WithSummary("Inbound form intake endpoint for lead capture.")
         .RequireRateLimiting("PublicFormRateLimit");
 
+        publicGroup.MapPost("/unsubscribe", async (
+            [FromBody] PublicUnsubscribeRequest request,
+            AppDbContext db,
+            CancellationToken ct) =>
+        {
+            if (string.IsNullOrWhiteSpace(request.Email) || !request.Email.Contains('@'))
+            {
+                return Results.BadRequest(new { error = "A valid email address is required." });
+            }
+
+            var normEmail = request.Email.Trim().ToLowerInvariant();
+            var matchingLeads = await db.Leads
+                .Where(l => l.Email.ToLower() == normEmail && l.ConsentGiven)
+                .ToListAsync(ct);
+
+            foreach (var lead in matchingLeads)
+            {
+                lead.WithdrawConsent();
+                db.LeadActivities.Add(new LeadActivity(
+                    leadId: lead.Id,
+                    activityType: "OptOut",
+                    description: "Contact unsubscribed via public opt-out page.",
+                    actorUserId: null));
+            }
+
+            if (matchingLeads.Count > 0)
+            {
+                await db.SaveChangesAsync(ct);
+            }
+
+            return Results.Ok(new
+            {
+                success = true,
+                message = "If this email was subscribed, marketing communications have been opted out.",
+            });
+        })
+        .WithName("PublicUnsubscribe")
+        .WithSummary("Withdraw marketing consent / opt out an email address.")
+        .RequireRateLimiting("PublicFormRateLimit");
+
         // 2. Admin Leads Inbox & Management
         var adminGroup = app.MapGroup("/api/v1/admin/leads")
             .WithTags("Leads Inbox (Admin)")
@@ -456,11 +496,74 @@ public static class LeadEndpoints
                 Closed = leadsInRange.Count(l => l.Status == LeadStatus.Closed)
             };
 
+            var totalSpanDays = Math.Max(1, (int)Math.Ceiling((end.Date - start.Date).TotalDays) + 1);
+            var velocitySeries = new List<object>();
+
+            if (totalSpanDays <= 14)
+            {
+                for (var day = start.Date; day <= end.Date; day = day.AddDays(1))
+                {
+                    var dayLeads = leadsInRange.Where(l => l.CreatedAtUtc.Date == day).ToList();
+                    velocitySeries.Add(new
+                    {
+                        Label = day.ToString("ddd", System.Globalization.CultureInfo.InvariantCulture),
+                        Leads = dayLeads.Count,
+                        Qualified = dayLeads.Count(l => l.Status == LeadStatus.Qualified || l.Status == LeadStatus.Closed)
+                    });
+                }
+            }
+            else if (totalSpanDays <= 60)
+            {
+                var weekCount = (int)Math.Ceiling(totalSpanDays / 7.0);
+                for (var w = 0; w < weekCount; w++)
+                {
+                    var wStart = start.Date.AddDays(w * 7);
+                    var wEnd = wStart.AddDays(7);
+                    var wLeads = leadsInRange.Where(l => l.CreatedAtUtc.Date >= wStart && l.CreatedAtUtc.Date < wEnd).ToList();
+                    velocitySeries.Add(new
+                    {
+                        Label = $"W{w + 1}",
+                        Leads = wLeads.Count,
+                        Qualified = wLeads.Count(l => l.Status == LeadStatus.Qualified || l.Status == LeadStatus.Closed)
+                    });
+                }
+            }
+            else
+            {
+                var monthCursor = new DateTime(start.Year, start.Month, 1, 0, 0, 0, DateTimeKind.Utc);
+                var endMonth = new DateTime(end.Year, end.Month, 1, 0, 0, 0, DateTimeKind.Utc);
+                while (monthCursor <= endMonth)
+                {
+                    var mLeads = leadsInRange.Where(l => l.CreatedAtUtc.Year == monthCursor.Year && l.CreatedAtUtc.Month == monthCursor.Month).ToList();
+                    velocitySeries.Add(new
+                    {
+                        Label = monthCursor.ToString("MMM", System.Globalization.CultureInfo.InvariantCulture),
+                        Leads = mLeads.Count,
+                        Qualified = mLeads.Count(l => l.Status == LeadStatus.Qualified || l.Status == LeadStatus.Closed)
+                    });
+                    monthCursor = monthCursor.AddMonths(1);
+                }
+            }
+
+            var qualificationRate = leadsInRange.Count > 0
+                ? Math.Round((double)(funnel.Qualified + funnel.Closed) / leadsInRange.Count * 100.0, 1)
+                : 0.0;
+
+            var sourceBreakdown = leadsInRange
+                .GroupBy(l => string.IsNullOrWhiteSpace(l.FormKey) ? "direct" : l.FormKey)
+                .OrderByDescending(g => g.Count())
+                .Take(6)
+                .Select(g => new { Source = g.Key, Count = g.Count() })
+                .ToList();
+
             return Results.Ok(new
             {
                 StartDateUtc = start,
                 EndDateUtc = end,
                 Funnel = funnel,
+                QualificationRate = qualificationRate,
+                VelocitySeries = velocitySeries,
+                SourceBreakdown = sourceBreakdown,
                 Revenue = new
                 {
                     TotalBilled = totalBilled,
@@ -480,3 +583,4 @@ public static class LeadEndpoints
 
 public record BulkLeadActionDto(Guid[] LeadIds, string Action, LeadStatus? Status, Guid? AssignedToUserId);
 public record ScheduleLeadFollowUpDto(DateTime? NextFollowUpAtUtc, string? FollowUpNote);
+public record PublicUnsubscribeRequest(string Email);

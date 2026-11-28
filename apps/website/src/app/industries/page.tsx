@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { resolveRegion } from "@/config/region";
-import { getPublicSiteSettings, getPublicMenu } from "@/lib/cms";
+import { getPublicSiteSettings, getPublicMenu, getPublicPage } from "@/lib/cms";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
+import { BlockRenderer } from "@/components/blocks/BlockRenderer";
 import {
   Card,
   CardHeader,
@@ -29,11 +30,25 @@ import type { Metadata } from "next";
 
 export const revalidate = 3600;
 
-export const metadata: Metadata = {
-  title: "Industry Verticals & Sector Solutions — Nexora",
-  description:
-    "Bespoke digital growth, technology development, and automation solutions engineered for specific industry regulatory requirements and buyer behavior.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const region = resolveRegion();
+  const cmsPage = await getPublicPage("industries", region.code);
+  if (cmsPage) {
+    return {
+      title: cmsPage.metaTitle || cmsPage.title || "Industry Verticals & Sector Solutions — Nexora",
+      description:
+        cmsPage.metaDescription ||
+        "Bespoke digital growth, technology development, and automation solutions engineered for specific industry regulatory requirements and buyer behavior.",
+      alternates: { canonical: cmsPage.canonicalUrl || undefined },
+      robots: cmsPage.noIndex ? { index: false, follow: false } : { index: true, follow: true },
+    };
+  }
+  return {
+    title: "Industry Verticals & Sector Solutions — Nexora",
+    description:
+      "Bespoke digital growth, technology development, and automation solutions engineered for specific industry regulatory requirements and buyer behavior.",
+  };
+}
 
 const INDUSTRIES = [
   {
@@ -105,10 +120,13 @@ const INDUSTRIES = [
 export default async function IndustriesCatalogPage() {
   const region = resolveRegion();
 
-  const [siteSettings, headerMenu] = await Promise.all([
+  const [cmsPage, siteSettings, headerMenu] = await Promise.all([
+    getPublicPage("industries", region.code),
     getPublicSiteSettings(),
     getPublicMenu("header", region.code),
   ]);
+
+  const hasCmsBlocks = cmsPage?.blocks && cmsPage.blocks.length > 0;
 
   return (
     <div className="min-h-screen flex flex-col justify-between bg-white text-slate-900">
@@ -118,6 +136,11 @@ export default async function IndustriesCatalogPage() {
         menu={headerMenu}
       />
 
+      {hasCmsBlocks ? (
+        <main className="flex-1">
+          <BlockRenderer blocks={cmsPage.blocks} userRegion={region.code} />
+        </main>
+      ) : (
       <main className="flex-1 py-12 sm:py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-12 sm:space-y-16">
         {/* Header Hero */}
         <SectionHeading
@@ -203,6 +226,7 @@ export default async function IndustriesCatalogPage() {
           </div>
         </div>
       </main>
+      )}
 
       <Footer settings={siteSettings} />
     </div>

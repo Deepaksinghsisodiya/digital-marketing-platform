@@ -183,11 +183,15 @@ export default async function RootLayout({
             {children}
           </div>
           <CookieBanner />
-          <FloatingWhatsApp phone={settings?.supportPhone} />
+          <FloatingWhatsApp
+            phone={settings?.supportPhone}
+            companyName={settings?.companyName}
+          />
           <ThemeSwitcher />
           <MobileStickyBar
             supportPhone={settings?.supportPhone}
-            bookingUrl="/book-a-call"
+            bookingUrl={settings?.bookingUrl || "/book-a-call"}
+            companyName={settings?.companyName}
           />
         </NextIntlClientProvider>
       </body>

@@ -113,7 +113,6 @@ export const ContactForm: React.FC<ContactFormProps> = ({
         setErrorMessage(errorMsg);
         setHasErrorShake(true);
         setTimeout(() => setHasErrorShake(false), 500);
-        toast.error(errorMsg);
         return;
       }
     }
@@ -121,7 +120,6 @@ export const ContactForm: React.FC<ContactFormProps> = ({
     if (!apiUrl) {
       const errorMsg = "API configuration error: NEXT_PUBLIC_API_URL is not set.";
       setErrorMessage(errorMsg);
-      toast.error(errorMsg);
       return;
     }
 

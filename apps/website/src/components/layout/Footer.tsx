@@ -1,11 +1,12 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
 import type { PublicSiteSettings } from "../../lib/cms";
 import { siteConfig, isRealValue } from "../../content/site.config";
+import { getStoredUtmParameters } from "../../lib/utm";
 import {
   ArrowUp,
   ArrowRight,
@@ -55,8 +56,10 @@ export const Footer: React.FC<{ settings?: PublicSiteSettings | null }> = ({
   settings,
 }) => {
   const [newsletterEmail, setNewsletterEmail] = useState("");
+  const [newsletterError, setNewsletterError] = useState<string | null>(null);
   const [subscribed, setSubscribed] = useState(false);
   const [isSubscribing, setIsSubscribing] = useState(false);
+  const [timeTrapToken, setTimeTrapToken] = useState<string | null>(null);
   const [logoError, setLogoError] = useState(false);
 
   const companyName = settings?.companyName || siteConfig.company.brandName;
@@ -98,17 +101,74 @@ export const Footer: React.FC<{ settings?: PublicSiteSettings | null }> = ({
       : `${apiBase}${rawLogo.startsWith("/") ? "" : "/"}${rawLogo}`
     : null;
 
-  const handleNewsletterSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newsletterEmail || !newsletterEmail.includes("@")) return;
+  useEffect(() => {
+    let mounted = true;
+    fetch(`${apiBase}/api/v1/public/forms/contact`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (mounted && data?.timeTrapToken) {
+          setTimeTrapToken(data.timeTrapToken);
+        }
+      })
+      .catch(() => {
+        // Silent; submit handler will still attempt fallback
+      });
+    return () => {
+      mounted = false;
+    };
+  }, [apiBase]);
 
+  const handleNewsletterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const trimmed = newsletterEmail.trim();
+    if (!trimmed || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
+      setNewsletterError("Please enter a valid email address.");
+      return;
+    }
+
+    setNewsletterError(null);
     setIsSubscribing(true);
-    setTimeout(() => {
+    try {
+      const utm = getStoredUtmParameters();
+      const res = await fetch(`${apiBase}/api/v1/public/forms/contact/submissions`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fullName: "Newsletter Subscriber",
+          email: trimmed,
+          region: "in",
+          consentGiven: true,
+          consentWordingVersion: "v1.0-newsletter",
+          customFields: {
+            inquiryType: "newsletter",
+            landingPageUrl:
+              utm.landingPageUrl ||
+              (typeof window !== "undefined" ? window.location.href : undefined),
+          },
+          utmSource: utm.utmSource || undefined,
+          utmMedium: utm.utmMedium || undefined,
+          utmCampaign: utm.utmCampaign || undefined,
+          utmTerm: utm.utmTerm || undefined,
+          utmContent: utm.utmContent || undefined,
+          referrerUrl: utm.referrerUrl || undefined,
+          timeTrapToken: timeTrapToken || undefined,
+        }),
+      });
+
+      if (!res.ok) {
+        const errData = (await res.json().catch(() => null)) as { error?: string } | null;
+        setNewsletterError(errData?.error || "Unable to subscribe right now. Please try again.");
+        return;
+      }
+
       setSubscribed(true);
       setNewsletterEmail("");
+      toast.success(`Subscribed to ${companyName} Growth Insights!`);
+    } catch {
+      setNewsletterError("Network error while subscribing. Please try again.");
+    } finally {
       setIsSubscribing(false);
-      toast.success("Subscribed to Nexora Growth Insights!");
-    }, 400);
+    }
   };
 
   const scrollToTop = () => {
@@ -316,27 +376,40 @@ export const Footer: React.FC<{ settings?: PublicSiteSettings | null }> = ({
                 <CheckCircle2 className="w-3.5 h-3.5 shrink-0" /> Subscribed successfully!
               </div>
             ) : (
-              <form onSubmit={handleNewsletterSubmit} className="flex gap-1.5 max-w-sm">
-                <input
-                  type="email"
-                  value={newsletterEmail}
-                  onChange={(e) => setNewsletterEmail(e.target.value)}
-                  placeholder="name@company.com"
-                  required
-                  className="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-slate-900 placeholder-slate-400 focus:outline-hidden focus:border-teal-500"
-                />
-                <button
-                  type="submit"
-                  disabled={isSubscribing}
-                  aria-label="Subscribe"
-                  className="bg-teal-600 hover:bg-teal-700 text-white font-bold px-3 py-1.5 rounded-lg transition shrink-0 cursor-pointer disabled:opacity-50"
-                >
-                  {isSubscribing ? (
-                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                  ) : (
-                    <Send className="w-3.5 h-3.5" />
-                  )}
-                </button>
+              <form onSubmit={handleNewsletterSubmit} noValidate className="space-y-1.5 max-w-sm">
+                <div className="flex gap-1.5">
+                  <input
+                    type="email"
+                    value={newsletterEmail}
+                    onChange={(e) => {
+                      setNewsletterEmail(e.target.value);
+                      if (newsletterError) setNewsletterError(null);
+                    }}
+                    placeholder="name@company.com"
+                    className={`w-full bg-white border rounded-lg px-2.5 py-1.5 text-xs text-slate-900 placeholder-slate-400 focus:outline-hidden ${
+                      newsletterError
+                        ? "border-rose-400 focus:border-rose-500"
+                        : "border-slate-200 focus:border-teal-500"
+                    }`}
+                  />
+                  <button
+                    type="submit"
+                    disabled={isSubscribing}
+                    aria-label="Subscribe"
+                    className="bg-teal-600 hover:bg-teal-700 text-white font-bold px-3 py-1.5 rounded-lg transition shrink-0 cursor-pointer disabled:opacity-50"
+                  >
+                    {isSubscribing ? (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    ) : (
+                      <Send className="w-3.5 h-3.5" />
+                    )}
+                  </button>
+                </div>
+                {newsletterError && (
+                  <p className="text-[11px] font-medium text-rose-600">
+                    {newsletterError}
+                  </p>
+                )}
               </form>
             )}
           </div>

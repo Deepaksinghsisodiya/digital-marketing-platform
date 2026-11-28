@@ -399,7 +399,6 @@ public static class ThemeEndpoints
 
             return Results.Content(payload, "application/json");
         })
-        .CacheOutput("PublicCache")
         .AllowAnonymous()
         .WithTags("Dynamic Themes")
         .WithName("GetPublicTheme")

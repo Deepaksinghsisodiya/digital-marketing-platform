@@ -389,7 +389,6 @@ export const TestimonialsPage: React.FC = () => {
           }
         });
         setFormErrors(errors);
-        toast.error("Please correct the form errors before saving.");
         return;
       }
     }

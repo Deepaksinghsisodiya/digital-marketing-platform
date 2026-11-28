@@ -170,6 +170,12 @@ public class Lead : BaseEntity<Guid>
         MarkUpdated();
     }
 
+    public void WithdrawConsent()
+    {
+        ConsentGiven = false;
+        MarkUpdated();
+    }
+
     public void ScheduleFollowUp(DateTime? nextFollowUpAtUtc, string? note)
     {
         NextFollowUpAtUtc = nextFollowUpAtUtc;

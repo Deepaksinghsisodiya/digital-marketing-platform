@@ -1,7 +1,8 @@
 import { resolveRegion } from "@/config/region";
-import { getPublicSiteSettings, getPublicMenu } from "@/lib/cms";
+import { getPublicSiteSettings, getPublicMenu, getPublicPage } from "@/lib/cms";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
+import { BlockRenderer } from "@/components/blocks/BlockRenderer";
 import { Badge } from "@/components/ui/badge";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Briefcase, ArrowRight, CheckCircle2, Sparkles, MapPin, Clock } from "lucide-react";
@@ -10,11 +11,25 @@ import type { Metadata } from "next";
 
 export const revalidate = 3600;
 
-export const metadata: Metadata = {
-  title: "Careers at Nexora — Join Our Growth Engineering Squad",
-  description:
-    "Explore open career opportunities across engineering, commercial SEO, paid media, and growth strategy at Nexora.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const region = resolveRegion();
+  const cmsPage = await getPublicPage("careers", region.code);
+  if (cmsPage) {
+    return {
+      title: cmsPage.metaTitle || cmsPage.title || "Careers at Nexora — Join Our Growth Engineering Squad",
+      description:
+        cmsPage.metaDescription ||
+        "Explore open career opportunities across engineering, commercial SEO, paid media, and growth strategy at Nexora.",
+      alternates: { canonical: cmsPage.canonicalUrl || undefined },
+      robots: cmsPage.noIndex ? { index: false, follow: false } : { index: true, follow: true },
+    };
+  }
+  return {
+    title: "Careers at Nexora — Join Our Growth Engineering Squad",
+    description:
+      "Explore open career opportunities across engineering, commercial SEO, paid media, and growth strategy at Nexora.",
+  };
+}
 
 const OPENINGS = [
   {
@@ -46,10 +61,13 @@ const OPENINGS = [
 export default async function CareersPage() {
   const region = resolveRegion();
 
-  const [siteSettings, headerMenu] = await Promise.all([
+  const [cmsPage, siteSettings, headerMenu] = await Promise.all([
+    getPublicPage("careers", region.code),
     getPublicSiteSettings(),
     getPublicMenu("header", region.code),
   ]);
+
+  const hasCmsBlocks = cmsPage?.blocks && cmsPage.blocks.length > 0;
 
   return (
     <div className="min-h-screen flex flex-col justify-between bg-background text-foreground">
@@ -58,6 +76,12 @@ export default async function CareersPage() {
         currentRegionCode={region.code}
         menu={headerMenu}
       />
+
+      {hasCmsBlocks ? (
+        <main className="flex-1">
+          <BlockRenderer blocks={cmsPage.blocks} userRegion={region.code} />
+        </main>
+      ) : (
 
       <main className="flex-1">
         {/* Page Hero */}
@@ -128,6 +152,7 @@ export default async function CareersPage() {
           </div>
         </section>
       </main>
+      )}
 
       <Footer settings={siteSettings} />
     </div>

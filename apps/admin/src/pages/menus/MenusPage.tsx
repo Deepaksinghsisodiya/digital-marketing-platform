@@ -86,6 +86,7 @@ export const MenusPage: React.FC = () => {
   const [itemUrl, setItemUrl] = useState("");
   const [itemParentId, setItemParentId] = useState("");
   const [itemErrors, setItemErrors] = useState<{ label?: string; url?: string }>({});
+  const [menuMetaError, setMenuMetaError] = useState<string | null>(null);
 
   // Create / Delete Menu Modal state
   const [isCreateMenuModalOpen, setIsCreateMenuModalOpen] = useState(false);
@@ -373,9 +374,10 @@ export const MenusPage: React.FC = () => {
   const handleSaveMenu = async () => {
     if (!selectedMenuId) return;
     if (!activeMenuKey.trim() || !activeMenuTitle.trim()) {
-      toast.error("Menu title and lookup key are required.");
+      setMenuMetaError("Menu title and system key are required.");
       return;
     }
+    setMenuMetaError(null);
 
     const payload: SaveMenuRequest = {
       key: activeMenuKey.trim().toLowerCase(),
@@ -623,44 +625,54 @@ export const MenusPage: React.FC = () => {
             </div>
 
             {showMetaSettings && (
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800">
-                <div>
-                  <label className="block text-[11px] font-bold text-slate-500 mb-1">Menu Title</label>
-                  <input
-                    type="text"
-                    value={activeMenuTitle}
-                    onChange={(e) => {
-                      setActiveMenuTitle(e.target.value);
-                      setHasUnsavedChanges(true);
-                    }}
-                    className="w-full px-3 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-xs font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
-                  />
+              <div className="space-y-2">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800">
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-500 mb-1">Menu Title</label>
+                    <input
+                      type="text"
+                      value={activeMenuTitle}
+                      onChange={(e) => {
+                        setActiveMenuTitle(e.target.value);
+                        setHasUnsavedChanges(true);
+                        if (menuMetaError) setMenuMetaError(null);
+                      }}
+                      className="w-full px-3 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-xs font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-500 mb-1">System Key</label>
+                    <input
+                      type="text"
+                      value={activeMenuKey}
+                      onChange={(e) => {
+                        setActiveMenuKey(e.target.value.toLowerCase());
+                        setHasUnsavedChanges(true);
+                        if (menuMetaError) setMenuMetaError(null);
+                      }}
+                      className="w-full px-3 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-xs font-mono text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-500 mb-1">Region (Optional)</label>
+                    <input
+                      type="text"
+                      value={activeMenuRegion}
+                      onChange={(e) => {
+                        setActiveMenuRegion(e.target.value.toUpperCase());
+                        setHasUnsavedChanges(true);
+                      }}
+                      placeholder="Global"
+                      className="w-full px-3 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-xs font-mono text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
+                    />
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-[11px] font-bold text-slate-500 mb-1">System Key</label>
-                  <input
-                    type="text"
-                    value={activeMenuKey}
-                    onChange={(e) => {
-                      setActiveMenuKey(e.target.value.toLowerCase());
-                      setHasUnsavedChanges(true);
-                    }}
-                    className="w-full px-3 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-xs font-mono text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[11px] font-bold text-slate-500 mb-1">Region (Optional)</label>
-                  <input
-                    type="text"
-                    value={activeMenuRegion}
-                    onChange={(e) => {
-                      setActiveMenuRegion(e.target.value.toUpperCase());
-                      setHasUnsavedChanges(true);
-                    }}
-                    placeholder="Global"
-                    className="w-full px-3 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-xs font-mono text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
-                  />
-                </div>
+                {menuMetaError && (
+                  <p className="text-xs font-medium text-red-500 flex items-center gap-1.5 px-1">
+                    <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                    {menuMetaError}
+                  </p>
+                )}
               </div>
             )}
 

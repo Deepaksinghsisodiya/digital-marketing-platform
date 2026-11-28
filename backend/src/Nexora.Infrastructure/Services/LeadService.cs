@@ -375,13 +375,36 @@ public class LeadService : ILeadService
             return new SubmitFormResponse(false, null, string.Empty, timeTrapError);
         }
 
-        // 6. Unknown Field Rejection & MapsTo Allowlist
+        // 6. Unknown Field Rejection & MapsTo Allowlist (seeded + schema-defined fields)
         if (request.CustomFields != null && request.CustomFields.Count > 0)
         {
             var allowedCustomFields = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
             {
-                "serviceOfInterest", "budget", "message", "timeline", "source"
+                "serviceOfInterest", "service", "budget", "message", "timeline", "source",
+                "websiteUrl", "inquiryType", "meetingDuration", "preferredDate",
+                "preferredTimeWindow", "landingPageUrl"
             };
+
+            if (!string.IsNullOrWhiteSpace(formDef.SchemaJson))
+            {
+                try
+                {
+                    using var schemaDoc = JsonDocument.Parse(formDef.SchemaJson);
+                    if (schemaDoc.RootElement.ValueKind == JsonValueKind.Array)
+                    {
+                        foreach (var fieldEl in schemaDoc.RootElement.EnumerateArray())
+                        {
+                            if (fieldEl.TryGetProperty("name", out var nameProp) && nameProp.ValueKind == JsonValueKind.String)
+                            {
+                                var fName = nameProp.GetString();
+                                if (!string.IsNullOrWhiteSpace(fName))
+                                    allowedCustomFields.Add(fName);
+                            }
+                        }
+                    }
+                }
+                catch { /* fallback to static allowlist */ }
+            }
 
             foreach (var key in request.CustomFields.Keys)
             {

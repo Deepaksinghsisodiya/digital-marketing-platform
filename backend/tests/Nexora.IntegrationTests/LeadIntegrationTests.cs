@@ -931,6 +931,70 @@ public class LeadIntegrationTests
         body.ShouldContain("has invalid type 'unsupported_magic_type'");
     }
 
+    [Fact]
+    public async Task PublicUnsubscribe_ShouldWithdrawConsent_AndRejectInvalidEmail()
+    {
+        var client = _factory.CreateClient();
+
+        // 1. Invalid email -> 400
+        var badRes = await client.PostAsJsonAsync("/api/v1/public/forms/unsubscribe", new { email = "not-an-email" });
+        badRes.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+
+        // 2. Submit a lead with consentGiven = true, then unsubscribe
+        using var scope = _factory.Services.CreateScope();
+        var leadService = scope.ServiceProvider.GetRequiredService<ILeadService>();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var formDef = await leadService.GetPublicFormAsync("contact");
+        var testEmail = $"optout_{Guid.NewGuid():N}@example.com";
+
+        await leadService.SubmitFormAsync(
+            formKey: "contact",
+            request: new SubmitFormRequest(
+                FullName: "OptOut Tester",
+                Email: testEmail,
+                Phone: null,
+                Company: null,
+                Region: "in",
+                State: null,
+                PostalCode: null,
+                CustomFields: [],
+                UtmSource: null,
+                UtmCampaign: null,
+                ConsentGiven: true,
+                ConsentWordingVersion: "v1.0",
+                Honeypot: null,
+                TimeTrapToken: formDef!.TimeTrapToken),
+            ipAddress: "127.0.0.1",
+            userAgent: "Test");
+
+        var okRes = await client.PostAsJsonAsync("/api/v1/public/forms/unsubscribe", new { email = testEmail });
+        okRes.StatusCode.ShouldBe(HttpStatusCode.OK);
+
+        var updatedLead = await db.Leads.AsNoTracking().FirstOrDefaultAsync(l => l.Email == testEmail);
+        updatedLead.ShouldNotBeNull();
+        updatedLead.ConsentGiven.ShouldBeFalse();
+    }
+
+    [Fact]
+    public async Task AdminDashboardAnalytics_ShouldReturnVelocitySeriesAndSourceBreakdown()
+    {
+        using var scope = _factory.Services.CreateScope();
+        var idService = scope.ServiceProvider.GetRequiredService<IIdentityService>();
+        var salesEmail = $"sales_dash_{Guid.NewGuid():N}@example.com";
+        var (_, _, _, token) = await idService.InviteUserAsync(salesEmail, "Dash Analyst", Roles.Sales);
+        await idService.ResetPasswordAsync(salesEmail, token!, "SalesPass@123");
+
+        var client = _factory.CreateClient(new Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactoryClientOptions { HandleCookies = true });
+        await client.PostAsJsonAsync("/api/v1/auth/login", new LoginRequestDto(salesEmail, "SalesPass@123", false));
+
+        var res = await client.GetAsync("/api/v1/admin/dashboard/analytics");
+        res.StatusCode.ShouldBe(HttpStatusCode.OK);
+        var json = await res.Content.ReadAsStringAsync();
+        json.ShouldContain("velocitySeries");
+        json.ShouldContain("qualificationRate");
+        json.ShouldContain("sourceBreakdown");
+    }
+
     private sealed class MockHttpMessageHandler : HttpMessageHandler
     {
         private readonly Func<HttpRequestMessage, HttpResponseMessage> _handler;

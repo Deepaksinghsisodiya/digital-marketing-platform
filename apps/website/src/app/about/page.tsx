@@ -1,7 +1,8 @@
 import { resolveRegion } from "@/config/region";
-import { getPublicSiteSettings, getPublicMenu } from "@/lib/cms";
+import { getPublicSiteSettings, getPublicMenu, getPublicPage } from "@/lib/cms";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
+import { BlockRenderer } from "@/components/blocks/BlockRenderer";
 import { Badge } from "@/components/ui/badge";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { ShieldCheck, Target, Zap, Users, Globe2, Award, ArrowRight } from "lucide-react";
@@ -10,11 +11,25 @@ import type { Metadata } from "next";
 
 export const revalidate = 3600;
 
-export const metadata: Metadata = {
-  title: "About Nexora — Enterprise Digital Marketing Platform",
-  description:
-    "Learn about Nexora's mission, leadership, engineered growth framework, and multi-region marketing infrastructure.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const region = resolveRegion();
+  const cmsPage = await getPublicPage("about", region.code);
+  if (cmsPage) {
+    return {
+      title: cmsPage.metaTitle || cmsPage.title || "About Nexora — Enterprise Digital Marketing Platform",
+      description:
+        cmsPage.metaDescription ||
+        "Learn about Nexora's mission, leadership, engineered growth framework, and multi-region marketing infrastructure.",
+      alternates: { canonical: cmsPage.canonicalUrl || undefined },
+      robots: cmsPage.noIndex ? { index: false, follow: false } : { index: true, follow: true },
+    };
+  }
+  return {
+    title: "About Nexora — Enterprise Digital Marketing Platform",
+    description:
+      "Learn about Nexora's mission, leadership, engineered growth framework, and multi-region marketing infrastructure.",
+  };
+}
 
 const VALUES = [
   {
@@ -64,10 +79,13 @@ const LEADERSHIP = [
 export default async function AboutPage() {
   const region = resolveRegion();
 
-  const [siteSettings, headerMenu] = await Promise.all([
+  const [cmsPage, siteSettings, headerMenu] = await Promise.all([
+    getPublicPage("about", region.code),
     getPublicSiteSettings(),
     getPublicMenu("header", region.code),
   ]);
+
+  const hasCmsBlocks = cmsPage?.blocks && cmsPage.blocks.length > 0;
 
   return (
     <div className="min-h-screen flex flex-col justify-between bg-background text-foreground">
@@ -76,6 +94,12 @@ export default async function AboutPage() {
         currentRegionCode={region.code}
         menu={headerMenu}
       />
+
+      {hasCmsBlocks ? (
+        <main className="flex-1">
+          <BlockRenderer blocks={cmsPage.blocks} userRegion={region.code} />
+        </main>
+      ) : (
 
       <main className="flex-1">
         {/* Hero Section */}
@@ -182,6 +206,7 @@ export default async function AboutPage() {
           </div>
         </section>
       </main>
+      )}
 
       <Footer settings={siteSettings} />
     </div>

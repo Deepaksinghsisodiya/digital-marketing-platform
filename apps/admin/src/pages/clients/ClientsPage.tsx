@@ -9,8 +9,6 @@ import {
   useUpdateClientStatusMutation,
   useAddClientContactMutation,
   useAddClientActivityMutation,
-  useCreateTaskMutation,
-  useUpdateTaskMutation,
   useGetPipelineStagesQuery,
   useGetCountryRegionsQuery,
 } from "../../store/api/adminApi";
@@ -106,8 +104,6 @@ export const ClientsPage: React.FC = () => {
   const [updateClientStatus] = useUpdateClientStatusMutation();
   const [addContact] = useAddClientContactMutation();
   const [addActivity] = useAddClientActivityMutation();
-  const [createTask] = useCreateTaskMutation();
-  const [updateTask] = useUpdateTaskMutation();
 
   // Selected client for detail slide-over
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
@@ -148,14 +144,11 @@ export const ClientsPage: React.FC = () => {
   const [contactPhoneNational, setContactPhoneNational] = useState("");
   const [contactPhoneError, setContactPhoneError] = useState<string | null>(null);
   const [newSecondaryContactTitle, setNewSecondaryContactTitle] = useState("");
+  const [contactError, setContactError] = useState<string | null>(null);
 
   // Activity note state
   const [newActivityNote, setNewActivityNote] = useState("");
-
-  // New task state
-  const [taskModalOpen, setTaskModalOpen] = useState(false);
-  const [newTaskTitle, setNewTaskTitle] = useState("");
-  const [newTaskDueDate, setNewTaskDueDate] = useState("");
+  const [activityError, setActivityError] = useState<string | null>(null);
 
   const handlePhoneChange = (dialCode: string, national: string) => {
     setPhoneCountryCode(dialCode);
@@ -234,13 +227,11 @@ export const ClientsPage: React.FC = () => {
       if (err instanceof yup.ValidationError) {
         const msg = err.errors[0] || "Please check client inputs.";
         setCreateError(msg);
-        toast.error(msg);
         return;
       }
     }
 
     if (phoneValidationError) {
-      toast.error(phoneValidationError);
       return;
     }
 
@@ -317,6 +308,7 @@ export const ClientsPage: React.FC = () => {
   const handleAddContact = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedClientId) return;
+    setContactError(null);
     try {
       await contactSchema.validate(
         { name: newSecondaryContactName, email: newSecondaryContactEmail },
@@ -324,13 +316,12 @@ export const ClientsPage: React.FC = () => {
       );
     } catch (err: unknown) {
       if (err instanceof yup.ValidationError) {
-        toast.error(err.errors[0] || "Please enter valid contact details.");
+        setContactError(err.errors[0] || "Please enter valid contact details.");
         return;
       }
     }
 
     if (contactPhoneError) {
-      toast.error(contactPhoneError);
       return;
     }
 
@@ -362,9 +353,10 @@ export const ClientsPage: React.FC = () => {
     e.preventDefault();
     if (!selectedClientId) return;
     if (!newActivityNote.trim()) {
-      toast.error("Please enter activity note details.");
+      setActivityError("Please enter activity note details.");
       return;
     }
+    setActivityError(null);
     try {
       await addActivity({
         clientId: selectedClientId,
@@ -375,43 +367,6 @@ export const ClientsPage: React.FC = () => {
       setNewActivityNote("");
     } catch {
       toast.error("Failed to record activity.");
-    }
-  };
-
-  const handleCreateTask = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!selectedClientId) return;
-    if (!newTaskTitle.trim()) {
-      toast.error("Task title is required.");
-      return;
-    }
-    try {
-      await createTask({
-        clientId: selectedClientId,
-        title: newTaskTitle.trim(),
-        dueDateUtc: newTaskDueDate
-          ? new Date(newTaskDueDate).toISOString()
-          : null,
-      }).unwrap();
-      toast.success("Action item / task created.");
-      setTaskModalOpen(false);
-      setNewTaskTitle("");
-      setNewTaskDueDate("");
-    } catch {
-      toast.error("Failed to create task.");
-    }
-  };
-
-  const handleToggleTaskStatus = async (taskId: string, currentStatus: number) => {
-    try {
-      const nextStatus = currentStatus === 3 ? 1 : 3;
-      await updateTask({
-        id: taskId,
-        data: { status: nextStatus },
-      }).unwrap();
-      toast.success(nextStatus === 3 ? "Task marked completed!" : "Task reopened!");
-    } catch {
-      toast.error("Failed to update task status.");
     }
   };
 
@@ -649,7 +604,6 @@ export const ClientsPage: React.FC = () => {
                   <th className="px-4 py-3.5 text-left">Industry Sector</th>
                   <th className="px-4 py-3.5 text-left">Jurisdiction</th>
                   <th className="px-4 py-3.5 text-left">Status</th>
-                  <th className="px-4 py-3.5 text-left">Active Tasks</th>
                   <th className="px-5 py-3.5 text-right">Actions</th>
                 </tr>
               </thead>
@@ -788,14 +742,6 @@ export const ClientsPage: React.FC = () => {
                           <span>
                             {dynStage?.displayName || statusConf.label}
                           </span>
-                        </span>
-                      </td>
-
-                      {/* Active Tasks */}
-                      <td className="px-4 py-3.5">
-                        <span className="inline-flex items-center gap-1 font-semibold text-slate-700 dark:text-slate-300">
-                          <CheckCircle2 className="w-3.5 h-3.5 text-slate-400" />
-                          <span>{c.activeTasksCount}</span>
                         </span>
                       </td>
 
@@ -1156,85 +1102,6 @@ export const ClientsPage: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Tasks Section */}
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-xs font-black uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                      Follow-up Tasks ({clientDetail.tasks.length})
-                    </h3>
-                    <button
-                      type="button"
-                      onClick={() => setTaskModalOpen(true)}
-                      className="text-xs text-primary dark:text-primary font-bold hover:underline inline-flex items-center gap-1"
-                    >
-                      <Plus className="w-3.5 h-3.5" />
-                      Create Task
-                    </button>
-                  </div>
-                  <div className="space-y-2">
-                    {clientDetail.tasks.map((task) => {
-                      const isDone = task.status === 3;
-                      return (
-                        <div
-                          key={task.id}
-                          className="p-3 border border-slate-200/80 dark:border-slate-800/80 rounded-xl flex items-center justify-between text-xs bg-slate-50/50 dark:bg-slate-900/40"
-                        >
-                          <div className="flex items-center gap-2.5">
-                            <button
-                              type="button"
-                              onClick={() => handleToggleTaskStatus(task.id, task.status)}
-                              className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${
-                                isDone
-                                  ? "bg-emerald-600 border-emerald-600 text-white"
-                                  : "border-slate-300 dark:border-slate-600 hover:border-primary"
-                              }`}
-                              title={isDone ? "Mark in progress" : "Mark completed"}
-                            >
-                              {isDone && <CheckCircle2 className="w-3.5 h-3.5" />}
-                            </button>
-                            <div>
-                              <div
-                                className={`font-bold ${
-                                  isDone
-                                    ? "line-through text-slate-400 dark:text-slate-500"
-                                    : "text-slate-900 dark:text-white"
-                                }`}
-                              >
-                                {task.title}
-                              </div>
-                              {task.dueDateUtc && (
-                                <div className="text-slate-400 text-[11px] mt-0.5 flex items-center gap-1">
-                                  <Calendar className="w-3 h-3" />
-                                  <span>
-                                    Due:{" "}
-                                    {new Date(task.dueDateUtc).toLocaleDateString()}
-                                  </span>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                          <button
-                            type="button"
-                            onClick={() => handleToggleTaskStatus(task.id, task.status)}
-                            className={`px-2 py-0.5 rounded-full text-[10px] font-bold cursor-pointer transition ${
-                              isDone
-                                ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20"
-                                : "bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20 hover:bg-amber-500/20"
-                            }`}
-                          >
-                            {isDone ? "Completed" : "In Progress"}
-                          </button>
-                        </div>
-                      );
-                    })}
-                    {clientDetail.tasks.length === 0 && (
-                      <p className="text-xs text-slate-400">
-                        No scheduled tasks for this account.
-                      </p>
-                    )}
-                  </div>
-                </div>
-
                 {/* Activities / Timeline Section */}
                 <div className="space-y-3">
                   <h3 className="text-xs font-black uppercase tracking-wider text-slate-500 dark:text-slate-400">
@@ -1242,21 +1109,29 @@ export const ClientsPage: React.FC = () => {
                   </h3>
 
                   {/* Add note input */}
-                  <form onSubmit={handleAddActivity} className="flex gap-2">
-                    <input
-                      type="text"
-                      placeholder="Log meeting summary, executive note, or CRM update..."
-                      value={newActivityNote}
-                      onChange={(e) => setNewActivityNote(e.target.value)}
-                      className="flex-1 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3 py-2 text-xs focus:ring-2 focus:ring-primary"
-                    />
-                    <button
-                      type="submit"
-                      className="px-4 py-2 bg-primary text-white rounded-xl text-xs font-bold hover:bg-primary transition shadow-sm"
-                    >
-                      Post Note
-                    </button>
-                  </form>
+                  <div className="space-y-1">
+                    <form onSubmit={handleAddActivity} className="flex gap-2">
+                      <input
+                        type="text"
+                        placeholder="Log meeting summary, executive note, or CRM update..."
+                        value={newActivityNote}
+                        onChange={(e) => {
+                          setNewActivityNote(e.target.value);
+                          if (activityError) setActivityError(null);
+                        }}
+                        className="flex-1 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3 py-2 text-xs focus:ring-2 focus:ring-primary"
+                      />
+                      <button
+                        type="submit"
+                        className="px-4 py-2 bg-primary text-white rounded-xl text-xs font-bold hover:bg-primary transition shadow-sm"
+                      >
+                        Post Note
+                      </button>
+                    </form>
+                    {activityError && (
+                      <p className="text-[11px] text-red-500 font-medium">{activityError}</p>
+                    )}
+                  </div>
 
                   <div className="border border-slate-200/80 dark:border-slate-800/80 rounded-xl p-3 bg-slate-50/50 dark:bg-slate-900/40 space-y-3 max-h-60 overflow-y-auto">
                     {clientDetail.activities.map((act) => (
@@ -1537,6 +1412,12 @@ export const ClientsPage: React.FC = () => {
             </div>
 
             <form onSubmit={handleAddContact} className="space-y-3.5 text-xs">
+              {contactError && (
+                <div className="p-2.5 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 text-xs font-medium flex items-center gap-2">
+                  <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                  <span>{contactError}</span>
+                </div>
+              )}
               <div>
                 <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
                   Full Name <span className="text-red-500">*</span>
@@ -1768,57 +1649,6 @@ export const ClientsPage: React.FC = () => {
         </div>
       )}
 
-      {/* Add Task Modal */}
-      {taskModalOpen && selectedClientId && (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 border border-slate-200/80 dark:border-slate-800/80 rounded-2xl shadow-2xl max-w-sm w-full p-6 space-y-4">
-            <h3 className="font-black text-slate-900 dark:text-white text-sm">
-              Schedule SLA Task
-            </h3>
-            <form onSubmit={handleCreateTask} className="space-y-3 text-xs">
-              <div>
-                <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
-                  Task Title
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={newTaskTitle}
-                  onChange={(e) => setNewTaskTitle(e.target.value)}
-                  placeholder="e.g. Deliver Q1 Campaign Attribution Audit"
-                  className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 p-2"
-                />
-              </div>
-              <div>
-                <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
-                  Target Due Date
-                </label>
-                <input
-                  type="date"
-                  value={newTaskDueDate}
-                  onChange={(e) => setNewTaskDueDate(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 p-2"
-                />
-              </div>
-              <div className="flex justify-end gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
-                <button
-                  type="button"
-                  onClick={() => setTaskModalOpen(false)}
-                  className="px-3 py-1.5 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-700 dark:text-slate-300"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-3.5 py-1.5 bg-primary text-white rounded-xl font-bold hover:bg-primary shadow-sm"
-                >
-                  Create Task
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

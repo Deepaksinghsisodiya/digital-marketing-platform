@@ -18,32 +18,15 @@ interface FaqItem {
 export const FaqBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
   const { content } = block;
   const title = (content.title as string) || "Frequently Asked Questions";
-  const rawItems = (content.items as Array<FaqItem & { enabled?: boolean }>) || [
-    {
-      question:
-        "How quickly can Nexora deploy our custom marketing infrastructure?",
-      answer:
-        "Initial campaigns and tracking architecture typically go live within 7 to 14 business days, with real-time attribution and CRM synchronization enabled from day one.",
-    },
-    {
-      question: "Does Nexora support global multi-country campaigns worldwide?",
-      answer:
-        "Yes. Nexora natively handles multi-region routing, localized currencies (USD, EUR, GBP, INR, AED, SGD), international phone formatting, and global regulatory compliance (DPDP, GDPR, CCPA).",
-    },
-    {
-      question:
-        "Can our marketing team edit website pages without developer support?",
-      answer:
-        "Yes, our modern Admin portal provides a visual block builder to update headlines, banners, features, and blog content with live preview and version rollback.",
-    },
-    {
-      question: "How do you track and verify revenue attribution accurately?",
-      answer:
-        "We use privacy-compliant, direct server tracking that syncs with Google Ads, Meta, and your CRM. This bypasses browser cookie loss, providing 99.8% accurate attribution so you know exactly which campaigns generated revenue.",
-    },
-  ];
+  const rawItems = Array.isArray(content?.items)
+    ? (content.items as Array<FaqItem & { enabled?: boolean }>)
+    : [];
 
-  const items = rawItems.filter((i) => i.enabled !== false);
+  const items = rawItems.filter((i) => i && i.enabled !== false && i.question);
+
+  if (items.length === 0) {
+    return null;
+  }
 
   // FAQPage JSON-LD Schema
   const faqSchema = {

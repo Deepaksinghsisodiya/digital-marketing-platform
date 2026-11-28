@@ -86,7 +86,7 @@ export const CaseStudiesBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
   const rawActive = rawCaseStudies.filter(
     (item) => item && item.enabled !== false && item.title && item.client,
   );
-  const activeStudies = rawActive.length > 0 ? rawActive : DEFAULT_CASE_STUDIES;
+  const activeStudies = rawActive;
 
   const categories = [
     "All",

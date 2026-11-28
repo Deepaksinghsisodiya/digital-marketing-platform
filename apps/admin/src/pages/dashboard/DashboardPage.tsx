@@ -95,31 +95,8 @@ export const DashboardPage: React.FC = () => {
   }
 
   const velocityData: VelocityPoint[] = useMemo(() => {
-    if (timeframe === "7d") {
-      return [
-        { label: "Mon", leads: 4, qualified: 2 },
-        { label: "Tue", leads: 7, qualified: 3 },
-        { label: "Wed", leads: 5, qualified: 2 },
-        { label: "Thu", leads: 11, qualified: 5 },
-        { label: "Fri", leads: 9, qualified: 4 },
-        { label: "Sat", leads: 3, qualified: 1 },
-        { label: "Sun", leads: 6, qualified: 3 },
-      ];
-    } else if (timeframe === "30d") {
-      return [
-        { label: "W1", leads: 28, qualified: 12 },
-        { label: "W2", leads: 35, qualified: 16 },
-        { label: "W3", leads: 42, qualified: 19 },
-        { label: "W4", leads: 49, qualified: 24 },
-      ];
-    } else {
-      return [
-        { label: "Sep", leads: 120, qualified: 54 },
-        { label: "Oct", leads: 145, qualified: 68 },
-        { label: "Nov", leads: 180, qualified: 82 },
-      ];
-    }
-  }, [timeframe]);
+    return analyticsData?.velocitySeries ?? [];
+  }, [analyticsData]);
 
   const isKpiLoading =
     isUsersLoading || isClientsLoading || isStatsLoading || isAuditLoading;
@@ -469,43 +446,47 @@ export const DashboardPage: React.FC = () => {
 
             {/* Visual Bar Chart */}
             <div className="space-y-2 pt-2">
-              <div className="h-44 flex items-end gap-2 sm:gap-4 pt-6 pb-2 px-2 border-b border-slate-100 dark:border-slate-800/80">
-                {velocityData.map((d, i) => {
-                  const max = Math.max(...velocityData.map((v) => v.leads), 1);
-                  const heightPercent = Math.round((d.leads / max) * 100);
-                  const qualifiedHeight = Math.round(
-                    (d.qualified / max) * 100,
-                  );
-                  return (
-                    <div
-                      key={i}
-                      className="flex-1 flex flex-col items-center h-full justify-end group relative"
-                    >
-                      {/* Tooltip on hover */}
-                      <div className="absolute -top-10 opacity-0 group-hover:opacity-100 transition-opacity bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900 px-2.5 py-1 rounded-md text-[10px] font-bold pointer-events-none shadow-md z-10 whitespace-nowrap">
-                        {d.leads} Total &bull; {d.qualified} Qualified
-                      </div>
-
-                      {/* Bar Stack */}
+              {velocityData.length === 0 ? (
+                <div className="h-44 flex items-center justify-center border-b border-slate-100 dark:border-slate-800/80 text-xs text-slate-400">
+                  Loading live lead telemetry...
+                </div>
+              ) : (
+                <div className="h-44 flex items-end gap-2 sm:gap-4 pt-6 pb-2 px-2 border-b border-slate-100 dark:border-slate-800/80">
+                  {velocityData.map((d, i) => {
+                    const max = Math.max(...velocityData.map((v) => v.leads), 1);
+                    const heightPercent = d.leads > 0 ? Math.max(6, Math.round((d.leads / max) * 100)) : 2;
+                    const qualifiedHeight = d.leads > 0 ? Math.round((d.qualified / d.leads) * 100) : 0;
+                    return (
                       <div
-                        className="w-full max-w-[42px] bg-primary/10 rounded-t-lg overflow-hidden flex flex-col justify-end group-hover:brightness-110 transition-all"
-                        style={{ height: `${heightPercent}%` }}
+                        key={i}
+                        className="flex-1 flex flex-col items-center h-full justify-end group relative"
                       >
+                        {/* Tooltip on hover */}
+                        <div className="absolute -top-10 opacity-0 group-hover:opacity-100 transition-opacity bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900 px-2.5 py-1 rounded-md text-[10px] font-bold pointer-events-none shadow-md z-10 whitespace-nowrap">
+                          {d.leads} Total &bull; {d.qualified} Qualified
+                        </div>
+
+                        {/* Bar Stack */}
                         <div
-                          className="w-full bg-primary rounded-t-sm transition-all duration-500"
-                          style={{ height: `${qualifiedHeight}%` }}
-                        />
+                          className="w-full max-w-[42px] bg-primary/15 rounded-t-lg overflow-hidden flex flex-col justify-end group-hover:brightness-110 transition-all"
+                          style={{ height: `${heightPercent}%` }}
+                        >
+                          <div
+                            className="w-full bg-primary rounded-t-sm transition-all duration-500"
+                            style={{ height: `${qualifiedHeight}%` }}
+                          />
+                        </div>
+                        <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 mt-2 font-mono truncate">
+                          {d.label}
+                        </span>
                       </div>
-                      <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 mt-2 font-mono truncate">
-                        {d.label}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
+                    );
+                  })}
+                </div>
+              )}
 
               {/* Legend */}
-              <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 pt-1">
+              <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500 dark:text-slate-400 pt-1">
                 <div className="flex items-center gap-4">
                   <span className="flex items-center gap-1.5 text-[11px]">
                     <span className="w-2.5 h-2.5 rounded-sm bg-primary/20" />
@@ -517,9 +498,26 @@ export const DashboardPage: React.FC = () => {
                   </span>
                 </div>
                 <span className="text-[11px] font-mono text-emerald-600 dark:text-emerald-400 font-semibold">
-                  Avg +24.8% velocity MoM
+                  {analyticsData?.qualificationRate ?? 0}% SQL Conversion Rate
                 </span>
               </div>
+
+              {analyticsData?.sourceBreakdown && analyticsData.sourceBreakdown.length > 0 && (
+                <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-100 dark:border-slate-800/60">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                    Top Sources:
+                  </span>
+                  {analyticsData.sourceBreakdown.map((s) => (
+                    <span
+                      key={s.source}
+                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-[11px] font-medium text-slate-700 dark:text-slate-300"
+                    >
+                      <span className="capitalize">{s.source}</span>
+                      <span className="font-mono font-bold text-primary">{s.count}</span>
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
           </Card>
         )}

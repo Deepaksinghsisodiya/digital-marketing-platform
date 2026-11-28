@@ -36,6 +36,7 @@ export const BookingEmbed: React.FC<{ block: CmsBlock }> = ({ block }) => {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [bookingSuccess, setBookingSuccess] = useState<string | null>(null);
   const [timeTrapToken, setTimeTrapToken] = useState<string | null>(null);
+  const [formErrors, setFormErrors] = useState<{ clientName?: string; workEmail?: string }>({});
 
   useEffect(() => {
     const apiBase =
@@ -76,6 +77,7 @@ export const BookingEmbed: React.FC<{ block: CmsBlock }> = ({ block }) => {
 
   const handleSlotBooking = async (e: React.FormEvent) => {
     e.preventDefault();
+    setFormErrors({});
     try {
       await bookingSchema.validate(
         { clientName, workEmail },
@@ -83,7 +85,12 @@ export const BookingEmbed: React.FC<{ block: CmsBlock }> = ({ block }) => {
       );
     } catch (err: unknown) {
       if (err instanceof yup.ValidationError) {
-        toast.error(err.errors[0] || "Please enter valid booking details.");
+        const errs: { clientName?: string; workEmail?: string } = {};
+        err.inner.forEach((ve) => {
+          if (ve.path === "clientName" && !errs.clientName) errs.clientName = ve.message;
+          if (ve.path === "workEmail" && !errs.workEmail) errs.workEmail = ve.message;
+        });
+        setFormErrors(errs);
         return;
       }
     }
@@ -279,29 +286,47 @@ export const BookingEmbed: React.FC<{ block: CmsBlock }> = ({ block }) => {
                   <p className="text-xs text-slate-700 leading-relaxed">{bookingSuccess}</p>
                 </div>
               ) : (
-                <form onSubmit={handleSlotBooking} className="max-w-xl mx-auto space-y-4 bg-slate-50/70 p-6 rounded-2xl border border-slate-200">
+                <form onSubmit={handleSlotBooking} noValidate className="max-w-xl mx-auto space-y-4 bg-slate-50/70 p-6 rounded-2xl border border-slate-200">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-xs font-semibold text-slate-700 mb-1">Your Name *</label>
                       <input
                         type="text"
-                        required
                         value={clientName}
-                        onChange={(e) => setClientName(e.target.value)}
+                        onChange={(e) => {
+                          setClientName(e.target.value);
+                          if (formErrors.clientName) setFormErrors((p) => ({ ...p, clientName: undefined }));
+                        }}
                         placeholder="John Doe"
-                        className="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-xs bg-white focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none"
+                        className={`w-full rounded-xl border px-3.5 py-2.5 text-xs bg-white focus:outline-none ${
+                          formErrors.clientName
+                            ? "border-rose-400 focus:border-rose-500"
+                            : "border-slate-300 focus:border-primary focus:ring-1 focus:ring-primary"
+                        }`}
                       />
+                      {formErrors.clientName && (
+                        <p className="text-[11px] font-medium text-rose-600 mt-1">{formErrors.clientName}</p>
+                      )}
                     </div>
                     <div>
                       <label className="block text-xs font-semibold text-slate-700 mb-1">Work Email *</label>
                       <input
                         type="email"
-                        required
                         value={workEmail}
-                        onChange={(e) => setWorkEmail(e.target.value)}
+                        onChange={(e) => {
+                          setWorkEmail(e.target.value);
+                          if (formErrors.workEmail) setFormErrors((p) => ({ ...p, workEmail: undefined }));
+                        }}
                         placeholder="john@company.com"
-                        className="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-xs bg-white focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none"
+                        className={`w-full rounded-xl border px-3.5 py-2.5 text-xs bg-white focus:outline-none ${
+                          formErrors.workEmail
+                            ? "border-rose-400 focus:border-rose-500"
+                            : "border-slate-300 focus:border-primary focus:ring-1 focus:ring-primary"
+                        }`}
                       />
+                      {formErrors.workEmail && (
+                        <p className="text-[11px] font-medium text-rose-600 mt-1">{formErrors.workEmail}</p>
+                      )}
                     </div>
                   </div>
 

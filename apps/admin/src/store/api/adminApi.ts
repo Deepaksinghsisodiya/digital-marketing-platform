@@ -1043,6 +1043,9 @@ export const adminApi = apiSlice.injectEndpoints({
         startDateUtc: string;
         endDateUtc: string;
         funnel: { total: number; new: number; inProgress: number; contacted: number; qualified: number; closed: number };
+        qualificationRate: number;
+        velocitySeries: Array<{ label: string; leads: number; qualified: number }>;
+        sourceBreakdown: Array<{ source: string; count: number }>;
         revenue: {
           totalBilled: number;
           totalPaid: number;

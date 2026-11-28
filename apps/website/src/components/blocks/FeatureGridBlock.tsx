@@ -105,7 +105,7 @@ export const FeatureGridBlock: React.FC<{ block: CmsBlock }> = ({ block }) => {
       ? (content.services as Array<FeatureItem & { link?: string; enabled?: boolean }>)
       : Array.isArray(content?.features) && content.features.length > 0
         ? (content.features as Array<FeatureItem & { link?: string; enabled?: boolean }>)
-        : defaultFeatures;
+        : [];
 
   const features = incomingList.filter(
     (f) => (f as { enabled?: boolean }).enabled !== false && f.title,

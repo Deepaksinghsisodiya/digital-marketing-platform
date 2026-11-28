@@ -237,6 +237,14 @@ public static class StartupSeeder
               { "id": "phone", "name": "phone", "label": "Phone Number", "type": "tel", "required": false, "mapsTo": "Phone", "placeholder": "+1 (555) 000-0000" },
               { "id": "company", "name": "company", "label": "Company", "type": "text", "required": false, "mapsTo": "Company", "placeholder": "Acme Corp" },
               { "id": "region", "name": "region", "label": "Region", "type": "select", "required": false, "mapsTo": "Region", "defaultValue": "in" },
+              { "id": "service", "name": "service", "label": "Service Interest", "type": "text", "required": false, "mapsTo": null },
+              { "id": "budget", "name": "budget", "label": "Budget", "type": "text", "required": false, "mapsTo": null },
+              { "id": "websiteUrl", "name": "websiteUrl", "label": "Website URL", "type": "text", "required": false, "mapsTo": null },
+              { "id": "inquiryType", "name": "inquiryType", "label": "Inquiry Type", "type": "text", "required": false, "mapsTo": null },
+              { "id": "meetingDuration", "name": "meetingDuration", "label": "Meeting Duration", "type": "text", "required": false, "mapsTo": null },
+              { "id": "preferredDate", "name": "preferredDate", "label": "Preferred Date", "type": "text", "required": false, "mapsTo": null },
+              { "id": "preferredTimeWindow", "name": "preferredTimeWindow", "label": "Preferred Time Window", "type": "text", "required": false, "mapsTo": null },
+              { "id": "landingPageUrl", "name": "landingPageUrl", "label": "Landing Page URL", "type": "text", "required": false, "mapsTo": null },
               { "id": "message", "name": "message", "label": "Message / Project Scope", "type": "textarea", "required": false, "mapsTo": null, "placeholder": "Tell us about your requirements..." }
             ]
             """;
